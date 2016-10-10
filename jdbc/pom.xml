@@ -11,7 +11,7 @@
     <packaging>pom</packaging>
     <name>jdbc</name>
     <modules>
-        <module>jdbc-demo</module>
+        <!-- <module>jdbc-demo</module> -->
     </modules>
 	
 	<dependencies>
