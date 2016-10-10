@@ -1,4 +1,4 @@
-package callCCGWebService;
+package callCCGWebService1;
 
 import java.io.Serializable;
 
