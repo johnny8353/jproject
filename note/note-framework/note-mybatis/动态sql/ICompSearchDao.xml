@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zte.mcrm.compSearch.access.compSearch.dao.ICompSearchDao">
+	<resultMap id="BaseResultMap"
+		type="com.zte.mcrm.compSearch.access.compSearch.vo.CompSearchVO">
+		<result column="LPDDATE" property="lpdDate" jdbcType="VARCHAR" />
+		<result column="DEPT_ID" property="deptId" jdbcType="VARCHAR" />
+		<result column="reverse5" property="reverse5" jdbcType="VARCHAR" />
+	</resultMap>
+
+
+	<sql id='condition'>
+		<where>
+		</where>
+	</sql>
+	
+	<sql id='getEmpIdByLogin'>
+		(select row_id from s_user where login = #{U})
+	</sql>
+
+	<sql id='projSearchSql'>
+		<if test="searchType == '02'"><!-- 快捷查询 -->
+			<if test="quickType == '01'"><!-- 营销 -->
+				and exists
+				(SELECT 1
+				FROM s_party_rpt_rel r
+				where r.sub_party_id = t.DEPT_ID
+				and r.party_id =  #{dataId})
+			</if>
+			<if test="quickType == '02'">
+				<if test="quickLevel == '01'"><!-- 产品归属 -->
+					and exists
+					(SELECT 1
+					FROM CX_PROJECT_PROD prod2
+					left join s_prod_int h2
+					on h2.row_id = prod2.pro_lev2_id
+					where prod2.proj_id = t.INFOID
+					and
+					h2.par_prod_int_id = #{dataId})
+				</if>
+				<if test="quickLevel == '02'"><!-- 产品线 -->
+					and exists
+					(SELECT 1
+					FROM CX_PROJECT_PROD prod2
+					left join S_PROD_INT h2
+					on h2.row_id = prod2.par_prod_id
+					where prod2.proj_id = t.INFOID
+					and h2.par_prod_int_id = #{dataId})
+                </if>
+				<if test="quickLevel == '03'"><!-- 产品大类 -->
+					and exists
+					(SELECT 1
+					FROM CX_PROJECT_PROD prod2
+					where prod2.proj_id = t.INFOID
+					and prod2.par_prod_id = #{dataId})
+                </if>
+			</if>
+			<if test="quickType == '03'">
+				<if test="quickLevel == '01'"><!-- MTO值列表Code -->
+					and mtocode =
+					(SELECT name
+					FROM s_lst_of_val t
+					where t.row_id = #{dataId})
+				</if>
+			</if>
+			<if test="quickType == '04'">
+				<if test="quickLevel == '01'"><!-- 行业值列表Code -->
+					and trade_code = #{dataId}
+				</if>
+				<if test="quickLevel == '02'"><!-- 子行业值列表Code -->
+					and son_trade_code = #{dataId}
+				</if>
+			</if>
+
+		</if>
+		<if test="searchType == '01'"><!-- 关键字查询 -->
+			and (UPPER(t.INFONAME) like CONCAT(CONCAT('%', #{str}), '%') escape
+			'/' or UPPER(t.INFOCODE) like CONCAT(CONCAT('%', #{str}), '%')
+			escape
+			'/' or UPPER(t.SEARCH1) like CONCAT(CONCAT('%', #{str}), '%')
+			escape
+			'/' or UPPER(t.OBJECTSTATUS) like  CONCAT(CONCAT('%', #{str}), '%')
+			escape '/')
+		</if>
+		<!-- 安全性 -->
+		and (exists
+		(select 1
+		from siebel.S_PROJ_RSRC j1
+		left join
+		siebel.CX_PROJ_RSRC_X j2
+		on j2.row_id = j1.row_id
+		where j1.proj_id =
+		t.INFOID
+		and j2.X_ACTIVE_FLG = 'Y'
+		and j1.emp_id = <include refid='getEmpIdByLogin' />)
+			
+		<if test="orgVisibleOrgStr != ''"><!-- org -->
+			or exists (select 1
+			from siebel.s_party_rpt_rel p52
+			where p52.sub_party_id = t.DEPT_ID
+			and p52.party_id in (${orgVisibleOrgStr}))
+		</if>
+		<if test="mtoVisibleOrgStr != ''"><!-- mto -->
+			or
+			(exists
+			(select 1
+			from siebel.s_party_rpt_rel p52
+			where p52.sub_party_id = t.DEPT_ID
+			and p52.party_id in (${mtoVisibleOrgStr})) and exists
+			(SELECT 1
+			from CX_MTO_EMP q31
+			left join CX_ACC_MTO_EMP q32
+			on q31.MTO_ID = q32.row_id
+			where q32.MTO_CODE = t.MTOCODE
+			and q31.emp_id = <include refid='getEmpIdByLogin' />))
+		</if>
+		<if test="tradeVisibleOrgStr != ''"><!-- trade -->
+			or
+			(exists
+			(select 1
+			from siebel.s_party_rpt_rel p52
+			where p52.sub_party_id = t.DEPT_ID
+			and p52.party_id in (${tradeVisibleOrgStr})) and
+			((exists
+			(SELECT 1
+			from CX_TRADE_EMP q31
+			left join CX_ACC_TRADE q32
+			on (q31.trade_id = q32.row_id and
+			q32.child_trade_flag = 'N')
+			where q32.parent_trade_code = t.TRADE_CODE
+			and q31.emp_id = <include refid='getEmpIdByLogin' />) or exists
+			(SELECT 1
+			from CX_TRADE_EMP q31
+			left join CX_ACC_TRADE q32
+			on q31.trade_id = q32.row_id
+			where q32.CHILD_TRADE_CODE =
+			t.SON_TRADE_CODE and q32.parent_trade_code = t.TRADE_CODE
+			and q31.emp_id = <include refid='getEmpIdByLogin' />))))
+		</if>
+		<if test="prodVisibleOrgStr != ''"><!-- prod -->
+			or
+			(exists
+			(select 1
+			from siebel.s_party_rpt_rel p52
+			where p52.sub_party_id = t.DEPT_ID
+			and p52.party_id in (${prodVisibleOrgStr})) and
+			(exists (select 1
+			from CX_PROJECT_PROD q32
+			where q32.proj_id = t.INFOID
+			and q32.active_flg = 'Y'
+			and exists
+			(select 1
+			from CX_PROD_EMP q33
+			where q33.prod_id =
+			(SELECT PAR_PROD_INT_ID
+			FROM S_PROD_INT q34
+			where q34.row_id =
+			q32.PAR_PROD_ID)
+			and q33.emp_id = <include refid='getEmpIdByLogin' />)) or
+			exists
+			(select 1
+			from CX_PROJECT_PROD q32
+			where q32.proj_id = t.INFOID
+			and q32.active_flg = 'Y'
+			and exists
+			(select 1
+			from CX_PROD_EMP q33
+			where q33.PROD_ID = q32.PRO_LEV2_ID
+			and q33.emp_id = <include refid='getEmpIdByLogin' />)) or
+			exists
+			(select 1
+			from CX_PROJECT_PROD q32
+			where q32.proj_id = t.INFOID
+			and q32.active_flg = 'Y'
+			and exists
+			(select 1
+			from CX_PROD_EMP q33
+			where q33.PROD_ID = q32.PROD_ID
+			and q33.emp_id = <include refid='getEmpIdByLogin' />))))
+		</if>
+		)
+		<if test="lstupd != ''">
+			<![CDATA[
+			and LPDDATE<=to_date(#{lstupd},'yyyy-MM-dd HH24:mi:ss')
+			]]>
+		</if>
+	</sql>
+
+	<sql id='appSearchSql'>
+		<if test="searchType == '02'">
+			<if test="quickType == '01'"><!-- 营销 -->
+				and exists
+				(SELECT 1
+				FROM s_party_rpt_rel r
+				where r.sub_party_id = t.DEPT_ID
+				and r.party_id = #{dataId})
+			</if>
+			<if test="quickType == '02'">
+				<if test="quickLevel == '01'"><!-- 产品归属-->
+					and exists
+					(SELECT 1
+					FROM CX_PROJ_PROD prod
+					left join S_PROD_INT h1
+					on h1.row_id = prod.prod_lev2
+					where prod.proj_app_id = t.INFOID
+					and h1.par_prod_int_id = #{dataId})
+				</if>
+				<if test="quickLevel == '02'"><!-- 产品线 -->
+					and exists
+					(SELECT 1
+					FROM CX_PROJ_PROD prod
+					left join S_PROD_INT h1
+					on h1.row_id = prod.PAR_PROD_ID
+					where prod.proj_app_id = t.INFOID
+					and h1.PAR_PROD_INT_ID = #{dataId})
+                </if>
+				<if test="quickLevel == '03'"><!-- 产品大类 -->
+					and exists
+					(SELECT 1
+					FROM CX_PROJ_PROD prod
+					where prod.proj_app_id = t.INFOID
+					and prod.PAR_PROD_ID = #{dataId})
+                </if>
+			</if>
+			<if test="quickType == '03'">
+				<if test="quickLevel == '01'"><!-- MTO值列表Code -->
+					and mtocode =
+					(SELECT name
+					FROM s_lst_of_val t
+					where t.row_id = #{dataId})
+				</if>
+			</if>
+			<if test="quickType == '04'">
+				<if test="quickLevel == '01'"><!-- 行业值列表Code -->
+					and trade_code = #{dataId}
+				</if>
+				<if test="quickLevel == '02'"><!-- 子行业值列表Code -->
+					and son_trade_code = #{dataId}
+				</if>
+			</if>
+		</if>
+		<if test="searchType == '01'"><!-- 关键字查询 -->
+			and (UPPER(t.INFONAME) like CONCAT(CONCAT('%', #{str}), '%') escape
+			'/' or UPPER(OBJECTSTATUS) like CONCAT(CONCAT('%', #{str}), '%')
+			escape '/')
+		</if>
+		<!-- 安全性 -->
+		and (exists
+		(select 1
+		from siebel.CX_PROJ_APP_EMP j21
+		left join CX_PROJ_APP_EMP_X j22
+		on j22.row_id = j21.row_id
+		where j22.X_ACTIVE_FLG = 'Y'
+		AND j21.proj_id = t.INFOID
+		and j21.emp_id = <include refid='getEmpIdByLogin' />)
+		<if test="orgVisibleOrgStr != ''">
+		 or exists
+		(select 1
+		from siebel.s_party_rpt_rel p52
+		where p52.sub_party_id = t.DEPT_ID
+		and p52.party_id in (${orgVisibleOrgStr}))
+		</if>
+		)
+		<if test="lstupd != ''">
+			<![CDATA[
+			and LPDDATE<=to_date(#{lstupd},'yyyy-MM-dd HH24:mi:ss')
+			]]>
+		</if>
+	</sql>
+
+	<select id="queryProjPagnation"
+		parameterType="com.zte.mcrm.compSearch.model.compSearch.CompSearchBO"
+		resultMap="BaseResultMap">
+				select *
+				from (
+				(select
+				"INFOID",
+				"INFOCODE",
+				"INFONAME",
+				"DEPT_ID",
+				(SELECT s2.x_chs_name from s_org_ext s2 where row_id=t.DEPT_ID ) infoDeptName,
+				"ATTR1",
+				"ATTR2",
+				"ATTR3",
+				getlovval('PROJECT_STATUS',"OBJECTSTATUS") OBJECTSTATUS,
+				to_char("LPDDATE",'yyyy-mm-dd hh24:mi:ss') LPDDATE,
+				"INFOTYPE",
+				"MYTYPE",
+				"FORCASTSIGNMONEY",
+				"OBJLEVELORMENEY",
+				"OBJECTSTATUSORDER",
+				"OBJECTSTATUSFLAG",
+				"CREATEDATE",
+				"REVERSE1",
+				"REVERSE2",
+				"REVERSE3",
+				"REVERSE4",
+				"REVERSE5"
+				from ZTE_MCRM_SYNCCOMP_PRO_V t where 1=1 ${selectCode}
+				<include refid='projSearchSql' />
+				)
+				union all
+				(select
+				"INFOID",
+				"INFOCODE",
+				"INFONAME",
+				"DEPT_ID",
+				(SELECT s2.x_chs_name from s_org_ext s2 where row_id=t.DEPT_ID ) infoDeptName,
+				"ATTR1",
+				"ATTR2",
+				"ATTR3",
+				getlovval('ZTE_PRO_APP_STATUS',"OBJECTSTATUS") OBJECTSTATUS,
+				to_char("LPDDATE",'yyyy-mm-dd hh24:mi:ss') LPDDATE,
+				"INFOTYPE",
+				"MYTYPE",
+				"FORCASTSIGNMONEY",
+				"OBJLEVELORMENEY",
+				"OBJECTSTATUSORDER",
+				"OBJECTSTATUSFLAG",
+				"CREATEDATE",
+				"REVERSE1",
+				"REVERSE2",
+				"REVERSE3",
+				"REVERSE4",
+				"REVERSE5"
+				from ZTE_MCRM_SYNCCOMP_APP_V t where 1=1 ${selectCode}
+			<include refid='appSearchSql' />
+			)
+			) where 1=1
+			${orderBy}
+	</select>
+	<select id="queryProjCount"
+		parameterType="com.zte.mcrm.compSearch.model.compSearch.CompSearchBO"
+		resultType="int">
+		select count(1)
+		from (
+		(select 1 from ZTE_MCRM_SYNCCOMP_PRO_V t where 1=1 ${selectCode} <include refid='projSearchSql' /> )
+		union all
+		(select 1 from ZTE_MCRM_SYNCCOMP_APP_V t where 1=1 ${selectCode} <include refid='appSearchSql' /> )
+		) where 1=1 
+	
+	</select>
+
+	<select id="queryAvailableOrg"
+		parameterType="com.zte.mcrm.compSearch.model.compSearch.CompSearchBO"
+		resultType="java.util.HashMap">
+		SELECT p.row_id,
+		       p3.bu_id,
+		       p4.proj_sect,
+		       p4.ACCNT_SECT,
+		       p4.APP_SECT,
+		       p4.LEAD_SECT,
+		       p4.OPPTY_SECT
+		  FROM S_PARTY_PER p
+		  left join s_postn p3
+		    on p.party_id = p3.row_id
+		  left join CX_POST_SECT p4
+		    on p4.POSITION_TYPE = p3.POSTN_TYPE_CD
+		 where exists (SELECT 1
+		          from s_user p2
+		         where p2.row_id = p.person_id
+		           and p2.login = #{U}) and p3.bu_id is not null
+	</select>
+	
+</mapper>

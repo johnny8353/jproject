@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>title</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+<script type="text/javascript" src="../../js/CommFun.js" ></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+<script type="text/javascript">
+function SetCheckBoxListForCheckLevel(strTextId, strHideId, strDivId, strChkId, strPostBackId)
+{        
+	var hid = document.getElementById(strHideId);
+	if (hid != null && hid.value != "")
+	{
+		SetCheckBoxList(strTextId, strHideId, strDivId, strChkId, strPostBackId);
+	}        
+}
+function SetCheckBoxListForCheck(strTextId, strHideId, strDivId, strChkId, strPostBackId)
+{        
+	var hid = document.getElementById(strHideId);
+	if (hid != null && hid.value != "")
+	{
+		SetCheckBoxList(strTextId, strHideId, strDivId, strChkId, strPostBackId);
+	}        
+}
+</script>
+<script  language="JavaScript"  type="text/javascript">
+//定义了城市的二维数组，里面的顺序跟省份的顺序是相同的。通过selectedIndex获得省份的下标值来得到相应的城市数组
+var  Pro=[
+["小类1一","小类2二","小类3三","小类4四"],
+["小类01","小类02","小类03","小类04"],
+["小类①","小类②","小类③","小类④"],
+["小类_1","小类_2","小类_3","小类_4"],
+["类_01","类_02","类_03","类_04"],
+];
+
+function  getPro(){
+//获得省份下拉框的对象
+var  sltBigPro=document.form1.BigPro;
+//获得城市下拉框的对象
+var  sltPro=document.form1.Pro;
+
+//得到对应省份的城市数组
+var  BigProPro=Pro[sltBigPro.selectedIndex  -  1];
+
+//清空城市下拉框，仅留提示选项
+sltPro.length=1;
+
+//将城市数组中的值填充到城市下拉框中
+for(var  i=0;i<BigProPro.length;i++){
+sltPro[i+1]=new  Option(BigProPro[i],BigProPro[i]);
+}
+}
+</script>
+</head>
+<body>
+<div id="content">
+  <div id="position">当前位置：常用组件&gt;选择组件&gt;产品选择</div>
+  <form id="form1" action="" method="post" name="from1">
+    <table cellpadding="0" cellspacing="1" class="tb_input">
+      <tr>
+        <td colspan="2" class="note">产品选择</td>
+      </tr>
+      <tr>
+        <td class="td_title" width="20%">产品选择(单选)</td>
+        <td><input type="text" name="txtNo" class="txt_150"/>
+          <img src="../../images/icons/search2.gif"  alt="选择部门" style="cursor:pointer" onclick="openwin_nobar('../formStyle/selectP.html','',350,500)"/> &nbsp;<span class="tips">可输可选LOV:常用于查询条件</span></td>
+      </tr>
+      <tr>
+        <td class="td_title">产品选择(单选)</td>
+        <td><input type="text" name="txtNo" class="txt_150" readonly="readonly"/>
+          <img src="../../images/icons/search2.gif"  alt="选择部门" style="cursor:pointer" onclick="openwin_nobar('../formStyle/selectP.html','',350,500);"/> &nbsp;<span class="tips">不可输可选</span></td>
+      </tr>
+      <tr>
+        <td class="td_title">产品选择(单选)</td>
+        <td><input type="text" name="txtNo" class="txt_150" readonly="readonly"/>
+          <img src="../../images/icons/search2.gif"  alt="选择部门" style="cursor:pointer" onclick="openwinIE('../formStyle/selectP.html','',400,550);"/> &nbsp;<span class="tips">不兼容Firfox,但在IE中不会弹出安全性提示</span></td>
+      </tr>
+      <tr>
+        <td class="td_title">产品选择(多选)</td>
+        <td><textarea name="txtProduct" rows="2" readonly="readonly" id="txtProduct" mlm="true" onClick="SetCheckBoxListForCheckLevel('txtProduct', 'hidProduct', 'divProduct', 'chlstProduct','')" style="width:250px;"></textarea>
+                    <img src="../../images/icons/search2.gif"  name="imgProduct" width="13" height="13" class="icon" id="imgProduct" style="cursor: hand" onClick="SetCheckBoxListForCheckLevel('txtProduct', 'hidProduct', 'divProduct', 'chlstProduct','')" />
+                    <div id="divProduct" style="z-index: 101; visibility: hidden; overflow: auto; width: 150px;
+                                    position: absolute; height: auto; background-color: #ffffff">
+                      <table id="chlstProduct" mlm="true" border="0">
+                        <tr>
+                          <td><input id="chlstProduct_0" type="checkbox" name="chlstProduct$0" />
+                              <label for="chlstProduct$0">LTE</label></td>
+                        </tr>
+                        <tr>
+                          <td><input id="chlstProduct_1" type="checkbox" name="chlstProduct$1" />
+                              <label for="chlstProduct$1">与产品无关</label></td>
+                        </tr>
+                        <tr>
+                          <td><input id="chlstProduct_2" type="checkbox" name="chlstProduct$2" />
+                              <label for="chlstProduct$2">网管</label></td>
+                        </tr>
+                        <tr>
+                          <td><input id="chlstProduct_3" type="checkbox" name="chlstProduct$3" />
+                              <label for="chlstProduct$3">微波产品</label></td>
+                        </tr>
+                        <tr>
+                          <td><input id="chlstProduct_4" type="checkbox" name="chlstProduct$4" />
+                              <label for="chlstProduct$4">ICT服务</label></td>
+                        </tr>
+                        <tr>
+                          <td><input id="chlstProduct_5" type="checkbox" name="chlstProduct$5" />
+                              <label for="chlstProduct$5">数据卡</label></td>
+                        </tr>
+                        <tr>
+                          <td><input id="chlstProduct_6" type="checkbox" name="chlstProduct$6" />
+                              <label for="chlstProduct$6">中兴移动</label></td>
+                        </tr>
+                        <tr>
+                          <td><input id="chlstProduct_7" type="checkbox" name="chlstProduct$7" />
+                              <label for="chlstProduct$7">产品</label></td>
+                        </tr>
+                        <tr>
+                  <td align="right" style="padding-left:215px"><a onClick="SetCheckBoxListForCheck('txtProduct', 'hidProduct', 'divProduct', 'chlstProduct','')"  href="#">关闭</a></td>
+                </tr>
+                      </table>
+					  </div>
+                  <input name="hidProduct" type="hidden" id="hidProduct" mlm="true" value="LTE;与产品无关;网管;微波产品;中兴移动;固定台;数据卡;产品" />
+					  <span class="tips">产品下拉多选</span></td>
+      </tr>
+      <tr>
+        <td class="td_title">产品选择(联动)</td>
+        <td><select  name="BigPro"  onchange="getPro()">
+            <option  value="0">请选择产品大类 </option>
+            <option  value="产品大类1">产品大类1 </option>
+            <option  value="产品大类2">产品大类2 </option>
+            <option  value="产品大类3">产品大类3 </option>
+            <option  value="产品大类4">产品大类4 </option>
+            <option  value="产品大类5">产品大类5 </option>
+          </select>
+          <select  name="Pro">
+            <option  value="0">请选择产品小类</option>
+          </select></td>
+      </tr>
+	   <tr>
+        <td class="td_title">产品选择(多选)</td>
+        <td><textarea name="txt222" class="txt_400" rows="3" readonly="readonly" onClick="openwin_nobar('../formStyle/selectProMul.html','',350,500);" style="cursor:pointer"></textarea>
+          <img src="../../images/icons/search2.gif"  alt="选择产品" style="cursor:pointer" onClick="openwin_nobar('../formStyle/selectProMul.html','',350,500);"/> </td>
+      </tr>
+    </table>
+  </form>
+</div>
+</body>
+</html>

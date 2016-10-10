@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>图书室信息维护</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+<script type="text/javascript">
+ //based jquery
+  function addOptions(obj)
+  {
+  $(obj).show();
+  var cloneNode =   $(obj).clone(true);
+  $(obj).hide();
+  cloneNode.appendTo($(obj).parent());
+  }
+
+  function delOptions(obj)
+  {
+
+  if(confirm('确定要删除吗？'))
+ {
+  $(obj).remove();
+  }
+
+//$(obj).remove();
+  }
+
+	function showSenior()
+ {
+   if(document.getElementById("seniorSearch").checked == true)
+   {
+     document.getElementById("seniorSearch1").style.display = "";
+   }
+   
+   else
+   {
+     document.getElementById("seniorSearch1").style.display = "none";
+   }
+ }
+</script>
+</head>
+<body>
+<div id="content">
+  <div id="position">当前位置：需求复用&gt;CRUD界面&gt;图书室信息维护(直接修改)</div>
+  <table cellspacing="1" cellpadding="0" class="tb_search">
+    <tr>
+      <td colspan="4" class="search">请填写查询条件</td>
+    </tr>
+    <tr>
+      <td class="td_title" width="12%">图书室</td>
+      <td width="36%"><input type="text" name="txtNo" class="txt_120"/>      </td>
+      <td class="td_title" width="12%">地点</td>
+      <td><input type="text" name="txtNo2" class="txt_120"/></td>
+    </tr>
+    <tr style="display:none" id="seniorSearch1">
+      <td class="td_title">所属地区</td>
+      <td><select name="select2" style="width:125px">
+        <option selected="selected">请选择 </option>
+        <option>深圳</option>
+        <option>上海</option>
+        <option>南京</option>
+        <option>成都</option>
+        <option>重庆</option>
+        <option>西安</option>
+        <option>北京</option>
+        <option>国外</option>
+            </select></td>
+      <td class="td_title">管理员</td>
+      <td><input type="text" name="txtPerson" class="txt_120"/>
+          <img src="../../images/icons/search2.gif"  alt="选择人员" style="cursor:pointer"  onclick="openwin('../formStyle/oneMan.html','',650,400)"/> </td>
+    </tr>
+    
+    <tr>
+      <td colspan="4" align="right"><input name="Input6" type="checkbox" value="" id="seniorSearch" onclick="showSenior()"/>
+        <label for="seniorSearch">高级查询</label>
+<input name="btnSearch" type="button" value="查询" class="button"/>
+        <input name="btnReset" type="reset" value="清空" class="button"/>      </td>
+    </tr>
+  </table>
+  <table cellspacing="0" cellpadding="0" class="tb_title" style="margin-top:5px;">
+    <tr>
+      <td width="21%" class="icon_note">单据列表</td>
+      <td width="79%" class="tb_btn"><input name="Input5" type="button" value="新增" class="button" onclick="addOptions(document.getElementById('cloneObj'));"/>
+          <input name="Input" type="button" onclick="openwin('importExcel.html','',700,500);"  value="导入Excel" class="button"/>
+          <input name="Input32" type="button" value="批量保存" class="button"/>
+          <input name="Input3" type="button" value="批量删除" class="button"/>
+          
+      </td>
+    </tr>
+  </table>
+  <table cellpadding="0" cellspacing="1" class="tb_datalist">
+    <thead>
+      <tr class="tr_title">
+        <th width="3%"><input name="Input4" type="checkbox" value="选择" id="Input" /></th>
+        <th width="4%">序号</th>
+        <td width="13%">图书室<span class="must">*</span></td>
+        <td width="17%">地点<span class="must">*</span></td>
+        <td width="12%">所属地区</td>
+        <td width="18%">管理员<span class="must">*</span></td>
+        <td width="22%">管理部门</td>
+        <td width="11%">操作</td>
+      </tr>
+    </thead>
+    <tbody>
+     
+      <tr>
+        <td><input name="Input42" type="checkbox" value="选择" id="Input4" /></td>
+        <td>1</td>
+        <td><input name="textfield22" type="text" class="txt_120" value="CDMA图书室"/></td>
+        <td ><input name="textfield222" type="text" class="txt_150" value="莲塘716栋5F"/></td>
+        <td ><select name="select7" style="width:100px">
+          <option>请选择 </option>
+          <option selected="selected">深圳</option>
+          <option>上海</option>
+          <option>南京</option>
+          <option>成都</option>
+          <option>重庆</option>
+          <option>西安</option>
+          <option>北京</option>
+          <option>国外</option>
+                        </select></td>
+        <td><input name="textfield322" type="text" class="txt_100" value="王伟10010933"/>
+        <img src="../../images/icons/search2.gif"  alt="选择人员" style="cursor:pointer"  onclick="openwin('../formStyle/oneMan.html','',650,400)"/></td>
+        <td>研发体系-业务研究院-IT中心开发部</td>
+        <td> <a href="#">保存</a> <a href="#" onclick="delOptions(this.parentNode.parentNode)">删除</a></td>
+      </tr>
+      <tr>
+        <td><input name="Input43" type="checkbox" value="选择" id="Input42" /></td>
+        <td>2</td>
+        <td><input name="textfield23" type="text" class="txt_120" value="总部图书室"/></td>
+        <td ><input name="textfield2222" type="text" class="txt_150" value="科技园研发楼2F"/></td>
+        <td ><select name="select6" style="width:100px">
+          <option>请选择 </option>
+          <option selected="selected">深圳</option>
+          <option>上海</option>
+          <option>南京</option>
+          <option>成都</option>
+          <option>重庆</option>
+          <option>西安</option>
+          <option>北京</option>
+          <option>国外</option>
+                </select></td>
+        <td><input name="textfield323" type="text" class="txt_100" value="张伟50001023"/>
+        <img src="../../images/icons/search2.gif"  alt="选择人员" style="cursor:pointer"  onclick="openwin('../formStyle/oneMan.html','',650,400)"/></td>
+        <td>研发体系-业务研究院-IT中心开发部</td>
+        <td><a href="#">保存</a> <a href="#" onclick="delOptions(this.parentNode.parentNode)">删除</a></td>
+      </tr>
+      <tr>
+        <td><input name="Input44" type="checkbox" value="选择" id="Input43" /></td>
+        <td>3</td>
+        <td><input name="textfield24" type="text" class="txt_120" value="西安手机图书室"/></td>
+        <td ><input name="textfield22222" type="text" class="txt_150" value="西研3栋405室"/></td>
+        <td ><select name="select8" style="width:100px">
+          <option>请选择 </option>
+          <option>深圳</option>
+          <option>上海</option>
+          <option>南京</option>
+          <option>成都</option>
+          <option>重庆</option>
+          <option selected="selected">西安</option>
+          <option>北京</option>
+          <option>国外</option>
+                </select></td>
+        <td><input name="textfield324" type="text" class="txt_100" value="刘伟10023456"/>
+        <img src="../../images/icons/search2.gif"  alt="选择人员" style="cursor:pointer"  onclick="openwin('../formStyle/oneMan.html','',650,400)"/></td>
+        <td>研发体系-业务研究院-IT中心开发部</td>
+        <td><a href="#">保存</a> <a href="#" onclick="delOptions(this.parentNode.parentNode)">删除</a></td>
+      </tr>
+	   <tr id="cloneObj" style="display:none">
+	     <td><input name="Input442" type="checkbox" value="选择" id="Input44" /></td>
+	     <td>&nbsp;</td>
+	     <td><input type="text" name="textfield2" class="txt_120"/></td>
+         <td><form id="form1" name="form1" method="post" action="">
+           <input type="text" name="textfield25" class="txt_150"/>
+         </form>         </td>
+         <td><select name="select9" style="width:100px">
+           <option selected="selected">请选择 </option>
+           <option>深圳</option>
+           <option>上海</option>
+           <option>南京</option>
+           <option>成都</option>
+           <option>重庆</option>
+           <option>西安</option>
+           <option>北京</option>
+           <option>国外</option>
+         </select></td>
+        <td><input type="text" name="textfield32" class="txt_100"/>
+         <img src="../../images/icons/search2.gif"  alt="选择人员" style="cursor:pointer"  onclick="openwin('../formStyle/oneMan.html','',650,400)"/></td>
+        <td>&nbsp;</td>
+        <td><a href="#">保存</a> <a href="#" onclick="delOptions(this.parentNode.parentNode)">删除</a></td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr class="tr_pagenumber">
+        <td colspan="8"> 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+          <select name="select" >
+            <option selected>10</option>
+            <option >20</option>
+            <option>20</option>
+            <option>40</option>
+            <option>50</option>
+            <option>全部</option>
+          </select>
+          行 <img src="../../images/icons/firstpage.gif"  title="首页" class="paginate"/> <img src="../../images/icons/prepage.gif"  title="上一页" class="paginate"/>
+          <input type="text" name="textfield" class="page_txt" />
+          <input type="button" name="button" value="Go" class="btn_go" />
+          <img src="../../images/icons/nextpage.gif"  title="下一页" class="paginate"/> <img src="../../images/icons/lastpage.gif"  title="末页" class="paginate"/>
+          <img src="../../images/icons/excel.png"   onclick="openwin('exportExcel.html','',280,320);" class="icon" style="cursor:pointer" alt="导出Excel" title="导出Excel"/> </td>
+      </tr>
+    </tfoot>
+  </table>
+
+  
+</div>
+</body>
+</html>

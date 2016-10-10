@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>产品选择</title>
+<link href="../../js/dtree/dtree.css"  type="text/css" rel="stylesheet"/>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/dtree/dtree.js" ></script>
+</head>
+<body>
+<div class="dtree" style=" height:450px; border:1px solid #c6d5f5;margin-right:5px; overflow-y:auto">
+  <!--<p><a href="javascript: d.openAll();">open all</a> | <a href="javascript: d.closeAll();">close all</a></p>-->
+  <script type="text/javascript">
+		<!--
+        
+	var d = new dTree('d','../../js/dtree/img/');
+       // d.config.target = "mainFrame"; 
+        d.config.useIcons = false;
+
+		d.add(0,-1,'<input name="" type="checkbox" value="" />产品','#');
+		d.add(1,0,'<input name="" type="checkbox" value="" />产品一','#');
+		d.add(2,0,'<input name="" type="checkbox" value="" />产品二','#');
+		d.add(3,0,'<input name="" type="checkbox" value="" />产品三','#');
+		d.add(4,0,'<input name="" type="checkbox" value="" />产品四','#');
+		d.add(5,1,'<input name="" type="checkbox" value="" />小产品1','#');
+		d.add(6,1,'<input name="" type="checkbox" value="" />小产品1','#');
+		d.add(7,1,'<input name="" type="checkbox" value="" />小产品1','#');
+		d.add(8,1,'<input name="" type="checkbox" value="" />小产品1','#');
+		d.add(9,2,'<input name="" type="checkbox" value="" />小产品21','#');
+		d.add(10,2,'<input name="" type="checkbox" value="" />小产品22','#','Pictures of Gullfoss and Geysir');
+		d.add(11,2,'<input name="" type="checkbox" value="" />小产品23','#');
+		d.add(12,3,'<input name="" type="checkbox" value="" />小产品31','#');
+		d.add(13,3,'<input name="" type="checkbox" value="" />小产品32','#');
+		d.add(14,4,'<input name="" type="checkbox" value="" />小产品41','#');
+		d.add(15,4,'<input name="" type="checkbox" value="" />小产品42','#');
+
+		document.write(d);
+
+		//-->
+	</script>
+</div>
+<div style="margin:5px 4px 0 0" align="right">
+  <input type="button" class="button" value="确定" onclick="window.close()"/>
+  <input type="button" class="button" value="取消" onclick="window.close()"/>
+</div>
+</body>
+</html>

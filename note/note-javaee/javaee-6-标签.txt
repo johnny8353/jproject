@@ -1,0 +1,185 @@
+
+传统标签和简单标签
+	开发自定义标签，其核心就是要编写处理器类，一个标签对应一个标签处理器类，而一个标签库则是很多标签处理器的集合。所有的标签处理器类都要实现 JspTag 接口，
+	该接口中没有定义任何方法，主要作为 Tag 和 SimpleTag 接口的父接口。
+	在 JSP 2.0 以前，所有标签处理器类都必须实现 Tag 接口，这样的标签称为传统标签。
+	JSP 2.0 规范又定义了一种新的类型的标签，称为简单标签，其对应的处理器类要实现 SimpleTag 接口
+
+标签的形式
+	空标签：<hello/>
+	带有属性的空标签：
+	   <max num1=“3” num2=“5”/>
+	带有内容的标签：
+	  <greeting>
+	       hello
+	  </greeting>
+	带有内容和属性的标签：
+	 <greeting name=“Tom”>
+	       hello
+	  </greeting>
+
+自定义标签的开发与应用步骤
+	编写完成标签功能的 Java 类(标签处理器)
+	编写标签库描述(tld)文件，在tld文件中对自定义中进行描述
+	在 JSP 页面中导入和使用自定义标签
+	
+SimpleTag 接口	
+	setJspContext 方法：该方法把代表 JSP 页面的 pageContext 对象传递给标签处理器对象。
+	setParent 方法：该方法把父标签处理器对象传递给当前标签处理器对象
+	getParent 方法：该方法用于获得标签的父标签处理器对象
+	setJspBody 方法：该方法用于把代表标签体的 JspFragment 对象传递给标签处理器对象
+	doTag 方法：该方法用于完成所有的标签逻辑。该方法可以抛出 javax.servlet.jsp.SkipPageException 异常，用于通知 web 容器不再执行 JSP 页面中位于结束标记后面的内容。
+
+实现 SimpleTag 接口的标签处理器类的生命周期
+	setJspContext	1.Jsp 引擎将代表 JSP 页面的 pageContext 对象传递给标签处理器对象
+		|
+	SetParent		2.Jsp 引擎将父标签处理器对象传递给当前标签处理器对象。只有存在父标签 时，jsp 引擎才会调用该方法
+		|
+	SetXXX			3.设置标签属性。只有定义属性才调用该方法
+		|
+	SetJspBody		4. 若存在标签体, JSP 引擎将把标签体封装成一个 JspFragment对象，调用 setJspBody方法将 JspFragment 对象传递给标签处理器对象。
+		|				若标签体为空，这 setJspBody将不会被 JSP引擎调用。通过getJspBody()可以获取到标签体
+	doTag			5.容器调用标签处理器对象的  doTag 方法执行标签逻辑，调用 getJspBody()可以获取到标签体对象，决定如何处理标签体
+	
+	
+	
+JspFragment 类
+	getJspContext 方法：该方法用于返回代表调用页面的 JspContext 对象
+	Invoke 方法(java.io.Writer out)：
+		该方法用于执行 JspFragment 对象所代表的 JSP 代码片段。在 doTag() 方法中可以根据需要调用该方法。
+		该方法的参数 out 用于指定将 JspFragment 对象的执行结果写入到哪个输出流对象中。若传递参数 out 的值为 null，则将执行结果写入到  JspContext.geOut() 方法返回的输出流对象中。
+		若想在标签处理器中修改标签体内容：需在调用 invoke 方法时指定一个可取出结果数据的输出流对象(如：StringWriter)，让标签体的执行结果输出到该输出流中，
+		然后从该输出流对象中取出数据进行修改后在输出到目标设备
+
+SimpleTagSupport
+	为简化简单标签处理器的编写工作，JSP API 中提供了SimpleTag接口的一个实现类SimpleTagSupport。
+	SimpleTagSupport实现了SimpleTag接口中的方法，它内部以成员变量的形式保存了setJspContext方法和setJspBody方法传递进来的参数。
+	此外，它还定义了如下两个方法、来返回这两个参数：
+		getJspContext方法：该方法用于返回代表调用页面的JspContext对象
+		getJspBody方法：该方法用于得到代表标签体的JspFragment对象，
+
+标签库描述文件
+	标签库描述(Tag Library Description)文件简称为 tld 文件，其扩展名为 .tld
+	多个标签的集合就形成了一个标签库，标签库中的所有标签都必须在标签文件中进行描述
+	Tld  文件可以放置在 web 应用程序的 WEB-INF 目录及其子目录中，但不能放置在 WEB-INF 目录下的 classes 和 lib 子目录中 。
+	tld 文件也可以放置在 WEB-INF\lib 目录下的 jar 包的 META-INF 目录及其子目录中
+		<tag>
+			<name>foreach</name>
+			<tag-class>com.johnny.javaweb.tag.ForEachTag</tag-class>
+			<body-content>scriptless</body-content>
+		
+			<attribute>
+				<name>items</name>
+				<required>true</required>
+				<rtexprvalue>true</rtexprvalue>
+			</attribute>
+		
+			<attribute>
+				<name>var</name>
+				<required>true</required>
+				<rtexprvalue>true</rtexprvalue>
+			</attribute>
+		</tag>
+		
+		<body-content>：指定标签体的类型。可能取值有 3 种：
+			empty：没有标签体	
+			scriptless：标签体可以包含 el 表达式和 JSP 动作元素，但不能包含 JSP 的脚本元素
+			tagdependent：表示标签体交由标签本身去解析处理。若指定 tagdependent，在标签体中的所有代码都会原封不动的交给标签处理器，而不是将执行结果传递给标签处理器
+			
+				
+在 JSP 页面引用自定义标签
+	在 JSP 页面使用 taglib 指令引入标签库描述文件：
+	   <%@ taglib prefix="" uri="" %>
+	uri：属性用于指定所引入的标签库描述(tld)文件中所定义的 <uri> 元素的内容；
+	prefix 属性用于为引入的 tld 文件指定一个"引用代号"。Prefix 属性可以由 jsp 文件的作者任意指定，只要与其他 taglib 指令的 prefix 属性值不同就可以。
+
+实例1：
+	JSP:调用
+		<%--迭代存储在pageContext对象中的list集合 --%>
+		<johnny:foreach items="${listData}" var="str">
+	        ${str}<br />
+		</johnny:foreach>
+		<hr />
+		<%--迭代存储在pageContext对象中的数组 --%>
+		<johnny:foreach items="${intObjArr}" var="num">
+	        ${num}<br />
+		</johnny:foreach>
+		
+	JAVA
+	
+	public class ForEachTag extends SimpleTagSupport {
+	
+	    /**
+	     * 存储数据
+	     */
+	    private Object items;
+	    
+	    /**
+	     * 迭代集合时使用的变量
+	     */
+	    private String var;
+	    
+	    /**
+	     * 集合，用于存储items中的数据
+	     */
+	    private Collection collection;
+	
+	    @Override
+	    public void doTag() throws JspException, IOException {
+	        PageContext pageContext = (PageContext) this.getJspContext();
+	        //迭代collection集合
+	        Iterator it = collection.iterator();
+	        while (it.hasNext()) {
+	            //得到一个迭代出来的对象
+	            Object object = (Object) it.next();
+	            //将迭代出来的对象存放到pageContext对象中
+	            pageContext.setAttribute(var, object);
+	            //输出标签体中的内容
+	            this.getJspBody().invoke(null);
+	        }
+	    }
+	
+	    public void setVar(String var) {
+	        this.var = var;
+	    }
+	    
+	    public void setItems(Object items) {
+	        if (items instanceof Collection) {
+	            collection = (Collection) items;//list
+	        }else if (items instanceof Map) {
+	            Map map = (Map) items;
+	            collection = map.entrySet();//map
+	        }else if (items.getClass().isArray()) {
+	            collection = new ArrayList();
+	            //获取数组的长度
+	            int len = Array.getLength(items);
+	            for (int i = 0; i < len; i++) {
+	                //获取数组元素
+	                Object object = Array.get(items, i);
+	                collection.add(object);
+	            }
+	        }
+	        this.items = items;
+	    }
+	}
+
+实例2：
+	@Override
+		public void doTag() throws JspException, IOException {
+			JspFragment bodyContent = getJspBody();
+			//JspFragment.invoke(Witer): Writer 即为标签体内容输出的字符流, 若为 null, 则
+			//输出到 getJspContext().getOut(), 即输出到页面上.
+			
+			//1. 利用 StringWriter 得到标签体的内容.
+			StringWriter sw = new StringWriter();
+			bodyContent.invoke(sw);
+			
+			//2. 把标签体的内容都变为大写
+			String content = sw.toString().toUpperCase();
+			
+			//3. 获取 JSP 页面的 out 隐含对象, 输出到页面上
+	//		getJspContext().getOut().print(content);
+			JspContext jspContext = getJspContext();
+			JspWriter jspWriter = jspContext.getOut();
+			jspWriter.write(content);
+		}

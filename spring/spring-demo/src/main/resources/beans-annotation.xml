@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+	<!-- 
+	如果仅希望扫描特定的类而非基包下的所有类，可使用 resource-pattern 属性过滤特定的类，只扫描service下的class文件 
+	<context:include-filter> 子节点表示要包含的目标类
+	<context:exclude-filter> 子节点表示要排除在外的目标类
+	<context:component-scan> 下可以拥有若干个 <context:include-filter> 和 <context:exclude-filter> 子节点
+	
+	-->
+	<!-- 
+	<context:component-scan base-package="com.johnny.spring.beans.annotation"
+	resource-pattern="service/*.class"></context:component-scan>
+	-->
+	
+	<!-- 
+	<context:component-scan base-package="com.johnny.spring.beans.annotation" use-default-filters="false">
+							<context:include-filter type="assignable" expression="com.johnny.spring.beans.annotation.repository.UserRepository"/>
+						</context:component-scan>
+  	-->
+	<context:component-scan base-package="com.johnny.spring.beans.annotation"></context:component-scan>
+</beans>

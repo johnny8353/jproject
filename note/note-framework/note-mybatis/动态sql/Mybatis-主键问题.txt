@@ -1,0 +1,73 @@
+插入时设置主键
+
+	SelectKey 
+		SelectKey在Mybatis中是为了解决Insert数据时不支持主键自动生成的问题，他可以很随意的设置生成主键的方式。
+		不管SelectKey有多好，尽量不要遇到这种情况吧，毕竟很麻烦。
+
+		selectKey Attributes 属性 描述 
+			keyProperty 	selectKey 语句结果应该被设置的目标属性。 
+			resultType 		结果的类型。MyBatis 通常可以算出来,但是写上也没有问题。MyBatis 允许任何简单类型用作主键的类型,包括字符串。 
+			order 			这可以被设置为 BEFORE 或 AFTER。如果设置为 BEFORE,那么它会首先选择主键,设置 keyProperty 然后执行插入语句。
+							如果设置为 AFTER,那么先执行插入语句,然后是 selectKey 元。 Oracle 数据库可以在插入语句中嵌入序列调用。 
+			statementType 	和前面的相 同,MyBatis 支持 STATEMENT ,PREPARED 和CALLABLE 语句的映射类型,分别代表 PreparedStatement 和CallableStatement 类型。 
+	
+		SelectKey需要注意order属性，像Mysql一类支持自动增长类型的数据库中，order需要设置为after才会取到正确的值。
+		像Oracle这样取序列的情况，需要设置为before，否则会报错。
+		
+		另外在用Spring管理事务时，SelectKey和插入在同一事务当中，因而Mysql这样的情况由于数据未插入到数据库中，所以是得不到自动增长的Key。取消事务管理就不会有问题。
+	
+	下面是一个xml和注解的例子，SelectKey很简单，两个例子就够了：
+	<insert id="insert" parameterType="map">
+        insert into table1 (name) values (#{name})
+        <selectKey resultType="java.lang.Integer" keyProperty="id">
+            CALL IDENTITY()
+        </selectKey>
+    </insert>
+	
+	Oracle
+	<insert id="insert" parameterType="com.zte.mcrm.basedata.access.log.vo.LogVO">
+			<selectKey resultType="java.lang.Long" order="BEFORE"
+				keyProperty="rowId">
+				SELECT siebel.S_SEQUENCE_S.NEXTVAL FROM DUAL 
+			</selectKey>
+			INSERT INTO SIEBEL.CX_TIME_LOG (
+			row_id,
+			DB_LAST_UPD_SRC,
+			LAST_UPD_BY,
+			CREATED_BY,
+			ATT05,
+			METHOD,
+			DESCS,
+			TYPE,
+			INV_USER,
+			ATT02,
+			ATT01,
+			NAME,
+			ATT03)
+			VALUES (#{rowId},'USER', '0-1', '0-1',#{ATT05},
+			#{METHOD}, #{DESCS}, 'J2EE', #{INV_USER}, #{ATT02},
+			#{ATT01},#{NAME},#{ATT03})
+		</insert>
+	
+	上面xml的传入参数是map，selectKey会将结果放到入参数map中。用POJO的情况一样，但是有一点需要注意的是，keyProperty对应的字段在POJO中必须有相应的setter方法，
+	setter的参数类型还要一致，否则会报错。 
+		注解的形式：
+	    @Insert("insert into table2 (name) values(#{name})")
+	    @SelectKey(statement="call identity()", keyProperty="nameId", before=false, resultType=int.class)
+	    int insertTable2(Name name);
+	    
+	以MySQL5.5为例：
+		方法1：
+		    <insert id="insert" parameterType="Person" useGeneratedKeys="true" keyProperty="id">
+		        insert into person(name,pswd) values(#{name},#{pswd})
+		    </insert>
+		方法2：
+		    <insert id="insert" parameterType="Person">
+		        <selectKey keyProperty="id" resultType="long">
+		            select LAST_INSERT_ID()
+		        </selectKey>
+		        insert into person(name,pswd) values(#{name},#{pswd})
+		    </insert>
+		入前实体id属性为0；
+		插入后实体id属性为保存后自增的id；   
+		

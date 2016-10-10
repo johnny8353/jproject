@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="../css/index.css" rel="stylesheet" type="text/css"/>
+<script src="../js/jquery.js" type="text/javascript" ></script>
+<script src="../js/main.js" type="text/javascript" ></script>
+<script src="../js/index.js" type="text/javascript" ></script>
+<title>FrameTop</title>
+</head>
+<body>
+<div id="frame">
+  <div id="sysinfo">
+    <div id="syslogo"><img src="../images/logo.gif" title="系统logo"/></div>
+    <div id="version">V2.1</div>
+    <div id="sysoperate">
+      <table>
+        <tr>
+          <td><ul>
+              <li><img src="../images/icons/auxmenu_arr.gif" width="21px" height="18px"/></li>
+              <li><a href="../application/default.html" target="right">首页</a></li>
+              <li class="dot">&nbsp;</li>
+              <li><a href="navigate.html" target="right">导航</a></li>
+              <li class="dot">&nbsp;</li>
+              <li><a href="#" onClick="openwin('organization.html','',550,350);">组织切换</a></li>
+              <li class="dot">&nbsp;</li>
+              <li><a href="#" onClick="openwin('feedback.html','',750,400);">问题反馈</a></li>
+              <li class="dot">&nbsp;</li>
+              <li><a href="#" onClick="openwin('log.html','',750,550);">访问日志</a></li>
+              <li class="dot">&nbsp;</li>
+              <li><a href="#" onClick="openwin('version.html','',750,550);">版本信息</a></li>
+              <li class="dot">&nbsp;</li>
+              <li><a href="#" onClick="openwin('help/demo/help.html','',900,700);">帮助</a></li>
+              <li class="dot">&nbsp;</li>
+              <li><a href="#" onClick="openwin('about.html','',750,400);">关于</a></li>
+              <li class="dot">&nbsp;</li>
+              <li><a href="#" onClick="if(confirm('确定要注销吗？')) top.location.href  = '../login.html'">注销</a></li>
+              <li>&nbsp;</li>
+            </ul></td>
+        </tr>
+      </table>
+    </div>
+    <div id="welcome">
+      <SCRIPT>ShowDate();</SCRIPT>
+      欢迎 王方10039164 </div>
+  </div>
+  <div id="sysnav">
+    <div id="sysmenu">
+      <iframe name="frametopmenu" src="frameTopMenu.html" frameborder="0" width="100%" scrolling="no" height="22px" marginwidth="0" marginheight="0"></iframe>
+    </div>
+    <div id="scroll"> <img src="../images/icons/topmenu_rarr.gif" width="16px" height="16px" style="cursor:pointer"/> <img style="cursor:pointer" src="../images/icons/topmenu_larr.gif"/> </div>
+  </div>
+</div>
+</body>
+</html>

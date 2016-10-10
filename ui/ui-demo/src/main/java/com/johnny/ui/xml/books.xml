@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<library name="alibaba图书馆"> 
+     <book title ="thinking in java"  author="xxx"> 
+         <chapter> 
+             <no>第一章</no> 
+             <caption>第一章的标题</caption> 
+         </chapter> 
+         <chapter> 
+             <no>第二章</no> 
+             <caption>第二章的标题</caption> 
+         </chapter> 
+     </book> 
+     <book title="effective java"  author="yyy"> 
+         <chapter> 
+             <no>第一章</no> 
+             <caption>第一章的标题</caption> 
+         </chapter> 
+     </book> 
+</library>

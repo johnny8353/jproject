@@ -1,0 +1,127 @@
+1》git创建新库
+1.初始化一个空的git仓库
+	$ git init
+	Initialized empty Git repository in D:/GIT/a1/.git/
+
+2.向仓库提交我们写的文件
+	$ echo "#Johnny Project" >> README.md
+
+	将file文件的信息添加到git仓库的索引库中，并没有真正添加到库。
+	$ git add README.md
+	warning: LF will be replaced by CRLF in README.md.
+	The file will have its original line endings in your working directory.
+
+	将索引库中的内容向git仓库进行提交。这步之后文件file才算真正提交到拉git仓库中。
+	$ git commit -m "first commmit"
+	[master (root-commit) 7dcb5ac] first commmit
+	warning: LF will be replaced by CRLF in README.md.
+	The file will have its original line endings in your working directory.
+	 1 file changed, 1 insertion(+)
+	 create mode 100644 README.md
+
+	$ git status
+	On branch master
+	nothing to commit, working directory clean
+
+	$ git log
+	commit 7dcb5acad530bcbecbded803c1fa6ee9e8f92a72
+	Author: johnny8353 <hfq_1991@qq.com>
+	Date:   Mon Oct 10 14:39:27 2016 +0800
+
+		first commmit
+
+3.在本地仓库添加一个远程仓库,并将本地的master分支跟踪到远程分支
+	在本地仓库添加一个远程仓库,当然ssh后面的地址是我们本地仓库的地址.
+	$ git remote add origin https://github.com/johnny8353/jproject.git
+	
+	将本地master分支跟踪到远程分支,在git仓库建立之初就会有一个默认的master分支,当然你如果建立了其他分支,也可以用同样的方法去跟踪.
+	$ git push origin master
+	Username for 'https://github.com': johnny8353
+	Password for 'https://johnny8353@github.com':
+	Counting objects: 3, done.
+	Writing objects: 100% (3/3), 227 bytes | 0 bytes/s, done.
+	Total 3 (delta 0), reused 0 (delta 0)
+	To https://github.com/johnny8353/jproject.git
+	 * [new branch]      master -> master
+	Branch master set up to track remote branch master from origin.
+
+	$ git push origin master
+	Username for 'https://github.com': johnny8353
+	Password for 'https://johnny8353@github.com':
+	Everything up-to-date
+
+	$ git remote -v
+	origin  https://github.com/johnny8353/jproject.git (fetch)
+	origin  https://github.com/johnny8353/jproject.git (push)
+	
+2》pull git库
+	git clone https://github.com/johnny8353/jproject.git		后面可以加上into的目录
+	
+3》两个客户端同时修改了一个文件，同一位置，后提交的会报错
+	package callCCGWebService2;
+	package callCCGWebService1;
+	
+	To https://github.com/johnny8353/jproject.git
+	 ! [rejected]        master -> master (fetch first)
+	error: failed to push some refs to 'https://github.com/johnny8353/jproject.git'
+	hint: Updates were rejected because the remote contains work that you do
+	hint: not have locally. This is usually caused by another repository pushing
+	hint: to the same ref. You may want to first integrate the remote changes
+	hint: (e.g., 'git pull ...') before pushing again.
+	hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+	
+	$ git pull
+	remote: Counting objects: 3, done.
+	remote: Compressing objects: 100% (2/2), done.
+	remote: Total 3 (delta 1), reused 3 (delta 1), pack-reused 0
+	Unpacking objects: 100% (3/3), done.
+	From https://github.com/johnny8353/jproject
+	   3502a80..fb75c19  master     -> origin/master
+	Updating 3502a80..fb75c19
+	error: Your local changes to the following files would be overwritten by merge:
+	        Info.java
+	Please, commit your changes or stash them before you can merge.
+	Aborting
+	
+	这个意思是说更新下来的内容和本地修改的内容有冲突，先提交你的改变或者先将本地修改暂时存储起来。
+	
+	处理的方式非常简单，主要是使用git stash命令进行处理，分成以下几个步骤进行处理。
+	
+	1、先将本地修改存储起来
+	$ git stash
+	这样本地的所有修改就都被暂时存储起来 。是用git stash list可以看到保存的信息：
+	git stash暂存修改
+	$ git stash
+	Saved working directory and index state WIP on master: 3502a80 mm
+	HEAD is now at 3502a80 mm
+	
+	Administrator@ZTE-20160803EMK MINGW64 /d/GIT/a1 (master)
+	$ git stash list
+	stash@{0}: WIP on master: 3502a80 mm
+		
+	其中stash@{0}就是刚才保存的标记。
+	
+	2、pull内容
+	暂存了本地修改之后，就可以pull了。
+	$ git pull
+	
+	3、还原暂存的内容
+	$ git stash pop stash@{0}
+	系统提示如下类似的信息：
+	
+	Auto-merging c/environ.c
+	CONFLICT (content): Merge conflict in c/environ.c
+	意思就是系统自动合并修改的内容，但是其中有冲突，需要解决其中的冲突。
+	
+	4、解决文件中冲突的的部分
+	打开冲突的文件，会看到类似如下的内容：
+	git冲突内容
+	<<<<<<< Updated upstream
+	package callCCGWebService1;
+	=======
+	package callCCGWebService2;
+	>>>>>>> Stashed changes
+	
+	其中Updated upstream 和=====之间的内容就是pull下来的内容，====和stashed changes之间的内容就是本地修改的内容。
+	碰到这种情况，git也不知道哪行内容是需要的，所以要自行确定需要的内容。
+	解决完成之后，就可以正常的提交了。

@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+	<display-name>johnny</display-name>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+	</welcome-file-list>
+	<!-- 配置当前 WEB 应用的初始化参数 -->
+	<context-param>
+		<param-name>driver</param-name>
+		<param-value>com.mysql.jdbc.Driver</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>jdbcUrl</param-name>
+		<param-value>jdbc:mysql:///johnny</param-value>
+	</context-param>
+
+	<!-- 配置和映射 Servlet -->
+	<servlet>
+		<!-- Servlet 注册的名字 -->
+		<servlet-name>helloServlet</servlet-name>
+		<!-- Servlet 的全类名 -->
+		<servlet-class>com.johnny.javaweb.HelloServlet</servlet-class>
+
+		<!-- 配置 Serlvet 的初始化参数 -->
+		<init-param>
+			<!-- 参数名 -->
+			<param-name>user</param-name>
+			<!-- 参数值 -->
+			<param-value>root</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>password</param-name>
+			<param-value>1230</param-value>
+		</init-param>
+
+		<!-- 可以指定 Servlet 被创建的时机 -->
+		<load-on-startup>-1</load-on-startup>
+
+	</servlet>
+	<servlet-mapping>
+		<!-- 需要和某一个 servlet 节点的 serlvet-name 子节点的文本节点一致 -->
+		<servlet-name>helloServlet</servlet-name>
+		<!-- 映射具体的访问路径: / 代表当前 WEB 应用的根目录. -->
+		<url-pattern>/hello</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<!-- 需要和某一个 servlet 节点的 serlvet-name 子节点的文本节点一致 -->
+		<servlet-name>helloServlet</servlet-name>
+		<!-- 映射具体的访问路径: / 代表当前 WEB 应用的根目录. -->
+		<url-pattern>/hello2</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
+		<!-- Servlet 注册的名字 -->
+		<servlet-name>secondServlet</servlet-name>
+		<!-- Servlet 的全类名 -->
+		<servlet-class>com.johnny.javaweb.SecondServlet</servlet-class>
+		<!-- 可以指定 Servlet 被创建的时机 -->
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+	<!--  
+		<servlet-mapping>
+		<servlet-name>secondServlet</servlet-name>
+		<url-pattern>/*</url-pattern>
+		</servlet-mapping>
+	-->
+
+	<servlet>
+		<servlet-name>loginServlet</servlet-name>
+		<servlet-class>com.johnny.javaweb.LoginServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>loginServlet</servlet-name>
+		<url-pattern>/login.do</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 
+	<jsp-config>
+		<taglib>
+			<taglib-uri>
+				http://jakarta.apache.org/tomcat/jsp2-example-taglib
+			</taglib-uri>
+			<taglib-location>
+				/WEB-INF/tag/jsp2-example-taglib.tld
+			</taglib-location>
+		</taglib>
+	</jsp-config>
+	 -->
+
+	<filter>
+		<filter-name>helloFilter</filter-name>
+		<filter-class>com.johnny.javaweb.filter.HelloFilter</filter-class>
+		<init-param>
+			<param-name>name</param-name>
+			<param-value>root</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>helloFilter</filter-name>
+		<url-pattern>/filter/test.jsp</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>secondFilter</filter-name>
+		<filter-class>com.johnny.javaweb.filter.SecondFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>secondFilter</filter-name>
+		<url-pattern>/filter/test.jsp</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+		<dispatcher>ERROR</dispatcher>
+	</filter-mapping>
+
+	<filter>
+		<display-name>UserNameFilter</display-name>
+		<filter-name>UserNameFilter</filter-name>
+		<filter-class>com.johnny.javaweb.filter.UserNameFilter</filter-class>
+		<init-param>
+			<param-name>username</param-name>
+			<param-value>Tom</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>UserNameFilter</filter-name>
+		<url-pattern>/filter/hello.jsp</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<display-name>PasswordFilter</display-name>
+		<filter-name>PasswordFilter</filter-name>
+		<filter-class>com.johnny.javaweb.filter.PasswordFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>PasswordFilter</filter-name>
+		<url-pattern>/filter/hello.jsp</url-pattern>
+	</filter-mapping>
+	
+	<!-- 错误跳转到error.jsp -->
+	<error-page>
+		<exception-type>java.lang.Exception</exception-type>
+		<location>/WEB-INF/error.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>404</error-code>
+		<location>/WEB-INF/error.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/WEB-INF/error.jsp</location>
+	</error-page>
+
+	<filter>
+		<display-name>NoCacheFilter</display-name>
+		<filter-name>NoCacheFilter</filter-name>
+		<filter-class>com.johnny.javaweb.filter.cache.NoCacheFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>NoCacheFilter</filter-name>
+		<url-pattern>*.jsp,*.html</url-pattern>
+	</filter-mapping>
+
+	<!-- 配置缓存过滤器 -->
+	<filter>
+		<filter-name>CacheFilter</filter-name>
+		<filter-class>com.johnny.javaweb.filter.cache.CacheFilter</filter-class>
+		<!-- 配置要缓存的web资源以及缓存时间，以小时为单位 -->
+		<init-param>
+			<param-name>css</param-name>
+			<param-value>4</param-value>
+		</init-param>
+		<init-param>
+			<param-name>jpg</param-name>
+			<param-value>1</param-value>
+		</init-param>
+		<init-param>
+			<param-name>js</param-name>
+			<param-value>4</param-value>
+		</init-param>
+		<init-param>
+			<param-name>png</param-name>
+			<param-value>4</param-value>
+		</init-param>
+	</filter>
+	<!-- 配置要缓存的web资源的后缀 -->
+	<filter-mapping>
+		<filter-name>CacheFilter</filter-name>
+		<url-pattern>*.jpg</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>CacheFilter</filter-name>
+		<url-pattern>*.css</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>CacheFilter</filter-name>
+		<url-pattern>*.js</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>CacheFilter</filter-name>
+		<url-pattern>*.png</url-pattern>
+	</filter-mapping>
+
+
+
+	<context-param>
+		<param-name>password</param-name>
+		<param-value>1234</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>encoding</param-name>
+		<param-value>UTF-8</param-value>
+	</context-param>	
+	
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>com.johnny.javaweb.filter.encoding.EncodingFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+		<dispatcher>ERROR</dispatcher>
+	</filter-mapping>
+
+	<!-- 用户信息放入到 session 中的键的名字 -->
+	<context-param>
+		<param-name>userSessionKey</param-name>
+		<param-value>USERSESSIONKEY</param-value>
+	</context-param>
+
+	<!-- 若未登录, 需重定向的页面 -->
+	<context-param>
+		<param-name>rediretPage</param-name>
+		<param-value>/filter/login/login.jsp</param-value>
+	</context-param>
+
+	<!-- 不需要拦截(或检查)的 URL 列表 -->
+	<context-param>
+		<param-name>uncheckedUrls</param-name>
+		<param-value>/filter/login/a.jsp,/filter/login/list.jsp,/filter/login/login.jsp,/filter/login/doLogin.jsp,/filter/login/b.jsp</param-value>
+	</context-param>
+
+	<filter>
+		<filter-name>loginFilter</filter-name>
+		<filter-class>com.johnny.javaweb.filter.login.LoginFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>loginFilter</filter-name>
+		<url-pattern>/filter/login/*</url-pattern>
+	</filter-mapping>
+
+	<!-- 注册针对ServletContext对象进行监听的监听器 -->
+	<listener>
+		<description>ServletContextListener监听器</description>
+		<!--实现了ServletContextListener接口的监听器类 -->
+		<listener-class>com.johnny.javaweb.listener.MyServletContextListener</listener-class>
+	</listener>
+
+	<!--注册针对HttpSession对象进行监听的监听器 -->
+	<listener>
+		<description>HttpSessionListener监听器</description>
+		<listener-class>com.johnny.javaweb.listener.MyHttpSessionListener</listener-class>
+	</listener>
+
+	<!--注册针对SessionScanerListener对象进行监听的监听器 -->
+	<listener>
+		<description>SessionScanerListener监听器</description>
+		<listener-class>com.johnny.javaweb.listener.SessionScanerListener</listener-class>
+	</listener>
+	<!--注册针对OnLineCountListener对象进行监听的监听器 -->
+	<listener>
+		<description>OnLineCountListener监听器</description>
+		<listener-class>com.johnny.javaweb.listener.OnLineCountListener</listener-class>
+	</listener>
+	<!-- 配置HttpSession对象的销毁时机 -->
+	<session-config>
+		<!--配置HttpSession对象的1分钟之后销毁 -->
+		<session-timeout>1</session-timeout>
+	</session-config>
+	
+	<!--注册针对ServletRequest对象进行监听的监听器 -->
+	<listener>
+		<description>ServletRequestListener监听器</description>
+		<listener-class>com.johnny.javaweb.listener.MyServletRequestListener</listener-class>
+	</listener>
+
+	<listener>
+		<description>MyServletContextAttributeListener监听器</description>
+		<listener-class>com.johnny.javaweb.listener.MyServletContextAttributeListener</listener-class>
+	</listener>
+	<listener>
+		<description>MyRequestAndSessionAttributeListener监听器</description>
+		<listener-class>com.johnny.javaweb.listener.MyRequestAndSessionAttributeListener</listener-class>
+	</listener>
+
+	<servlet>
+		<servlet-name>UploadHandleServlet</servlet-name>
+		<servlet-class>com.johnny.javaweb.fileupload.UploadHandleServlet2</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>UploadHandleServlet</servlet-name>
+		<url-pattern>/servlet/UploadHandleServlet</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>ListFileServlet</servlet-name>
+		<servlet-class>com.johnny.javaweb.fileupload.ListFileServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>ListFileServlet</servlet-name>
+		<url-pattern>/servlet/ListFileServlet</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+	<servlet-name>DownLoadServlet</servlet-name>
+	<servlet-class>com.johnny.javaweb.fileupload.DownLoadServlet</servlet-class>
+</servlet>
+
+	<servlet-mapping>
+		<servlet-name>DownLoadServlet</servlet-name>
+		<url-pattern>/servlet/DownLoadServlet</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>  
+		<description>用于生成验证码</description>  
+		<display-name>生成验证码</display-name>  
+		<servlet-name>GetCaptcha</servlet-name>  
+		<servlet-class>com.johnny.javaweb.session.CaptchaServlet</servlet-class>  
+	</servlet>  
+
+	<servlet-mapping>  
+		<servlet-name>GetCaptcha</servlet-name>  
+		<url-pattern>/getcaptcha.sl</url-pattern>  
+	</servlet-mapping> 
+	
+</web-app>

@@ -1,0 +1,37 @@
+SpringMVC 表单标签 &处理静态资源
+	使用 Spring 的表单标签
+		• 通过 SpringMVC 的表单标签可以实现将模型数据中的属性和 HTML 表单元素相绑定，以实现表单数据更便捷编辑和表单值的回显
+	form 标签
+		• 一般情况下，通过 GET 请求获取表单页面，而通过POST 请求提交表单页面，因此获取表单页面和提交表单
+		页面的 URL 是相同的。只要满足该最佳条件的契约，<form:form> 标签就无需通过 action 属性指定表单提交的 URL
+		• 可以通过 modelAttribute 属性指定绑定的模型属性，若没有指定该属性，则默认从 request 域对象中读取
+		command 的表单 bean，如果该属性值也不存在，则会发生错误。
+	表单标签
+	• SpringMVC 提供了多个表单组件标签，如<form:input/>、<form:select/> 等，用以绑定表单字段的属性值，它们的共有属性如下：
+	– path：表单字段，对应 html 元素的 name 属性，支持级联属性
+	– htmlEscape：是否对表单值的 HTML 特殊字符进行转换，默认值为 true
+	– cssClass：表单组件对应的 CSS 样式类名
+	– cssErrorClass：表单组件的数据存在错误时，采取的 CSS 样式
+	• form:input、form:password、form:hidden、form:textarea：对应 HTML 表单的 text、password、hidden、textarea标签
+	• form:radiobutton：单选框组件标签，当表单 bean 对应的属性值和 value 值相等时，单选框被选中
+	• form:radiobuttons：单选框组标签，用于构造多个单选框
+	– items：可以是一个 List、String[] 或 Map
+	– itemValue：指定 radio 的 value 值。可以是集合中 bean 的一个属性值
+	– itemLabel：指定 radio 的 label 值
+	– delimiter：多个单选框可以通过 delimiter 指定分隔符
+	• form:checkbox：复选框组件。用于构造单个复选框
+	• form:checkboxs：用于构造多个复选框。使用方式同form:radiobuttons 标签
+	• form:select：用于构造下拉框组件。使用方式同form:radiobuttons 标签
+	• form:option：下拉框选项组件标签。使用方式同form:radiobuttons 标签
+	• form:errors：显示表单组件或数据校验所对应的错误
+	– <form:errors path= “ *” /> ：显示表单所有的错误
+	– <form:errors path= “ user*” /> ：显示所有以 user 为前缀的属性对应的错误
+	– <form:errors path= “ username” /> ：显示特定表单对象属性的错误
+处理静态资源
+	• 优雅的 REST 风格的资源URL 不希望带 .html 或 .do 等后缀
+	• 若将 DispatcherServlet 请求映射配置为 /，则 Spring MVC 将捕获WEB 容器的所有请求，包括静态资源的请求， SpringMVC 会将他们当成一个普通请求处理，因找不到对应处理器将导致错误。
+	• 可以在 SpringMVC 的配置文件中配置 <mvc:default-servlethandler/> 的方式解决静态资源的问题：
+	– <mvc:default-servlet-handler/> 将在 SpringMVC 上下文中定义一个DefaultServletHttpRequestHandler，它会对进入 DispatcherServlet 的请求进行筛查，如果发现是没有经过映射的请求，就将该请求交由 WEB应用服务器默认的 Servlet 处理，如果不是静态资源的请求，才由DispatcherServlet 继续处理
+	– 一般 WEB 应用服务器默认的 Servlet 的名称都是 default。若所使用的WEB 服务器的默认 Servlet 名称不是 default，则需要通过 defaultservlet-name 属性显示指定.
+	-	配置完成后发现原有非静态资源的请求报404错误。使用<mvc:annotation-driven/>解决。
+	

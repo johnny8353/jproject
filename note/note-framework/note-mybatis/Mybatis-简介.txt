@@ -1,0 +1,123 @@
+1.	Mybatis介绍
+	-MyBatis是支持普通SQL查询，存储过程和高级映射的优秀持久层框架。MyBatis消除了几乎所有的JDBC代码和参数的手工设置以及对结果集的检索封装。
+	MyBatis可以使用简单的XML或注解用于配置和原始映射，将接口和Java的POJO（Plain Old Java Objects，普通的Java对象）映射成数据库中的记录.
+	JDBC-dbutils(自动封装)-MyBatis-Hiberna
+2.	mybatis快速入门
+	编写第一个基于mybaits的测试例子:
+	2.1. 添加jar包
+	【mybatis】
+		mybatis-3.1.1.jar
+	【MYSQL驱动包】
+	mysql-connector-java-5.1.7-bin.jar
+	
+	2.2. 建库+表
+	create database mybatis
+	CHARACTER SET 'utf8'  
+	COLLATE 'utf8_general_ci';  
+	;
+	use mybatis;
+	CREATE TABLE users(id INT PRIMARY KEY AUTO_INCREMENT, NAME VARCHAR(20), age INT);
+	INSERT INTO users(NAME, age) VALUES('Tom', 12);
+	INSERT INTO users(NAME, age) VALUES('Jack', 11);
+	
+	2.3.	添加Mybatis的配置文件conf.xml
+	<?xml version="1.0" encoding="UTF-8"?>
+	<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+	<configuration>
+		<environments default="development">
+			<environment id="development">
+				<transactionManager type="JDBC" />
+				<dataSource type="POOLED">
+					<property name="driver" value="com.mysql.jdbc.Driver" />
+					<property name="url" value="jdbc:mysql://localhost:3306/mybatis" />
+					<property name="username" value="root" />
+					<property name="password" value="root" />
+				</dataSource>
+			</environment>
+		</environments>
+	</configuration>
+	
+	2.4.	定义表所对应的实体类
+	public class User {
+		private int id;
+		private String name;
+		private int age;
+	    //get,set方法
+	}
+	
+	2.5.	定义操作users表的sql映射文件userMapper.xml
+	<?xml version="1.0" encoding="UTF-8" ?>
+	<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+	<mapper namespace="com.johnny.mybatis_test.test1.userMapper"> 
+		<select id="getUser" parameterType="int" 
+			resultType="com.johnny.mybatis_test.test1.User">
+			select * from users where id=#{id}
+		</select>
+	</mapper>
+	
+	2.6.	在conf.xml文件中注册userMapper.xml文件
+	<mappers>
+		<mapper resource="com/johnny/mybatis_test/test1/userMapper.xml"/>
+	</mappers>
+	
+	2.7.	编写测试代码：执行定义的select语句
+	public class Test {
+		public static void main(String[] args) throws IOException {
+			String resource = "conf.xml"; 
+			//加载mybatis的配置文件（它也加载关联的映射文件）
+			Reader reader = Resources.getResourceAsReader(resource); 
+			//构建sqlSession的工厂
+			SqlSessionFactory sessionFactory = new SqlSessionFactoryBuilder().build(reader);
+			//创建能执行映射文件中sql的sqlSession
+			SqlSession session = sessionFactory.openSession();
+			//映射sql的标识字符串
+			String statement = "com.johnny.mybatis.bean.userMapper"+".selectUser";
+			//执行查询返回一个唯一user对象的sql
+			User user = session.selectOne(statement, 1);
+			System.out.println(user);
+		}
+	}
+		
+		
+范围和生命周期
+	理解我们目前已经讨论过的不同范围和生命周期类是很重要的。不正确的使用它们会导致严重的并发问题。
+	SqlSessionFactoryBuilder
+		这个类可以被实例化，使用和丢弃。一旦你创建了 SqlSessionFactory 后，这个类就不需要存在了。因此 SqlSessionFactoryBuilder 实例的最佳范围是方法范围（也就是本地方法变量）。
+		你可以重用 SqlSessionFactoryBuilder 来创建多个 SqlSessionFactory 实例，但是最好的方式是不需要保持它一直存在来保证所有 XML 解析资源，因为还有更重要的事情要做。
+		命名空间在之前版本的 MyBatis 中是可选项，非常混乱在使用上也没有帮助。现在，命名空间是必须的，而且有一个目的，它使用更长的完全限定名来隔离语句。
+		命名空间使得接口绑定成为可能，就像你看到的那样，如果之前不了解，那么现在你就会使用它们了，你应该按照下面给出示例的来练习，以免改变自己的想法。使用命名空
+		间，并将它放在合适的 Java 包空间之下， 这将会使你的代码变得简洁，在很长的时间内提高 MyBatis 的作用。
+		命名解析：为了减少输入量， MyBatis 对所有的命名配置元素使用如下的命名解析规则，包括语句，结果映射，缓存等。
+		 直接查找完全限定名（比如“ com.mypackage.MyMapper.selectAllThings”），如果发现就使用。
+		 短名称（比如“ selectAllThings”）可以用来引用任意含糊的对象。而如果有两个或两个以上的（比如“ com.foo.selectAllThings”和“ com.bar.selectAllThings”） ,
+		那么就会得到错误报告，说短名称是含糊的，因此就必须使用完全限定名。
+	SqlSessionFactory
+		一旦被创建， SqlSessionFactory 实例应该在你的应用程序执行期间都存在。没有理由来
+		处理或重新创建它。使用 SqlSessionFactory 的最佳实践是在应用程序运行期间不要重复创建
+		多次。 这样的操作将被视为是非常糟糕的。因此 SqlSessionFactory 的最佳范围是应用范围。
+		有很多方法可以做到，最简单的就是使用单例模式或者静态单例模式。然而这两种方法都不
+		认为是最佳实践。 这样的话，你可以考虑依赖注入容器，比如 Google Guice 或 Spring。这样
+		的框架允许你创建支持程序来管理单例 SqlSessionFactory 的生命周期。
+	SqlSession
+		每个线程都应该有它自己的 SqlSession 实例。 SqlSession 的实例不能共享使用， 它也是线程不安全的。因此最佳的范围是请求或方法范围。绝对不能将 SqlSession 实例的引用放在
+		一个类的静态字段甚至是实例字段中。也绝不能将 SqlSession 实例的引用放在任何类型的管理范围中，比如 Serlvet 架构中的 HttpSession。如果你现在正用任意的 Web 框架，要考虑
+		SqlSession 放在一个和 HTTP 请求对象相似的范围内。换句话说，基于收到的 HTTP 请求，你可以打开了一个 SqlSession，然后返回响应，就可以关闭它了。 关闭 Session 很重要，你
+		应该确保使用 finally 块来关闭它。下面的示例就是一个确保 SqlSession 关闭的基本模式：
+		SqlSession session = sqlSessionFactory.openSession();
+		try {
+		// do work
+		} finally {
+		session.close();
+		}
+		在你的代码中一贯地使用这种模式，将会保证所有数据库资源都正确地关闭（假设你没有通过你自己的连接关闭，这会给 MyBatis 造成一种迹象表明你要自己管理连接资源）。
+	映射器实例
+		映射器是你创建绑定映射语句的接口。 映射器接口的实例可以从 SqlSession 中获得。 那么从技术上来说， 当被请求时， 任意映射器实例的最宽范围和 SqlSession 是相同的。然而，
+		映射器实例的最佳范围是方法范围。也就是说，它们应该在使用它们的方法中被请求，然后就抛弃掉。 它们不需要明确地关闭，那么在请求对象中保留它们也就不是什么问题了，这和
+		SqlSession 相似。你也许会发现，在这个水平上管理太多的资源的话会失控。保持简单，将映射器放在方法范围内。下面的示例就展示了这个实例：
+		SqlSession session = sqlSessionFactory.openSession();
+		try {
+			BlogMapper mapper = session.getMapper(BlogMapper.class);
+		// do work
+		} finally {
+			session.close();
+		}

@@ -1,0 +1,203 @@
+http://blog.csdn.net/wangmuming/article/details/22925127/
+http://blog.csdn.net/wangmuming/article/category/2167947
+
+Jenkins安装与配置
+	Jenkins安装
+		在最简单的情况下，Jenkins 只需要两个步骤：
+			1.下载最新的版本http://mirrors.jenkins-ci.org/war-stable/（一个 WAR 文件）。Jenkins官方网址: https://jenkins.io/index.html 
+				-最好选择稳定版（比如1.642.4），不要选择最新版
+			2.运行 java -jar jenkins.war
+				Java –jar jenkins.war –httpsPort=8443 –httpPort=-1 
+				httpsPort是访问的端口，httpPort=-1代表关闭http访问方式启用https。
+		注意：Jenkins 需要运行 Java 5以及以上的版本。
+		还有一种安装方式就是将下载的war包文件部署到 servlet 容器，然后启动容器，在浏览器的URL地址栏中输入类似http://localhost:8080/jenkins/这样的地址即可。
+		启动后会在当前用户下生成一个工作目录：C:\Users\Administrator\.jenkins\workspace
+		
+		Window服务
+			下载exe文件，直接下一步安装即可
+				安装目录下会出现一个jenkins.war文件，也可以用来直接部署在servlet容器上
+				安装目录下 jenkins.xml 可以修改http的端口以及堆内存
+					<arguments>-Xrs -Xmx256m -Dhudson.lifecycle=hudson.lifecycle.WindowsServiceLifecycle 
+					-jar "%BASE%\jenkins.war" --httpPort=6080</arguments>
+	配置：
+	 	JDK、Maven、Ant配置
+	 		在已运行的Jenkins主页中，点击左侧的系统管理—>系统设置进入如：
+			配置一个JDK、Ant、Maven实例，请在每一节下面单击Add(新增) 按钮，这里将添加实例的名称和绝对地址
+			Ps：每个文本框后面都有个问号，点击问号就会出现帮助信息
+				JDK别名：
+				JAVA_HOME：这个是本机JDK的安装路径（错误的路径会有红字提示你的）
+				自动安装：不推荐这个选项，使用本地的
+			后面Ant与Maven的配置是一样的，JDK去oracle官网下载，Ant与Maven去apache官网下载
+	
+		 邮件通知配置
+			配置发件人地址
+			配置邮件通知
+			
+		Subversion配置
+					
+		Configure Global Security(安全设置)
+			在已运行的Jenkins主页中，点击左侧的系统管理—>Configure Global Security进入如下界面：
+				启用安全，保存后系统管理中就出现管理用户的选项。页面右上角也会出现登录/注册的选项。
+
+				
+	构建任务-源码管理配置--构建触发器-Ant构建配置-War文件部署Tomcat设置
+		1.新建job-构建一个自由风格的软件项目
+		2.源码管理配置
+			使用Subversion的链接，在Repository URL中输入你的项目链接，点击 enter credential 输入用户名和密码。
+				Repository URL：https://10.5.6.119/svn/zte@HEAD
+				Local module directory (optional)：./code	-	Local module directory可以输入用来输入存放代码的目录
+			Ps：svn的用户名和密码设置了是没有办法在web界面修改的。如果要修改则先去Jenkins目录删除hudson.scm.SubversionSCM.xml文件
+		3.构建触发器
+			-在其他项目构建完成后才执行构建：指定的项目完成构建后，触发此项目的构建。
+			-Poll SCM ：这是CI 系统中常见的选项。当您选择此选项，您可以指定一个定时作业表达式来定义Jenkins每隔多久检查一下您源代码仓库的变化。
+			如果发现变化，就执行一次构建。例如，表达式中填写0,15,30,45 * * * *将使Jenkins每隔15分钟就检查一次您源码仓库的变化。
+			-Build periodically ：此选项仅仅通知Jenkins按指定的频率对项目进行构建，而不管SCM是否有变化。如果想在这个Job中运行一些测试用例的话，它就很有帮助。
+			
+		4.构建	-	输出war包
+			增加构建步骤-Invoke Ant
+				Ant Version： 选择你Ant配置的那个名字
+				Targets：
+				Build File：../build/build.xml	--指定build.xml相对于code的路径
+				Properties：
+			另一种方式 增加构建-Execute Windows batch commond
+				命令
+					cd build
+					build.bat
+		5.构建后操作	-	War文件部署Tomcat设置、归档、测试用例
+			War文件部署Tomcat设置
+				-首先你必须安装好Deploy Plugin插件
+					-方法1：通过 系统管理 - 管理插件 进行安装 	推荐该方式，可以清楚了解版本兼容问题
+					-方法2下载地址：jenkins插件下载地址 http://updates.jenkins-ci.org/download/plugins/ 
+						delploy.hpi支持包括tomcat jboss等容器
+							-方法1：通过 管理插件 高级 上传插件 功能 进行安装
+							-方法2：把下载好的deploy.hpi 放在C:\Users\Administrator\.jenkins\plugins 目录，重启jenkins即可
+					安装完成后，构建后操作 下会多出一个操作：Deploy war/ear to a container
+				-在tomcat的conf目录配置tomcat-users.xml文件，在<tomcat-users>节点里添加如下内容：
+					<role rolename="manager-gui"/>
+					<role rolename="manager-script"/>
+					<role rolename="manager-jmx"/>
+					<role rolename="manager-status"/>
+					<user username="hfq" password="hfq" roles="manager-gui,manager-script,manager-jmx,manager-status"/>
+					确认该用户可以登陆  tomcat。
+				-配置 构建后操作
+					选择 Deploy war/ear to a container
+						WAR/EAR files		- war文件的存放位置，如：publish/johnny.war 注意：相对路径，publish前是没有/的。
+						Context path		- 访问时需要输入的内容，如johnny访问时如下：http://192.168.x.x:8080/johnny/如果为空，默认是war包的名字。
+						Deploy on failure 	- 构建失败依然部署，一般不选择
+						Container：选择你的web容器，如tomca 6.x
+							Manager user name：填入tomcat-users.xml配置的username内容
+							Manager password：填入tomcat-users.xml配置的password内容
+							Tomcat URL：填入http://192.168.x.x:8080/
+						注意：虽然这种部署方法可能会导致tomcat加载时出现卡死的现象。但是也是最简单的部署方式。如果卡死了重启下就好了，将tomcat的java内存参数调高可以解决这个问题。
+						
+			归档
+				每一次的构建日志在服务器 .jenkins\jobs\DEPLOY_TEST\builds 目录下
+					Jenkins自动构建完后，可以将构建结果存档（如程序版本），以方便大家下载使用，可以通过“构建后操作”的“Archive the artifacts”来实现。
+					用于存档的文件	-	publish/*.war	
+						相对目录是workplace ，支持通配符
+					存档后，在jenkins界面查看构建历史，可以看到对应的存档文件
+			测试用例
+				Publish Junit test result report
+					测试 报告（XML）：publish/TEST-com.johnny.javaweb.junit.AllTests.xml		-	junit生成xml文件的路径，不指定具体文件可能导致在jenkins出现多次
+				保存后在构建后可以看到测试用例的情况		
+		6.点击立即构建-查看构建情况
+			
+	构建任务-源码管理配置--构建触发器-Ant构建配置-War文件部署WAS设置
+		123同上
+		4.构建	-	输出war包
+			增加构建步骤-Invoke Ant
+				Ant Version： 选择你Ant配置的那个名字
+				Targets：
+				Build File：../build/build.xml	--制定build.xml相对于code的路径
+				Properties：
+			另一种方式 增加构建-Execute Windows batch commond
+				命令
+					cd build
+					build.bat
+			build.xml 不需进行 svn检出 和 部署操作，这些可以交给Jenkins来完成。
+		5.War文件部署WAS设置
+			-方法1：安装好Deploy Plugin插件 -	目前插件只支持WebSphere Application Server 6.1 版本，所以不使用该方法
+			-方法2：下载 publish-over-ssh.hpi 插件 	-	 安装完构建步骤会多出 一个 Send files or execute commands over SSH
+			
+			 系统设置（所有的高级全部展开） - 维护Publish over SSH
+				公共配置：
+					Passphrase：密码（key的密码，如果你设置了）
+					Path to key：key文件（私钥）的路径
+					Key：将私钥复制到这个框中
+					Disable exec：禁止运行命令
+				私有配置：
+					SSH Server Name：标识的名字（随便你取什么）	-	
+					Hostname：需要连接ssh的主机名或ip地址（建议ip）	-	
+					Username：用户名	-	root
+					Remote Directory：	远程目录	*这个很关键，没配置文件不知上传到哪里。后面的相对目录	- /
+					Use password authentication, or use a different key：可以替换公共配置（选中展开的就是公共配置的东西，这样做扩展性很好）
+				私有配置的高级：
+					Port：端口（默认22）
+					Timeout (ms)：超时时间（毫秒）默认即可
+					Disable exec：禁止运行命令
+					Test Configuration：测试连接 
+					
+					SSH  Server Name：选个一个你在系统设置里配置的配置的名字
+			在第四步后增加 构建步骤 Send files or execute commands over SSH
+					Transfers
+						Transfer Set Source files：需要上传的文件（注意：相对于工作区的路径。看后面的配置可以填写多个，默认用,分隔）-	publish/johnny.war
+						Remove prefix：移除目录（只能指定Transfer Set Source files中的目录）-	publish/
+						Remote directory：远程目录（根据你的需求填写吧，因为我这儿是测试,所以偷懒没有填写。默认会继承系统配置）-	/usr/
+						Exec command：把你要执行的命令写在里面-	sh /usr/deploy-test.sh
+							在目标服务器 上维护 deploy-test.sh,并测试可用性
+								profiles/Dmgr01 的名称 应该为profiles/AppSrv01 该服务器安装写错了
+								#!/bin/sh	
+								#defined 
+								echo "delete dmp,phd log files"
+								echo $(date)
+								rm -rf /data/IBM/WebSphere/AppServer/profiles/Dmgr01/*dmp
+								rm -rf /data/IBM/WebSphere/AppServer/profiles/Dmgr01/*phd
+								rm -rf /data/IBM/WebSphere/AppServer/profiles/Dmgr01/javacore*.txt
+								rm -rf /data/IBM/WebSphere/AppServer/profiles/Dmgr01/Snap*.trc
+								echo "stopApplication"
+								echo $(date)
+								/data/IBM/WebSphere/AppServer/profiles/Dmgr01/bin/wsadmin.sh -user wasadmin -password wasadmin -lang jacl -c '$AdminControl invoke [$AdminControl queryNames type=ApplicationManager,node=ZTE-ReceiveNode01,process=server1,*] stopApplication johnny3_war'
+								echo "delete files" 
+								echo $(date)
+								#找到${was安装目录}/AppServer/profiles/AppSrv01/config/cells/xxxNode01Cell/applications/${应用名}.ear/deployments/目录下，
+								#有一个与应用相同名称的缓存文件夹，删除或修改该文件夹的web.xml，重启was即可。
+								#rm -rf /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/config/cells/MSMTESTWEB3Cell01/applications/MSMSFIX.ear/deployments/MSMSFIX/EccWeb.war/WEB-INF/*.xml
+								#cp /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/installedApps/MSMTESTWEB3Cell01/MSMSFIX.ear/EccWeb.war/WEB-INF/*.xml /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/config/cells/MSMTESTWEB3C
+								cd /data/IBM/WebSphere/AppServer/profiles/AppSrv01/temp/MSMSFZNode01/
+								rm -rf *
+								cd /data/IBM/WebSphere/AppServer/profiles/Dmgr01/installedApps/ZTE-ReceiveNode01Cell/johnny3_war.ear/johnny2.war
+								rm -rf *
+								echo "tar war"
+								echo $(date)
+								jar -xf /usr/johnny.war
+								#/data/IBM/WebSphere/AppServer/java/bin/jar -xf /usr/EccWeb.war
+								echo "startApplication"
+								echo $(date)
+								/data/IBM/WebSphere/AppServer/profiles/Dmgr01/bin/wsadmin.sh -user wasadmin -password wasadmin -lang jacl -c '$AdminControl invoke [$AdminControl queryNames type=ApplicationManager,node=ZTE-ReceiveNode01,process=server1,*] startApplication johnny3_war'
+							
+						（新版本的要求Transfer Set Source files和Exec command都要填写。老版本的允许只填写一个）
+						高级：
+							Exclude files：排除的文件（在你传输目录的时候很有用，使用通配符，例如：**/*.log,**/*.tmp,.git/）
+							Pattern separator：分隔符（配置Transfer Set Source files的分隔符。如果你这儿更改了，上面的内容也需要更改）
+							No default excludes：禁止默认的排除规则（具体的自己看帮助）
+							Make empty dirs：此选项会更改插件的默认行为。默认行为是匹配该文件是否存在，如果存在则创建目录存放。选中此选项会直接创建一个目录存放文件，即使是空目录。（个人理解）
+							Flatten files：只上传文件，不创建目录（除了远程目录）
+							Remote directory is a date format:远程目录建立带日期的文件夹（需要在Remote directory中配置日期格式）
+							具体格式参考下表：
+								Remote directory 								Directories created 
+								'qa-approved/'yyyyMMddHHmmss 					qa-approved/20101107154555 
+								'builds/'yyyy/MM/dd/'build-${BUILD_NUMBER}' 	builds/2010/11/07/build-456 (if the build was number 456) 
+								yyyy_MM/'build'-EEE-d-HHmmss 					2010_11/build-Sun-7-154555 
+								yyyy-MM-dd_HH-mm-ss 							2010-11-07_15-45-55
+							
+							Exec timeout (ms)：运行脚步的超时时间（毫秒）
+							Exec in pty：模拟一个终端执行脚步
+							Add Transfer Set：增加一个配置
+
+	构建任务-源码管理配置--构建触发器-Maven构建配置-War文件部署Tomcat设置
+		
+			
+	
+	
+
+	

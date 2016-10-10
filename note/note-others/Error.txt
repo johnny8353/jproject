@@ -1,0 +1,33 @@
+
+
+	1>	tomcat启动报错：Server Tomcat v7.0 was unable to start within 45 seconds. If the server requires more time,
+	 try increasing the timeout in the server editor.
+	解决方案： 
+	修改 workspace\.metadata\.plugins\org.eclipse.wst.server.core\servers.xml文件。 
+	把其中的start-timeout="45" 改为  start-timeout="100" 或者更长
+		<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+		<servers>
+		  <server auto-publish-setting="2" auto-publish-time="1" configuration-id="/Servers/Tomcat v7.0-config" deployDir="wtpwebapps"
+		   hostname="localhost" id="Tomcat v7.0" name="Tomcat v7.0" runtime-id="Apache Tomcat v7.0" 
+		   server-type="org.eclipse.jst.server.tomcat.70" server-type-id="org.eclipse.jst.server.tomcat.70" 
+		   start-timeout="6000" stop-timeout="15" testEnvironment="true" timestamp="4">
+		    <list key="modules"/>
+		  </server>
+		</servers>
+		 
+	2>使用Eclipse自带的Maven插件创建Web项目时报错：
+		Could not resolve archetype org.apache.maven.archetypes:maven-archetype-webapp:RELEASE 
+		from any of the configured repositories.
+	解决方案：
+		在Eclipse Maven配置中添加新的Catalog配置： Preferences - Maven - Archetypes
+		http://repo1.maven.org/maven2/archetype-catalog.xml
+		也可以下载到本地，然后再添加，这样比较快，eclipse联网比较慢
+		使用刚添加的catalog创建web工程
+		
+	3>java.io.EOFException	
+		一直用tomcat一段时间都正常无事，最近一次启动tomcat就发生以下异常：
+		严重: IOException while loading persisted sessions: java.io.EOFException 严重: 
+		Exception loading sessions from persistent storage
+		原因是tomcat对硬盘的session读取失败，彻底解决办法一下：将work下面的文件清空，主要是*.ser文件，或者只是删除掉session.ser即可以解决。
+		
+	4>Integer.parseInt(""); 会报错java.lang.NumberFormatException: For input string: ""

@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>title</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/datePicker/WdatePicker.js" ></script>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+</head>
+<body>
+<div id="content">
+  <div id="position">当前位置：常用组件&gt;IT组件&gt;日期选择</div>
+  <form id="form1" action="" method="post" >
+  <ul class="tab_list" id="tab1">
+  <li class="selected" onClick="selectMenu(this,'tabTable0')">示例</li>
+  <li class="unselected" onClick="selectMenu(this,'tabTable1')">控件外观</li>
+  <li class="unselected" onClick="selectMenu(this,'tabTable2')">交互规范</li>
+<!--  <li class="unselected" onClick="selectMenu(this,'tabTable3')">源代码</li>-->
+  </ul> 
+  <!--标签1-->
+    <div id="tabTable0">
+    <table cellpadding="0" cellspacing="1" class="tb_input" >
+      <tr>
+        <td colspan="2" class="note">人员选择</td>
+      </tr>
+      <tr>
+        <td width="15%" class="td_title">日期选择</td>
+        <td><input id="txtDate1" type="text" class="txt_150"/>
+		<img src="../../js/datePicker/skin/datePicker.gif"  align="absmiddle" style="cursor:pointer" onClick="WdatePicker({el:'txtDate1'})" /></td>
+      </tr>
+      <tr>
+        <td class="td_title">日期选择</td>
+        <td><input name="text5" type="text" class="Wdate txt_150" onClick="WdatePicker()"/>&nbsp;<span class="tips">图标在输入框内，节省空间</span></td>
+      </tr>
+      <tr>
+        <td class="td_title">日期选择（多语言：英语）</td>
+        <td><input name="text4" type="text" class="txt_150" id="txtEn"/>
+            <img src="../../js/datePicker/skin/datePicker.gif"  align="absmiddle" style="cursor:pointer" onclick="WdatePicker({el:'txtEn',lang:'en'})" /></td>
+      </tr>
+      <tr>
+        <td class="td_title">日期选择（双日历）</td>
+        <td><input name="text3" type="text" class="txt_150" id="txtdt"/>
+          <img src="../../js/datePicker/skin/datePicker.gif"  align="absmiddle" style="cursor:pointer" onclick="WdatePicker({el:'txtdt',doubleCalendar:true})" /></td>
+      </tr>
+      <tr>
+        <td class="td_title">时间选择</td>
+        <td><input name="text" type="text" class="txt_150" id="txtTime"/>
+          <img src="../../js/datePicker/skin/datePicker.gif"  align="absmiddle" style="cursor:pointer" onclick="WdatePicker({el:'txtTime',dateFmt:'yyyy-MM-dd HH:mm:ss'})" /></td>
+      </tr>
+      <tr>
+        <td class="td_title">年月选择</td>
+        <td><input name="text2" type="text" class="txt_150" id="txtMonth"/>
+        <img src="../../js/datePicker/skin/datePicker.gif"  align="absmiddle" style="cursor:pointer" onclick="WdatePicker({el:'txtMonth',dateFmt:'yyyy-MM'})" /></td>
+      </tr>
+      <tr>
+        <td class="td_title">日期选择（联动）</td>
+        <td>
+			<input id="d5221" class="Wdate txt_150" type="text" onFocus="var d5222=$dp.$('d5222');WdatePicker({onpicked:function(){d5222.focus();},maxDate:'#F{$dp.$D(\'d5222\')}'})"/>
+            至
+            <input id="d5222" class="Wdate txt_150" type="text" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'d5221\')}'})"/>		</td>
+      </tr>
+      <tr>
+        <td class="td_title">只能选择今天以后的日期</td>
+        <td><input id="d422" class="Wdate txt_150" type="text" onfocus="WdatePicker({minDate:'%y-%M-{%d+1}'})"/></td>
+      </tr>
+    </table>
+	 <div class="icon_tips" style="margin-top:10px"><a href="javascript:if(confirm(%27http://www.my97.net/dp/demo/index.htm  \n\nThis file was not retrieved by Teleport Ultra, because it is addressed on a domain or path outside the boundaries set for its Starting Address.  \n\nDo you want to open it from the server?%27))window.location=%27http://www.my97.net/dp/demo/index.htm%27"  target="_blank">查看更多功能>></a></div>
+	 </div>
+	<!--标签1结束-->
+	
+<!--标签2-->	
+<iframe src="../Interaction/application/datelayout.html"  frameborder=“0” scrolling="no" height="3900px" width="100%" marginheight="0" marginwidth="0" id="tabTable1" style="display:none;">
+</iframe>
+  <!--标签2结束-->
+  
+  <!--标签3-->	
+<iframe src="../Interaction/application/date.html"  frameborder=“0” scrolling="no" height="3900px" width="100%" marginheight="0" marginwidth="0" id="tabTable2" style="display:none;">
+</iframe>
+  <!--标签3结束-->
+
+<!--标签4-->
+ <iframe src="../Interaction/application/datedaima.html"  frameborder=“0” scrolling="no" height="1000px" width="100%" marginheight="0" marginwidth="0" id="tabTable3" style="display:none;">
+ </iframe>
+  <!--标签4结束-->	
+  </form>
+</div>
+</body>
+</html>

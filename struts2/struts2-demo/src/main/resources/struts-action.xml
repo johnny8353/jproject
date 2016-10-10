@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+	<package name="action" namespace="/" extends="struts-default">
+		<action name="TestActionContext"
+			class="com.johnny.struts2.action.TestActionContextAction">
+			<result name="success">/WEB-INF/pages/action/test-actionContext.jsp
+			</result>
+		</action>
+
+		<action name="TestAware" class="com.johnny.struts2.action.TestAwareAction">
+			<result>/WEB-INF/pages/action/test-aware.jsp</result>
+		</action>
+
+		<action name="dologin">
+			<result>/WEB-INF/pages/action/login.jsp</result>
+		</action>
+
+		<action name="logon" class="com.johnny.struts2.action.UserAction">
+			<result name="login-success" type="redirect">login-page.action</result>
+		</action>
+
+		<action name="login-page">
+			<result>/WEB-INF/pages/action/login-success.jsp</result>
+		</action>
+
+		<action name="logout" class="com.johnny.struts2.action.UserAction"
+			method="logout">
+			<result name="login-success">/WEB-INF/pages/action/login-success.jsp</result>
+		</action>
+
+		<action name="testActionSupport">
+			<result>/WEB-INF/pages/action/success.jsp</result>
+		</action>
+
+		<action name="testResult" class="com.johnny.struts2.action.TestResultAction">
+			<result name="success" type="dispatcher">/success.jsp</result>
+			<result name="login" type="redirect">/login.jsp</result>
+			<!-- 重定向到一个 Action -->
+			<!-- <result name="index" type="redirectAction"> <param name="actionName">dologin</param> 
+				<param name="namespace">/johnny</param> </result> -->
+			<!-- 通过 redirect 的响应类型也可以便捷的实现 redirectAction 的功能! -->
+			<result name="index" type="redirect">/johnny/dologin.action</result>
+
+			<!-- 转发到一个 Action -->
+			<!-- <result name="test" type="chain"> <param name="actionName">dologin</param> 
+				<param name="namespace">/johnny</param> </result> -->
+			<!-- 不能通过 type=dispatcher 的方式转发到一个 Action -->
+			<result name="test">/johnny/dologin.action</result>
+		</action>
+
+		<action name="testDynamicMethodInvocation"
+			class="com.johnny.struts2.action.TestDynamicMethodInvocationActoin"
+			method="save">
+			<result  type="redirect">testActionSupport.action</result>
+		</action>
+	</package>
+
+	<package name="testPackage" namespace="/johnny" extends="struts-default">
+		<action name="dologin">
+			<result>/WEB-INF/pages/action/login.jsp</result>
+		</action>
+	</package>
+
+</struts>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+	<bean id="helloWorld" class="com.johnny.spring.beans.helloworld.HelloWorld">
+		<property name="user" value="johnny"></property>
+	</bean>
+
+	<!-- 配置一个 bean -->
+	<bean id="helloWorld2" class="com.johnny.spring.beans.helloworld.HelloWorld">
+		<!-- 为属性赋值 -->
+		<!-- 通过属性注入: 通过 setter 方法注入属性值 -->
+		<property name="user" value="Tom"></property>
+	</bean>
+
+	<!-- 通过构造器注入属性值 -->
+	<bean id="helloWorld3" class="com.johnny.spring.beans.helloworld.HelloWorld">
+		<!-- 要求: 在 Bean 中必须有对应的构造器. -->
+		<constructor-arg value="Mike"></constructor-arg>
+	</bean>
+
+	<!-- 若一个 bean 有多个构造器, 如何通过构造器来为 bean 的属性赋值 -->
+	<!-- 可以根据 index 和 value 进行更加精确的定位. (了解) -->
+	<bean id="car" class="com.johnny.spring.beans.helloworld.Car">
+		<constructor-arg value="KUGA" index="1"></constructor-arg>
+		<constructor-arg value="ChangAnFord" index="0"></constructor-arg>
+		<constructor-arg value="250000" type="float"></constructor-arg>
+	</bean>
+
+	<bean id="car2" class="com.johnny.spring.beans.helloworld.Car">
+		<constructor-arg>
+			<value>ChangAnMazda</value>
+		</constructor-arg>
+		<!-- 若字面值中包含特殊字符, 则可以使用 DCDATA 来进行赋值. (了解) -->
+		<constructor-arg>
+			<value><![CDATA[<ATARZA>]]></value>
+		</constructor-arg>
+		<constructor-arg value="180" type="int"></constructor-arg>
+	</bean>
+
+	<bean id="person" class="com.johnny.spring.beans.helloworld.Person">
+		<property name="name" value="Johnny" />
+		<property name="age" value="22" />
+		<!-- 在 Bean 的配置文件中, 可以通过 <ref> 元素或 ref 属性为 Bean 的属性或构造器参数指定对 Bean 的引用 -->
+		<!-- <property name="car" ref="car2"/> -->
+		<!-- <property name="car"> <ref bean="car2"/> </property> -->
+		<!-- 内部 Bean 不能使用在任何其他地方 -->
+		<property name="car">
+			<bean class="com.johnny.spring.beans.helloworld.Car">
+				<constructor-arg value="dd" index="1"></constructor-arg>
+				<constructor-arg value="ffffff" index="0"></constructor-arg>
+				<constructor-arg value="250000" type="float"></constructor-arg>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="person2" class="com.johnny.spring.beans.helloworld.Person">
+		<property name="name" value="Johnny" />
+		<property name="age" value="22" />
+		<!-- 可以使用专用的 <null/> 元素标签为 Bean 的字符串或其它对象类型的属性注入 null 值,实际没意思，因为没赋值就是null -->
+		<property name="car">
+			<null />
+		</property>
+	</bean>
+
+	<bean id="person3" class="com.johnny.spring.beans.helloworld.Person">
+		<property name="name" value="Johnny" />
+		<property name="age" value="22" />
+		<!-- 和 Struts、Hiberante 等框架一样，Spring 支持级联属性的配置。 为级联属性赋值 -->
+		<property name="car" ref="car2"></property>
+		<!-- 属性需要先初始化后才可以被级联属性赋值，car不能为空，否则报异常，和Struts2不同 -->
+		<property name="car.maxSpeed" value="250"></property>
+	</bean>
+	
+	<!-- 的 p 命名空间，可以通过 <bean> 元素属性的方式配置 Bean 的属性 -->
+	<bean id="person4" class="com.johnny.spring.beans.helloworld.Person" p:age="10" p:name="johnny"/>
+	
+	<!-- Bean配置的继承：使用bean的parent 属性指定继承哪个bean的配置 -->
+	<bean id="person5" class="com.johnny.spring.beans.helloworld.Person" p:age="22" parent="person4" />
+	
+	<!-- 若只想把父 Bean 作为模板, 可以设置 <bean> 的abstract 属性为 true, 这样 Spring 将不会实例化这个 Bean
+		若一个bean没有指定class ，那么该bean要为抽象bean，否则报错
+		抽象bean不能被IOC容器实例化，只能用来继承配置 ，否则报错 -->
+	<bean id="person6" abstract="true" p:age="10" p:name="johnny"/>
+	
+	<!-- 通过 depends-on 属性设定 Bean 前置依赖的Bean，前置依赖的 Bean 会在本 Bean 实例化之前创建好。如果该bean不存在会报错 -->
+	<bean id="person7" class="com.johnny.spring.beans.helloworld.Person" p:age="111" parent="person5" depends-on="person5"/>
+	
+</beans>

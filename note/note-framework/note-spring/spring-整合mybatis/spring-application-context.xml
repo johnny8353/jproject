@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xsi:schemaLocation="
+       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+<!--       
+  <context:component-scan base-package="com.zte"/>
+ --> 
+   <context:component-scan base-package="com.zte.itp"/>
+ 
+    <context:component-scan base-package="com.zte.mcrm" use-default-filters="false">
+         <context:include-filter type="annotation" expression="org.springframework.stereotype.Repository" />
+         <context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
+         <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+	<bean id="propertyConfigurer"
+	      class="com.zte.mcrm.framework.common.secure.DecryptPropertyPlaceholderConfigurer"> 
+	    <property name="locations" >
+	            <list>
+					<value>classpath:jdbc.properties</value>
+				</list>  
+	    </property>  
+        <property name="encryptedProps"> 
+            <set> 
+                <value>jdbc.username</value> 
+                <value>jdbc.password</value>
+            </set> 
+        </property> 
+        <property name="fileEncoding" value="UTF-8"/>  
+	</bean>
+    <!-- 数据源定义 -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="initialSize" value="${jdbc.initialSize}" />
+        <property name="maxActive" value="${jdbc.maxActive}" />
+        <property name="maxWait" value="${jdbc.maxActive}" />
+        <property name="maxIdle" value="100" />
+        <property name="removeAbandoned" value="true" />
+        <property name="removeAbandonedTimeout" value="30000" />
+        <property name="logAbandoned" value="false" />
+        <property name="testOnBorrow" value="true"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="validationQuery" value="select current_date"/>
+   
+    </bean>
+    <!-- spring管理 mybatis sqlsessionfactory -->   
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">   
+        <property name="dataSource" ref="dataSource"></property>     
+        <property name="mapperLocations" value="classpath:com/zte/mcrm/**/dao/*.xml"></property>
+    </bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.zte.mcrm" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+	</bean>
+	<!-- Spring 事务管理配置,采用声明式事务,减少对业务代码的侵入 -->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <aop:config>
+        <aop:pointcut id="transactionPointcut" expression="execution(* com.zte.mcrm.*.business.*.*.*.*(..))" />
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="transactionPointcut" />
+    </aop:config>
+
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <tx:attributes>
+            <tx:method name="add*" propagation="REQUIRED" />
+            <tx:method name="save*" propagation="REQUIRED" />
+            <tx:method name="insert*" propagation="REQUIRED" />
+            <tx:method name="update*" propagation="REQUIRED" />
+            <tx:method name="edit*" propagation="REQUIRED" />
+            <tx:method name="modify*" propagation="REQUIRED" />
+            <tx:method name="delete*" propagation="REQUIRED" />
+            <tx:method name="remove*" propagation="REQUIRED" />
+            <tx:method name="cancle*" propagation="REQUIRED" />
+            <tx:method name="submit*" propagation="REQUIRED" />
+			<tx:method name="get*" propagation="REQUIRED"/>
+            <tx:method name="load*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="find*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="query*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="search*" propagation="REQUIRED"/>
+            
+            <tx:method name="*" propagation="REQUIRED" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+<!-- SpringMVC 多语言配置 开始 -->
+     <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">   
+                                                                         
+        <property name="basenames">     
+            <list>   
+                 <value>WEB-INF/classes/messagesCJ001</value>
+                 <value>WEB-INF/classes/messagesCJ002</value>
+                 <value>WEB-INF/classes/messagesCJ201</value>    
+                 <value>WEB-INF/classes/messagesCJ406</value>
+                 <value>WEB-INF/classes/messagesCJ301</value> 
+                 <value>WEB-INF/classes/messagesCJ410</value>         
+            </list>     
+        </property>    
+        <property name="useCodeAsDefaultMessage" value="true" /> 
+        <!--  刷新资源文件的周期，以秒为单位-->         
+        <property name="cacheSeconds" value="300"/>  
+    </bean>   
+      <!-- 配置I18N拦截器 -->
+    <mvc:interceptors>
+	    <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" />
+    </mvc:interceptors>
+    <!-- 定义本地化处理器 -->
+   <!--基于session-->
+   <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"/>	
+    <!--
+	  基于cookie
+     <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">   
+        <property name="cookieName" value="clientlanguage"/>   
+        <property name="cookieMaxAge" value="94608000"/>   
+        <property name="defaultLocale" value="en" />   
+     </bean> 
+	 基于请求	
+	 <bean id="localeResolver" class="org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver"></bean>
+	-->
+    <!-- 定义注解URL映射处理器 ，所有的请求映射必须关联本地化拦截器--> 
+	<bean id="defaultUrlMapping" class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping">
+		<property name="order">   
+			<value>1</value>   
+		</property>   
+	</bean>
+ <!-- SpringMVC 多语言配置 结束 --> 
+</beans>

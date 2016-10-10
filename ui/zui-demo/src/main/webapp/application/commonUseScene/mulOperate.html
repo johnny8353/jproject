@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>title</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+</head>
+<body>
+<div id="content">
+  <div id="position">当前位置：常用场景&gt;功能按钮&gt;多操作(表头)</div>
+  <table cellspacing="0" cellpadding="0" class="tb_title">
+    <tr>
+      <td class="icon_note">单据列表</td>
+      <td class="tb_btn"><ul class="muloperate">
+          <li class="btn">操作<img src="../../images/icons/icon_down.gif"  class="img"/>
+            <ul>
+              <li><a onfocus="this.blur()" href="addInfo.html" >新增</a></li>
+              <li><a onfocus="this.blur()" href="#">删除</a></li>
+              <li><a onfocus="this.blur()" href="#">转发</a></li>
+              <li><a onfocus="this.blur()" href="#">导出EXCEL</a></li>
+              <li><a onfocus="this.blur()" onclick="alert('请选择要导出的数据！');" href="#">导入EXCEL</a></li>
+            </ul>
+          </li>
+        </ul></td>
+    </tr>
+  </table>
+  <table cellpadding="0" cellspacing="1" class="tb_datalist">
+    <thead>
+      <tr class="tr_title">
+        <td width="5%">选择</td>
+        <td width="22%">单据号</td>
+        <td width="19%">本币金额</td>
+        <td width="43%">部门</td>
+        <td width="11%">操作</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="radio" name="radio" id="radio" value="radio" /></td>
+        <td>HS301-5000020011</td>
+        <td align="right">343.00</td>
+        <td>研发体系-业务研究院-IT中心开发部</td>
+        <td><a href="#">修改</a> <a href="#">删除</a></td>
+      </tr>
+      <tr>
+        <td><input type="radio" name="radio" id="radio2" value="radio" /></td>
+        <td>HS302-2005000021</td>
+        <td align="right">256.00</td>
+        <td>研发体系-业务研究院-IT中心开发部</td>
+        <td><a href="#">修改</a> <a href="#">删除</a></td>
+      </tr>
+      <tr>
+        <td><input type="radio" name="radio" id="radio3" value="radio" /></td>
+        <td>HS301-2005000010</td>
+        <td align="right">105.00</td>
+        <td>研发体系-业务研究院-IT中心开发部</td>
+        <td><a href="#">修改</a> <a href="#">删除</a></td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr class="tr_pagenumber">
+        <td colspan="5"> 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+          <select name="select" >
+            <option selected>10</option>
+            <option >20</option>
+            <option>20</option>
+            <option>40</option>
+            <option>50</option>
+            <option>全部</option>
+          </select>
+          行 <img src="../../images/icons/firstpage.gif"  title="首页" class="paginate"/> <img src="../../images/icons/prepage.gif"  title="上一页" class="paginate"/>
+          <input type="text" name="textfield" class="page_txt" />
+          <input type="button" name="button" value="Go" class="btn_go" />
+          <img src="../../images/icons/nextpage.gif"  title="下一页" class="paginate"/> <img src="../../images/icons/lastpage.gif"  title="末页" class="paginate"/></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+</body>
+</html>

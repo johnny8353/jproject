@@ -1,0 +1,22 @@
+异常处理: exception-mapping 元素
+	exception-mapping 元素: 配置当前 action 的声明式异常处理
+	exception-mapping 元素中有 2 个属性
+		-exception: 指定需要捕获的的异常类型。异常的全类名
+		-result: 指定一个响应结果, 该结果将在捕获到指定异常时被执行, 既可以来自当前 action 的声明, 也可以来自 global-results 声明. 
+	-可以通过 global-exception-mappings 元素为应用程序提供一个全局性的异常捕获映射. 但在 global-exception-mappings 元素下声明的任何 exception-mapping 
+	元素只能引用在 global-results 元素下声明的某个 result 元素
+		<global-results>
+            <result name="error">/error.jsp</result>
+        </global-results>
+        <global-exception-mappings>
+            <exception-mapping exception="java.lang.Exception" result="error"/>
+        </global-exception-mappings>
+	-声明式异常处理机制由  ExceptionMappingInterceptor 拦截器负责处理, 当某个 exception-mapping 元素声明的异常被捕获到时,
+	 ExceptionMappingInterceptor 拦截器就会向 ValueStack 中添加两个对象: 
+		exception: 表示被捕获异常的 Exception 对象
+		exceptionStack: 包含着被捕获异常的栈
+	可以在视图上通过 <s:property> 标签显示异常消息
+		 <s:property  value="exceptionStack">
+		 <s:property  value="exception">
+		 <s:property  value="exception.message">
+

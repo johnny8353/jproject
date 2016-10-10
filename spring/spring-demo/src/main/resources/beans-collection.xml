@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+	
+	<bean id="car" class="com.johnny.spring.beans.helloworld.Car">
+		<constructor-arg value="KUGA" index="1"></constructor-arg>
+		<constructor-arg value="ChangAnFord" index="0"></constructor-arg>
+		<constructor-arg value="250000" type="float"></constructor-arg>
+	</bean>
+
+	<bean id="car2" class="com.johnny.spring.beans.helloworld.Car">
+		<constructor-arg>
+			<value>ChangAnMazda</value>
+		</constructor-arg>
+		<!-- 若字面值中包含特殊字符, 则可以使用 DCDATA 来进行赋值. (了解) -->
+		<constructor-arg>
+			<value><![CDATA[<ATARZA>]]></value>
+		</constructor-arg>
+		<constructor-arg value="180" type="int"></constructor-arg>
+	</bean>
+	
+	<bean id="personList" class="com.johnny.spring.beans.helloworld.PersonList">
+		<property name="userName" value="Johnny" />
+		<property name="cars">
+			<list>
+				<ref bean="car" />
+				<ref bean="car2" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="personMap" class="com.johnny.spring.beans.helloworld.PersonMap">
+		<property name="name" value="Johnny" />
+		<property name="cars">
+			<map>
+				<entry key="AA" value-ref="car"></entry>
+				<entry key="BB" value-ref="car2"></entry>
+			</map>
+		</property>
+	</bean>
+	
+	<!-- 配置Properties属性值 -->
+	<bean id ="dataSource" class="com.johnny.spring.beans.helloworld.DataSource">
+		<property name="properties">
+			<props>
+				<prop key="username">root</prop>
+				<prop key="password">123456</prop>
+				<prop key="jdbcUrl">jdbc:mysql///test</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<!-- 声明集合类型的 bean ,需要导入util命名空间-->
+	<util:list id="cars">
+		<ref bean="car"/>
+		<ref bean="car2"/>
+	</util:list>
+	
+	<bean id="personList2" class="com.johnny.spring.beans.helloworld.PersonList">
+		<property name="userName" value="Johnny" />
+		<property name="cars" ref="cars"/>
+	</bean>
+</beans>

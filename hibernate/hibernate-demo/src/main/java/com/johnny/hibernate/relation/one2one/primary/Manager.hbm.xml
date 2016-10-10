@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.johnny.hibernate.relation.one2one.primary">
+
+	<class name="Manager2" table="MANAGERS2">
+
+		<id name="mgrId" type="java.lang.Integer">
+			<column name="MGR_ID" />
+			<generator class="native" />
+		</id>
+
+		<property name="mgrName" type="java.lang.String">
+			<column name="MGR_NAME" />
+		</property>
+
+		<one-to-one name="dept" class="Department2"></one-to-one>
+
+	</class>
+
+</hibernate-mapping>

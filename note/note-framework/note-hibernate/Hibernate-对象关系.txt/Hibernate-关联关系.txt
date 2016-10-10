@@ -1,0 +1,143 @@
+在领域模型中, 类与类之间最普遍的关系就是关联关系. 
+在 UML 中, 关联是有方向的. 
+以 Customer 和 Order 为例： 一个用户能发出多个订单, 而一个订单只能属于一个客户. 从 Order 到 Customer 的关联是多对一关联; 而从 Customer 到 Order 是一对多关联
+单向 n-1
+	单向 n-1 关联只需从 n 的一端可以访问 1 的一端
+	域模型: 从 Order 到 Customer 的多对一单向关联需要在Order 类中定义一个 Customer 属性, 而在 Customer 类中无需定义存放 Order 对象的集合属性
+	关系数据模型:ORDERS 表中的 CUSTOMER_ID 参照 CUSTOMER 表的主键
+	显然无法直接用 property 映射 customer 属性
+	Hibernate 使用 <many-to-one> 元素来映射多对一关联关系
+		<many-to-one> 元素来映射组成关系
+		name: 设定待映射的持久化类的属性的名字
+		column: 设定和持久化类的属性对应的表的外键
+		class：设定待映射的持久化类的属性的类型
+	关键配置：
+	Order.hbm.xml：
+	<!-- 
+		映射多对一的关联关系。 使用 many-to-one 来映射多对一的关联关系 
+		name: 多这一端关联的一那一端的属性的名字
+		class: 一那一端的属性对应的类名
+		column: 一那一端在多的一端对应的数据表中的外键的名字
+	-->
+	<many-to-one name="customer" class="Customer"  column="CUSTOMER_ID"></many-to-one>
+			
+双向 1-n
+	双向 1-n 与 双向 n-1 是完全相同的两种情形
+	双向 1-n 需要在 1 的一端可以访问 n 的一端, 反之依然.
+	域模型:从 Order 到 Customer 的多对一双向关联需要在Order 类中定义一个 Customer 属性, 而在 Customer 类中需定义存放 Order 对象的集合属性
+	关系数据模型:ORDERS 表中的 CUSTOMER_ID 参照 CUSTOMER 表的主键
+	当 Session 从数据库中加载 Java 集合时, 创建的是 Hibernate 内置集合类的实例, 因此在持久化类中定义集合属性时必须把属性声明为 Java 接口类型
+		Hibernate 的内置集合类具有集合代理功能, 支持延迟检索策略
+		事实上, Hibernate 的内置集合类封装了 JDK 中的集合类, 这使得 Hibernate 能够对缓存中的集合对象进行脏检查, 按照集合对象的状态来同步更新数据库。
+	在定义集合属性时, 通常把它初始化为集合实现类的一个实例. 这样可以提高程序的健壮性, 避免应用程序访问取值为 null 的集合的方法抛出 NullPointerException
+	Hibernate 使用 <set> 元素来映射 set 类型的属性
+		<set> 元素来映射持久化类的 set 类型的属性
+			name: 设定待映射的持久化类的属性的
+		<key> 元素设定与所关联的持久化类对应的表的外键
+			column: 指定关联表的外键名
+		<one-to-many> 元素设定集合属性中所关联的持久化类
+			class: 指定关联的持久化类的类名
+		<set> 元素的 inverse 属性
+			- 在hibernate中通过对 inverse 属性的来决定是由双向关联的哪一方来维护表和表之间的关系. inverse = false 的为主动方，inverse = true 的为被动方, 由主动方负责维护关联关系
+			- 在没有设置 inverse=true 的情况下，父子两边都维护父子
+			- 关系 
+				在 1-n 关系中，将 n 方设为主控方将有助于性能改善(如果要国家元首记住全国人民的名字，不是太可能，但要让全国人民知道国家元首，就容易的多)
+				在 1-N 关系中，若将 1 方设为主控方
+					- 会额外多出 update 语句。
+					- 插入数据时无法同时插入外键列，因而无法为外键列添加非空约束
+		<set> 元素有一个 order-by 属性, 如果设置了该属性, 当 Hibernate 通过 select 语句到数据库中检索集合对象时, 利用 order by 子句进行排序
+			order-by 属性中还可以加入 SQL 函数
+	cascade 属性		
+		在对象 – 关系映射文件中, 用于映射持久化类之间关联关系的元素, <set>, <many-to-one> 和 <one-to-one> 都有一个 cascade 属性, 它用于指定如何操纵与当前对象关联的其他对象. 
+		
+	关键配置：
+	Customer.hbm.xml：
+		<!-- 映射 1 对多的那个集合属性 -->
+        <!-- set: 映射 set 类型的属性, table: set 中的元素对应的记录放在哪一个数据表中. 该值需要和多对一的多的那个表的名字一致 -->
+        <!-- inverse: 指定由哪一方来维护关联关系. 通常设置为 true, 以指定由多的一端来维护关联关系 -->
+        <!-- cascade 设定级联操作. 开发时不建议设定该属性. 建议使用手工的方式来处理 -->
+        <!-- order-by 在查询时对集合中的元素进行排序, order-by 中使用的是表的字段名, 而不是持久化类的属性名  -->
+        <set name="orders" table="ORDERS2" inverse="true" order-by="ORDER_NAME DESC">
+        	<!-- 执行多的表中的外键列的名字 -->
+        	<key column="CUSTOMER_ID"></key>
+        	<!-- 指定映射类型 -->
+        	<one-to-many class="Order2"/>
+        </set>
+	Order.hbm.xml ： 
+    	<!-- 
+			映射多对一的关联关系。 使用 many-to-one 来映射多对一的关联关系 
+			name: 多这一端关联的一那一端的属性的名字
+			class: 一那一端的属性对应的类名
+			column: 一那一端在多的一端对应的数据表中的外键的名字
+		-->
+		<many-to-one name="customer" class="Customer2" column="CUSTOMER_ID"></many-to-one>    
+        
+映射一对一关联关系
+	域模型
+		Department			Manager
+	关系数据模型:
+		按照外键映射:
+			对于基于外键的1-1关联，其外键可以存放在任意一边，在需要存放外键一端，增加many-to-one元素。为many-to-one元素增加unique=“true” 属性来表示为1-1关联
+			另一端需要使用one-to-one元素，该元素使用 property-ref 属性指定使用被关联实体主键以外的字段作为关联字段
+			关键配置：
+			Department.hbm.xml：
+				<!-- 使用 many-to-one 的方式来映射 1-1 关联关系 -->
+				<many-to-one name="mgr" class="Manager" column="MGR_ID" unique="true"></many-to-one>	        
+			Manager.hbm.xml：
+				<!-- 映射 1-1 的关联关系: 在对应的数据表中已经有外键了, 当前持久化类使用 one-to-one 进行映射 -->
+				<!-- 没有外键的一端需要使用one-to-one元素，该元素使用 property-ref 属性指定使用被关联实体主键以外的字段作为关联字段 -->
+				<one-to-one name="dept" class="Department" property-ref="mgr"></one-to-one>   
+		按照主键映射:
+			基于主键的映射策略:指一端的主键生成器使用 foreign 策略,表明根据”对方”的主键来生成自己的主键，自己并不能独立生成主键. <param> 子元素指定使用当前持久化类的哪个属性作为 “对方”
+			采用foreign主键生成器策略的一端增加 one-to-one 元素映射关联属性，其one-to-one属性还应增加 constrained=“true” 属性；另一端增加one-to-one元素映射关联属性。
+			constrained(约束):指定为当前持久化类对应的数据库表的主键添加一个外键约束，引用被关联的对象(“对方”)所对应的数据库表主键
+			关键配置：
+			Department.hbm.xml：
+			    <id name="deptId" type="java.lang.Integer">
+		            <column name="DEPT_ID" />
+		            <!-- 使用外键的方式来生成当前的主键 -->
+		            <generator class="foreign">
+		            	<!-- property 属性指定使用当前持久化类的哪一个属性的主键作为外键 -->
+		            	<param name="property">mgr</param>
+		            </generator>
+		        </id>
+				<!--  
+				采用 foreign 主键生成器策略的一端增加 one-to-one 元素映射关联属性,
+				其 one-to-one 节点还应增加 constrained=true 属性, 以使当前的主键上添加外键约束
+				-->
+				<one-to-one name="mgr" class="Manager2" constrained="true"></one-to-one>
+			Manager.hbm.xml：
+				<one-to-one name="dept" class="Department2"></one-to-one>
+映射多对多关联关系
+	域模型: 
+		Category		Item
+	关系数据模型
+		单向 n-n
+			- n-n 的关联必须使用连接表
+			- 与 1-n 映射类似，必须为 set 集合元素添加 key 子元素，指定 CATEGORIES_ITEMS 表中参照 CATEGORIES 表的外键为 CATEGORIY_ID.
+			 与 1-n 关联映射不同的是，建立 n-n 关联时, 集合中的元素使用 many-to-many. many-to-many 子元素的 class 属性指定 items 集合中存放的是 Item 对象,
+			  column 属性指定  CATEGORIES_ITEMS 表中参照 ITEMS 表的外键为 ITEM_ID
+		双向 n-n
+			- 双向 n-n 关联需要两端都使用集合属性
+			- 双向n-n关联必须使用连接表
+			- 集合属性应增加 key 子元素用以映射外键列, 集合元素里还应增加many-to-many子元素关联实体类
+			- 在双向 n-n 关联的两边都需指定连接表的表名及外键列的列名. 两个集合元素 set 的 table 元素的值必须指定，而且必须相同。
+			set元素的两个子元素：key 和 many-to-many 都必须指定 column 属性，其中，key 和 many-to-many 分别指定本持久化类和关联类在连接表中的外键列名，
+			因此两边的 key 与 many-to-many 的column属性交叉相同。也就是说，一边的set元素的key的 cloumn值为a,many-to-many 的 column 为b；
+			则另一边的 set 元素的 key 的 column 值 b,many-to-many的 column 值为 a.  
+			- 对于双向 n-n 关联, 必须把其中一端的 inverse 设置为 true, 否则两端都维护关联关系可能会造成主键冲突.
+			关键配置：
+			Category.hbm.xml：
+				<!-- table: 指定中间表 -->
+		        <set name="items" table="CATEGORIES_ITEMS">
+		            <key>
+		                <column name="C_ID" />
+		            </key>
+		            <!-- 使用 many-to-many 指定多对多的关联关系. column 执行 Set 集合中的持久化类在中间表的外键列的名称  -->
+		            <many-to-many class="Item" column="I_ID"></many-to-many>
+		        </set>	
+		   	Item.hbm.xml:		  
+				<set name="categories" table="CATEGORIES_ITEMS" inverse="true">
+		        	<key column="I_ID"></key>
+		        	<many-to-many class="Category" column="C_ID"></many-to-many>
+		        </set>

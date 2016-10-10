@@ -1,0 +1,73 @@
+Object.hbm.xml：
+Java 类型, Hibernate 映射类型及 SQL 类型之间的对应关系 
+	1).Java基本类型的Hibernate映射类型	
+	Hibernate 映射类型		Java		标准 SQL 类型	大小和取值范围
+	int/integer		int/Integer		INTEGER		4Byte
+	long			long/Long		BIGINT		8Byte
+	short			short/Short		SAMLLINT	2Byte
+	byte			byte/Byte		TINYINT		1Byte
+	float			float/Float		FLOAT		4Byte
+	double			double/Double	DOUBLE		8Byte
+	big_decimal		BigDecimal		NUMBERIC	Numeric(8,2)
+	character		char/Character/String		CHAR(1)	定长字符
+	string			String			VARCHAR		变长字符
+	boolean			boolean/Boolean	BIT			布尔类型
+	yes/no			boolean/Boolean	CHAR(1)('Y'/'N')	布尔类型
+	true/false		boolean/Boolean	CHAR(1)('T'/'F')	布尔类型
+		
+	2). Java时间和日期类型的Hibernate映射类型
+	Hibernate 映射类型		Java 类型							标准 SQL 类型	描述
+	date			java.util.Date/java.sql.Date		DATE		日期， yyyy-mm-dd
+	time			java.util.Date/java.sql.TIme		TIME		时间， hh ： mm ： ss
+	timestamp		java.util.Date/java.sql.Timestamp	TIMESTAMP	时间戳， yyyymmddhhmmss
+	calendar		java.util.Calendar					TIMESTAMP	同上
+	calendar_date	java.util.Calendar					DATE		日期 yyyy - mm - dd
+	当程序类型为java.sql.Timestamp, 数据库中表属性类型为timestamp的情况下，即使用户以空值插入数据，数据库系统仍然会自动填充timestamp的值
+	
+	3). Java 大对象类型的Hibernate映射类型
+	Hibernate 映射类型		Java 类型				标准 SQL 类型			MySQL	Oracle 类型
+	binary				byte[]				VARBINARY/BLOB		BLOB	BLOB
+	text				String				CLOB				TEXT	CLOB
+	实现 serializable接口的一个 java类	serializable	VARBINARY/BLOB	BLOB	BLOB
+	clob				java.sql.Clob		CLOB				TEXT	CLOB
+	blob				java.sql.Blob		BLOB				BLOB	BLOB
+	
+	
+	
+映射 Java 的时间, 日期类型
+	1). 两个基础知识:
+	I. 在 Java 中, 代表时间和日期的类型包括: java.util.Date 和 java.util.Calendar. 
+	此外, 在 JDBC API 中还提供了 3 个扩展了 java.util.Date 类的子类: java.sql.Date, java.sql.Time 
+	和 java.sql.Timestamp, 这三个类分别和标准 SQL 类型中的 DATE, TIME 和 TIMESTAMP 类型对应
+	II. 在标准 SQL 中, DATE 类型表示日期, TIME 类型表示时间, TIMESTAMP 类型表示时间戳, 同时包含日期和时间信息. 
+	2). 如何进行映射 ?
+	I. 因为 java.util.Date 是 java.sql.Date, java.sql.Time 和 java.sql.Timestamp 的父类, 所以 java.util.Date
+	可以对应标准 SQL 类型中的 DATE, TIME 和 TIMESTAMP
+	II. 基于 I, 所以在设置持久化类的 Date 类型是, 设置为 java.util.Date. 
+	III. 如何把 java.util.Date 映射为 DATE, TIME 和 TIMESTAMP ?
+	可以通过 property 的 type 属性来进行映射: 
+	例如:
+	
+	<property name="date" type="timestamp">
+	    <column name="DATE" />
+	</property>
+	
+	<property name="date" type="data">
+	    <column name="DATE" />
+	</property>
+	
+	<property name="date" type="time">
+	    <column name="DATE" />
+	</property>
+	
+	其中 timestamp, date, time 既不是 Java 类型, 也不是标准 SQL 类型, 而是 hibernate 映射类型. 	
+	
+Java 大对象类型的 Hiberante 映射
+	- 在 Java 中, java.lang.String 可用于表示长字符串(长度超过 255), 字节数组 byte[] 可用于存放图片或文件的二进制数据. 此外, 
+		在 JDBC API 中还提供了 java.sql.Clob 和 java.sql.Blob 类型, 它们分别和标准 SQL 中的 CLOB 和 BLOB 类型对应. 
+		CLOB 表示字符串大对象(Character Large Object), BLOB表示二进制对象(Binary Large Object)
+	- Mysql 不支持标准 SQL 的 CLOB 类型, 在 Mysql 中, 用 TEXT, MEDIUMTEXT 及 LONGTEXT 类型来表示长度操作 255 的长文本数据
+	- 在持久化类中, 二进制大对象可以声明为 byte[] 或 java.sql.Blob 类型; 字符串可以声明为 java.lang.String 或 java.sql.Clob
+	- 实际上在 Java 应用程序中处理长度超过 255 的字符串, 使用 java.lang.String 比 java.sql.Clob 更方便
+	
+	

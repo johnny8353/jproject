@@ -1,0 +1,30 @@
+使用jconsole命令调用
+	1、同上一节第一步，不同的是，tomcat在启动时，设置参数的文件时catalina.sh，因此参数需在此设置。
+	JAVA_OPTS="$JAVA_OPTS -Djava.rmi.server.hostname=10.5.6.196"
+	JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=9000"
+	JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
+	JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false"
+
+	停止tomcat报错端口被占用，因为停止也执行了catalina.sh，需要修改下代码
+	if [ "$1" = "start" ];then
+	echo "set console";
+	JAVA_OPTS="$JAVA_OPTS -Djava.rmi.server.hostname=10.5.6.196"
+	JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=9000"
+	JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
+	JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false"
+	else
+	  echo "no startup";
+	fi;
+	
+	可以用命令ps -ef|grep java来查看java的参数
+	[root@sblreceive ~]# ps -ef|grep java
+	oracle   14616 14615  0 Mar02 ?        00:01:14 /oracle/app/bip/jdk/bin/java -XX:MaxPermSize=128m -Xmx512m -jar /oracle/app/bip/oc4j_bi/j2ee/home/oc4j.jar -config /oracle/app/bip/oc4j_bi/j2ee/home/config/server.xml -userThreads
+	root     16978     1 91 09:35 pts/4    00:00:39 /usr/java/jdk1.6.0_25/bin/java -Djava.util.logging.config.file=/oracle/apache-tomcat-7.0.54/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -XX:PermSize=128M -XX:MaxPermSize=256m -Xms2048m -Xmx3072m -Djava.rmi.server.hostname=10.5.6.196 -Dcom.sun.management.jmxremote.port=9000 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.endorsed.dirs=/oracle/apache-tomcat-7.0.54/endorsed -classpath /oracle/apache-tomcat-7.0.54/bin/bootstrap.jar:/oracle/apache-tomcat-7.0.54/bin/tomcat-juli.jar -Dcatalina.base=/oracle/apache-tomcat-7.0.54 -Dcatalina.home=/oracle/apache-tomcat-7.0.54 -Djava.io.tmpdir=/oracle/apache-tomcat-7.0.54/temp org.apache.catalina.startup.Bootstrap start
+	root     17017 16712  0 09:36 pts/3    00:00:00 grep java
+
+
+	2、对于redhat，默认情况下，hostname没有对应到ip。在redhat上，可使用hostname -i查看，如果显示的是127.0.0.1，那就需要配置/etc/hosts。
+	#127.0.0.1              localhost.localdomain localhost
+	192.168.1.110          localhost.localdomain localhost
+	
+	输入jconsole  选择远程进程，输入10.5.6.196:9000 

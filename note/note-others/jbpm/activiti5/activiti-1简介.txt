@@ -1,0 +1,109 @@
+工作流(Workflow)，就是“业务过程的部分或整体在计算机应用环境下的自动化”，它主要解决的是“使在多个参与者之间按照某种预定义的规则传递文档、信息或任务的过程自动进行，从而实现某个预期的业务目标，或者促使此目标的实现”。
+工作流管理系统(Workflow Management System, WfMS)是一个软件系统，它完成工作量的定义和管理，并按照在系统中预先定义好的工作流规则进行工作流实例的执行。工作流管理系统不是企业的业务系统，而是为企业的业务系统的运行提供了一个软件的支撑环境。
+工作流管理联盟(WfMC，Workflow Management Coalition)给出的关于工作流管理系统的定义是：工作流管理系统是一个软件系统，它通过执行经过计算的流程定义去支持一批专门设定的业务流程。工作流管理系统被用来定义、管理、和执行工作流程。
+工作流管理系统的目标：管理工作的流程以确保工作在正确的时间被期望的人员所执行——在自动化进行的业务过程中插入人工的执行和干预。 
+
+采用工作流管理系统的优点
+1、提高系统的柔性，适应业务流程的变化 
+2、实现更好的业务过程控制，提高顾客服务质量
+3、降低系统开发和维护成本
+
+Activiti介绍
+	Activiti5是由Alfresco软件在2010年5月17日发布的业务流程管理（BPM）框架，它是覆盖了业务流程管理、工作流、服务协作等领域的一个开源的、灵活的、易扩展的可执行流程语言框架。
+	Activiti基于Apache许可的开源BPM平台，创始人Tom Baeyens是JBoss jBPM的项目架构师，它特色是提供了eclipse插件，开发人员可以通过插件直接绘画出业务流程图。
+
+	
+3.1：工作流引擎
+	ProcessEngine对象，这是Activiti工作的核心。负责生成流程运行时的各种实例及数据、监控和管理流程的运行。
+3.2：BPMN
+	业务流程建模与标注（Business Process Model and Notation，BPMN) ，描述流程的基本符号，包括这些图元如何组合成一个业务流程图（Business Process Diagram）
+
+3.3：数据库（先学后看）
+	Activiti数据库支持：
+	Activiti的后台是有数据库的支持，所有的表都以ACT_开头。 第二部分是表示表的用途的两个字母标识。 用途也和服务的API对应。
+	ACT_RE_*: 'RE'表示repository。 这个前缀的表包含了流程定义和流程静态资源 （图片，规则，等等）。
+	ACT_RU_*: 'RU'表示runtime。 这些运行时的表，包含流程实例，任务，变量，异步任务，等运行中的数据。 Activiti只在流程实例执行过程中保存这些数据， 在流程结束时就会删除这些记录。
+	这样运行时表可以一直很小速度很快。
+	ACT_ID_*: 'ID'表示identity。 这些表包含身份信息，比如用户，组等等。
+	ACT_HI_*: 'HI'表示history。 这些表包含历史数据，比如历史流程实例， 变量，任务等等。
+	ACT_GE_*: 通用数据， 用于不同场景下，如存放资源文件。
+	
+	表结构操作：
+	3.3.1：资源库流程规则表
+	1)	act_re_deployment 	部署信息表
+	2)	act_re_model  		流程设计模型部署表
+	3)	act_re_procdef  		流程定义数据表
+	3.3.2：运行时数据库表
+	1)	act_ru_execution		运行时流程执行实例表
+	2)	act_ru_identitylink		运行时流程人员表，主要存储任务节点与参与者的相关信息
+	3)	act_ru_task			运行时任务节点表
+	4)	act_ru_variable		运行时流程变量数据表
+	3.3.3：历史数据库表
+	1)	act_hi_actinst 		历史节点表
+	2)	act_hi_attachment		历史附件表
+	3)	act_hi_comment		历史意见表
+	4)	act_hi_identitylink		历史流程人员表
+	5)	act_hi_detail			历史详情表，提供历史变量的查询
+	6)	act_hi_procinst		历史流程实例表
+	7)	act_hi_taskinst		历史任务实例表
+	8)	act_hi_varinst			历史变量表
+	3.3.4：组织机构表
+	1)	act_id_group		用户组信息表
+	2)	act_id_info			用户扩展信息表
+	3)	act_id_membership	用户与用户组对应信息表
+	4)	act_id_user			用户信息表
+	这四张表很常见，基本的组织机构管理，关于用户认证方面建议还是自己开发一套，组件自带的功能太简单，使用中有很多需求难以满足 
+	3.3.5：通用数据表
+	1)	act_ge_bytearray		二进制数据表
+	2)	act_ge_property			属性数据表存储整个流程引擎级别的数据,初始化表结构时，会默认插入三条记录，
+
+3.4：activiti.cfg.xml（activiti的配置文件）
+	Activiti核心配置文件，配置流程引擎创建工具的基本参数和数据库连接池参数。
+	定义数据库配置参数：
+		jdbcUrl: 数据库的JDBC URL。
+		jdbcDriver: 对应不同数据库类型的驱动。
+		jdbcUsername: 连接数据库的用户名。
+		jdbcPassword: 连接数据库的密码。
+	基于JDBC参数配置的数据库连接 会使用默认的MyBatis连接池。 下面的参数可以用来配置连接池（来自MyBatis参数）：
+		jdbcMaxActiveConnections: 连接池中处于被使用状态的连接的最大值。默认为10。
+		jdbcMaxIdleConnections: 连接池中处于空闲状态的连接的最大值。
+		jdbcMaxCheckoutTime: 连接被取出使用的最长时间，超过时间会被强制回收。 默认为20000（20秒）。
+		jdbcMaxWaitTime: 这是一个底层配置，让连接池可以在长时间无法获得连接时， 打印一条日志，并重新尝试获取一个连接。（避免因为错误配置导致沉默的操作失败）。 默认为20000（20秒）。
+	示例数据库配置：
+		<bean id="processEngineConfiguration"
+			class="org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
+			<!-- 连接数据的配置 -->
+			<property name="jdbcDriver" value="com.mysql.jdbc.Driver"></property>
+			<property name="jdbcUrl"
+				value="jdbc:mysql://localhost:3306/activiti?useUnicode=true&amp;characterEncoding=utf8"></property>
+			<property name="jdbcUsername" value="root"></property>
+			<property name="jdbcPassword" value="1230"></property>
+			<!-- 没有表创建表 -->
+			<property name="databaseSchemaUpdate" value="true"></property>
+		</bean>
+		
+	也可以使用javax.sql.DataSource。 （比如，Apache Commons的DBCP）：
+		<bean id="dataSource"
+			class="org.apache.commons.dbcp.BasicDataSource">
+			<property name="driverClass" value="${jdbc.driver}" />
+			<property name="url" value="${jdbc.url}" />
+			<property name="username" value="${jdbc.username}" />
+			<property name="password" value="${jdbc.password}" />
+		</bean>
+	
+		<bean id="transactionManager"
+			class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+			<property name="dataSource" ref="dataSource" />
+		</bean>
+	
+		<bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+			<property name="dataSource" ref="dataSource" />
+			<property name="transactionManager" ref="transactionManager" />
+			<property name="databaseSchemaUpdate" value="true" />
+			<property name="mailServerHost" value="localhost" />
+			<property name="mailServerPort" value="5025" />
+			<property name="jobExecutorActivate" value="false" />
+		</bean>
+3.5：logging.properties（日志处理）
+	日志的配置文件，Activiti操作数据库的时候，整合的日志文件
+		

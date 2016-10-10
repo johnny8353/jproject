@@ -1,0 +1,4 @@
+	
+	Problem: failed to create task or type sshexec Could not load a dependent class com.jcraft.jsch.Logger
+	
+	缺少jsch.jar,或包不可用

@@ -1,0 +1,628 @@
+JSTL 1.1
+	JSTL 全名为 JavaServer Pages Standard Tag Library，目前最新的版本为 1.1。JSTL 是由 JCP（Java Community Process）所指定的标准规格，
+	它主要提供给 Java Web 开发人员一个标准通用的标签函数库。
+	Web 程序开发人员能够利用 JSTL 和 EL 来开发 Web 程序，取代传统直接在页面上嵌入 Java 程序（Scripting）的做法，以提高程序可读性、维护性和方便性。
+	本章中，笔者将详细介绍如何使用 JSTL 中各种不同的标签，将依序介绍条件、循环、URL、U18N、XML、SQL 等标签的用法，让读者对 JSTL 有更深层的了解，并且能够学会如何使用 JSTL
+
+	
+7-1 JSTL 1.1 简介
+	JavaServer Pages Standard Tag Library (1.1 )，它的中文名称为 JSP 标准标签函数库。JSTL是一个标准的已制定好的标签库，
+	可以应用于各种领域，如：基本输入输出、流程控制、循环、XML文件剖析、数据库查询及国际化和文字格式标准化的应用等。
+	从表 7-1 可以知道，JSTL 所提供的标签函数库主要分为五大类：
+	（1）核心标签库 (Core tag library)
+	（2）I18N 格式标签库 (I18N-capable formatting tag library)
+	（3）SQL 标签库 (SQL tag library)
+	（4）XML 标签库 (XML tag library)
+	（5）函数标签库 (Functions tag library)
+
+	表 7－1
+	JSTL 				前置名称 	URI 									范例
+	核心标签库			c 			http://java.sun.com/jsp/jstl/core 		<c:out>
+	I18N 格式标签库 		fmt 		http://java.sun.com/jsp/jstl/xml 		<fmt:formatDate>
+	SQL 标签库 			sql			http://java.sun.com/jsp/jstl/sql 		<sql:query>
+	XML 标签库 			xml 		http://java.sun.com/jsp/jstl/fmt 		<x:forBach>
+	函数标签库 			fn 			http://java.sun.com/jsp/jstl/functions 	<fn:split>
+	
+	另外，JSTL 也支持 EL(Expression Language)语法，例如：在一个标准的 JSP 页面中可能会使
+	用到如下的写法：
+	<%= userList.getUser().getPhoneNumber() %>
+	使用 JSTL 搭配传统写法会变成这样：
+	<c_rt:out value="<%= userList.getUser( ).getPhoneNumber( ) %>" />
+	使用 JSTL 搭配 EL，则可以改写成如下的形式：
+	<c:out value="${userList.user.phoneNumber}" />
+	虽然对网页设计者来说，假如没有学过 Java Script 或者是第一次看到这种写法时，可能会搞
+	不太懂，但是与 Java 语法相比，这应该更加容易学习
+		
+	7-1-1 安装使用 JSTL 1.1 JSTL
+		JSTL1.1 必须在支持 Servlet 2.4 且 JSP 2.0 以上版本的 Container 才可使用。JSTL 主要由 Apache组织的 Jakarta Project 所实现，因此读者可以到
+		http://jakarta.apache.org/builds/jakarta-taglibs/releases/standard/ 下载实现好的 JSTL1.1,软件名称为：jakarta-taglibs-standard-current.zip。
+		
+		将 lib 中的 jstl.jar、standard.jar 复制到 Tomcat 的 WEB-INF\lib 中，然后就可以在 JSP 网页中使用 JSTL 了。除了复制 .jar 文件外，
+		最好也把 tld 文件的目录也复制到 WEB-INF 中，以便日后使用。
+		下面写一个测试用的范例程序 HelloJSTL.jsp,程序主要是显示浏览器的版本和欢迎的字符串。
+			<c:out value="欢迎测试你的第一个使用到 JSTL 的网页"/>
+			</br>你使用的浏览器是：</br>
+			<c:out value="${header['User-Agent']}"/>
+			<c:set var="a" value="David O'Davies" />
+			<c:out value="David O'Davies" escapeXml="true"/>
+		在 HelloJSTL.jsp 的范例里，笔者用到核心标签库(Core)中的标准输出功能和 EL 的 header隐含对象。若要在 JSP 网页中使用 JSTL 时，一定要先做下面这行声明：
+			< %@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+		这段声明表示我将使用 JSTL 的核心标签库。一般而言，核心标签库的前置名称(prefix)都为
+		c，当然你也可以自行设定。不过 uri 此时就必须为 http://java.sun.com/jsp/jstl/core
+		
+		假若读者想要自定义 taglib 的 uri 时，那就必须在 web.xml 中加入设定值。例如：假若 uri 想
+		要改为 http://www.javaworld.com.tw/jstl/core 时，web.xml 就必须加入如下设定：
+			<web-app>
+			：
+			<jsp-config>
+			<taglib>
+			<taglib-uri>http://www.javaworld.com.tw/jstl/core</taglib-uri>
+			<taglib-location>/WEB-INF/tld/c.tld</taglib-location>
+			</taglib>
+			</jsp-config>
+			：
+			</web-app>
+		在上面的设定中，<taglib-uri>主要是设定标签库的 URI；而<taglib-location>则是用来设定
+		标签对应的 TLD 文件。因此，使用<%@ taglib %>指令时，可以直接写成如下语句：
+		<%@ taglib prefix="c" uri="http://www.javaworld.com.tw/jsp/jstl/core" %>
+		
+	7-1-2 JSTL 1.1 VS. JSTL 1.0
+		JSTL 1.0 更新至 JSTL 1.1 时，有以下几点不同：
+		(1) EL 原本是定义在 JSTL 1.0 的，现在 EL 已经正式纳入 JSP 2.0 标准规范中，所以在 JSTL 1.1
+		规范中，已经没有 EL 的部分，但是 JSTL 依旧能使用 EL。
+		(2) JSTL 1.0 中，又分 EL 和 RT 两种函数库，到了 JSTL 1.1 之后，已经不再分这两种了。以
+			下说明 EL 和 RT 的差别：
+			EL
+			■ 完全使用 Expression Language
+			■ 简单
+			■ 建议使用
+			RT
+			■ 使用 Scriptlet
+			■ Java 语法
+			■ 供不想转换且习惯旧表示法的开发者使用
+			笔者在此强烈建议大家使用 EL 来做，简单又方便。
+		(3) JSTL 1.1 新增函数(functions)标签库，主要提供一些好用的字符串处理函数，例如：
+		fn:contains、 fn:containsIgnoreCase、 fn:endsWith、 fn:indexOf、 fn:join、 fn:length、 fn:replace、
+		fn:split、fn:startsWith 和 fn:substring 等等。
+		JSTL 1.1 附录 B“Changes”部分，那里有更详尽的说明。
+	7-1-3 安装 standard-examples
+	当 解 压 缩 jakarta-taglibs-standard-current.zip 后 ， 文 件 夹 内 ( 见 图 7-1) 有 一 个standard-examples.war的文件， 将它移至 Tomcat的 webapps后，
+	重新启动 Tomcat会发现，在 webapps目 录下多 了一 个 standard-examples 的目 录。接 下来我 们打 开 IE， 在 URL 位置上 输入
+	http://localhost:8080/ standard-examples，你将会看到图 7-3 所示的画面。这个站台有很多 JSTL 的范例，它包括以下几部分：
+		■ General Purpose Tags
+		■ Conditional Tags
+		■ Iterator Tags
+		■ Import Tags
+		■ I18N & Formatting Tags
+		■ XML Tags
+		■ SQL Tags
+		■ Functions
+		■ Tag Library Validators
+		■ Miscellaneous
+	这些范例程序几乎涵盖了所有的 JSTL 标签函数库，假若读者对哪一个标签的使用有问题，可以先来找一找这里的范例程序，应该或多或少会有所帮助。
+
+7-2 核心标签库 (Core tag library)
+
+	首先介绍的核心标签库(Core)主要有：基本输入输出、流程控制、迭代操作和 URL 操作。详细的分类如表 7-2 所示，接下来笔者将为读者一一介绍每个标签的功能。
+	表 7－2
+		表达式操作	
+			out
+			set
+			remove
+			catch
+		流程控制
+			if
+			choose
+			when
+			otherwise
+		迭代操作 
+			forEach
+			forTokens
+
+		URL 操作
+			Import
+			param
+			url
+			param
+			redirect
+			param
+	在 JSP 中要使用 JSTL 中的核心标签库时，必须使用<%@ taglib %>指令，并且设定 prefix 和uri 的值，通常设定如下：
+		<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+		上述的功用在于声明将使用 JSTL 的核心标签库。
+		
+	7-2-1 表达式操作
+		表达式操作分类中包含四个标签：<c:out>、<c:set>、<c:remove>和<c:catch>。接下来将依序介绍这四个标签的用法。
+		<c:out>
+			<c:out>主要用来显示数据的内容，就像是 <%= scripting-language %> 一样，例如：
+			Hello ! <c:out value="${username}" />
+			语法
+			语法 1：没有本体(body)内容
+			<c:out value="value" [escapeXml="{true|false}"] [default="defaultValue"] />
+			语法 2：有本体内容
+			<c:out value="value" [escapeXml="{true|false}"]>
+			default value
+			</c:out>
+			
+			名称 		说明 										EL 			类型 	必须 默认值
+			value 		需要显示出来的值 							YObject 	Object 	是 	无
+			default 	如果 value 的值为 null，则显示 default 的值 YObject 	Object 	否 	无
+			escapeXml 	是否转换特殊字符，如：<转换成&lt; 			Yboolean 	boolean 否 	true
+			Null 和 错误处理
+			· 假若 value 为 null，会显示 default 的值；假若没有设定 default 的值，则会显示一个空的字符串。
+			
+			说明
+				一般来说，<c:out>默认会将 <、>、 ’ 、 ” 和 & 转换为 &lt;、&gt;、&#039;、&#034; 和 &amp;。
+				假若不想转换时，只需要设定<c:out>的 escapeXml 属性为 fasle 就可以了（见表 7-3）
+					字符 	Entity
+					< 		&lt;
+					>		&gt;
+					’ 		&#039;
+					” 		&#034;
+					& 		&amp;
+			
+				<c:out value="Hello JSP 2.0 !! " />
+				<c:out value="${ 3 + 5 }" />
+				<c:out value="${ param.data }" default="No Data" />
+				<c:out value="<p>有特殊字符</p>" />
+				<c:out value="<p>有特殊字符</p>" escapeXml="false" />
+				1．在网页上显示 Hello JSP 2.0 !! ；
+				2．在网页上显示 8；
+				3．在网页上显示由窗体传送过来的 data 参数之值，假若没有 data 参数，或 data 参数的值为
+				null 时，则网页上会显示 No Data；
+				4．在网页上显示“<p>有特殊字符</p>” ；
+				5．在网页上显示“有特殊字符” 。
+		<c:set>
+			<c:set>主要用来将变量储存至 JSP 范围中或是 JavaBean 的属性中。
+			语法
+				语法 1：将 value 的值储存至范围为 scope 的 varName 变量之中
+					<c:set value="value" var="varName" [scope="{ page|request|session|application }"]/>
+				语法 2：将本体内容的数据储存至范围为 scope 的 varName 变量之中
+					<c:set var="varName" [scope="{ page|request|session|application }"]>
+						… 本体内容
+					</c:set>
+				语法 3：
+					将 value 的值储存至 target 对象的属性中
+					< c:set value="value" target="target" property="propertyName" />
+				语法 4：
+					将本体内容的数据储存至 target 对象的属性中
+					<c:set target="target" property="propertyName">
+						… 本体内容
+					</c:set>
+					
+				属性
+				名称 	说	明 							EL 类型 必须 默认值
+				value 	要被储存的值 					Y Object 否 无
+				var		欲存入的变量名称 				N String 否 无
+				scope 	var 变量的 JSP 范围 			N String 否 page
+				target 	为一JavaBean或java.util.Map对象 Y Object 否 无
+				property 指定 target 对象的属性 		Y String 否 无
+				语法 3 和语法 4 会产生异常错误，有以下两种情况：
+					☆ target 为 null
+					☆ target 不是 java.util.Map 或 JavaBean 对象
+				假若 value 为 null 时：将由储存变量改为移除变量
+					☆ 语法 1：由 var 和 scope 所定义的变量，将被移除
+					□ 若 scope 已指定时，则 PageContext.removeAttribute(varName, scope)
+					□ 若 scope 未指定时，则 PageContext.removeAttribute(varName)
+					☆ 语法 3：
+					□ 假若 target 为 Map 时，则 Map.remove(property)
+					□ 假若 target 为 JavaBean 时，property 指定的属性为 null
+			说明
+				使用<c:set>时，var 主要用来存放表达式的结果；scope 则是用来设定储存的范围，例如：假
+				若 scope="session"，则将会把数据储存在 session 中。如果<c:set>中没有指定 scope 时，则它会
+				默认存在 Page 范围里。
+				注意
+				var 和 scope 这 两 个 属 性 不 能 使 用 表 达 式 来 表 示 ， 例 如 ： 我 们 不 能 写 成
+				scope="${ourScope}"或者是 var="${username}"。
+			我们考虑下列的写法：
+				<c:set var="number" scope="session" value="${1 + 1}"/>
+				把 1+1 的结果 2 储存到 number 变量中。 如果<c:set>没有 value 属性， 此时 value 之值在<c:set>
+				和</c:set>之间，本体内容看下面的范例：
+				<c:set var="number" scope="session">
+					<c:out value="${1+1}" />
+				</c:set>
+				上面的 <c:out value="${1+1}" /> 部分可以改写成 2 或是 <%=1+1%> ，结果都会一样，也就
+				是说，<c:set>是把本体(body)运算后的结果来当做 value 的值。另外，<c:set>会把 body 中最开头
+				和结尾的空白部分去掉。如：
+				<c:set var="number" scope="session">
+				   1 + 1
+				</c:set>
+				则 number 中储存的值为1 + 1 而不是  1 + 1。
+				范例
+					<c:set var="number" scope="request" value="${1 + 1}" />
+					<c:set var="number" scope="session" />
+						${3 + 5}
+					</c:set>
+					<c:set var="number" scope="request" value="${ param.number }" />
+					<c:set target="User" property="name" value="${ param.Username}" />
+					1．将 2 存入 Request 范围的 number 变量中
+					2．将 8 存入 Session 范围的 number 变量中；
+					3．假若 ${param.number}为 null 时， 则移除 Request 范围的 number 变量； 若${param.number}
+					不为 null 时，则将 ${param.number}的值存入 Request 范围的 number 变量中；
+					4．假若 ${param.Username}为 null 时，则设定 User(JavaBean)的 name 属性为 null；若不为
+					null 时，则将 ${param.Username}的值存入 User(JavaBean)的 name 属性(setter 机制)
+		<c:remove>
+			<c:remove>主要用来移除变量。
+			语法
+				<c:remove var="varName" [scope="{ page|request|session|application }"] />
+				属性
+				名称 	说明 				EL 类型 必须 默认值
+				var 	欲移除的变量名称 	N String 是 无
+				scope 	var 变量的 JSP 范围 N String 否 page
+			<c:remove>必须要有 var 属性，即要被移除的属性名称，scope 则可有可无，例如：
+				<c:remove var="number" scope="session" />
+				将 number 变量从 Session 范围中移除。若我们不设定 scope，则<c:remove>将会从 Page、
+				Request、Session 及 Application 中顺序寻找是否存在名称为 number 的数据，若能找到时，
+				则将它移除掉，反之则不会做任何的事情。
+			
+			范例
+				笔者在这里写一个使用到<c:set>和<c:remove>的范例，能让读者可以更快地了解如何使用
+				它们，此范例的名称为 Core_set_remove.jsp。
+				一开始各在 Page、Request 和 Session 三个属性范围中储存名称为 number 的变量。
+				然后先使用<c:remove var="number" scope="page" />把 Page 中的 number 变量移除，
+				*最后再使用<c:remove var="number" />把所有属性范围中 number 的变量移除。
+		<c:catch>
+			<c:catch>主要用来处理产生错误的异常状况，并且将错误信息储存起来。
+			语法
+				<c:catch [var="varName"] >
+				… 欲抓取错误的部分
+				</c:catch>
+				名称 说明 EL 类型 必须 默认值
+				var 用来储存错误信息的变量 N String 否 无	
+			<c:catch>主要将可能发生错误的部分放在<c:catch>和</c:catch>之间。如果真的发生错误，可以将错误信息储存至 varName 变量中，例如：
+				<c:catch var="error_Message">
+					<%
+						String eFormat = "not number";
+						int i = Integer.parseInt(eFormat);
+					%>
+				</c:catch>
+				${error_Message}
+			另外，当错误发生在<c:catch>和</c:catch>之间时，则只有<c:catch>和</c:catch>之间的程序会被中止忽略，但整个网页不会被中止。
+	
+	7-2-2 流程控制
+		流程控制分类中包含四个标签：<c:if>、<c:choose>、<c:when>和<c:otherwise>，笔者依此顺序依次说明这四个标签的使用。
+	
+		<c:if>
+			<c:if>的用途就和我们一般在程序中用的 if 一样。
+			语法
+				语法 1：没有本体内容(body)
+				<c:if test="testCondition" var="varName"
+				[scope="{page|request|session|application}"]/>
+				语法 2：有本体内容
+				<c:if test="testCondition" [var="varName"]
+				[scope="{page|request|session|application}"]>
+					具体内容
+				</c:if>
+				属性
+				名称 	说明 EL 类型 必须 默认值
+				test	如果表达式的结果为 true，则执行本体内容， false则相反Y boolean 是 无
+				var 	用来储存 test 运算后的结果，即 true 或 false N String 否 无
+				scope 	var 变量的 JSP 范围 N String 否 page
+			说明
+				<c:if> 标签必须要有 test 属性，当 test 中的表达式结果为 true 时，则会执行本体内容；如
+				果为 false，则不会执行。例如：${param.username = = 'admin'}，如果 param.username 等于 admin
+				时，结果为 true；若它的内容不等于 admin 时，则为 false。
+				接下来看下列的范例：
+					<c:if test="${param.username == 'Admin'}" var="condition" scope="page">
+						您好 Admin 先生
+					</c:if></br>
+					执行结果为: ${condition}
+				如果名称等于 admin，则会显示"ADMIN 您好!! "的动作，如果相反，则不会执行<c:if>的 body部分，所以不会显示"ADMIN 您好!! 
+				//body 部分"。另外<c:if>的本体内容除了能放纯文字，还可以放任何 JSP 程序代码(Scriptlet)、JSP 标签或者 HTML 码。除了 
+				test 属性之外，<c:if>还有另外两个属性 var 和 scope。当我们执行<c:if>的时候，可以将这次判断后的结果存放到属性 var 里；
+				scope 则是设定 var 的属性范围。哪些情况才会用到 var和 scope 这两个属性呢？例如：当表达式过长时，我们会希望拆开处理，
+				或是之后还须使用此结果时，也可以用它先将结果暂时保留，以便日后使用。
+		
+		<c:choose>
+			<c:choose>本身只当做 <c:when> 和 <c:otherwise> 的父标签。
+			语法
+				<c:choose>
+					本体内容( <when> 和 <otherwise> )
+				</c:choose>
+			限制
+				<c:choose>的本体内容只能有：
+					·空白
+					·1 或多个 <c:when>
+					·0 或多个 <c:otherwise>
+				说明
+				若使用<c:when>和<c:otherwise>来做流程控制时，两者都必须为<c:choose>的子标签，即：
+				<c:choose>
+					：
+					<c:when>
+					</c:when>
+					：
+					<c:otherwise>
+					</c:otherwise>
+					：
+				</c:choose>
+		<c:when>
+			<c:when> 的用途就和我们一般在程序中用的 when 一样。
+			语法
+				<c:when test="testCondition" >
+					本体内容
+				</c:when>
+				属性
+				名称 说明 EL 类型 必须 默认值
+				test 如果表达式的结果为 true，则执行本体内容， false则相反 Y boolean 是 无
+			限制
+				☆ <c:when>必须在<c:choose>和</c:choose>之间
+				☆ 在同一个<c:choose>中时，<c:when>必须在<c:otherwise>之前
+			说明
+				<c:when>必须有 test 属性，当 test 中的表达式结果为 true 时，则会执行本体内容；如果为
+				false 时，则不会执行。
+		<c:otherwise>
+			在同一个 <c:choose> 中，当所有 <c:when> 的条件都没有成立时，则执行 <c:otherwise> 的
+			本体内容。
+				语法
+				<c:otherwise>
+					本体内容
+				</c:otherwise>
+			限制
+				·<c:otherwise> 必须在 <c:choose> 和 </c:choose>之间
+				·在同一个 <c:choose> 中时，<c:otherwise> 必须为最后一个标签
+			说明
+				在同一个 <c:choose> 中，假若所有 <c:when> 的 test 属性都不为 true 时，则执行
+				<c:otherwise> 的本体内容。
+		范例
+			<c:choose>
+				<c:when test="${condition1}">
+					condition1 为 true
+				</c:when>
+				<c:when test="${ condition2}">
+					condition2 为 true
+				</c:when>
+				<c:otherwise>
+					condition1 和 condition2 都为 false
+				</c:otherwise>
+			</c:choose>
+			注意
+				假若 condition1 和 condition2 两者都为 true 时，此时只会显示"condition1 为 true"，这是因为
+				在同一个<c:choose>下，当有好几个<c:when>都符合条件时，只能有一个<c:when>成立。
+				
+	7-2-3 迭代操作
+		迭代(Iterate)操作主要包含两个标签：<c:forEach>和<c:forTokens>，笔者依此顺序依次说明这两个标签的使用
+		<c:forEach>
+			<c:forEach> 为循环控制，它可以将集合(Collection)中的成员循序浏览一遍。运作方式为当
+			条件符合时，就会持续重复执行<c:forEach>的本体内容。
+			语法
+				语法 1：迭代一集合对象之所有成员
+					<c:forEach [var="varName"] items="collection" [varStatus="varStatusName"] [begin="begin"]
+					[end="end"] [step="step"]>
+						本体内容
+					< /c:forEach>
+				语法 2：迭代指定的次数
+					<c:forEach [var="varName"] [varStatus="varStatusName"] begin="begin" end="end"
+					[step="step"]>
+						本体内容
+					</c:forEach>
+			属性
+				名称 			说明 						EL 	类型 				必须 	默认值
+				var 			用来存放现在指到的成员 		N 	String 				否 		无
+				items 			被迭代的集合对象 			Y	Arrays、Collection、Iterator、Enumeration、Map、String	否 无
+				varStatus 		用来存放现在指到的相关成员信息 N String 否 无
+				begin 			开始的位置 					Y int 否 0
+				end 			结束的位置 					Y int 否 最后一个成员
+				step 			每次迭代的间隔数 			Y int 否 1
+				册
+			限制
+				·假若有 begin 属性时，begin 必须大于等于 0
+				·假若有 end 属性时，必须大于 begin
+				·假若有 step 属性时，step 必须大于等于 0
+			Null 和 错误处理
+				·假若 items 为 null 时，则表示为一空的集合对象
+				·假若 begin 大于或等于 items 时，则迭代不运算
+			说明
+				如果要循序浏览一个集合对象，并将它的内容显示出来，就必须有 items 属性
+			范例
+				下面的范例 Core_forEach.jsp 是将数组中的成员一个个显示出来的
+				<%
+					String atts[] = new String[5];
+					atts[0] = "hello";
+					atts[1] = "this";
+					atts[2] = "is";
+					atts[3] = "a";
+					atts[4] = "pen";
+					request.setAttribute("atts", atts);
+				%>
+				<c:forEach items="${atts}" var="item">
+					${item}</br>
+				</c:forEach>
+			注意
+				varName 的范围只存在<c:forEach>的本体中，如果超出了本体，则不能再取得 varName 的值。
+			
+			<c:forEach>除了支持数组之外，还有标准 J2SE 的集合类型，例如：ArrayList、List、
+			LinkedList、Vector、Stack 和 Set 等等；另外还包括 java.util.Map 类的对象，例如：HashMap、
+			Hashtable、Properties、Provider 和 Attributes。
+			
+			<c:forEach>还有 begin、end 和 step 这三种属性：begin 主要用来设定在集合对象中开始的位
+			置(注意：第一个位置为 0)；end 用来设定结束的位置；而 step 则是用来设定现在指到的成员和下
+			一个将被指到成员之间的间隔。我们将之前的范例改成如下：
+			
+			<%
+			int atts[] = {1,2,3,4,5,6,7,8,9,10};
+			request.setAttribute("atts", atts);
+			%>
+			<c:forEach items="${atts}" var="item" begin="0" end="9" step="1" >
+			${item}</br>
+			</c:forEach>
+			
+			(1) 当 begin 超过 end 时将会产生空的结果；
+			(2) 当 begin 虽然小于 end 的值，但是当两者都大过容器的大小时，将不会输出任何东西；
+			(3) 最后如果只有 end 的值超过集合对象的大小，则输出就和没有设定 end 的情况相同；
+			(4) <c:forEach>并不只是用来浏览集合对象而已，读者可以从表 7-4 中发现，items 并不是一
+			定要有的属性，但是当没有使用 items 属性时，就一定要使用 begin 和 end 这两个属性。下面
+			为一个简单的范例：
+				<c:forEach var="item" begin="0" end="9" step="1" >
+					${item}</br>
+				</c:forEach>
+			另外，<c:forEach>还提供 varStatus 属性，主要用来存放现在指到之成员的相关信息。例如：
+			我们写成 varStatus="s"，那么将会把信息存放在名称为 s 的属性当中。varStatus 属性还有另外四
+			个属性：index、count、first 和 last，它们各自代表的意义如表 7-5：
+				表 7－5
+				属性 类型 意义
+				index number 现在指到成员的索引
+				count number 总共指到成员的总数
+				first boolean 现在指到的成员是否为第一个成员
+				last boolean 现在指到的成员是否为最后一个成员
+				范例 Core_forEach3.jsp
+		<c:forTokens>
+			<c:forTokens> 用来浏览一字符串中所有的成员，其成员是由定义符号(delimiters)所分隔的。
+			语法
+				<c:forTokens items="stringOfTokens" delims="delimiters" [var="varName"]
+				[varStatus="varStatusName"] [begin="begin"] [end="end"] [step="step"]>
+				本体内容
+				</c:forTokens>
+			说明
+				<c:forTokens>的 begin、end、step、var 和 varStatus 用法都和<c:forEach>一样，因此，笔
+				者在这里就只介绍 items 和 delims 两个属性：items 的内容必须为字符串；而 delims 是用来分割
+				items 中定义的字符串之字符。
+			范例
+				下面为一个典型的<c:forTokens>的范例：
+				<c:forTokens items="A,B,C,D,E" delims="," var="item" >
+				${item}
+				</c:forTokens>
+			上面范例执行后，将会在网页中输出 ABCDE。它会把符号“,”当做分割的标记，拆成 5 个部分，
+			也就是执行循环 5 次，但是并没有将 A,B,C,D,E 中的“,”显示出来。items 也可以放入 EL 的表达
+			式，如下：
+				<%
+				String phoneNumber = "123-456-7899";
+				request.setAttribute("userPhone", phoneNumber);
+				%>
+				<c:forTokens items="${userPhone}" delims="-" var="item" >
+				${item}
+				</c:forTokens>
+			这个范例将会在网页上打印 1234567899，也就是把 123-456-7899 以“-”当做分割标记，将字
+			符串拆为 3 份，每执行一次循环就将浏览的部分放到名称为 item 的属性当中。delims 不只指定一种字符来分割字符串，它还可以一次设定多个分割字符串用的字符。如下面这个范例：
+				<c:forTokens items="A,B;C-D,E" delims=",;-" var="item" >
+				${item}
+				</c:forTokens>
+			此范例会在网页输出 ABCDE，也就是说，delims 可以一次设定所有想当做分割字符串用的字符。
+			其实用<c:forEach>也能做到分割字符串，写法如下：
+				<c:forEach items="A,B,C,D,E" var="item" >
+				${item}
+				</c:forEach>
+			上述范例同样也会在网页输出 ABCDE。<c:forEach>并没有 delims 这个属性，因此<c:forEach>
+			无法设定分割字符串用的字符，而 <c:forEach>分割字符串用的字符只有“ ,” ，这和使用
+			<c:forTokens>，delims 属性设为“,”的结果相同。所以如果使用<c:forTokens>来分割字符串，
+			功能和弹性上会比使用<c:forEach>来得较大。
+			
+	7-2-4 URL 操作
+		JSTL 包含三个与 URL 操作有关的标签，它们分别为：<c:import>、<c:redirect>和<c:url>。
+		它们主要的功能是：用来将其他文件的内容包含起来、网页的导向，还有 url 的产生。笔者将依序
+		介绍这三个标签。
+		● <c:import>
+			<c:import> 可以把其他静态或动态文件包含至本身 JSP 网页。它和 JSP Action 的
+			<jsp:include>最大的差别在于：<jsp:include>只能包含和自己同一个 web application 下的文件；
+			而 <c:import>除了能包含和自己同一个 web application 的文件外，亦可以包含不同 web
+			application 或者是其他网站的文件。
+			语法
+				语法 1：
+				<c:import url="url" [context="context"] [var="varName"]
+				[scope="{page|request|session|application}"] [charEncoding="charEncoding"]>
+					本体内容
+				</c:import>
+				语法 2：
+				<c:import url="url" [context="context"]
+				varReader="varReaderName" [charEncoding="charEncoding"]>
+					本体内容
+				</c:import>
+			属性
+			名称 	说明 EL 类型 必须 默认值
+			url 	一文件被包含的地址 Y String 是 无
+			context	相同 Container 下，其他 web 站台必须以“/”开头 Y String 否 无
+			var 	储存被包含的文件的内容(以 String 类型存入) N String 否 无
+			scope 	var 变量的 JSP 范围 N String 否 Page
+			charEncoding 被包含文件之内容的编码格式 Y String 否 无
+			varReader 储存被包含的文件的内容(以 Reader 类型存入) N String 否 无
+			
+			Null 和 错误处理
+				·假若 url 为 null 或空时，会产生 JspException
+			说明
+				首先<c:import>中必须要有 url 属性，它是用来设定被包含网页的地址。它可以为绝对地址或
+				是相对地址，使用绝对地址的写法如下：
+					<c:import url="http://java.sun.com" />	
+				<c:import>就会把 http://java.sun.com 的内容加到网页中。
+				另外<c:import>也支持 FTP 协议，假设现在有一个 FTP 站台，地址为 ftp.javaworld.com.tw，
+				它里面有一个文件 data.txt，那么可以写成如下方式将其内容显示出来：
+					<c:import url="ftp://ftp.cse.yzu.edu.tw/data.txt" />
+				如果是使用相对地址，假设存在一个文件名为 Hello.jsp，它和使用<c:import>的网页存在于同一个 webapps 的文件夹时，<c:import>的写法如下：
+					<c:import url="Hello.jsp" />
+				如果以“/”开头，那么就表示跳到 web 站台的根目录下，以 Tomcat 为例，即 webapps 目录。
+				假设一个文件为 hello.txt，存在于 webapps/examples/images 里，而 context 为 examples，可写成以下方式将 hello.txt 
+				文件包含进我们的 JSP 页面之中：
+					<c:import url="images/hello.txt" />
+				接下来如果要包含在同一个服务器上，但并非同一个 web 站台的文件时，就必须加上 context
+				属性。假设此服务器上另外还有一个 web 站台，名为 others，others 站台底下有一个文件夹为 jsp，
+				且里面有 index.html 这个文件，那么就可以写成如下方式将此文件包含进来：
+				<c:import url="/jsp/index.html" context="/others" />
+				
+				注意
+					被包含文件的 web 站台必须在 server.xml 中定义过， 且<Context>的 crossContext 属性值必须
+					为 true，这样一来，others 目录下的文件才可以被其他 web 站台调用。
+					server.xml 的设定范例如下：
+					： <Context path="/others" docBase="others" debug="0"
+						reloadable="true" crossContext="true"/>
+				除此之外，<c:import>也提供 var 和 scope 属性。当 var 属性存在时，虽然同样会把其他文件
+				的内容包含进来，但是它并不会输出至网页上，而是以 String 的类型储存至 varName 中。scope 则
+				是设定 varName 的范围。储存之后的数据，我们在需要用时，可以将它取出来，代码如下：
+					<c:import url="/images/hello.txt" var="s" scope="session" />
+				我们可以把常重复使用的商标、欢迎语句或者是版权声明，用此方法储存起来，想输出在网页
+				上时，再把它导入进来。假若想要改变文件内容时，可以只改变被包含的文件，不用修改其他网页.
+			
+			另外，可以在<c:import>的本体内容中使用<c:param>，它的功用主要是：可以将参数传递给被
+			包含的文件，它有两个属性 name 和 value：
+			<c:import url="http://java.sun.com" >
+				<c:param name="test" value="1234" />
+			</c:import>
+			这样的做法等于是包含一个文件，并且所指定的网址会变成如下：
+			http://java.sun.com?test=1234
+			范例
+				下面为一用 到 <c:import> 、 <c:param> 及 属 性 范 围 的 范 例 ， Core_import.jsp 和Core_imported.jsp：
+				Core_imported.jsp 是被包含的文件，它会把从 Core_import.jsp 传来的参数分别输出到页面上，必须注意的是 input1 参数是使用属性范围来传递的，
+				因此可以直接用${input1}来得到参数，而 input2 则必须使用${param.input2}来得到参数。此外，笔者还使用<c:set>来传递值给 Core_import.jsp，
+				这就是<c:param>无法做到的动作，<c:param>只能从包含端抛给被包含端，但是在属性范围中，可以让包含端也能得到被包含端传来的数据。
+			
+		<c:url>
+			<c:url>主要用来产生一个 URL。	
+			语法
+				语法 1：没有本体内容
+					<c:url value="value" [context="context"] [var="varName"]
+					[scope="{page|request|session|application}"] />
+				语法 2：本体内容代表查询字符串(Query String)参数
+					<c:url value="value" [context="context"] [var="varName"]
+					[scope="{page|request|session|application}"] >
+						<c:param> 标签
+					</c:url>
+					
+				<c:url value="http://www.javafan.net " >
+					<c:param name="param" value="value"/>
+				</c:url>
+				读者可以发现 <c:url>也可以搭配<c:param>使用，上面执行结果将会产生一个网址为
+				http://www.javafan.net?param=value，我们更可以搭配 HTML 的<a>使用，如下：
+				<a href="<c:url value="http://www.javafan.net " ><c:param name="param" value="value"/></c:url>">Java 爱好者</a>
+				另外<c:url>还有三个属性，分别为 context、var 和 scope。context 属性和之前的<c:import>相同， 可以用来产生一个其他 web 站台的网址。 
+				如果<c:url>有 var 属性时， 则网址会被存到 varName中，而不会直接输出网址。
+				哪些状况下才会去使用<c:url>？例如：当我们须动态产生网址时，有可能传递的参数不固定，
+				或者是需要一个网址能连至同服务器的其他 web 站台之文件，而且<c:url>更可以将产生的网址储存
+				起来重复使用。另外，在以前我们必须使用相对地址或是绝对地址去取得需要的图文件或文件，现
+				在我们可以直接利用<c:url>从 web 站台的角度来设定需要的图文件或文件的地址，如下：
+				<img src="<c:url value="/images/code.gif" />" />
+				如此就会自动产生连到 image 文件夹里的 code.gif 的地址，不再须耗费精神计算相对地址，并
+				且当网域名称改变时，也不用再改变绝对地址。
+		● <c:redirect>
+			<c:redirect>可以将客户端的请求从一个 JSP 网页导向到其他文件。
+			语法
+				语法 1：没有本体内容
+				<c:redirect url="url" [context="context"] />
+				语法 2：本体内容代表查询字符串(Query String)参数
+				<c:redirect url="url" [context="context"] > <c:param> </c:redirect >
+			说明
+				url 就是设定要被导向到的目标地址，它可以是相对或绝对地址。例如：我们写成如下：
+					<c:redirect url="http://www.javafan.net" />
+				那么网页将会自动导向到 http://www.javafan.net。另外，我们也可以加上 context 这个属性，
+				用来导向至其他 web 站台上的文件，例如：导向到 /others 下的 /jsp/index.html 时，写法如下：
+					<c:redirect url="/jsp/index.html" context="/others" />
+				<c:redirect> 的功能不止可以导向网页，同样它还可以传递参数给目标文件。在这里我们同样
+				使用<c:param>来设定参数名称和内容。
+				<c:redirect url="http://java.sun.com">
+					<c:param name="param" value="value"/>
+				</c:redirect>

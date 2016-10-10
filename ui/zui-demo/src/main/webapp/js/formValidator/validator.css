@@ -1,0 +1,33 @@
+/*.onShow {
+	background:url(images/reg1.gif) left -2px no-repeat;
+	padding-left:25px;
+	margin-left:5px;
+	margin-top:3px;
+}
+.onFocus {
+	background:#E9F0FF url(images/reg2.gif) left -2px no-repeat;
+	padding-left:25px;
+	margin-left:5px;
+	margin-top:3px;
+}
+.onError {
+	background:#FFF2E9 url(images/reg3.gif) left -2px no-repeat;
+	padding-left:20px;
+	margin-left:0px;
+	margin-top:3px;
+}
+.onSuccess {
+	background:#E9FFEB url(images/reg4.gif) left -2px no-repeat;
+	padding-left:25px;
+	margin-left:5px;
+	margin-top:3px;
+}
+.onLoad {
+	background:#E9FFEB url(images/loading.gif) no-repeat 3px 3px;
+	padding-left:25px;
+	margin-left:5px;
+	margin-top:3px;
+}*/
+span {
+	color:#FF0000;
+}

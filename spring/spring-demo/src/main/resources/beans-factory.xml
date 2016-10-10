@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- 通过工厂方法的方式来配置 bean ,注意不是配置静态工厂实例-->
+	<!-- 1. 通过静态工厂方法: 一个类中有一个静态方法, 可以返回一个类的实例(了解) -->
+	<!-- 在 class 中指定静态工厂方法的全类名, 在 factory-method 中指定静态工厂方法的方法名 -->
+	<!-- 可以通过 constructor-arg 子节点为静态工厂方法指定参数 -->
+	<bean id="car1" class="com.johnny.spring.beans.factory.StaticCarFactory" 
+	factory-method="getCar">
+		<constructor-arg value="ford"></constructor-arg>
+	</bean>
+
+	<!-- 2. 实例工厂方法: 先需要创建工厂对象, 再调用工厂的非静态方法返回实例(了解) -->
+	<!-- ①. 创建工厂对应的 bean -->
+	<bean id="carFactory" class="com.johnny.spring.beans.factory.InstanceCarFactory"></bean>
+	
+	<!-- ②. 有实例工厂方法来创建 bean 实例 -->
+	<!-- factory-bean 指向工厂 bean, factory-method 指定工厂方法(了解) -->
+	<bean id="car2" factory-bean="carFactory" factory-method="getCar">
+		<!-- 通过 constructor-arg 执行调用工厂方法需要传入的参数 -->
+		<constructor-arg value="bmw"></constructor-arg>
+	</bean>
+
+
+	<!-- 配置通过 FactroyBean 的方式来创建 bean 的实例(了解) -->
+	<bean id="car3" class="com.johnny.spring.beans.factory.CarFactoryBean">
+		<constructor-arg name="brand" value="bmw"></constructor-arg>
+	</bean>
+</beans>

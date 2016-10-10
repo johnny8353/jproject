@@ -1,0 +1,107 @@
+http://www.cnblogs.com/wing011203/archive/2013/05/07/3066021.html
+
+一方面， 面向对象语言对事物的体现都是以对象的形式，为了方便对多个对象的操作，就要对对象进行存储。
+另一方面，使用Array存储对象方面具有一些弊端，而Java 集合就像一种容器，可以动态地把多个对象的引用放入容器中。
+
+集合与数组的区别：
+	集合中可以存储任意的对象，且长度是可变的
+	数组中只能存储同一类型的数据，且长度是不可变的。
+
+Java 集合类可以用于存储数量不等的多个对象，还可用于保存具有映射关系的关联数组。
+
+Collection(I)
+├List(I)
+│├LinkedList
+│├ArrayList
+│└Vector
+│　└Stack
+├Set(I)
+│├HashSet
+││├LinkedHashSet
+│├TreeSet
+Map(I)
+├Hashtable
+├HashMap
+└TreeMap
+
+Java 集合可分为 Collection 和 Map 两种体系
+	Collection接口：
+		Set：元素无序、不可重复的集合 ---类似高中的“集合”
+		List：元素有序，可重复的集合  ---”动态”数组
+	Map接口：具有映射关系“key-value对”的集合 ---类似于高中的“函数” y = f(x)   (x1,y1) (x2,y2)
+
+	Collection子接口之一：Set接口
+		HashSet   LinkedHashSet   TreeSet
+	Collection子接口之二： List接口
+		ArrayList  LinkedList  Vector
+	Map接口
+		HashMap  TreeMap  Hashtable
+		
+Collection概述	-	TestCollection
+	Java集合中的List和Set都从Collection出来，它是一个学习集合很不错的入口，它包含了集合中通常需要有的操作：
+		添加元素：add/addAll
+		清空集合：clear
+		删除元素：remove/removeAll
+		判断集合中是否包含某元素：contains/containsAll
+		判断集合是否为空：isEmpty
+		计算集合中元素的个数：size
+		将集合转换为数组：toArray
+		获取迭代器：iterator
+			Iterator<Integer> iterator = collection.iterator();
+		    while(iterator.hasNext())
+		    {
+		        System.out.println(iterator.next());
+		    }
+List	-	
+　　Java中的List是对数组的有效扩展，它是这样一种结构，如果不使用泛型，它可以容纳任何类型的元素，如果使用泛型，那么它只能容纳泛型指定的类型的元素。和数组相比，List的容量是可以动态扩展的。
+　　List中的元素是可以重复的，里面的元素是“有序”的，这里的“有序”，并不是排序的意思，而是说我们可以对某个元素在集合中的位置进行指定。
+　　List中常用的集合对象包括：ArrayList、Vector和LinkedList，其中前两者是基于数组来进行存储，后者是基于链表进行存储。其中Vector是线程安全的，其余两个不是线程安全的。
+　　List中是可以包括null的，即使是使用了泛型。
+　　ArrayList可能是我们平时用到的最多的集合对象了，在上述的示例代码中，我们也是使用它来实例化一个Collection对象，在此不再赘述。
+
+Set
+　　	Set 和List类似，都是用来存储单个元素，单个元素的数量不确定。但Set不能包含重复元素，如果向Set中插入两个相同元素，那么后一个元素不会被插入。
+　　	Set可以大致分为两类：不排序Set和排序Set，不排序Set包括HashSet和LinkedHashSet，排序Set主要指TreeSet。其中HashSet和LinkedHashSet可以包含null。
+　　	HashSet
+		HashSet是由Hash表支持的一种集合，它不是线程安全的。
+		对于HashSet是如何判断两个元素是否是重复的，我们可以深入考察一下。Object中也定义了equals方法，对于HashSet中的元素，
+		它是根据equals方法来判断元素是否相等的，为了证明这一点，我们可以定义个“不正常”的类型：
+		    public boolean equals(Object obj)
+		    {
+		        return false;
+		    }
+		可以看到，对于MyInteger来说，对于任意两个实例，我们都认为它是不相等的。
+	TreeSet
+　　		TreeSet是支持排序的一种Set，它的父接口是SortedSet。
+
+Map
+	Map中存储的是“键值对”，和Set类似，Java中的Map也有两种：排序的和不排序的，不排序的包括HashMap、Hashtable和LinkedHashMap，排序的包括TreeMap。
+
+　	非排序Map
+		Hashtable和HashMap采用的hash/rehash算法都大概一样，所以性能不会有很大的差异。
+		對比：http://blog.csdn.net/shohokuf/article/details/3932967
+		hashmap	- 繼承自AbstractMap
+			线程不安全	
+			允许有null的键和值	
+			效率高一点	
+			方法不是Synchronize的要提供外同步	
+			有containsvalue和containsKey方法，HashMap把Hashtable的contains方法去掉了，改成containsvalue和containsKey。因为contains方法容易让人引起误解。	
+			HashMap 是Java1.2 引进的Map interface 的一个实现
+			HashMap是Hashtable的轻量级实现
+		hashtable	-	繼承自Dictionary 
+			线程安全
+			不允许有null的键和值
+			效率稍低
+			方法是是Synchronize的
+			有contains方法方法
+			Hashtable 继承于Dictionary 类
+			Hashtable 比HashMap 要旧
+	
+		HashMap是可以存储null的，无论是对Key还是对Value。Hashtable是不可以存储null的。
+	
+	　　	无论HashMap还是Hashtable，我们观察它的构造函数，就会发现它可以有两个参数：initialCapacity和loadFactor，
+		默认情况下，initialCapacity等于16，loadFactor等于0.75。这和Hash表中可以存放的元素数目有关系，当元素数目超过initialCapacity*loadFactor时，
+		会触发rehash方法，对hash表进行扩容。如果我们需要向其中插入过多元素，需要适当调整这两个参数。
+
+	排序Map
+　　		排序Map主要是指TreeMap，它对元素增、删、查操作时的时间复杂度都是O（log（n））。它不是线程安全的。

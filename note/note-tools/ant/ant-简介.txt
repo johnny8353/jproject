@@ -1,0 +1,152 @@
+Ant的优点
+	Ant是一个Apache基金会下的跨平台的构件工具，它可以实现项目的自动构建和部署等功能。
+	Ant是Apache软件基金会JAKARTA目录中的一个子项目，它有以下的优点。 
+		跨平台性。Ant是存Java语言编写的，所示具有很好的跨平台性。 
+		操作简单。Ant是由一个内置任务和可选任务组成的。Ant运行时需要一个XML文件(构建文件)。 
+	Ant通过调用target树，就可以执行各种task。每个task实现了特定接口对象。由于Ant构建文件时XML格式的文件，所以和容易维护和书写，而且结构很清晰。 
+	Ant可以集成到开发环境中。由于Ant的跨平台性和操作简单的特点，它很容易集成到一些开发环境中去。 
+	
+Ant 开发 
+	Ant的构建文件 
+	 当开始一个新的项目时，首先应该编写Ant构建文件。构建文件定义了构建过程，并被团队开发中每个人使用。Ant构建文件默认命名为 build.xml，也可以取其他的名字。
+	 只不过在运行的时候把这个命名当作参数传给Ant。构建文件可以放在任何的位置。一般做法是放在项目顶层目录中，这样可以保持项目的简洁和清晰。下面是一个典型的项目层次结构。 
+		(1) src存放文件。 
+		(2) class存放编译后的文件。 
+		(3) lib存放第三方JAR包。 ant执行所需要的jar都需要放在该目录
+		(4) dist存放打包，发布以后的代码。 
+	Ant构建文件是XML文件。每个构建文件定义一个唯一的项目(Project元素)。每个项目下可以定义很多目标(target元素)，这些目标之间可以有依赖关系。
+	当执行这类目标时，需要执行他们所依赖的目标。每个目标中可以定义多个任务，目标中还定义了所要执行的任务序列。Ant在构建目标时必须调用所定义的任务。任务定义了Ant实际执行的命令。
+	Ant中的任务可以为3类。 
+		（1） 核心任务。核心任务是Ant自带的任务。 
+		（2） 可选任务。可选任务实来自第三方的任务，因此需要一个附加的JAR文件。
+		（3） 用户自定义的任务。用户自定义的任务是用户自己开发的任务。
+
+什么时候使用ant
+	也许你听到别人说起ant，一时冲动准备学习一下ant，当你看完了上边的第一个实例，也许你感觉ant真好，也许你感觉ant不过如此，得出这些结论都不能说错，虽然ant很好用，
+	但并不是在任何情况下都是最好的选择，例如windows上有更多更简单，更容易使用的工具，比如eclipse+myeclipse eclipse+wtp等等，无论是编译，部署，运行使用起来比ant更
+	容易，方便。但有些情况则是ant发挥的好地方：
+		1,服务器上部署的时候
+		当你的程序开发完成，部署人员要部署在服务器上的时候，总不能因为因为安装一个程序就配置一个eclipse+myeclipse吧，ant在这个时候是个很好的选择，因为它小巧，容易配
+		置，你带着你写好的build.xml到任何一台服务器上，只需要做简单的修改（一些设定，例如目录），然后一两个命令完成，这难道不是一件美好的事情吗。
+		2,linux上，很多时候是这样的，程序开发是在windows下，但是程序要在linux或者unix上运行，在linux或者
+		在unix(特别是unix上)部署是个麻烦的事情，这个时候ant的特点又出来了，因为ant是跨平台的，你在build.xml可以在大多数操作系统上使用，基本不需要修改。
+		3,当服务器维护者不懂编程的时候
+		很多人都有过这样的经历，使用你们程序的人，并不懂得写程序。你的程序因为版本更新，因为修正bug需要一次又一次得重新部署。这个时候你会发现教一个人是如此得困难。但
+		是有ant后，你只需要告诉他，输入ant xxx等一两个命令，一切ok.
+	
+安装与配置	
+	ant路径不要含中文，cmd java 命令参数下也不要含有中文
+	-首先要确保电脑上已经安装了JDK(要jdk 1.6+的版本),配置好JDK的环境变量，使用如下的两个命令检查检查JDK安装的情况。	
+		Echo %JAVA_HOME%
+		Java -version
+	-下载地址：http://ant.apache.org/，在本文中下载的是apache-ant-1.9.7版本。
+	-解压到某个目录
+		（例如E:"apache-ant-1.9.7），即可使用。
+	-添加系统环境变量：ANT_HOME
+		该变量指向Ant解压后的根目录，在此为E:\apache-ant-1.9.7。
+	-安装与配置完毕后，测试一下Ant是否可用
+		首先进入Ant的bin目录，运行命令ant –version，若安装和配置成功，则会显示Ant版本信息，如下图所示：
+	-在系统环境变量path中添加Ant的bin目录。
+		将%ANT_HOME%\bin加入Path中，一定要注意要用分号；与其他值隔开;
+		设置完成后，我们就可以在任何目录输入Ant的命令
+
+Ant的关键元素		
+	Ant的构件文件是基于XML编写的，默认名称为build.xml。
+		<?xml version="1.0"?>
+		<project name="helloWorld">
+			<target name="sayHelloWorld">
+				<echo message="Hello,Amigo"/>
+			</target>
+		</project>
+	ant命令默认寻找build.xml文件。若文件名为hello.xml时，还需要对命令做少许改变，改为：ant –f hello.xml sayHelloWorld、
+	ant –buildfile hello.xml sayHelloWorld或ant –file hello.xml sayHelloWorld
+	
+	Ant的关键元素project、target、property和task
+		project元素
+			project元素是Ant构件文件的根元素，Ant构件文件至少应该包含一个project元素，否则会发生错误。在每个project元素下，可包含多个target元素。
+				1）name属性
+				用于指定project元素的名称。
+				2）default属性
+				用于指定project默认执行时所执行的target的名称。
+				3）basedir属性
+				用于指定基路径的位置。该属性没有指定时，使用Ant的构件文件的附目录作为基准目录。
+			下面给读者一个简单的例子来展示project的各元素的使用。修改E:\build.xml文件，修改后的内容如下：
+			<?xml version="1.0"?>
+			<project name="projectStudy" default="sayBaseDir" basedir="E:\apache-ant-1.9.7">
+				<target name="sayBaseDir">
+					<echo message="The base dir is: ${basedir}"/>
+				</target>
+			</project>
+			从上面的内容我们可以看出，在这里定义了default属性的值为sayBaseDir，即当运行ant命令时，若未指明执行的target时，默认执行的target的sayBaseDir，
+			同时还定义了basedir属性的值，进入E盘后运行ant命令
+				D:\apache-ant-1.9.7\bin>ant
+				Buildfile: D:\apache-ant-1.9.7\bin\build.xml
+				
+				sayBaseDir:
+				     [echo] The base dir is: d:\apache-ant-1.9.7
+				
+				BUILD SUCCESSFUL
+				Total time: 0 seconds
+			因为设定了basedir的值，所以basedir属性的值变成了设置的值。可以自行将project元素的basedir属性去掉后运行ant看看运行结果，此时basedir的值变成了E:\，即为Ant构件文件的父目录。
+			有的时候，可能有这种需求，即想得到某个project下所有的target的名称，读者可以通过在ant命令里加上-proecthelp来达到该目的。
+			例如针对上述的例子我们运行ant –projecthelp，输出结果如下：
+				Buildfile: build.xml
+				Main targets:
+				Other targets:
+				 sayBaseDir
+				Default target: sayBaseDir
+				
+		target元素
+			它为Ant的基本执行单元，它可以包含一个或多个具体的任务。多个target可以存在相互依赖关系。它有如下属性：
+				1）name属性
+				指定target元素的名称，这个属性在一个project元素中是唯一的。我们可以通过指定target元素的名称来指定某个target。
+				2）depends属性
+				用于描述target之间的依赖关系，若与多个target存在依赖关系时，需要以“,”间隔。Ant会依照depends属性中target出现的顺序依次执行每个target。被依赖的target会先执行。
+				3）if属性
+				用于验证指定的属性是否存在，若不存在，所在target将不会被执行。
+				4）unless属性
+				该属性的功能与if属性的功能正好相反，它也用于验证指定的属性是否存在，若不存在，所在target将会被执行。
+				5）description属性
+				该属性是关于target功能的简短描述和说明。
+			事例：
+				<?xml version="1.0"?>
+				<project name="targetStudy">
+					<target name="targetA" if="ant.java.version">
+				    	<echo message="Java Version: ${ant.java.version}"/>
+					</target>
+					<target name="targetB" depends="targetA" unless="amigo">
+						<description>
+				        	a depend example!
+						</description>
+						<echo message="The base dir is: ${basedir}"/>
+					</target>
+				</project>
+				
+				运行的是名为targetB的target，因该target依赖于targetA，所以targetA将首先被执行，同时因为系统安装了java环境，所以ant.java.version属性存在，
+				执行了targetA这个target，输出信息：[echo] Java Version: 1.5，targetA执行完毕后，接着执行targetB，因为amigo不存在，
+				而unless属性是在不存在时进入所在的target的，由此可知targetB得以执行，输出信息：The base dir is: E:"。
+		property元素			
+			property元素可用作task的属性值。在task中是通过将属性名放在“${”和“}”之间，并放在task属性值的位置来实现的。
+			Ant提供了一些内置的属性，它能得到的系统属性的列表与Java文档中System.getPropertis()方法得到的属性一致，这些系统属性可参考sun网站的说明。
+			同时，Ant还提供了一些它自己的内置属性，如下：
+			basedir：project基目录的绝对路径，该属性在讲解project元素时有详细说明，不再赘述；
+			ant.file：buildfile的绝对路径，如上面的各例子中，ant.file的值为E:\build.xml；
+			ant.version：Ant的版本，在本文中，值为1.7.0；
+			ant.project.name：当前指定的project的名字，即前文说到的project的name属性的值；
+			ant.java.version：Ant检测到的JDK的版本，在上例运行结果中可看到为1.5。
+			下面让读者来看一个property元素使用的简单例子。修改E:"build.xml文件，内容如下：
+				<?xml version="1.0"?>
+				<project name="propertyStudy" default="example">
+					<property name="name" value="amigo"/>
+					<property name="age" value="25"/>
+					<target name="example">
+						<echo message="name: ${name}, age: ${age}"/>
+					</target>
+				</project>
+			
+		
+	
+	在本文中，笔者由浅至深详细描述了Ant的安装与配置、关键元素和常用任务。并通过实例讲述了Ant在我们Java项目中的应用，讲述了编译、运行java程序，以及打jar包、war包等知识，
+	引领读者进入Ant的奇妙世界。在本文中可以看到，Ant在自动构建和部署Java程序方面方便易用，而且非常灵活，不失为我们Java开发者的绝佳帮手。
+	
+	

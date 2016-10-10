@@ -1,0 +1,19 @@
+#	telnet 10.30.15.72 7780
+
+Window下查看端口是否被占用
+	C:\>netstat -ano
+	  协议    本地地址                     外部地址               状态                   PID
+	  TCP    127.0.0.1:1434         0.0.0.0:0              LISTENING       3236
+	C:\>netstat -aon|findstr "9050"
+	  协议    本地地址                     外部地址               状态                   PID
+	  TCP    127.0.0.1:9050         0.0.0.0:0              LISTENING       2016
+	C:\>tasklist|findstr "2016"
+	 映像名称                       PID 会话名              会话#       内存使用
+	 ========================= ======== ================
+	  tor.exe                     2016 Console                 0     16,064 K 
+结束该进程
+	C:\>taskkill /f /t /im tor.exe
+
+通过进程Id强制kill进程
+ 	taskkill /pid  processId /f
+

@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>title</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+<script type="text/javascript" src="../../js/simulateSelect/dd.js" ></script>
+<link href="../../js/simulateSelect/dd.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript">
+function convertNow(byIds) {
+    MSDropDown.init("#websites1");
+}
+var counter = 1;
+function output(msg, id) {
+	if(counter>=100) counter = 1;
+	var  old = $("#output").html();
+	$("#output").html((counter++)+": id= "+id.id +" : " + msg+"<br />"+old);
+}
+</SCRIPT>
+</head>
+<body onLoad="convertNow()">
+<div id="content">
+  <div id="position">当前位置：常用组件&gt;选择组件&gt;自定义下拉控件</div>
+  <table cellspacing="1" cellpadding="0" class="tb_input">
+    <tr>
+      <td class="note" colspan="2"> 自定义下拉控件</td>
+    </tr>
+    <tr>
+      <td width="12%"   class="td_title">自设高度下拉框</td>
+      <td >
+	  <select id=websites1 style="width: 200px"  onchange="output('onchange', this);">
+          <option value=calendar selected>calendar</option>
+          <option value=shopping_cart>shopping cart</option>
+          <option value=cd>cd</option>
+          <option value=email>email</option>
+          <option value=faq>faq</option>
+          <option value=games>gamegamesgamesgamesgamesgamesgamesgamesgamess</option>
+          <option value=music>music</option>
+          <option value=phone>phone</option>
+          <option value=graph>graph</option>
+          <option value=secured>secured</option>
+          <option value=video>video</option>
+          <option value=cd>cd</option>
+          <option value=email>email</option>
+          <option value=faq>faq</option>
+          <option value=games>games</option>
+          <option value=music>music</option>
+          <option value=phone>phone</option>
+          <option value=graph>graph</option>
+          <option value=secured>secured</option>
+          <option value=video>video</option>
+        </select> 
+		</td>
+    </tr>
+	
+  </table>
+</div>
+</body>
+</html>

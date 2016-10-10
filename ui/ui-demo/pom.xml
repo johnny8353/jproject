@@ -1,0 +1,152 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.johnny</groupId>
+		<artifactId>ui</artifactId>
+		<version>2.3.4</version>
+	</parent>
+	<artifactId>ui-demo</artifactId>
+	<packaging>war</packaging>
+	<name>ui-demo</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.johnny</groupId>
+			<artifactId>jetty-demo</artifactId>
+			<version>2.3.4</version>
+			<scope>compile</scope>
+			<type>jar</type>
+		</dependency>
+		<!-- json java类库 -->
+		<dependency>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<version>2.4</version>
+			<classifier>jdk15</classifier>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.2.4</version>
+		</dependency>
+		<!-- jackson -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<!-- 老的jackson Jackson从2.0开始改用新的包名fasterxml; <dependency> <groupId>org.codehaus.jackson</groupId> 
+			<artifactId>jackson-mapper-asl</artifactId> <version>1.9.4</version> </dependency> -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.1.35</version>
+		</dependency>
+
+		<!-- xml -->
+		<!-- https://mvnrepository.com/artifact/dom4j/dom4j -->
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+
+		<!-- dom4j支持xpath语法，但该特性需要jaxen包的支持(编译期不需要，仅运行时需要) -->
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.1.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-digester</groupId>
+			<artifactId>commons-digester</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<!--配置Jetty -->
+				<plugin>
+					<groupId>org.mortbay.jetty</groupId>
+					<artifactId>maven-jetty-plugin</artifactId>
+					<version>${jetty.version}</version>
+					<configuration>
+						<webAppSourceDirectory>src/main/webapp</webAppSourceDirectory>
+						<!-- <scanIntervalSeconds>6</scanIntervalSeconds> -->
+						<scanTargets>
+							<!-- <scanTarget>src/main/webapp/WEB-INF</scanTarget> -->
+							<scanTarget>src/main/webapp/WEB-INF/web.xml</scanTarget>
+						</scanTargets>
+						<contextPath>/ui-demo</contextPath>
+						<webDefaultXml></webDefaultXml>
+						<jettyEnvXml></jettyEnvXml>
+						<httpConnector>
+							<port>8097</port>
+						</httpConnector>
+						<connectors>
+							<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+								<port>8098</port>
+								<headerBufferSize>80000</headerBufferSize>
+							</connector>
+						</connectors>
+						<stopKey>stop</stopKey>
+						<stopPort>8099</stopPort>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>7</source>
+						<target>7</target>
+						<encoding>UTF-8</encoding>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.xml</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+					<include>**/*.properties</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+	</build>
+
+</project>

@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>滚动条</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+ <script type="text/javascript" src="../../js/main.js" ></script>
+<script type="text/javascript">
+function divHeight()
+ {
+  var Table = document.getElementById("scrollTable");
+  var div = document.getElementById("tableContainer");
+  div.style.height=Table.clientHeight + 24 +"px"; 
+  //alert(div.style.height);
+  //如果直接显示div，还要在body中onload此代码
+ }
+</script>
+<style type="text/css">
+.fixedColumn{  
+position: relative;
+left: expression(document.getElementById("tableContainer").scrollLeft-1);
+border-left:#c6d5f5 1px solid;
+/*border-right:#c6d5f5 1px solid;*/
+}
+ 
+ 
+</style>
+</head>
+<body onload="divHeight()">
+<div id="content">
+  <div id="position">当前位置：常用组件&gt;其他&gt;锁定列滚动</div>
+  <table cellspacing="0" cellpadding="0" class="tb_title">
+    <tr>
+      <td class="icon_note">锁定列滚动</td>
+    </tr>
+  </table>
+  <div class="scrolldiv" id="tableContainer">
+    <table cellpadding="0" cellspacing="1" class="tb_datalist" id="scrollTable">
+      <thead>
+        <tr class="tr_title">
+          <td nowrap="nowrap" class="fixedColumn" style=" border-left:#c6d5f5 1px solid;">单据号</td>
+          <td nowrap="nowrap">申请人</td>
+          <td nowrap="nowrap">提交日期</td>
+          <td nowrap="nowrap">本币金额</td>
+          <td>部门</td>
+          <td>部门</td>
+          <td>部门</td>
+          <td>部门</td>
+          <td>部门</td>
+          <td>部门</td>
+          <td>部门</td>
+          <td>部门</td>
+          <td>部门</td>
+          <td>部门</td>
+          <td nowrap="nowrap">单据状态</td>
+          <td>操作</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td nowrap="nowrap" class="fixedColumn">HS302-2005000021</td>
+          <td nowrap="nowrap">张伟50001023</td>
+          <td nowrap="nowrap">2008-10-22</td>
+          <td align="right" nowrap="nowrap">256.00</td>
+          <td nowrap="nowrap">研发体系-业务研究院-IT中心开发部</td>
+          <td nowrap="nowrap">研发体系-业务研究院-IT中心开发部</td>
+          <td nowrap="nowrap">研发体系-业务研究院-IT中心开发部</td>
+          <td nowrap="nowrap">研发体系-业务研究院-IT中心开发部</td>
+          <td nowrap="nowrap">研发体系-业务研究院-IT中心开发部</td>
+          <td nowrap="nowrap">研发体系-业务研究院-IT中心开发部</td>
+          <td nowrap="nowrap">研发体系-业务研究院-IT中心开发部</td>
+          <td nowrap="nowrap">研发体系-业务研究院-IT中心开发部</td>
+          <td nowrap="nowrap">研发体系-业务研究院-IT中心开发部</td>
+          <td nowrap="nowrap">研发体系-业务研究院-IT中心开发部</td>
+          <td nowrap="nowrap">已提交</td>
+          <td nowrap="nowrap"><a href="#">修改</a> <a href="#">删除</a></td>
+        </tr>
+        <tr>
+          <td class="fixedColumn">HS301-5000020011</td>
+          <td>王伟10010933</td>
+          <td>2008-10-24</td>
+          <td align="right">343.00</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>审核中</td>
+          <td><a href="#">修改</a> <a href="#">删除</a></td>
+        </tr>
+        <tr>
+          <td class="fixedColumn">HS301-5000020011</td>
+          <td>王伟10010933</td>
+          <td>2008-10-24</td>
+          <td align="right">343.00</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>审核中</td>
+          <td><a href="#">修改</a> <a href="#">删除</a></td>
+        </tr>
+        <tr>
+          <td class="fixedColumn">HS301-5000020011</td>
+          <td>王伟10010933</td>
+          <td>2008-10-24</td>
+          <td align="right">343.00</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td >研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>审核中</td>
+          <td><a href="#">修改</a> <a href="#">删除</a></td>
+        </tr>
+        
+        <tr>
+          <td class="fixedColumn">HS301-2005000010</td>
+          <td>刘伟10023456</td>
+          <td>2008-10-11</td>
+          <td align="right">105.00</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>研发体系-业务研究院-IT中心开发部</td>
+          <td>已审核</td>
+          <td><a href="#">修改</a> <a href="#">删除</a></td>
+        </tr>
+      </tbody>
+    </table>
+	
+</div>
+ <table cellpadding="0" cellspacing="1" class="tb_datalist">
+		<tr class="tr_pagenumber">
+        <td colspan="6"> 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+          <select name="select" >
+            <option selected>10</option>
+            <option >20</option>
+            <option>20</option>
+            <option>40</option>
+            <option>50</option>
+            <option>全部</option>
+          </select>
+          行 <img src="../../images/icons/firstpage.gif"  title="首页" class="paginate"/> <img src="../../images/icons/prepage.gif"  title="上一页" class="paginate"/>
+          <input type="text" name="textfield" class="page_txt" />
+          <input type="button" name="button" value="Go" class="btn_go" />
+          <img src="../../images/icons/nextpage.gif"  title="下一页" class="paginate"/> <img src="../../images/icons/lastpage.gif"  title="末页" class="paginate"/></td>
+      </tr></table>
+</div>
+   
+</div>
+</body>
+</html>

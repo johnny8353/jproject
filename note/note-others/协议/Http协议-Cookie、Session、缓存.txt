@@ -1,0 +1,104 @@
+Cookie和Session
+	Cookie和Session都为了用来保存状态信息，都是保存客户端状态的机制，它们都是为了解决HTTP无状态的问题而所做的努力。
+
+	Session可以用Cookie来实现，也可以用URL回写的机制来实现。用Cookie来实现的Session可以认为是对Cookie更高级的应用。
+
+两者比较
+
+Cookie和Session有以下明显的不同点：
+1）Cookie将状态保存在客户端，Session将状态保存在服务器端；
+2）Cookies是服务器在本地机器上存储的小段文本并随每一个请求发送至同一个服务器。Cookie最早在RFC2109中实现，后续RFC2965做了增强。
+网络服务器用HTTP头向客户端发送cookies，在客户终端，浏览器解析这些cookies并将它们保存为一个本地文件，它会自动将同一服务器的任何请求缚上这些cookies。Session并没有在HTTP的协议中定义；
+3）Session是针对每一个用户的，变量的值保存在服务器上，用一个sessionID来区分是哪个用户session变量,这个值是通过用户的浏览器在访问的时候返回给服务器，当客户禁用cookie时，
+这个值也可能设置为由get来返回给服务器；
+4）就安全性来说：当你访问一个使用session 的站点，同时在自己机子上建立一个cookie，建议在服务器端的SESSION机制更安全些.因为它不会任意读取客户存储的信息。
+
+Session机制
+	Session机制是一种服务器端的机制，服务器使用一种类似于散列表的结构（也可能就是使用散列表）来保存信息。
+
+	当程序需要为某个客户端的请求创建一个session的时候，服务器首先检查这个客户端的请求里是否已包含了一个session标识 - 称为 session id，
+	如果已包含一个session id则说明以前已经为此客户端创建过session，服务器就按照session id把这个 session检索出来使用（如果检索不到，可能会新建一个），
+	如果客户端请求不包含session id，则为此客户端创建一个session并且生成一个与此session相关联的session id，
+	session id的值应该是一个既不会重复，又不容易被找到规律以仿造的字符串，这个 session id将被在本次响应中返回给客户端保存。
+
+	Session的实现方式
+		1  	使用Cookie来实现
+			服务器给每个Session分配一个唯一的JSESSIONID，并通过Cookie发送给客户端。
+			当客户端发起新的请求的时候，将在Cookie头中携带这个JSESSIONID。这样服务器能够找到这个客户端对应的Session。
+		2  	使用URL回显来实现
+			URL回写是指服务器在发送给浏览器页面的所有链接中都携带JSESSIONID的参数，这样客户端点击任何一个链接都会把JSESSIONID带会服务器。
+			如果直接在浏览器输入服务端资源的url来请求该资源，那么Session是匹配不到的。
+			Tomcat对Session的实现，是一开始同时使用Cookie和URL回写机制，如果发现客户端支持Cookie，就继续使用Cookie，停止使用URL回写。
+			如果发现Cookie被禁用，就一直使用URL回写。jsp开发处理到Session的时候，对页面中的链接记得使用response.encodeURL() 。
+	在J2EE项目中Session失效的几种情况
+		1）Session超时：Session在指定时间内失效，例如30分钟，若在30分钟内没有操作，则Session会失效，例如在web.xml中进行了如下设置：
+		<session-config> 
+	         <session-timeout>30</session-timeout> //单位：分钟
+	    </session-config>
+	
+		2）使用session.invalidate()明确的去掉Session。
+	
+	与Cookie相关的HTTP扩展头
+		1）Cookie：客户端将服务器设置的Cookie返回到服务器；
+		2）Set-Cookie：服务器向客户端设置Cookie；
+		3）Cookie2 (RFC2965)）：客户端指示服务器支持Cookie的版本；
+		4）Set-Cookie2 (RFC2965)：服务器向客户端设置Cookie。
+
+Cookie的流程
+	服务器在响应消息中用Set-Cookie头将Cookie的内容回送给客户端，客户端在新的请求中将相同的内容携带在Cookie头中发送给服务器。从而实现会话的保持。
+
+缓存的实现原理
+	什么是Web缓存
+		WEB缓存(cache)位于Web服务器和客户端之间。
+
+	缓存会根据请求保存输出内容的副本，例如html页面，图片，文件，当下一个请求来到的时候：如果是相同的URL，缓存直接使用副本响应访问请求，而不是向源服务器再次发送请求。
+
+	HTTP协议定义了相关的消息头来使WEB缓存尽可能好的工作。
+
+	缓存的优点
+	q      减少相应延迟：因为请求从缓存服务器（离客户端更近）而不是源服务器被相应，这个过程耗时更少，让web服务器看上去相应更快。
+	q      减少网络带宽消耗：当副本被重用时会减低客户端的带宽消耗；客户可以节省带宽费用，控制带宽的需求的增长并更易于管理。
+
+	与缓存相关的HTTP扩展消息头
+	q      Expires：指示响应内容过期的时间，格林威治时间GMT
+	q      Cache-Control：更细致的控制缓存的内容
+	q      Last-Modified：响应中资源最后一次修改的时间
+	q      ETag：响应中资源的校验值，在服务器上某个时段是唯一标识的。
+	q      Date：服务器的时间
+	q      If-Modified-Since：客户端存取的该资源最后一次修改的时间，同Last-Modified。
+	q      If-None-Match：客户端存取的该资源的检验值，同ETag。
+
+	客户端缓存生效的常见流程
+		服务器收到请求时，会在200OK中回送该资源的Last-Modified和ETag头，客户端将该资源保存在cache中，并记录这两个属性。
+		当客户端需要发送相同的请求时，会在请求中携带If-Modified-Since和If-None-Match两个头。两个头的值分别是响应中Last-Modified和ETag头的值。
+		服务器通过这两个头判断本地资源未发生变化，客户端不需要重新下载，返回304响应。常见流程如下图所示：
+
+	Web缓存机制
+		HTTP/1.1中缓存的目的是为了在很多情况下减少发送请求，同时在许多情况下可以不需要发送完整响应。前者减少了网络回路的数量；HTTP利用一个“过期（expiration）”机制来为此目的。
+		后者减少了网络应用的带宽；HTTP用“验证（validation）”机制来为此目的。
+
+	HTTP定义了3种缓存机制：
+		1）Freshness：允许一个回应消息可以在源服务器不被重新检查，并且可以由服务器和客户端来控制。例如，Expires回应头给了一个文档不可用的时间。
+		Cache-Control中的max-age标识指明了缓存的最长时间；
+		
+		2）Validation：用来检查以一个缓存的回应是否仍然可用。例如，如果一个回应有一个Last-Modified回应头，缓存能够使用If-Modified-Since来判断是否已改变，以便判断根据情况发送请求；
+		
+		3）Invalidation： 在另一个请求通过缓存的时候，常常有一个副作用。例如，如果一个URL关联到一个缓存回应，但是其后跟着POST、PUT和DELETE的请求的话，缓存就会过期。
+
+	 断点续传和多线程下载的实现原理
+	q      HTTP协议的GET方法，支持只请求某个资源的某一部分；
+	q      206 Partial Content 部分内容响应；
+	q      Range 请求的资源范围；
+	q      Content-Range 响应的资源范围；
+	q      在连接断开重连时，客户端只请求该资源未下载的部分，而不是重新请求整个资源，来实现断点续传。
+
+	分块请求资源实例：
+	Eg1：Range: bytes=306302- ：请求这个资源从306302个字节到末尾的部分；
+	Eg2：Content-Range: bytes 306302-604047/604048：响应中指示携带的是该资源的第306302-604047的字节，该资源共604048个字节；
+
+	客户端通过并发的请求相同资源的不同片段，来实现对某个资源的并发分块下载。从而达到快速下载的目的。目前流行的FlashGet和迅雷基本都是这个原理。
+
+	多线程下载的原理：
+	q      下载工具开启多个发出HTTP请求的线程；
+	q      每个http请求只请求资源文件的一部分：Content-Range: bytes 20000-40000/47000；
+	q      合并每个线程下载的文件。

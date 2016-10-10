@@ -1,0 +1,205 @@
+XML 命名空间（XML Namespaces）
+
+	XML Namespace (xmlns) 属性
+		XML 命名空间属性被放置于元素的开始标签之中，并使用以下的语法：
+		xmlns:namespace-prefix="namespaceURI"
+		当命名空间被定义在元素的开始标签中时，所有带有相同前缀的子元素都会与同一个命名空间相关联。
+		注释：用于标示命名空间的地址不会被解析器用于查找信息。其惟一的作用是赋予命名空间一个惟一的名称。不过，很多公司常常会作为指针来使用命名空间指向实际存在的网页，这个网页包含关于命名空间的信息。
+		
+	统一资源标识符（Uniform Resource Identifier (URI)）
+		统一资源标识符是一串可以标识因特网资源的字符。最常用的 URI 是用来标示因特网域名地址的统一资源定位器(URL)。另一个不那么常用的 URI 是统一资源命名(URN)。在我们的例子中，我们仅使用 URL。
+		
+	XML 命名空间提供避免元素命名冲突的方法。
+		命名冲突
+		在 XML 中，元素名称是由开发者定义的，当两个不同的文档使用相同的元素名时，就会发生命名冲突。
+		这个 XML 文档携带着某个表格中的信息：
+		<table>
+		   <tr>
+		   <td>Apples</td>
+		   <td>Bananas</td>
+		   </tr>
+		</table>
+		这个 XML 文档携带有关桌子的信息（一件家具）：
+		<table>
+		   <name>African Coffee Table</name>
+		   <width>80</width>
+		   <length>120</length>
+		</table>
+		假如这两个 XML 文档被一起使用，由于两个文档都包含带有不同内容和定义的 <table> 元素，就会发生命名冲突。
+		XML 解析器无法确定如何处理这类冲突。
+		使用前缀来避免命名冲突
+		此文档带有某个表格中的信息：
+		<h:table>
+		   <h:tr>
+		   <h:td>Apples</h:td>
+		   <h:td>Bananas</h:td>
+		   </h:tr>
+		</h:table>
+		此 XML 文档携带着有关一件家具的信息：
+		<f:table>
+		   <f:name>African Coffee Table</f:name>
+		   <f:width>80</f:width>
+		   <f:length>120</f:length>
+		</f:table>
+		现在，命名冲突不存在了，这是由于两个文档都使用了不同的名称来命名它们的 <table> 元素 (<h:table> 和 <f:table>)。
+		通过使用前缀，我们创建了两种不同类型的 <table> 元素。
+		使用命名空间（Namespaces）
+		这个 XML 文档携带着某个表格中的信息：
+		<h:table xmlns:h="http://www.w3.org/TR/html4/">
+		   <h:tr>
+		   <h:td>Apples</h:td>
+		   <h:td>Bananas</h:td>
+		   </h:tr>
+		</h:table>
+		此 XML 文档携带着有关一件家具的信息：
+		<f:table xmlns:f="http://www.w3school.com.cn/furniture">
+		   <f:name>African Coffee Table</f:name>
+		   <f:width>80</f:width>
+		   <f:length>120</f:length>
+		</f:table>
+		
+		与仅仅使用前缀不同，我们为 <table> 标签添加了一个 xmlns 属性，这样就为前缀赋予了一个与某个命名空间相关联的限定名称。
+	
+	默认的命名空间（Default Namespaces）
+		为元素定义默认的命名空间可以让我们省去在所有的子元素中使用前缀的工作。
+		请使用下面的语法：
+		xmlns="namespaceURI"
+		这个 XML 文档携带着某个表格中的信息：
+		<table xmlns="http://www.w3.org/TR/html4/">
+		   <tr>
+		   <td>Apples</td>
+		   <td>Bananas</td>
+		   </tr>
+		</table>
+		此 XML 文档携带着有关一件家具的信息：
+		<table xmlns="http://www.w3school.com.cn/furniture">
+		   <name>African Coffee Table</name>
+		   <width>80</width>
+		   <length>120</length>
+		</table>
+	
+	命名空间的实际应用
+		当开始使用 XSL 时，您不久就会看到实际使用中的命名空间。XSL 样式表用于将 XML 文档转换为其他格式，比如 HTML。
+		如果您仔细观察下面的这个 XSL 文档，就会看到大多数的标签是HTML标签。非 HTML 的标签都有前缀 xsl，并由此命名空间标示："http://www.w3.org/1999/XSL/Transform"：
+		<?xml version="1.0" encoding="ISO-8859-1"?>
+		<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+			<xsl:template match="/">
+			<html>
+			<body>
+			  <h2>My CD Collection</h2>
+			  <table border="1">
+			    <tr>
+			      <th align="left">Title</th>
+			      <th align="left">Artist</th>
+			    </tr>
+			    <xsl:for-each select="catalog/cd">
+			    <tr>
+			      <td><xsl:value-of select="title"/></td>
+			      <td><xsl:value-of select="artist"/></td>
+			    </tr>
+			    </xsl:for-each>
+			  </table>
+			</body>
+			</html>
+			</xsl:template>
+	</xsl:stylesheet>
+	
+XML CDATA
+	所有 XML 文档中的文本均会被解析器解析。
+	只有 CDATA 区段（CDATA section）中的文本会被解析器忽略。
+	
+	术语 CDATA 指的是不应由 XML 解析器进行解析的文本数据（Unparsed Character Data）。
+	在 XML 元素中，"<" 和 "&" 是非法的。
+	"<" 会产生错误，因为解析器会把该字符解释为新元素的开始。
+	"&" 也会产生错误，因为解析器会把该字符解释为字符实体的开始。
+	某些文本，比如 JavaScript 代码，包含大量 "<" 或 "&" 字符。为了避免错误，可以将脚本代码定义为 CDATA。
+	CDATA 部分中的所有内容都会被解析器忽略。
+	CDATA 部分由 "<![CDATA[" 开始，由 "]]>" 结束：
+		<script>
+		<![CDATA[
+		function matchwo(a,b)
+		{
+		if (a < b && a < 0) then
+		  {
+		  return 1;
+		  }
+		else
+		  {
+		  return 0;
+		  }
+		}
+		]]>
+		</script>
+	在上面的例子中，解析器会忽略 CDATA 部分中的所有内容。
+	关于 CDATA 部分的注释：
+	CDATA 部分不能包含字符串 "]]>"。也不允许嵌套的 CDATA 部分。
+	标记 CDATA 部分结尾的 "]]>" 不能包含空格或折行。
+	
+XML 编码
+	XML 文档可以包含非 ASCII 字符，比如法语。
+	为了避免错误，需要规定 XML 编码，或者将 XML 文档存为 Unicode。
+	Windows 记事本
+		Windows 记事本默认会将文件保存为单字节的 ANSI (ASCII)。
+		如果选取文件菜单中的“另存为”命令，就可以规定双字节 Unicode (UTF-16)。
+		将下面的 XML 文件保存为 Unicode （注意文档不包含任何 encoding 属性）：
+		<?xml version="1.0"?>
+		<note>
+		  <from>John</from>
+		  <to>George</to>
+		  <message>French: êèé</message>
+		</note>
+		
+	如果您试图向 IE 中载入 XML 文档，可能会得到两种指示编码问题的错误：
+	-在文本内容中发现非法字符
+	如果 XML 文档中的某个字符与编码属性不匹配，您就会得到这个错误消息。通常，当 XML 文件中含有外国字符，且当文件使用类似记事本的单字节编码编辑器保存，以及没有指定编码属性时，您就会得到这个错误消息。
+	-将当前编码切换为不被支持的指定编码
+	如果您的文件被保存为 Unicode/UTF-16，但是编码属性被指定为单字节编码（比如 Windows-1252、ISO-8859-1 或者 UTF-8）时，那么您就会得到这个错误消息。
+	或者当您的文档被保存为单字节编码，但编码属性被指定为双字节编码（比如 UTF-16）时，也会得到这个错误消息。
+	结论
+	结论是：编码属性应当被指定为文档被保存时所使用的编码。我最好的避免错误的建议是：
+		使用支持编码的编辑器
+		确定编辑器使用的编码
+		在您的 XML 文档中使用相同的编码属性
+	<?xml version="1.0" encoding="UTF-8"?>
+	
+	
+XML DOM 高级	-	http://www.w3school.com.cn/example/xmle_examples.asp
+	获取元素的值
+		下面的代码检索第一个 <title> 元素的文本值：
+			x=xmlDoc.getElementsByTagName("title")[0].childNodes[0];
+			txt=x.nodeValue;
+		结果：txt = "Harry Potter"	
+	
+	改变元素的值
+		下面的代码改变第一个 <title> 元素的文本值：
+		x=xmlDoc.getElementsByTagName("title")[0].childNodes[0];
+		x.nodeValue="Easy Cooking";
+		
+	改变属性的值
+		setAttribute() 方法可用于改变已有属性的值，或创建一个新属性。
+		下面的代码向每个 <book> 元素添加了名为 "edition" 的新属性（值是 "first"）：
+		x=xmlDoc.getElementsByTagName("book");
+		
+		for(i=0;i<x.length;i++)
+		  {
+		  x[i].setAttribute("edition","first");
+		  }
+		  
+	创建元素
+		createElement() 方法创建新的元素节点。
+		createTextNode() 方法创建新的文本节点。
+		appendChild() 方法向节点添加子节点（在最后一个子节点之后）。
+		如需创建带有文本内容的新元素，需要同时创建元素节点和文本节点。
+		下面的代码创建了一个元素 (<edition>)，然后把它添加到第一个 <book> 元素中：
+		newel=xmlDoc.createElement("edition");
+		newtext=xmlDoc.createTextNode("First");
+		newel.appendChild(newtext);
+		
+		x=xmlDoc.getElementsByTagName("book");
+		x[0].appendChild(newel);
+	删除元素
+		removeChild() 方法删除指定的节点（或元素）。
+		下面的代码片段将删除第一个 <book> 元素中的第一个节点：
+		x=xmlDoc.getElementsByTagName("book")[0];
+		
+		x.removeChild(x.childNodes[0]);

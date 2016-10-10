@@ -1,0 +1,74 @@
+自定义拦截器
+• Spring MVC也可以使用拦截器对请求进行拦截处理，用户可以自定义拦截器来实现特定的功能，自定义的拦截器必须实现HandlerInterceptor接口
+– preHandle()：这个方法在业务处理器处理请求之前被调用，在该方法中对用户请求 request 进行处理。如果程序员决定该拦截器对请求进行拦截处理后还要调用其他的拦截器，或者是业务处理器去进行处理，则返回true；如果程序员决定不需要再调用其他的组件去处理请求，则返回false。
+– postHandle()：这个方法在业务处理器处理完请求后，但是DispatcherServlet 向客户端返回响应前被调用，在该方法中对用户请求request进行处理。
+– afterCompletion()：这个方法在 DispatcherServlet 完全处理完请求后被调用，可以在该方法中进行一些资源清理的操作
+
+
+示例1
+springmvc.xml:
+<mvc:interceptors>
+	<!-- 配置自定义的拦截器 -->
+	<bean class="com.johnny.springmvc.interceptors.FirstInterceptor"></bean>
+
+</mvc:interceptors>
+
+
+package com.johnny.springmvc.interceptors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+
+public class FirstInterceptor implements HandlerInterceptor{
+
+	/**
+	 * 该方法在目标方法之前被调用.
+	 * 若返回值为 true, 则继续调用后续的拦截器和目标方法. 
+	 * 若返回值为 false, 则不会再调用后续的拦截器和目标方法. 
+	 * 
+	 * 可以考虑做权限. 日志, 事务等. 
+	 */
+	@Override
+	public boolean preHandle(HttpServletRequest request,
+			HttpServletResponse response, Object handler) throws Exception {
+		System.out.println("[FirstInterceptor] preHandle");
+		return true;
+	}
+
+	/**
+	 * 调用目标方法之后, 但渲染视图之前. 
+	 * 可以对请求域中的属性或视图做出修改. 
+	 */
+	@Override
+	public void postHandle(HttpServletRequest request,
+			HttpServletResponse response, Object handler,
+			ModelAndView modelAndView) throws Exception {
+		System.out.println("[FirstInterceptor] postHandle");
+	}
+
+	/**
+	 * 渲染视图之后被调用. 释放资源
+	 */
+	@Override
+	public void afterCompletion(HttpServletRequest request,
+			HttpServletResponse response, Object handler, Exception ex)
+			throws Exception {
+		System.out.println("[FirstInterceptor] afterCompletion");
+	}
+
+}
+配置：
+<mvc:interceptors>
+	<bean class="com.johnny.springmvc.interceptors.FirstInterceptor"></bean>
+	<!-- 配置拦截器(不)作用的路径 -->
+	<mvc:interceptor>
+		<mvc:mapping path="/emps"/>
+		<mvc:exclude-mapping path="/user"/>
+		<bean class="com.johnny.springmvc.interceptors.SecondInterceptor"></bean>
+	</mvc:interceptor>
+</mvc:interceptors>
+
+多个拦截器执行顺序

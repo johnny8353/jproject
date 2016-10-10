@@ -1,0 +1,43 @@
+	web服务：服务器端整出一些资源可以让客户端应用访问（获取数据）
+	一个跨语言、跨平台的规范（抽象）
+	多个跨平台、跨语言的应用间通信整合的方案（实际）
+	
+为什么要用Web service？
+	业务需求：
+		应用A: java写的,运行在windows平台下
+			List<User> getAllUsers();
+		应用B: c语言写的，运行在linux平台下
+			需要请求应用A的getAllUsers()得到所有的user信息来展示
+	web service能解决：
+		跨平台调用 
+		跨语言调用
+		远程调用
+		
+什么时候使用web Service?
+	同一家公司的新旧应用
+	不同公司的应用间
+		分析业务需求：淘宝网与顺风物流系统如何交互？
+	一些提供数据的内容聚合应用：天气预报、股票行情
+	
+如何做web service的开发?
+	服务器端（处理客户端应用的请求,执行业务逻辑，提供数据）
+	客户端（发送请求，获取数据）
+	
+几个常用的
+	WSDL：web service definition language
+		对应一种类型的文件.wsdl
+		一个web service对应一个唯一的wsdl文档
+		定义了web service的服务器端与客户端应用交互传递请求和响应数据的格式和方式
+	SOAP：simple object access protocal
+		http+xml片断
+		soap消息：请求消息和响应消息
+		它依赖于wsdl文档的定义
+	SEI：Service EndPoint Interface
+		web service的终端接口，就是服务器端用来处理请求的接口（其中的方法就是处理请求的方法）
+	CXF：Celtix and XFire
+		一个apache的webservice框架
+					
+Web Service好比一个服务供应商，给其他厂家提供基础服务，其他厂家再将这个服务包装成自己的产品或者服务提供给别人或自己使用。
+既然两个公司需要合作，不可能靠一句话就可以的，就需要一些标准和规范的东西来实现。那么：
+	-SOAP 就像两个公司之间签的合同，约束双方按一定规矩和标准办事。
+	-WSDL 则像说明书，告诉别人你有什么，能给别人提供什么服务。

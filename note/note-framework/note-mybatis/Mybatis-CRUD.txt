@@ -1,0 +1,156 @@
+3. 操作users表的CRUD
+	3.1. XML的实现
+		1). 定义sql映射xml文件：
+		<insert id="insertUser" parameterType="com.johnny.ibatis.bean.User">
+			insert into users(name, age) values(#{name}, #{age});
+		</insert>
+		
+		<delete id="deleteUser" parameterType="int">
+			delete from users where id=#{id}
+		</delete>
+				
+		<update id="updateUser" parameterType="com.johnny.ibatis.bean.User">
+			update users set name=#{name},age=#{age} where id=#{id}
+		</update>
+				
+		<select id="selectUser" parameterType="int" resultType="com.johnny.ibatis.bean.User">
+			select * from users where id=#{id}
+		</select>
+				
+		<select id="selectAllUsers" resultType="com.johnny.ibatis.bean.User">
+			select * from users
+		</select>
+		
+		2). 在config.xml中注册这个映射文件
+		<mapper resource=" com/johnny/ibatis/bean/userMapper.xml"/>
+		3). 在dao中调用：
+		public User getUserById(int id) {
+			SqlSession session = sessionFactory.openSession();
+			User user = session.selectOne(URI+".selectUser", id);
+			return user;
+		}
+	
+	3.2. 注解的实现
+	1). 定义sql映射的接口
+			
+	public interface UserMapper {
+		@Insert("insert into users(name, age) values(#{name}, #{age})")
+		public int insertUser(User user);
+	
+		@Delete("delete from users where id=#{id}")
+		public int deleteUserById(int id);
+				
+		@Update("update users set name=#{name},age=#{age} where id=#{id}")
+		public int updateUser(User user);
+	
+		@Select("select * from users where id=#{id}")
+		public User getUserById(int id);
+	
+		@Select("select * from users")
+		public List<User> getAllUser();
+	}
+	
+	
+	2). 在config中注册这个映射接口
+	<mapper class="com.johnny.ibatis.crud.ano.UserMapper"/>
+	
+	3). 在dao类中调用
+	public User getUserById(int id) {
+		SqlSession session = sessionFactory.openSession();
+		UserMapper mapper = session.getMapper(UserMapper.class);
+		User user = mapper.getUserById(id);
+		return user;
+	}
+
+4. 几个可以优化的地方
+	4.1. 连接数据库的配置单独放在一个properties文件中
+	## db.properties
+	
+	<properties resource="db.properties"/>
+	
+	<property name="driver" value="${driver}" />
+	<property name="url" value="${url}" />
+	<property name="username" value="${username}" />
+	<property name="password" value="${password}" />
+	4.2. 为实体类定义别名,简化sql映射xml文件中的引用
+	<typeAliases>
+		<typeAlias type="com.johnny.ibatis.bean.User" alias="_User"/>
+	</typeAliases>
+	
+	4.3. 可以在src下加入log4j的配置文件,打印日志信息
+	1. 添加jar: 
+		log4j-1.2.16.jar
+	
+	2.1. log4j.properties(方式一)
+	
+		log4j.properties，
+		log4j.rootLogger=DEBUG, Console
+		#Console
+		log4j.appender.Console=org.apache.log4j.ConsoleAppender
+		log4j.appender.Console.layout=org.apache.log4j.PatternLayout
+		log4j.appender.Console.layout.ConversionPattern=%d [%t] %-5p [%c] - %m%n
+		log4j.logger.java.sql.ResultSet=INFO
+		log4j.logger.org.apache=INFO
+		log4j.logger.java.sql.Connection=DEBUG
+		log4j.logger.java.sql.Statement=DEBUG
+		log4j.logger.java.sql.PreparedStatement=DEBUG
+	
+	2.2. log4j.xml(方式二)
+	
+	<?xml version="1.0" encoding="UTF-8" ?>
+	<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+		<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+			<layout class="org.apache.log4j.PatternLayout">
+				<param name="ConversionPattern" 
+					value="%-5p %d{MM-dd HH:mm:ss,SSS} %m  (%F:%L) \n" />
+			</layout>
+		</appender>
+		<logger name="java.sql">
+			<level value="debug" />
+		</logger>
+		<logger name="org.apache.ibatis">
+			<level value="debug" />
+		</logger>
+		<root>
+			<level value="debug" />
+			<appender-ref ref="STDOUT" />
+		</root>
+	</log4j:configuration>
+
+5. 解决字段名与实体类属性名不相同的冲突
+	5.1. 准备表和数据：
+	CREATE TABLE orders(
+		order_id INT PRIMARY KEY AUTO_INCREMENT,
+		order_no VARCHAR(20), 
+		order_price FLOAT
+	);
+	INSERT INTO orders(order_no, order_price) VALUES('aaaa', 23);
+	INSERT INTO orders(order_no, order_price) VALUES('bbbb', 33);
+	INSERT INTO orders(order_no, order_price) VALUES('cccc', 22);
+	5.2. 定义实体类：
+	public class Order {
+		private int id;
+		private String orderNo;
+		private float price;
+	}
+	5.3. 实现getOrderById(id)的查询：
+	方式一: 通过在sql语句中定义别名
+	<select id="selectOrder" parameterType="int" resultType="_Order">
+		select order_id id, order_no orderNo,order_price price from orders where order_id=#{id}
+	</select>
+			
+	方式二: 通过<resultMap>
+	<select id="selectOrderResultMap" parameterType="int" resultMap="orderResultMap">
+		select * from orders where order_id=#{id}
+	</select>
+	
+	<resultMap type="_Order" id="orderResultMap">
+		<id property="id" column="order_id"/>
+		<result property="orderNo" column="order_no"/>
+		<result property="price" column="order_price"/>
+	</resultMap>
+	
+	
+	
+

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+	http://cxf.apache.org/jaxrs	http://cxf.apache.org/schemas/jaxrs.xsd
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="restfulSample" class="com.johnny.webservice.restful.RestfulSampleImpl" />
+	<bean id="restfulSample2" class="com.johnny.webservice.restful.RestfulSampleImpl2" />
+	<bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
+
+
+	<!-- 这里的地址很重要，客户端需要通过这个地址来访问WebService -->
+	<jaxrs:server id="restServiceContainer" address="/rest">
+		<jaxrs:serviceBeans>
+			<ref bean="restfulSample" />
+			<ref bean="restfulSample2" />
+		</jaxrs:serviceBeans>
+		<jaxrs:extensionMappings>
+			<entry key="json" value="application/json" />
+			<entry key="xml" value="application/xml" />
+		</jaxrs:extensionMappings>
+		<jaxrs:languageMappings>
+			<entry key="en" value="en-gb" />
+		</jaxrs:languageMappings>
+		<jaxrs:inInterceptors>
+			<bean class="com.johnny.webservice.interceptor.LoggingInInterceptorWrap"></bean>
+			<ref bean="authInterceptor" />
+		</jaxrs:inInterceptors>
+		<jaxrs:outInterceptors>
+			<bean class="com.johnny.webservice.interceptor.LoggingOutInterceptorWrap"></bean>
+		</jaxrs:outInterceptors>
+		<jaxrs:providers>
+			<ref bean="jsonProvider" />
+		</jaxrs:providers>
+	</jaxrs:server>
+
+</beans>

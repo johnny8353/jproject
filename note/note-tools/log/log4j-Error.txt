@@ -1,0 +1,27 @@
+	1>错误信息如下：
+		log4j:WARN No such property [maxBackupIndex] in org.apache.log4j.DailyRollingFileAppender.
+		log4j:WARN No such property [maxFileSize] in org.apache.log4j.DailyRollingFileAppender.
+		根据错误提示我们可以看到DailyRollingFileAppender这个类不带属性maxBackupIndex,maxFileSize的，它是按日期来保存日志的，所以不需要设置该2个属性，如果想要设置日志文件的大小，可以扩展RollingFileAppender这个类，平时开发中日志配置文件中需要注意设置。
+	
+		如下配置：
+		
+		 #以下为日志文件配置
+		#-----------------------------------此句为定义名为R2的输出端是文件
+		log4j.appender.R2=org.apache.log4j.FileAppender
+		#-----------------------------------每天产生一个日志文件
+		#log4j.appender.R2=org.apache.log4j.DailyRollingFileAppender
+		log4j.appender.R2=org.apache.log4j.RollingFileAppender
+		#-----------------------------------文件的最大尺寸 
+		log4j.appender.R2.MaxFileSize=500KB
+		#-----------------------------------最大记录文件数 
+		log4j.appender.R2.MaxBackupIndex=50
+		#-----------------------------------
+		log4j.appender.R2.append=true
+		#-----------------------------------PatternLayout布局就要指定的打印信息的具体格式
+		log4j.appender.R2.layout=org.apache.log4j.PatternLayout
+		#-----------------------------------PatternLayout布局就要指定的打印信息的具体格式
+		log4j.appender.R2.layout.ConversionPattern= %d{yyyy MM dd HH\:mm\:ss}-%p %t %c - %m%n
+		#-----------------------------------日志记录字符集
+		log4j.appender.R2.Encoding=UTF-8
+		#-----------------------------------指定日志文件名与路径
+		log4j.appender.R2.File=app.log

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.johnny.com/bookSchema"
+	elementFormDefault="qualified">
+	<element name="书架">
+		<complexType>
+			<sequence maxOccurs="unbounded">
+				<element name="书">
+					<complexType>
+						<sequence>
+							<element name="书名" type="string" />
+							<element name="作者" type="string" />
+							<element name="售价" type="string" />
+						</sequence>
+					</complexType>
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+</schema>
+
+<!-- 
+	schema规范中:
+	1. 所有标签和属性都需要有schema文件来定义 
+	2. 所有的schema文件都需要有一个id, 但在这里它叫namespace, 
+	3. namespace的值由什么来指定?
+		由targetNamespace属性来指定, 它的值是一个url(很有可能不存在)
+	4. 如何引入一个Schema约束?
+		属性? : 用xmlns属性
+		属性值: 对应的schema文件的id(namespace值)
+ -->

@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>人员选择</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/main.js" ></script>
+</head>
+<body>
+<div id="content">
+  <!--<div id="position">当前位置：标准菜单 &gt; 表单风格 &gt; 人员选择</div>-->
+  <form id="myform" name="myform" action="" method="post" >
+     <table cellpadding="0" cellspacing="1" class="tb_search">
+    <tr>
+      <td colspan="4" class="search">请填写查询条件</td>
+    </tr>
+      <tr>
+        <td width="15%" class="td_title">姓名/工号</td>
+        <td><input type="text" name="txt2222" class="txt_120"/>
+        &nbsp;
+        <input name="btnSearch" type="button" value="查询" class="button" onclick="searchresult();"/></td>
+      </tr>
+      
+    </table>
+	<table width="100%"  border=0 cellpadding="0" cellspacing="1"  class="tb_input">
+              <tr>
+                <td height="10" align="left" valign="top" nowrap="nowrap" class="td_title">可供选择人员</td>
+                <td width="10%" rowspan="2" align="center">
+                  <input name="Submit" type="button" class="button" value="&gt;&nbsp;" style="width:50px" onClick="moveOption(document.myform.list1, document.myform.list2)" title="向右移动"/>
+                  <br />
+                  <br />
+                  <input name="Submit3" type="button" class="button" value="&lt;&nbsp; " style="width:50px" onClick="moveOption(document.myform.list2, document.myform.list1)" title="向左移动"/>
+                 </td><td height="10" align="left" valign="top" nowrap="nowrap" class="td_title">已选择人员</td>
+              </tr>
+              <tr>
+                <td width="45%" rowspan="2" align="left" valign="top" class="detail" style="padding:5px 5px 0px 5px"><select name="list1" size="4" style=" width:100%;height:250px;" ondblclick="moveOption(document.myform.list1, document.myform.list2)">
+                    <option>王勇10039883--研发体系-IT中心-开发一部</option>
+                    <option>王勇9000007880--物流体系-康讯公司-返修中心</option>
+                    <option>王勇50000252--研发体系-网络研究所-上海测试部</option>
+                    <option>王勇10001766--销售体系-工程服务部-客户支持中心</option>
+                    <option>王勇10039948--研发体系-网络研究所-网关研发部</option>
+                    <option>王磊10033232--物流体系-缺省-网络生产一部</option>
+                  </select>                </td>
+                <td width="45%" align="left" valign="top" class="detail" style="padding:5px 5px 0px 5px"><select name="list2" size="4" style=" width:100%;height:250px;" ondblclick="moveOption(document.myform.list2, document.myform.list1)">
+                    <option>王磊10033232--物流体系-缺省-网络生产一部</option>
+                  </select>				  </td>
+              </tr>
+            </table>
+    <div class="tab_operate">
+      <input type="button" class="button" id="btnSave" value="确定" onclick="window.parent.close();"/>
+	  <input type="button" class="button" id="btnCancle" value="取消" onclick="window.parent.close();"/>
+    </div>
+  </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,194 @@
+Eclipse Neon (4.6)
+Eclipse Mars (4.5)
+Eclipse Luna (4.4)
+Eclipse Kepler (4.3)
+Eclipse Juno (4.2)
+
+打包jar	-	eclipse-jee-kepler-SR1-win32\eclipse
+
+设置eclipse中的${user} 
+	打开eclipse目录下的eclipse.ini文件，添加上一行ASNI编码
+	-Duser.name=JohnnyHuang 黄福强
+	这样在eclipse中的${user}变量的值就变成了JohnnyHuang 黄福强
+
+eclipse跑起来还是报java.lang.OutOfMemoryError: PermGen space。 	
+	在window下eclipse里面Server挂的是tomcat6，一开始还是以为，tomcat配置的问题，后面发现，配置了tomcat里面的catalina.bat文件，加入 
+	set JAVA_OPTS=-Xms512m -Xmx1024m -XX:PermSize=256M -XX:MaxNewSize=108m -XX:MaxPermSize=512m 
+	eclipse跑起来还是报java.lang.OutOfMemoryError: PermGen space。 
+	后面在网上找了资料，要在eclipse里面配置才可以。 
+	点击“Run” – “Run Configurations…”，选中Tomcat Server，进入Arguments分页，在VM arguments中加入提升初始分配空间的参数 
+	加入参数 
+	-Xms256m -Xmx512m -XX:PermSize=256m -XX:MaxPermSize=256M 
+
+ MyEclipse中防止代码格式化时出现换行的情况的设置 
+	编辑完成代码，用MyEclipse的代码格式化后，本来不长的代码也被自动转成了多行。虽然自动换行以后在编辑器中一眼就能看到全部的代码，但是可读性却大打折扣，避免出现这种情况的办法是：
+	1.Java代码
+	打开Eclipse的Window菜单，然后Preferences->Java->Code Style->Formatter->Edit/Show(根据不同版本可用的按钮会不一样) ->Line Wrapping->Maximum line width:由默认的80改成自己想要设定的长度
+	2.Html代码
+	Window->Preferences->MyEclipse->Files and Editors->Html->Html Source->Line width->加个0以后保存。
+	3.xml代码
+	Window->Preferences->MyEclipse->Files and Editors->xml->xml Source->->Line width->999
+	
+	多行注释 格式化后 破坏原注释格式
+		Window->Preferences-Java->Code Style->Formatter->Edit 选择Comments，将General setting的"Enable Javadoc comment formatting"的勾去掉。
+
+eclipse中调整控制台缓冲区大小  
+window-prefrence-run/debug - console - consolebuffersize	调大点显示的就多点
+
+JDK配置
+	打开我的电脑--属性--高级--环境变量 
+	新建系统变量JAVA_HOME 和CLASSPATH 
+	JAVA_HOME:   D:\Program Files\Java\jdk1.5.0
+	CLASSPATH   %JAVA_HOME%\lib\dt.jar;%JAVA_HOME%\lib\tools.jar;
+	选择“系统变量”中变量名为“Path”的环境变量，双击该变量，把JDK安装路径中bin目录的绝对路径，添加到Path变量的值中，并使用半角的分号和已有的路径进行分隔。 
+	Path:  %JAVA_HOME%\bin;%JAVA_HOME%\jre\bin;
+
+MyEclipse代码提示功能
+	导出Preference，在/instance/org.eclipse.jdt.ui/useAnnotationsPrefPage=true下面添加一行；在导入Preference。
+	/instance/org.eclipse.jdt.ui/content_assist_autoactivation_triggers_java=.abcdefghijklmnopqrstuvwxyz(,
+
+问题：
+	Myeclipse 内存大小设置
+		修改MyEclipse/eclipse文件夹中配置文件eclipse.ini
+		-vmargs
+		-Xms128M
+		-Xmx512M
+		-XX:PermSize=256M
+		-XX:MaxPermSize=512M
+		其中-XX:PermSize=64M可以设置大一些，但不能超过MaxPermSize
+			-Xms：java Heap初始大小。 默认是物理内存的1/64。
+			-Xmx：java heap最大值。建议均设为物理内存的一半。不可超过物理内存。
+				如果-Xmx不指定或者指定偏小，应用可能会导致java.lang.OutOfMemory错误，此错误来自JVM不是Throwable的，无法用try...catch捕捉。
+			-XX:PermSize:设定内存的永久保存区初始大小，缺省值为64M。（我用visualvm.exe查看的）
+			-XX:MaxPermSize:设定内存的永久保存区最大 大小，缺省值为64M。（我用visualvm.exe查看的）
+				PermSize和MaxPermSize指明虚拟机为java永久生成对象（Permanate generation）如，class对象、方法对象这些可反射（reflective）对象分配内存限制，
+			
+
+	解决 MyEclipse update progress 错误  
+		方法1：
+			MyEclipse中设置 windows->prefrences->general->startup and shutdown 
+			把automatic update scheduler的钩去掉
+			关闭MyEclipse，重新打开即可。
+		方法2：
+			退出myeclispe 
+			删除D:\Program Files\MyEclipse 6.0\eclipse\configuration\org.eclipse.update目录下的 last.config.stamp 
+		方法3：
+			删除D:\workspace\.metadata\.plugins 下org.eclipse.update 目录  
+			该目录为MyEclipse的项目工作目录
+			
+	解决Myeclipse速度慢
+		第一步: 取消自动validation
+			validation有一堆，什么xml、jsp、jsf、js等等，我们没有必要全部都往自动校验一下，只是需要的时候才会手工校验一下！
+			取消方法：
+			windows–>perferences–>myeclipse–>validation
+			除开Manual下面的复选框全部选中之外，其他全部不选
+			手工验证方法：
+			在要验证的文件上，单击鼠标右键–>myeclipse–>run validation
+		
+		第二步：取消Eclipse拼写检查
+			1、拼写检查会给我们带来不少的麻烦，我们的方法命名都会是单词的缩写，他也会提示有错，所以最好往掉，没有多大的用处
+			windows–>perferences–>general->editors->Text Editors->spelling
+		
+		第三步：取消myeclipse的启动项
+			myeclipse会有很多的启动项，而其中很多我们都用不着，或者只用一两个，取消前面不用的就可以
+			windows–>perferences–>general–>startup and shutdown
+		
+		第四步：更改jsp默认打开的方式
+			安装了myeclipse后，编辑jsp页面，会打开他的编辑页面，同时也有预览页面，速度很慢，不适合开发。所以更改之
+			windows–>perferences–>general–>editors->file associations
+			在下方选择一种编辑器，然后点击左边的default按钮
+			
+			尤其是在对JSP文件的<%%>之间写代码的时候，在网上找了很久才知道，是MyEclipse在智能提示的时候自动访问网络上sun公司的最新API文档，只要封闭掉网络连接就可以了。我试了试断开网络然后在用MyEclipse写代码，结果还真的搞定了。可是，我总不能由于个这就不上网了吧，终于，找到了两全其美的解决方法。
+			在自己创建的工程名上右键，选择Properties》在打开的窗口中点击Java Build Path》单击Libraries选项卡，找到
+			JRE System Libraries->charsets.jar->Javadoc location
+			选中Javadoc location，再选择右边的Remove,更改成Javadoc location: (None)，点击OK。
+		
+		启动是有提示做如下操作：
+			updating maven dependencies
+			      如果没有用到maven，可以取消这个操作。eclipse下可以选上这个选项
+			Window -> Preferences -> Maven -> enable Offline option
+			      MyEclipse的话，取消了Maven4MyEclipse的话，update maven indexes会取消，但启动时上面这个更新依赖还会有。需要到：
+			Window -> Preferences -> MyEclipse -> Maven4MyEclipse ->  Maven
+			      这个面板里，把 Offline 选项给选上，就可以了。
+			
+MyEclipse 快捷键
+
+	-------------------------------------
+	MyEclipse 快捷键1(CTRL)
+	-------------------------------------
+	Ctrl+1 快速修复
+	Ctrl+D: 删除当前行 
+	Ctrl+Q  定位到最后编辑的地方 
+	Ctrl+L  定位在某行  
+	Ctrl+O  快速显示 OutLine 
+	Ctrl+T  快速显示当前类的继承结构 
+	Ctrl+W  关闭当前Editer 
+	Ctrl+K  快速定位到下一个 
+	Ctrl+E 快速显示当前Editer的下拉列表
+	Ctrl+J  正向增量查找(按下Ctrl+J后,你所输入的每个字母编辑器都提供快速匹配定位到某个单词,如果没有,则在stutes line中显示没有找到了,)    
+	Ctrl+Z 返回到修改前的状态 
+	Ctrl+Y 与上面的操作相反
+	Ctrl+/  注释当前行,再按则取消注释 
+	Ctrl+D	删除当前行。
+	Ctrl+Q	跳到最后一次的编辑处
+	Ctrl+M	切换窗口的大小 
+	Ctrl+I	格式化激活的元素Format Active Elements。
+	Ctrl+F6	切换到下一个Editor
+	Ctrl+F7	切换到下一个Perspective
+	Ctrl+F8	切换到下一个View
+	------------------------------------------
+	MyEclipse 快捷键2(CTRL+SHIFT)
+	------------------------------------------
+	Ctrl+Shift+E 显示管理当前打开的所有的View的管理器(可以选择关闭,激活等操作) 
+	Ctrl+Shift+/ 自动注释代码 
+	Ctrl+Shift+\自动取消已经注释的代码 
+	Ctrl+Shift+O 自动引导类包 
+	Ctrl+Shift+J 反向增量查找(和上条相同,只不过是从后往前查) 
+	Ctrl+Shift+F4 关闭所有打开的Editer 
+	Ctrl+Shift+X  把当前选中的文本全部变为小写 
+	Ctrl+Shift+Y  把当前选中的文本全部变为小写 
+	Ctrl+Shift+F  格式化当前代码
+	Ctrl+Shift+M	(先把光标放在需导入包的类名上) 作用是加Import语句 
+	Ctrl+Shift+P 定位到对于的匹配符(譬如{}) (从前面定位后面时,光标要在匹配符里面,后面到前面,则反之) 
+	Ctrl+Shift+F	格式化文件Format Document。
+	Ctrl+Shift+O	作用是缺少的Import语句被加入，多余的Import语句被删除。 
+	Ctrl+Shift+S	保存所有未保存的文件。
+	Ctrl+Shift+/ 	在代码窗口中是这种/*~*/注释，在JSP文件窗口中是 <!--~-->。 
+	Shift+Ctrl+Enter 在当前行插入空行(原理同上条)
+	-----------------------------------------
+	MyEclipse 快捷键3(ALT)
+	-----------------------------------------
+	Alt+/ 代码助手完成一些代码的插入 ，自动显示提示信息
+	Alt+↓  当前行和下面一行交互位置(特别实用,可以省去先剪切,再粘贴了) 
+	Alt+↑  当前行和上面一行交互位置(同上) 
+	Alt+←  前一个编辑的页面 
+	Alt+→  下一个编辑的页面(当然是针对上面那条来说了) 
+	Alt+Enter 显示当前选择资源(工程,or 文件 or文件)的属性 
+	
+	MyEclipse 快捷键4(ALT+CTRL)
+	
+	Alt+CTRL+↓ 复制当前行到下一行(复制增加) 
+	Alt+CTRL+↑ 复制当前行到上一行(复制增加)
+	-------------------------------------------
+	MyEclipse 快捷键5(ALT+SHIFT)
+	-------------------------------------------
+	Alt+Shift+R 重命名 
+	Alt+Shift+M 抽取方法
+	Alt+Shift+C 修改函数结构(比较实用,有N个函数调用了这个方法,修改一次搞定) 
+	Alt+Shift+L 抽取本地变量
+	Alt+Shift+F 把Class中的local变量变为field变量
+	Alt+Shift+I 合并变量
+	Alt+Shift+V 移动函数和变量
+	Alt+Shift+Z 重构的后悔药(Undo) Shift+Enter 在当前行的下一行插入空行(这时鼠标可以在当前行的任一位置,不一定是最后) 
+	Alt+Shift+O(或点击工具栏中的Toggle Mark Occurrences按钮) 当点击某个标记时可使本页面中其他地方的此标记黄色凸显，并且窗口的右边框会出现白色的方块，点击此方块会跳到此标记处。 
+	下面的快捷键是重构里面常用的,本人就自己喜欢且常用的整理一下(注:一般重构的快捷键都是Alt+Shift开头的了) 
+	
+	--------------------------------------------
+	MyEclipse 快捷键(6) 
+	--------------------------------------------
+	F2当鼠标放在一个标记处出现Tooltip时候按F2则把鼠标移开时Tooltip还会显示即Show Tooltip Description。 
+	F3跳到声明或定义的地方。 
+	F5单步调试进入函数内部。 
+	F6单步调试不进入函数内部，如果装了金山词霸2006则要把“取词开关”的快捷键改成其他的。 
+	F7由函数内部返回到调用处。 
+	F8一直执行到下一个断点。 

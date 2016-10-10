@@ -1,0 +1,13 @@
+
+	1.客户端（Client）向Action发用一个请求（Request）
+	2.Container通过web.xml映射请求，并获得控制器（Controller）的名字
+	3.容器（Container）调用控制器（StrutsPrepareAndExecuteFilter或FilterDispatcher）。在Struts2.1以前调用FilterDispatcher，Struts2.1以后调用StrutsPrepareAndExecuteFilter
+	4. 控制器（Controller）通过ActionMapper获得Action的信息,询问ActionMaper这个请求是否需要调用某个Action
+	5.控制器（Controller）调用ActionProxy:如果ActionMapper决定需要调用某个Action，StrutsPrepareAndExecuteFilter把请求的处理交给ActionProxy
+	6.ActionProxy读取struts.xml文件获取action和interceptor stack的信息。
+	7.ActionProxy把request请求传递给ActionInvocation
+	8.ActionInvocation依次调用action和interceptor
+	9.根据action的配置信息，产生result
+	10.Result信息返回给ActionInvocation
+	11.产生一个HttpServletResponse响应
+	12.产生的响应行为发送给客服端。

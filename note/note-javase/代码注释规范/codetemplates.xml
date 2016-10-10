@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template autoinsert="true" context="overridecomment_context" deleted="false" description="Comment for overriding methods" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.overridecomment" name="overridecomment">/* (non-Javadoc)
+ * ${see_to_overridden}
+ */</template><template autoinsert="true" context="settercomment_context" deleted="false" description="Comment for setter method" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.settercomment" name="settercomment">/**
+ * @param ${param} the ${bare_field_name} to set
+ */</template><template autoinsert="true" context="gettercomment_context" deleted="false" description="Comment for getter method" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.gettercomment" name="gettercomment">/**
+ * @return the ${bare_field_name}
+ */</template><template autoinsert="false" context="typecomment_context" deleted="false" description="Comment for created types" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.typecomment" name="typecomment">/**
+ * 类 编 号：
+ * 类 名 称：${type_name}
+ * 内容摘要：&lt;说明该类的目前已经实现的主要功能&gt;
+ * 完成日期：${date}
+ * 编码作者：${user}
+ * ${tags}
+ */</template><template autoinsert="false" context="classbody_context" deleted="false" description="Code in new class type bodies" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.classbody" name="classbody">
+/**
+ * 类 编 号：
+ * 类 名 称：${type_name}
+ * 内容摘要：&lt;说明该类的目前已经实现的主要功能&gt;
+ * 完成日期：${date}
+ * 编码作者：${user}
+ */
+
+</template><template autoinsert="true" context="fieldcomment_context" deleted="false" description="Comment for fields" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.fieldcomment" name="fieldcomment">/**
+ * 
+ */</template><template autoinsert="true" context="constructorcomment_context" deleted="false" description="Comment for created constructors" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.constructorcomment" name="constructorcomment">/**
+ * &lt;p&gt;Description: &lt;/p&gt;
+ * ${tags}
+ */</template><template autoinsert="true" context="delegatecomment_context" deleted="false" description="Comment for delegate methods" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.delegatecomment" name="delegatecomment">/**
+ * ${tags}
+ * ${see_to_target}
+ */</template><template autoinsert="false" context="methodcomment_context" deleted="false" description="Comment for non-overriding methods" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.methodcomment" name="methodcomment">/**
+ * 业务描述：&lt;列出主要功能调用说明异常说明业务逻辑等&gt;
+ * 编码作者:${user}
+ * 完成日期:${date}
+ * @param ${tags}
+ * @return ${return_type}
+ * ${tags}
+ */</template><template autoinsert="true" context="newtype_context" deleted="false" description="Newly created files" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.newtype" name="newtype">${filecomment}
+${package_declaration}
+
+${typecomment}
+${type_declaration}</template><template autoinsert="false" context="filecomment_context" deleted="false" description="Comment for created Java files" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.filecomment" name="filecomment">/**
+ * 版权所有：版权所有(C) ${year}
+ * 文件编号：BL_PU2010101_${type_name} 
+ * 文件名称：${file_name}
+ * 系统编号：100000201191
+ * 系统名称：
+ * 组件编号：
+ * 组件名称：${project_name}
+ * 设计作者：${user}
+ * 完成日期：${date}
+ * 设计文档：&lt;如有rose的设计文件则需要填写设计文件名称&gt;
+ * 内容摘要：&lt;描写该文件主要功能职责和后续扩展范围&gt; 
+ *
+ * 修改记录：01
+ * 修   改  人：${user}
+ * 修改日期：${date}
+ * 活  动   号：&lt;填写在EC上的开发活动号和名称或版本号&gt;
+ * 修改内容：新增
+ *
+ */</template></templates>

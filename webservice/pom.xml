@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.johnny</groupId>
+		<artifactId>johnny-parent</artifactId>
+		<version>2.3.4</version>
+	</parent>
+    <artifactId>webservice</artifactId>
+    <packaging>pom</packaging>
+    <name>webservice</name>
+    <modules>
+        <module>webservice-jdk-demo</module>
+		<module>webservice-cxf-demo</module>
+		<module>webservice-axis1-demo</module>
+		<module>webservice-axis2-demo</module>
+		<module>webservice-client</module>
+    </modules>
+	
+	<dependencies>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+	</dependencies>
+
+</project>

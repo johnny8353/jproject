@@ -1,0 +1,171 @@
+Object.hbm.xml：
+	hibernate-mapping
+		类层次：class
+			主键：id
+			基本类型:property
+			实体引用类: many-to-one  |  one-to-one
+			集合:set | list | map | array
+				one-to-many
+				many-to-many
+			子类:subclass | joined-subclass
+			其它:component | any 等
+		查询语句:
+			query（用来放置查询语句，便于对数据库查询的统一管理和优化）
+	每个Hibernate-mapping中可以同时定义多个类. 但更推荐为每个类都创建一个单独的映射文件
+
+hibernate-mapping 是 hibernate 映射文件的根元素
+	- schema: 指定所映射的数据库schema的名称。若指定该属性, 则表明会自动添加该 schema 前缀
+	- catalog:指定所映射的数据库catalog的名称。  
+	- default-cascade(默认为 none): 设置hibernate默认的级联风格. 若配置 Java 属性, 集合映射时没有指定 cascade 属性, 则 Hibernate 将采用此处指定的级联风格.   
+	- default-access (默认为 property): 指定 Hibernate 的默认的属性访问策略。默认值为 property, 即使用 getter, setter 方法来访问属性. 若指定 access, 
+		则 Hibernate 会忽略 getter/setter 方法, 而通过反射访问成员变量.
+	- default-lazy(默认为 true): 设置 Hibernat morning的延迟加载策略. 该属性的默认值为 true, 即启用延迟加载策略. 若配置 Java 属性映射, 
+		集合映射时没有指定 lazy 属性, 则 Hibernate 将采用此处指定的延迟加载策略 
+	- auto-import (默认为 true): 指定是否可以在查询语言中使用非全限定的类名（仅限于本映射文件中的类）。 
+	- package (可选): 指定一个包前缀，如果在映射文档中没有指定全限定的类名， 就使用这个作为包名。 
+	
+class 元素用于指定类和表的映射
+	- name:指定该持久化类映射的持久化类的类名
+	- table:指定该持久化类映射的表名, Hibernate 默认以持久化类的类名作为表名
+	- dynamic-insert: 若设置为 true, 表示当保存一个对象时, 会动态生成 insert 语句, insert 语句中仅包含所有取值不为 null 的字段. 默认值为 false
+	- dynamic-update: 若设置为 true, 表示当更新一个对象时, 会动态生成 update 语句, update 语句中仅包含所有取值需要更新的字段. 默认值为 false
+	- select-before-update:设置 Hibernate 在更新某个持久化对象之前是否需要先执行一次查询. 默认值为 false
+	- batch-size:指定根据 OID 来抓取实例时每批抓取的实例数.
+	- lazy: 指定是否使用延迟加载.  
+	- mutable: 若设置为 true, 等价于所有的 <property> 元素的 update 属性为 false, 表示整个实例不能被更新. 默认为 true. 
+	- discriminator-value: 指定区分不同子类的值. 当使用 <subclass/> 元素来定义持久化类的继承关系时需要使用该属性
+	
+映射对象标识符
+	Hibernate 使用对象标识符(OID) 来建立内存中的对象和数据库表中记录的对应关系. 对象的 OID 和数据表的主键对应. Hibernate 通过标识符生成器来为主键赋值
+	Hibernate 推荐在数据表中使用代理主键, 即不具备业务含义的字段. 代理主键通常为整数类型, 因为整数类型比字符串类型要节省更多的数据库空间.
+	在对象-关系映射文件中, <id> 元素用来设置对象标识符. <generator> 子元素用来设定标识符生成器.
+	Hibernate 提供了标识符生成器接口: IdentifierGenerator, 并提供了各种内置实现
+
+id：设定持久化类的 OID 和表的主键的映射
+	- name: 标识持久化类 OID 的属性名  
+	- column: 设置标识属性所映射的数据表的列名(主键字段的名字). 
+	- unsaved-value:若设定了该属性, Hibernate 会通过比较持久化类的 OID 值和该属性值来区分当前持久化类的对象是否为临时对象
+	- type:指定 Hibernate 映射类型. Hibernate 映射类型是 Java 类型与 SQL 类型的桥梁. 如果没有为某个属性显式设定映射类型, 
+		Hibernate 会运用反射机制先识别出持久化类的特定属性的 Java 类型, 然后自动使用与之对应的默认的 Hibernate 映射类型
+	- Java 的基本数据类型和包装类型对应相同的 Hibernate 映射类型. 基本数据类型无法表达 null, 所以对于持久化类的 OID 推荐使用包装类型
+
+主键生成方式
+	<id name="id" type="java.lang.Integer">
+		<column name="ID" />
+		<!-- 指定主键的生成方式, native: 使用数据库本地方式 -->
+		<generator class="native" />
+	</id>
+	<generator class="native" />
+	generator：设定持久化类设定标识符生成器
+	class: 指定使用的标识符生成器全限定类名或其缩写名
+	简介版：
+	increment：代理主键，适合于所有数据库，由hibernate维护主键自增，和底层数据库无关，但是不适合于2个或以上hibernate进程。
+	*identity：代理主键，适合于Mysql或ms sql server等支持自增的dbms，主键值不由hibernate维护。
+	*sequence：代理主键，适合于oracle等支持序列的dbms，主键值不由hibernate维护，由序列产生。
+	*native：代理主键，根据底层数据库的具体特性选择适合的主键生成策略，如果是mysql或sqlserver，选择identity，如果是oracle，选择sequence。
+	hilo：代理主键，hibernate把特定表的字段作为hign值，生成主键值
+	uuid.hex：代理主键，hibernate采用uuid 128位算法生成基于字符串的主键值
+	assign：适合于应用程序维护的自然主键。
+	
+	ps：OID 必须为 long, int 或 short 类型, 如果把 OID 定义为 byte 类型, 在运行时会抛出异常
+	
+property 元素用于指定类的属性和表的字段的映射
+	- name:指定该持久化类的属性的名字
+	- column:指定与类的属性映射的表的字段名. 如果没有设置该属性, Hibernate 将直接使用类的属性名作为字段名. 
+	- type:指定 Hibernate 映射类型. Hibernate 映射类型是 Java 类型与 SQL 类型的桥梁. 如果没有为某个属性显式设定映射类型, 
+		Hibernate 会运用反射机制先识别出持久化类的特定属性的 Java 类型, 然后自动使用与之对应的默认的 Hibernate 映射类型.
+	- not-null:若该属性值为 true, 表明不允许为 null, 默认为 false
+	- access:指定 Hibernate 的默认的属性访问策略。默认值为 property, 即使用 getter, setter 方法来访问属性. 若指定 field, 
+		则 Hibernate 会忽略 getter/setter 方法, 而通过反射访问成员变量
+	- unique: 设置是否为该属性所映射的数据列添加唯一约束. 
+	- index: 指定一个字符串的索引名称. 当系统需要 Hibernate 自动建表时, 用于为该属性所映射的数据列创建索引, 从而加快该数据列的查询.
+	- length: 指定该属性所映射数据列的字段的长度
+	- scale: 指定该属性所映射数据列的小数位数, 对 double, float, decimal 等类型的数据列有效.
+	- formula：设置一个 SQL 表达式, Hibernate 将根据它来计算出派生属性的值. 
+		- 派生属性: 并不是持久化类的所有属性都直接和表的字段匹配, 持久化类的有些属性的值必须在运行时通过计算才能得出来, 这种属性称为派生属性
+		使用 formula 属性时
+			- formula=“(sql)” 的英文括号不能少
+			- Sql 表达式中的列名和表名都应该和数据库对应, 而不是和持久化对象的属性对应
+			- 如果需要在 formula 属性中使用参数, 这直接使用 where cur.id=id 形式, 其中 id 就是参数, 和当前持久化对象的 id 属性对应的列的 id 值将作为参数传入. 
+			
+映射组成关系	-	主从关系，component 同一张表
+	建立域模型和关系数据模型有着不同的出发点:
+	域模型: 由程序代码组成, 通过细化持久化类的的粒度可提高代码的可重用性, 简化编程
+	
+	在没有数据冗余的情况下, 应该尽可能减少表的数目, 简化表之间的参照关系, 以便提高数据的访问速度
+
+	Hibernate 把持久化类的属性分为两种: 
+		值(value)类型: 没有 OID, 不能被单独持久化, 生命周期依赖于所属的持久化类的对象的生命周期
+		实体(entity)类型: 有 OID, 可以被单独持久化, 有独立的生命周期
+	显然无法直接用 property 映射 pay 属性
+	Hibernate 使用 <component> 元素来映射组成关系, 该元素表名 pay 属性是 Worker 类一个组成部分, 在 Hibernate 中称之为组件
+	<component> 元素来映射组成关系
+		class:设定组成关系属性的类型, 此处表明 pay 属性为 Pay 类型
+	<parent> 元素指定组件属性所属的整体类
+		name: 整体类在组件类中的属性名
+		
+	
+	
+Hibernate主键生成策略
+	1、自动增长identity
+	适用于MySQL、DB2、MS SQL Server，采用数据库生成的主键，用于为long、short、int类型生成唯一标识 
+	 使用SQL Server 和 MySQL 的自增字段，这个方法不能放到 Oracle 中，Oracle 不支持自增字段，要设定sequence（MySQL 和 SQL Server 中很常用） 
+	 数据库中的语法如下： 
+	MySQL：create table t_user(id int auto_increment primary key, name varchar(20)); 
+	 SQL Server：create table t_user(id int identity(1,1) primary key, name varchar(20));
+	 
+	2、sequence
+	DB2、Oracle均支持的序列，用于为long、short或int生成唯一标识 
+	 数据库中的语法如下： 
+	Oracle：create sequence seq_name increment by 1 start with 1; 
+	需要主键值时可以调用seq_name.nextval或者seq_name.curval得到，数据库会帮助我们维护这个sequence序列，保证每次取到的值唯一，如： 
+	insert into tbl_name(id, name) values(seq_name.nextval, ‘Jimliu’);
+	seq_name 
+	如果我们没有指定sequence参数，则Hibernate会访问一个默认的sequence，是hibernate_sequence，我们也需要在数据库中建立这个sequence 
+	此外，sequence还可以有另外一个参数是paramters，可以查看Hibernate的API了解它的用法，见org.hibernate.id.SequenceGenerator 
+	调用数据库的sequence来生成主键，要设定序列名，不然hibernate无法找到： 
+	NAME_SEQ（Oracle中很常用）
+	
+	3、hilo
+	使用一个高/低位算法生成的long、short或int类型的标识符，给定一个表和字段作为高位值的来源，默认的表是hibernate_unique_key，默认的字段是next_hi。
+	它将id的产生源分成两部分，DB+内存，然后按照算法结合在一起产生id值，可以在很少的连接次数内产生多条记录，提高效率
+	MySQL：create table hi_value(next_hi integer not null);
+	insert into hi_value(next_hi) values(1);
+	 hi_value 
+	 next_hi 
+	 100 
+	
+	在hibernate持久化的时候，由hibernate负责生成低位值。hilo标识符生成器在生成标识符时需要从hi_value表中取出next_hi的当前值，然后修改该值，这个操作是在单独的事务中完成的。
+	最大的低值在属性max_lo中配置，但在Hibernate内存中生成的低位值超过此值时，就有需要到数据库的hi_value表中再次读取高位值了 
+	 使用hilo生成策略，要在数据库中建立一张额外的表，默认表名为hibernate_unique_key,默认字段为integer类型，名称是next_hi（比较少用） 
+	 我们也可以自己设置自定义的表名和字段名 
+	4、native
+	会根据底层数据库的能力，从identity、sequence、hilo中选择一个，灵活性更强，但此时，如果选择sequence或者hilo，
+	则所有的表的主键都会从Hibernate默认的sequence或者hilo表中取。并且，有的数据库对于默认情况主键生成测试的支持，效率并不是很高 
+	 对于 oracle 采用 Sequence 方式，对于MySQL 和 SQL Server 采用identity（自增主键生成机制），native就是将主键的生成工作交由数据库完成，hibernate不管（很常用）
+	
+	5、seqhilo
+	sequence和hilo的结合，hilo的高位由sequence产生，所以也需要底层数据库的支持 
+	 通过hilo算法实现，但是主键历史保存在Sequence中，适用于支持 Sequence 的数据库，如 Oracle（比较少用）
+	seq_name 
+	 100 
+	6、increment
+	这个是由Hibernate在内存中生成主键，每次增量为1，不依赖于底层的数据库，因此所有的数据库都可以使用，但问题也随之而来，由于是Hibernate生成的，所以只
+	能有一个Hibernate应用进程访问数据库，否则就会产生主键冲突，不能在集群情况下使用 
+	 插入数据的时候hibernate会给主键添加一个自增的主键，但是一个hibernate实例就维护一个计数器，所以在多个实例运行的时候不能使用这个方法 
+	7、uuid.hex
+	使用一个128-bit的UUID算法生成字符串类型的标识符，UUID被编码成一个32位16进制数字的字符串。UUID包含：IP地址、JVM启动时间、系统时间（精确到1/4秒）和一个计数器值（JVM中唯一） 
+	hibernate会算出一个128位的唯一值插入
+	uuid.string 
+	 hibernate会算出一个16位的值插入
+	8、assigned
+	由应用程序负责生成主键标识符，往往使用在数据库中没有代理主键，使用的主键与业务相关的情况，如：
+	这种主键的生成方式不建议使用，在数据库表设计时就应该使用代理主键（surrogate key），不应使用自然主键（natural key具有业务含义），在没有指定标签时，
+	默认就是assigned主键的生成方式 
+	 在插入数据的时候主键由用户自己添加，hibernate也不管
+	9、foreign 
+	使用外部表的字段作为主键
+	10、select 
+	使用触发器生成主键（主要用于早期的数据库主键生成机制，少用）
+		
+	

@@ -1,0 +1,204 @@
+一：SqlMapConfig.xml配置文件的内容和配置顺序如下
+	1. properties(属性)
+	2. settings(全局配置参数)
+	3. typeAiases(类型别名)
+	4. typeHandlers(类型处理器)
+	5. objectFactory(对象工厂)
+	6. plugins(插件)
+	7. environments(环境集合属性对象)mappers(映射器)
+		1. environment(环境子属性对象)
+		2. transactionManager(事物管理)
+		3. datesource(数据源
+	8. mappers(映射器)
+二：properties属性
+	作用：将数据连接单独配置在db.properties中，只需要在SqlMapConfig.xml中加载db.properties的属性值，在SqlMapConfig.xml中就不需要对数据库连接参数进行硬编码。
+	数据库连接参数只配置在db.properties中，方便对参数进行统一管理，其它xml可以引用该db.properties。
+	db.properties的内容：
+		jdbc.driver=com.mysql.jdbc.Driver
+		jdbc.url=jdbc:mysql://localhost:3306/mybatis
+		jdbc.username=root
+		jdbc.password=root
+	在SqlMapConfig.xml中加载db.properties
+		 <!-- 加载数据库文件db.properties -->
+		<properties resource="db.properties">
+		  <!-- properties中还可以配置一些属性名和属性值,此处的优先加载 -->
+		  <!-- <property name="driver" value=""/> -->
+		</properties>
+		<!-- 和spring整合后 environments配置将废除-->
+		<environments default="development">
+		  <environment id="development">
+		  <!-- 使用jdbc事务管理,事务控制由mybatis管理-->
+		    <transactionManager type="JDBC" />
+		  <!-- 数据库连接池,由mybatis管理-->
+		    <dataSource type="POOLED">
+		      <property name="driver" value="${jdbc.driver}" />
+		      <property name="url" value="${jdbc.url}" />
+		      <property name="username" value="${jdbc.username}" />
+		      <property name="password" value="${jdbc.password}" />
+		    </dataSource>
+		  </environment>
+		</environments>
+	properties特性：
+	注意：
+	• 在properties元素体内定义的属性优先读取。
+	• 然后读取properties元素中resource或url加载的属性，它会覆盖已读取的同名属性。
+	• 最后读取parameterType传递的属性，它会覆盖已读取的同名属性
+	建议：
+	不要在properties元素体内添加任何属性值，只将属性值定义在properties文件中。
+	在properties文件中定义属性名要有一定的特殊性，如xxxx.xxxx(jdbc.driver)
+三:settings全局参数配置
+	mybatis框架运行时可以调整一些运行参数。比如，开启二级缓存，开启延迟加载等等。全局参数会影响mybatis的运行行为。
+	mybatis-settings的配置属性以及描述
+	setting(设置)	Description(描述)	valid Values(验证值组)	Default(默认值)
+	cacheEnabled	在全局范围内启用或禁用缓存配置 任何映射器在此配置下。	true | false	TRUE
+	lazyLoadingEnabled	在全局范围内启用或禁用延迟加载。禁用时，所有相关联的将热加载。	true | false	TRUE
+	aggressiveLazyLoading	启用时，有延迟加载属性的对象将被完全加载后调用懒惰的任何属性。否则，每一个属性是按需加载。	true | false	TRUE
+	multipleResultSetsEnabled	允许或不允许从一个单独的语句（需要兼容的驱动程序）要返回多个结果集。	true | false	TRUE
+	useColumnLabel	使用列标签，而不是列名。在这方面，不同的驱动有不同的行为。参考驱动文档或测试两种方法来决定你的驱动程序的行为如何。	true | false	TRUE
+	useGeneratedKeys	允许JDBC支持生成的密钥。兼容的驱动程序是必需的。此设置强制生成的键被使用，如果设置为true，一些驱动会不兼容性，但仍然可以工作。	true | false	FALSE
+	autoMappingBehavior	指定MyBatis的应如何自动映射列到字段/属性。NONE自动映射。 PARTIAL只会自动映射结果没有嵌套结果映射定义里面。 FULL会自动映射的结果映射任何复杂的（包含嵌套或其他）。	NONE,PARTIAL,FULL	PARTIAL
+	defaultExecutorType	配置默认执行人。SIMPLE执行人确实没有什么特别的。 REUSE执行器重用准备好的语句。 BATCH执行器重用语句和批处理更新。	SIMPLE,REUSE,BATCH	SIMPLE
+	safeRowBoundsEnabled	允许使用嵌套的语句RowBounds。	true | false	FALSE
+	mapUnderscoreToCamelCase	从经典的数据库列名A_COLUMN启用自动映射到骆驼标识的经典的Java属性名aColumn。	true | false	FALSE
+	localCacheScope	MyBatis的使用本地缓存，以防止循环引用，并加快反复嵌套查询。默认情况下（SESSION）会话期间执行的所有查询缓存。如果localCacheScope=STATMENT本地会话将被用于语句的执行，只是没有将数据共享之间的两个不同的调用相同的SqlSession。	SESSION	SESSION
+			STATEMENT
+	dbcTypeForNull	指定为空值时，没有特定的JDBC类型的参数的JDBC类型。有些驱动需要指定列的JDBC类型，但其他像NULL，VARCHAR或OTHER的工作与通用值。	JdbcType enumeration. Most common are: NULL, VARCHAR and OTHER	OTHER
+	lazyLoadTriggerMethods	指定触发延迟加载的对象的方法。	A method name list separated by commas	equals,clone,hashCode,toString
+	defaultScriptingLanguage	指定所使用的语言默认为动态SQL生成。	A type alias or fully qualified class name.	org.apache.ibatis.scripting.xmltags
+				.XMLDynamicLanguageDriver
+	callSettersOnNulls	指定如果setter方法 或地图的put方法时，将调用检索到的值是null。它是有用的，当你依靠Map.keySet（）或null初始化。注意原语（如整型，布尔等）不会被设置为null。	true | false	FALSE
+	logPrefix	指定的前缀字串，MyBatis将会增加记录器的名称。	Any String	Not set
+	logImpl	指定MyBatis的日志实现使用。如果此设置是不存在的记录的实施将自动查找。	SLF4J | LOG4J | LOG4J2 | JDK_LOGGING | COMMONS_LOGGING | STDOUT_LOGGING | NO_LOGGING	Not set
+	proxyFactory	指定代理工具，MyBatis将会使用创建懒加载能力的对象。	CGLIB | JAVASSIST	CGLIB
+	官方文档settings的例子
+	
+	<setting name="cacheEnabled" value="true"/>
+	  <setting name="lazyLoadingEnabled" value="true"/>
+	  <setting name="multipleResultSetsEnabled" value="true"/>
+	  <setting name="useColumnLabel" value="true"/>
+	  <setting name="useGeneratedKeys" value="false"/>
+	  <setting name="autoMappingBehavior" value="PARTIAL"/>
+	  <setting name="defaultExecutorType" value="SIMPLE"/>
+	  <setting name="defaultStatementTimeout" value="25"/>
+	  <setting name="safeRowBoundsEnabled" value="false"/>
+	  <setting name="mapUnderscoreToCamelCase" value="false"/>
+	  <setting name="localCacheScope" value="SESSION"/>
+	  <setting name="jdbcTypeForNull" value="OTHER"/>
+	  <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+	</settings>
+四:typeAiases(别名)--重点掌握
+	在 mapper.xml 中，定义很多的 statement ， statement 需要 parameterType 指定输入参数的类型、需要 resultType 指定输出结果的映射类型。
+	如果在指定类型时输入类型全路径，不方便进行开发，可以针对 parameterType 或resultType 指定的类型定义一些别名，在 mapper.xml 中通过别名定义，方便开发。
+	4.1.mybatis默认支持的别名
+		别名	映射的类型
+		_byte	byte
+		_long	long
+		_short	short
+		_int	int
+		_integer	int
+		_double	double
+		_float	float
+		_boolean	boolean
+		string	String
+		byte	Byte
+		long	Long
+		short	Short
+		int	Integer
+		integer	Integer
+		double	Double
+		float	Float
+		boolean	Boolean
+		date	Date
+		decimal	BigDecimal
+		bigdecimal	BigDecimal
+	4.2.自定义别名
+		4.2.1:单个别名定义(在SqlMapConfig.xml) 
+		<!-- 别名定义：针对单个别名定义 type:类型的路径; alias:别名 -->
+		    <typeAliases><typeAlias type="com.mybatis.entity.User" alias="user"/></typeAliases>
+		UserMapper.xml引用别名:
+		<select id="findUserById" parameterType="int" resultType="user" >
+		      select * from t_user where id=#{id}
+		</select>
+		4.2.2:批量定义别名(常用) 
+		<!-- 批量别名的定义:
+		        package:指定包名，mybatis会自动扫描包中的pojo类，自动定义别名，别名就是类名(首字母大写或小写都可以)
+		 -->
+		     <typeAliases>
+		         <package name="com.mybatis.entity"/>
+		         <package name="其它包"/>
+		    </typeAliases>
+五：typeHandlers(类型处理器)
+	mybatis 中通过 typeHandlers 完成 jdbc 类型和 java 类型的转换。
+	通常情况下， mybatis 提供的类型处理器满足日常需要，不需要自定义 .
+	mybatis 支持类型处理器：
+	类型处理器	Java类型	JDBC类型
+	BooleanTypeHandler	Boolean，boolean	任何兼容的布尔值
+	ByteTypeHandler	Byte，byte	任何兼容的数字或字节类型
+	ShortTypeHandler	Short，short	任何兼容的数字或短整型
+	IntegerTypeHandler	Integer，int	任何兼容的数字和整型
+	LongTypeHandler	Long，long	任何兼容的数字或长整型
+	FloatTypeHandler	Float，float	任何兼容的数字或单精度浮点型
+	DoubleTypeHandler	Double，double	任何兼容的数字或双精度浮点型
+	BigDecimalTypeHandler	BigDecimal	任何兼容的数字或十进制小数类型
+	StringTypeHandler	String	CHAR和VARCHAR类型
+	ClobTypeHandler	String	CLOB和LONGVARCHAR类型
+	NStringTypeHandler	String	NVARCHAR和NCHAR类型
+	NClobTypeHandler	String	NCLOB类型
+	ByteArrayTypeHandler	byte[]	任何兼容的字节流类型
+	BlobTypeHandler	byte[]	BLOB和LONGVARBINARY类型
+	DateTypeHandler	Date（java.util）	TIMESTAMP类型
+	DateOnlyTypeHandler	Date（java.util）	DATE类型
+	TimeOnlyTypeHandler	Date（java.util）	TIME类型
+	SqlTimestampTypeHandler	Timestamp（java.sql）	TIMESTAMP类型
+	SqlDateTypeHandler	Date（java.sql）	DATE类型
+	SqlTimeTypeHandler	Time（java.sql）	TIME类型
+	ObjectTypeHandler	任意	其他或未指定类型
+	EnumTypeHandler	Enumeration类型	VARCHAR-任何兼容的字符串类型，作为代码存储（而不是索引）。
+六：mappers(映射配置)
+	6.1:通过resource加载单个映射文件
+		<!-- 加载映射文件 -->
+	    <mappers>
+	    <!--通过resource方法一次加载一个映射文件  -->
+	        <mapper resource="sqlmap/User.xml"/>
+	        <mapper resource="mapper/UserMapper.xml"/>
+	    </mappers>
+	6.2:通过mapper接口加载单个映射文件
+	<!-- 通过mapper接口加载单个映射配置文件
+	            遵循一定的规范：需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录中；
+	            上边规范的前提是：使用的是mapper代理方法;
+	      -->
+	         <mapper class="com.mybatis.mapper.UserMapper"/>
+	按照上边的规范，将 mapper.java 和 mapper.xml 放在一个目录 ，且同名。
+	
+	6.3:批量加载mapper(推荐使用)
+	<!-- 批量加载映射配置文件,mybatis自动扫描包下面的mapper接口进行加载
+	        遵循一定的规范：需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录中；
+	            上边规范的前提是：使用的是mapper代理方法;
+	      -->
+	    <package name="com.mybatis.mapper"/>
+
+根据Ibatis手册上配置参数说明：
+参数名称	参数说明
+cacheModelsEnabled	是否启动ibatis中的缓存功能。
+enhancementEnabled	是否需要POJO启动Java字节码增强功能，可以提升getter/setter的调用效能避免Java反射所带来的性能开销。
+lazyLoadingEnabled	是否同时Lazy Loading带来极大的性能提升。
+useStatementNamespaces	是否使用 domain xml 文件中 namespace 别名配置。
+maxRequests	最大并发请求数(Statemetn数)。
+maxTransactions	最大并发事务数
+maxSessions	最大Session数，当前最大允许的并发 SqlMapCliect数
+maxSessions	须界于 maxTransactions和maxRequests之间进行配置
+根据自己的多次实践证明，发现这些配置参数的选择与数值将对系统的影响是很大的。
+经过多次摸索，按照以下配置参数进行配置可以将ibatis的性能进行提升。仅供参数，还需要根据您自己的实 际情况来界定。
+具体配置参数如下：
+<sqlMapConfig>
+<settings cacheModelsEnabled="true"
+lazyLoadingEnabled="true"
+enhancementEnabled="true"
+errorTracingEnabled="true"
+maxSessions="1024"
+maxTransactions="512"
+maxRequests="2048"
+useStatementNamespaces="true" />
+
+
+

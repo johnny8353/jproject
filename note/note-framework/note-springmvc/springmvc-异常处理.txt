@@ -1,0 +1,163 @@
+• Spring MVC 通过 HandlerExceptionResolver 处理程序的异常，包括 Handler 映射、数据绑定以及目标方法执行时发生的异常。
+• SpringMVC 提供的 HandlerExceptionResolver 的实现类
+ 
+
+HandlerExceptionResolver
+ 
+ExceptionHandlerExceptionResolver
+	• 主要处理 Handler 中用 @ExceptionHandler 注解定义的方法。
+	• @ExceptionHandler 注解定义的方法优先级问题：例如发生的是NullPointerException，但是声明的异常有RuntimeException 和 Exception，此候会根据异常的最近继承关系找到继承深度最浅的那个 @ExceptionHandler注解方法，即标记了 RuntimeException 的方法
+	• ExceptionHandlerMethodResolver 内部若找不到@ExceptionHandler 注解的话，会找@ControllerAdvice 中的@ExceptionHandler 注解方法
+示例
+	springmvc.xml:
+	<mvc:annotation-driven />
+	
+	@RequestMapping("/testExceptionHandlerExceptionResolver")
+	public String testExceptionHandlerExceptionResolver(@RequestParam("i") int i){
+		System.out.println("result: " + (10 / i));
+		return "success";
+	}
+	
+	<br><br>
+	<a href="testExceptionHandlerExceptionResolver?i=10">Test ExceptionHandlerExceptionResolver</a>
+	类范围内：
+	//	@ExceptionHandler({RuntimeException.class})
+	//	public ModelAndView handleArithmeticException2(Exception ex){
+	//		System.out.println("[出异常了]: " + ex);
+	//		ModelAndView mv = new ModelAndView("error");
+	//		mv.addObject("exception", ex);
+	//		return mv;
+	//	}
+		
+		/**
+		 * 1. 在 @ExceptionHandler 方法的入参中可以加入 Exception 类型的参数, 该参数即对应发生的异常对象
+		 * 2. @ExceptionHandler 方法的入参中不能传入 Map. 若希望把异常信息传导页面上, 需要使用 ModelAndView 作为返回值
+		 * 3. @ExceptionHandler 方法标记的异常有优先级的问题. 
+		 * 4. @ControllerAdvice: 如果在当前 Handler 中找不到 @ExceptionHandler 方法来出来当前方法出现的异常, 
+		 * 则将去 @ControllerAdvice 标记的类中查找 @ExceptionHandler 标记的方法来处理异常. 
+		 */
+	//	@ExceptionHandler({ArithmeticException.class})
+	//	public ModelAndView handleArithmeticException(Exception ex){
+	//		System.out.println("出异常了: " + ex);
+	//		ModelAndView mv = new ModelAndView("error");
+	//		mv.addObject("exception", ex);
+	//		return mv;
+	//	}
+	
+	全局：
+	package com.johnny.springmvc.test;
+	
+	import org.springframework.web.bind.annotation.ControllerAdvice;
+	import org.springframework.web.bind.annotation.ExceptionHandler;
+	import org.springframework.web.servlet.ModelAndView;
+	
+	@ControllerAdvice
+	public class SpringMVCTestExceptionHandler {
+		@ExceptionHandler({ArithmeticException.class})
+		public ModelAndView handleArithmeticException(Exception ex){
+			System.out.println("----> 出异常了: " + ex);
+			ModelAndView mv = new ModelAndView("error");
+			mv.addObject("exception", ex);
+			return mv;
+		}
+	}
+	
+	error.jsp
+	<body>
+	
+		<h4>Error Page</h4>
+		${requestScope.exception }
+	</body>
+	</html>
+ResponseStatusExceptionResolver
+	• 在异常及异常父类中找到 @ResponseStatus 注解，然后使用这个注解的属性进行处理。
+	• 定义一个 @ResponseStatus 注解修饰的异常类
+	• 若在处理器方法中抛出了上述异常：若ExceptionHandlerExceptionResolver 不解析述异常。由于触发的异常 UnauthorizedException 带有@ResponseStatus注解。
+	因此会被ResponseStatusExceptionResolver 解析到。最后响应HttpStatus.UNAUTHORIZED 代码给客户端。HttpStatus.UNAUTHORIZED 代表响应码401，无权限。
+	关于其他的响应码请参考 HttpStatus 枚举类型源码。
+示例
+	springmvc.xml:
+	<mvc:annotation-driven />
+	
+	@ResponseStatus(reason="测试",value=HttpStatus.NOT_FOUND)
+	@RequestMapping("/testResponseStatusExceptionResolver")
+	public String testResponseStatusExceptionResolver(@RequestParam("i") int i){
+		if(i == 13){
+			throw new UserNameNotMatchPasswordException();
+		}
+		System.out.println("testResponseStatusExceptionResolver...");
+		
+		return "success";
+	}
+	如果ResponseStatus修饰方法，会正常执行，但是界面会显示错误
+	 
+	<br><br>
+	<a href="testResponseStatusExceptionResolver?i=10">Test ResponseStatusExceptionResolver</a>
+		
+	UserNameNotMatchPasswordException：
+	package com.johnny.springmvc.test;
+	
+	import org.springframework.http.HttpStatus;
+	import org.springframework.web.bind.annotation.ResponseStatus;
+	
+	@ResponseStatus(value=HttpStatus.FORBIDDEN, reason="用户名和密码不匹配!")
+	public class UserNameNotMatchPasswordException extends RuntimeException{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+	}
+	 
+DefaultHandlerExceptionResolver
+	• 对一些特殊的异常进行处理，比如NoSuchRequestHandlingMethodException、HttpRequestMethodNotSupportedException、
+	HttpMediaTypeNotSupportedException、HttpMediaTypeNotAcceptableException等。
+	示例
+	springmvc.xml:
+	<mvc:annotation-driven />
+	
+	@RequestMapping(value="/testDefaultHandlerExceptionResolver",method=RequestMethod.POST)
+	public String testDefaultHandlerExceptionResolver(){
+		System.out.println("testDefaultHandlerExceptionResolver...");
+		return "success";
+	}
+	
+	<br><br>
+	<a href="testDefaultHandlerExceptionResolver">Test DefaultHandlerExceptionResolver</a>
+	 
+SimpleMappingExceptionResolver
+	• 如果希望对所有异常进行统一处理，可以使用SimpleMappingExceptionResolver，它将异常类名映射为视图名，即发生异常时使用对应的视图报告异常
+	 
+	示例：
+	以上-这里springmvc-2
+	springmvc.xml:
+	<mvc:annotation-driven />
+	<!-- 配置使用 SimpleMappingExceptionResolver 来映射异常 -->
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<!-- 如果修改了exceptionAttribute的value，那么对应界面的显示错误也要修改为从requestScope.ex -->
+		<property name="exceptionAttribute" value="ex"></property>
+		<property name="exceptionMappings">
+			<props>
+				<prop key="java.lang.ArrayIndexOutOfBoundsException">error</prop>
+			</props>
+		</property>
+	</bean>	
+	
+	@RequestMapping("/testSimpleMappingExceptionResolver")
+	public String testSimpleMappingExceptionResolver(@RequestParam("i") int i){
+		String [] vals = new String[10];
+		System.out.println(vals[i]);
+		return "success";
+	}
+	
+	<br><br>
+	<a href="testSimpleMappingExceptionResolver?i=2">Test SimpleMappingExceptionResolver</a>
+	
+	error.jsp
+	<body>
+	
+		<h4>Error Page</h4>
+		<!-- 处理完默认会把异常放在exception里，可以通过修改springmvc.xml来修改异常所在的属性名称-->
+		${requestScope.exception }
+	
+	</body>
+	</html>

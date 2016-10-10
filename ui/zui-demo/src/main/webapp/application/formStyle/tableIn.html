@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>title</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/datePicker/WdatePicker.js" ></script>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+<script type="text/javascript">
+ //based jquery
+  function addOptions(obj)
+  {
+  $(obj).show();
+  var cloneNode =   $(obj).clone(true);
+  $(obj).hide();
+  cloneNode.appendTo($(obj).parent());
+  }
+
+  function delOptions(obj)
+  {
+
+ // if(confirm('确定要删除吗？'))
+//  {
+//   $(obj).remove();
+//   }
+
+$(obj).remove();
+  }
+</script>
+</head>
+<body>
+<div id="content">
+  <div id="position">当前位置：标准菜单&gt;表单风格&gt;表格嵌套</div>
+  <form id="form1" action="" method="post" >
+    <table cellpadding="0" cellspacing="1" class="tb_input">
+      <tr>
+        <td colspan="2" class="note">任务信息</td>
+      </tr>
+      <tr>
+        <td class="td_title">任务名称</td>
+        <td><input type="text" style="width:80%"/></td>
+      </tr>
+      <tr>
+        <td class="td_title">任务类型</td>
+        <td><select name="select" class="txt_120">
+            <option value="0" selected="selected">请选择</option>
+            <option value="2">公司内</option>
+            <option value="3">体系内</option>
+            <option value="4">院所内</option>
+            <option value="5">中心内</option>
+            <option value="6">部门内</option>
+            <option value="7">项目内</option>
+            <option value="1">其他</option>
+        </select></td>
+      </tr>
+      
+      <tr>
+        <td width="15%" class="td_title">里程碑</td>
+        <td align="right"><a href="#" onclick="addOptions(document.getElementById('cloneObj'));">新增里程碑</a>&nbsp;
+          <table cellpadding="0" cellspacing="1" class="tb_datalist" style="text-align:left;">
+            <thead>
+              <tr class="tr_title">
+                <td width="28%">里程碑目标</td>
+                <td width="20%">责任人</td>
+                <td width="11%">操作</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="cloneObj" style="display:none">
+                <td><input name="textfield2" type="text" class="txt_200" id="textfield2" value="" /></td>
+                <td><input name="txt222" type="text" class="txt_100" style="cursor:pointer" onclick="openwin('mulSelect.html','',650,400);" value="" readonly="readonly" />
+                  <img src="../../images/icons/search2.gif"  style="cursor:pointer" onClick="openwin('mulSelect.html','',650,400);"/> </td>
+                <td><a href="#">保存</a> <a href="#" onclick="delOptions(this.parentNode.parentNode)">删除</a> </td>
+              </tr>
+              <tr>
+                <td>P1.2版本新增需求开发</td>
+                <td>王伟10010933</td>
+                <td><a href="#">修改</a> <a href="#">删除</a></td>
+              </tr>
+              <tr>
+                <td>易用性改进</td>
+                <td>王伟10010933</td>
+                <td><a href="#">修改</a> <a href="#">删除</a></td>
+              </tr>
+              <tr>
+                <td>P2.0版本上线</td>
+                <td>王伟10010933</td>
+                <td><a href="#">修改</a> <a href="#">删除</a></td>
+              </tr>
+            </tbody>
+          </table></td>
+      </tr>
+      <tr>
+        <td class="td_title">任务时间</td>
+        <td><input id="dateStart" type="text" class="txt_120"/>
+		<img src="../../js/datePicker/skin/datePicker.gif"  align="absmiddle" style="cursor:pointer" onClick="WdatePicker({el:'dateStart'})" /> 至
+        <input id="dateEnd" type="text" class="txt_120"/>
+		<img src="../../js/datePicker/skin/datePicker.gif"  align="absmiddle" style="cursor:pointer" onClick="WdatePicker({el:'dateEnd'})" /> </td>
+      </tr>
+      <tr>
+        <td class="td_title">任务目标</td>
+        <td><textarea name="textfield" rows="3" id="textfield" style="width:80%"></textarea></td>
+      </tr>
+    </table>
+    <div class="tab_operate">
+      <input type="button" class="button" id="btnSave" value="提交"/>
+    </div>
+    <table cellpadding="0" cellspacing="1" class="tb_input" style="margin-top:20px;">
+      <tr>
+        <td colspan="2" class="note">任务信息</td>
+      </tr>
+      <tr>
+        <td class="td_title" width="15%">任务名称</td>
+        <td>XX软件版本计划</td>
+      </tr>
+      <tr>
+        <td class="td_title">任务类型</td>
+        <td>部门内</td>
+      </tr>
+      <tr>
+        <td class="td_title">里程碑</td>
+        <td><table cellpadding="0" cellspacing="1" class="tb_datalist">
+            <thead>
+              <tr class="tr_title">
+                <td width="36%">里程碑目标</td>
+                <td width="20%">责任人</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>P1.2版本新增需求开发</td>
+                <td>王伟10010933</td>
+              </tr>
+              <tr>
+                <td>易用性改进</td>
+                <td>王伟10010933</td>
+              </tr>
+              <tr>
+                <td>P2.0版本上线</td>
+                <td>王伟10010933</td>
+              </tr>
+            </tbody>
+          </table></td>
+      </tr>
+      <tr>
+        <td class="td_title">任务时间</td>
+        <td>2009-03-01 - 2009-04-30</td>
+      </tr>
+      <tr>
+        <td class="td_title">任务目标</td>
+        <td>完成P2.0版本开发任务</td>
+      </tr>
+    </table>
+  </form>
+</div>
+</body>
+</html>

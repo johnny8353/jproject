@@ -1,0 +1,64 @@
+http://struts.apache.org/
+
+Struts2
+	Struts2是一个基于MVC设计模式的Web应用框架，它本质上相当于一个servlet，在MVC设计模式中，Struts2作为控制器(Controller)来建立模型与视图的数据交互。
+	Struts 2是Struts的下一代产品，是在 struts 1和WebWork的技术基础上进行了合并的全新的Struts 2框架。
+	其全新的Struts 2的体系结构与Struts 1的体系结构差别巨大。Struts 2以WebWork为核心，采用拦截器的机制来处理用户的请求，这样的设计也使得业务逻辑控制器能够与ServletAPI完全脱离开，
+	所以Struts 2可以理解为WebWork的更新产品。虽然从Struts 1到Struts 2有着太大的变化，但是相对于WebWork，Struts 2的变化很小。
+
+Struts2 VS Struts1
+	在体系结构方面更优秀:
+		类更少, 更高效:  在 Struts2 中无需使用 “ActionForm” 来封装请求参数. 
+		扩展更容易:  Struts2 通过拦截器完成了框架的大部分工作. 在 Struts2 中插入一个拦截器对象相当简便易行. 
+	更容易测试:
+		即使不使用浏览器也可以对基于 Struts2 的应用进行测试
+		
+Struts2和struts1的比较
+    struts2相对于struts1来说简单了很多，并且功能强大了很多，我们可以从几个方面来看：
+	从体系结构来看：struts2大量使用拦截器来出来请求，从而允许与业务逻辑控制器 与 servlet-api分离，避免了侵入性；而struts1.x在action中明显的侵入了servlet-api.
+	从线程安全分析：struts2.x是线程安全的，每一个对象产生一个实例，避免了线程安全问题；而struts1.x在action中属于单线程。
+	 性能方面：struts2.x测试可以脱离web容器，而struts1.x依赖servlet-api，测试需要依赖web容器。
+	请求参数封装对比：struts2.x使用ModelDriven模式，这样我们 直接 封装model对象，无需要继承任何struts2的基类，避免了侵入性。
+	标签的优势：标签库几乎可以完全替代JSTL的标签库，并且 struts2.x支持强大的ognl表达式。
+	当然，struts2和struts1相比，在 文件上传，数据校验 等方面也 方便了好多。在这就不详谈了。
+	    一个比较优秀的框架可以帮着我们更高效，稳定的开发合格的产品，不过我们也不要依赖框架，我们只要理解了思想，设计模式，我们可以自己扩展功能，不然 就要 永远让别人牵着走了！
+
+
+从 Struts1 升级到 Struts2
+	Struts2 从本质上讲已不是从 Struts1 扩展而来的, 说它是一个换了品牌标签的 WebWork 更合适
+	从 Struts1 升级到 Struts2:
+		Struts1 里使用 ActionServlet 作为控制器; Struts2 使用了一个过滤器作为控制器
+		Struts1 中每个 HTML 表单都对应一个 ActionForm 实例. Struts2 中, HTML 表单将被直接映射到一个 POJO.
+		Struts1 的验证逻辑编写在 ActionForm 中; Struts2 中的验证逻辑编写在 Action 中.
+		Struts1 中, Action 类必须继承 org.apache.struts.action.Action 类; Struts2 中任何一个 POJO 都可以是一个 Action 类. 
+		Struts2 在页面里使用 OGNL 来显示各种对象模型, 可以不再使用 EL 和 JSTL 
+
+搭建 Struts2 的环境:
+	-加入 jar 包: 复制 struts\apps\struts2-blank\WEB-INF\lib 下的所有 jar 包到当前 web 应用的 lib 目录下.
+	-在 web.xml 文件中配置 struts2: 复制 struts\apps\struts2-blank1\WEB-INF\web.xml 文件中的过滤器的配置到当前 web 应用的 web.xml 文件中
+	-在当前 web 应用的 classpath 下添加 struts2 的配置文件 struts.xml: 复制 struts1\apps\struts2-blank\WEB-INF\classes 下的 struts.xml 文件到当前 web 应用的 src 目录下. 
+
+MAVEN搭建
+	<dependencies>
+		<!-- struts2 pom自动关联其他相关jar-->
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts2-core</artifactId>
+			<version>2.3.4</version><!--$NO-MVN-MAN-VER$-->
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+	D:\repository\org\apache\struts\struts2-core\2.3.4\struts2-core-2.3.4.jar
+	D:\repository\org\apache\struts\xwork\xwork-core\2.3.4\xwork-core-2.3.4.jar
+	D:\repository\org\apache\commons\commons-lang3\3.1\commons-lang3-3.1.jar
+	D:\repository\asm\asm\3.3\asm-3.3.jar
+	D:\repository\asm\asm-commons\3.3\asm-commons-3.3.jar
+	D:\repository\asm\asm-tree\3.3\asm-tree-3.3.jar
+	D:\repository\org\freemarker\freemarker\2.3.19\freemarker-2.3.19.jar
+	D:\repository\ognl\ognl\3.0.5\ognl-3.0.5.jar
+	D:\repository\javassist\javassist\3.11.0.GA\javassist-3.11.0.GA.jar
+	D:\repository\commons-fileupload\commons-fileupload\1.2.2\commons-fileupload-1.2.2.jar
+	D:\repository\commons-io\commons-io\2.0.1\commons-io-2.0.1.jar
+
+	
+

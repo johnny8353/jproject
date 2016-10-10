@@ -1,0 +1,149 @@
+开发webservice应用程序中离不开框架的支持，当open-open网站列举的就有很多种，这对于开发者如何选择带来一定的疑惑。性能Webservice的关键要素，不同的框架性能上存在较大差异，
+而当前在官方网站、网络资料中可以方便的找到各自框架的介绍，但是很少有针对不同框架性能测试数据。本文选择了比较流行几个框架：
+Apache Axis1、Apache Axis2、Codehaus XFire、Apache CXF、Apache Wink、Jboss  RESTEasy、sun JAX-WS（最简单、方便）、阿里巴巴  Dubbo（除外）等，
+采用Java作为测试用例，通过本机和远程两种进行测试方式，对这几种框架进行了性能测试，并对测试结果分析和性能比较，最后并对性能优异的框架进行了推荐。
+目前三种主流的web服务实现方法： 
+	REST（新型）：表象化状态转变 (软件架构风格）RESTEasy、Wink、CXF、Axis2…….
+	SOAP（比较成熟）：简单对象访问协议  Xfire、Axis2、CXF、Axis1
+	XML-RPC（淘汰）：远程过程调用协议（慢慢被soap 所取代）
+	
+	REST 简单易用，效率高，貌似未来有很大的发展空间，也有宣称rest性能个方便比soap强大的，已经有很多框架宣称对rest进行支持比如spring 3.0、struts……SOAP 成熟度较高，安全性较好
+	
+	关键词：Axis1、Axis2、XFire、CXF、Spring、SOAP、StAX、WSDL
+
+推荐框架
+	-Apache CXF是CodehausXFire的第二代产品，目前在不同框架中性能最佳，应该是开发者不错的选择，这与它本身的架构设计不无关系。
+	相比其他框架，CXF具有几个突出的特性：支持JAX-WS、Spring集成、Aegi数据绑定、支持RESTful services、支持WS-*、Apache协议、代码实现简洁。
+	-Apache Axis2是Apache Axis1的第二代产品，架构上也非常不错，关键特性：支持多语言（C/C++）、支持各种规范、可插拔模块化设计、支持热部署等。与CXF相比性能也非常优异。
+	对于Axis2与CXF之间的关系，一个是Axis2出现的时间较早，而CXF的追赶速度快。
+	-RESTEasy也许也是个不错的框架！
+
+如何抉择： 
+1、如果应用程序需要多语言的支持，Axis2 应当是首选了； 
+2、如果应用程序是遵循 Spring 哲学路线的话，Apache CXF 是一种更好的选择，特别对嵌入式的 Web Services 来说； 
+3、如果应用程序没有新的特性需要的话，就仍是用原来项目所用的框架，比如 Axis1，XFire，Celtrix或 BEA 等等厂家自己的 Web Services 实现，就别劳民伤财了。
+
+ 最后，我的建议是：如果你需要多语言的支持，你应该选择AXIS2。如果你需要把你的实现侧重JAVA并希望和Spring集成，CXF就是更好的选择，特别是把你的Web Service嵌入其他的程序中。
+ 如果你觉得这两个框架的新特性对于你并没有太大的用处，你会觉得Axis1也是不错的选择，你应该继续使用它直到你有充分的理由去更换它。
+
+
+选择框架的方法
+	1. 选择能够对我们的开发过程提供更多、更好帮助的Web开发框架
+	（CXF与Axis2都是apache的开源框架,也是目前比较流行的webservice框架，）（百度加个人观点）
+	
+	2. 开发框架的学习一定要简单，上手一定要快，没有什么比使用能得到更深的体会。那些动不动就需要半个月或者一个月学习周期的框架，实在是有些恐怖。（cxf学习成本比axis2低）
+	【Axis2允许自己作为独立的应用来发布Web Service，并提供了大量的功能和一个很好的模型，这个模型可以通过它本身的架构（modular architecture）不断添加新的功能。
+	有些开发人员认为这种方式对于他们的需求太过于繁琐。这些开发人员会更喜欢CXF。 】【CXF更注重开发人员的工效（ergonomics）和嵌入能力（embeddability）。
+	大多数配置都可以API来完成，替代了比较繁琐的XML配置文件， Spring的集成性经常的被提及，CXF支持Spring2.0和CXF's API和Spring的配置文件可以非常好的对应。
+	CXF强调代码优先的设计方式（code-first design)，使用了简单的API使得从现有的应用开发服务变得方便。】
+	
+	3. 一定要能得到很好的技术支持，在应用的过程中，或多或少都会出现这样或者那样的问题，如果不能很快很好的解决，会对整个项目开发带来影响。
+	一定要考虑综合成本，其实这是目前应用开源软件最大的问题，碰到问题除了死肯文档就是查阅源代码，或者是网上搜寻解决的办法，通常一个问题就会导致1-2天的开发停顿，严重的甚至需要一个星期或者更长，
+	一个项目有上这么几次，项目整体的开发成本嗖嗖的就上去了。（所以个人感觉应该选择比较流行的框架，起码碰到问题还能上网搜索）
+	
+	4. 开发框架结合其他技术的能力一定要强
+	
+	5. 开发框架的扩展能力一定要强。在好的框架都有力所不及的地方，这就要求能很容易的扩展开发框架的功能，以满足新的业务需要。同时要注意扩展的简单性，如果扩展框架的功能代价非常大，还不如不用呢。
+	（axis2与cxf 都支持很多优秀的框架（上已提到），但axis2扩展性比cxf要好，axis2不仅支持java对c/C++提供支持）【RESTEasy也能支持许多比较优秀的框架】
+	
+	6. 开发框架最好能提供可视化的开发和配置，可视化开发对开发效率的提高，已经得到业界公认。
+	
+	7. 开发框架的设计结构一定要合理，应用程序会基于这个框架，框架设计的不合理会大大影响到整个应用的可扩展性。
+	
+	8. 开发框架一定要是运行稳定的，运行效率高的。框架的稳定性和运行效率直接影响到整个系统的稳定性和效率。
+	（从上面的测试来看，cxf的效率要高于axis2，不知道在大并发量的时候系统的稳定性和安全性）
+	
+	9. 开发框架一定要能很好的结合目前公司的积累。在多年的开发中已有了很多积累，不能因为使用开发框架就不能再使用了，那未免有些得不偿失。
+	
+	10. 选择开发框架另外要注意的一点就是：任何开发框架都不可能是十全十美的，也不可能是适应所有的应用场景的，也就是说任何开发框架都有它适用的范围。
+	所以选择的时候要注意判断应用的场景和开发框架的适用性。
+	
+
+	
+其他框架介绍-http://blog.csdn.net/chenleixing/article/details/44958549
+	2.1      Apache Axis1
+	Axis本质上就是一个SOAP引擎（Apache Axis is an implementation of the SOAP），提供创建服务器端、客户端和网关SOAP操作的基本框架。但Axis并不完全是一个SOAP引擎，它还包括：
+	l  是一个独立的SOAP服务器。
+	l  是一个嵌入Servlet引擎（例如Tomcat）的服务器。
+	l  支持WSDL。
+	l  提供转化WSDL为Java类的工具。
+	l  提供例子程序。
+	l  提供TCP/IP数据包监视工具。
+	2.2      Apache Axis2
+	Apache Axis2相比Apache Axis1更加有效、更加模块化、更加面向xml，支持容易插件模块扩展新功能和特性，例如安全和可靠。Apache Axis2是基于Apache AXIOM，它是一个高性能、
+	pull-based XML对象模型。Apache Axis2的关键特性：
+	l  解析xml更快。采用自己的对象模型和StAX (Streaming API for XML)。
+	l  更低的内存占用。
+	l  支持热部署。新服务加入到系统，无需重启服务。
+	l  支持异步webservice、
+	l  MEP支持，灵活支持在WSDL 2.0定义的Message Exchange Patterns (MEPs)
+	l  更加灵活。引擎给开发人员提供了充足的自由度可扩展客户头信息处理、系统管理、
+	l  更加稳定性。
+	l  传输框架不依赖于具体协议。为集成和传输协议（SMTP, FTP, message-oriented middleware, etc）有一个简单和抽象，引擎核心是完全独立于具体的传输协议。
+	l  支持WSDL。支持WSDL1.1、WSDL2.0。
+	l  方便集成其他组件（Add-ons）。几个web services已经被集成，包括：WSS4J for security (Apache Rampart), Sandesha for reliable messaging, 
+	Kandula which is an encapsulation of WS-Coordination, WS-AtomicTransaction and WS-BusinessActivity.
+	l  良好的扩展性。
+	
+	2.3      Codehaus  XFire
+	XFire核心是一个轻量的基于STAX消息处理模型，用来与SOAP消息交互，它支持不同类型的绑定机制、容器和传输协议。
+	支持webservice标准- SOAP, WSDL, WS-I Basic Profile, WS-Addressing, WS-Security, etc.
+	l  高性能SOAP STACK
+	l  可插拔绑定POJOs, XMLBeans, JAXB 1.1, JAXB 2.0, and Castor support
+	l  通过Java1.5 和1.4(Commons attributes JSR 181 syntax)使用JSR 181 API配置服务
+	l  支持多中传输协议- HTTP, JMS, XMPP, In-JVM, etc.
+	l  可嵌入的和直观的API
+	l  支持Spring, Pico, Plexus, and Loom
+	l  支持JBI
+	l  客户端和服务端stub代码生成
+	l  支持JAX-WS early access
+	
+	2.4      Apache CXF
+	Apache CXF是一个开源服务框架。Apache CXF = Celtix + XFire，Apache CXF 的前身叫 Apache CeltiXfire，现在已经正式更名为 Apache CXF 了，以下简称为 CXF。
+	CXF 继承了Celtix和XFire两大开源项目的精华，比如：JAX-WS and JAX-RS，主要特性包括：
+	l  支持Web services标准。包括：SOAP、the WSI Basic Profile、WSDL、WS-Addressing、WS-Policy、WS-ReliableMessaging、WS-Security、
+	WS-SecureConversation和WS-SecurityPolicy.
+	l  支持不同类型前端开发模型。CXF实现了JAX-WS APIs，支持JAX-RS开发。
+	l  容易使用。CXF设计的简洁和直观，具有简洁APIs迅速的构建基于代码的服务，Maven插件使得工具集成更加容易、JAX-WS API支持、Spring 2.x XML使得配置更加容易。
+	l  支持二进制和遗留协议。CXF被设计为可插拔的架构，在不同的传输协议结合下，不仅支持XML，也支持非XML类型绑定，例如：JSON和CORBA。
+	2.5 RESTEasy（百度观点较好）
+	RESTEasy是JBoss的一个开源项目，提供各种框架帮助你构建RESTful Web Services和RESTful Java应用程序。它是JAX-RS规范的一个完整实现并通过JCP认证。
+	作为一个JBOSS的项目，它当然能和JBOSS应用服务器很好地集成在一起。但是，它也能在任何运行JDK5或以上版本的Servlet容器中运行。RESTEasy还提供一个RESTEasy JAX-RS客户端调用框架。
+	能够很方便与EJB、Seam、Guice、Spring和Spring MVC集成使用。支持在客户端与服务器端自动实现GZIP解压缩。 （资料少无法比较）
+	有较专业的人士对CXF、Restlet、RESTEasy、Jersey框架测试【数据】，他说从性能上看RESTEasy是最好的，Jersey其次（但Jersey连可查阅的英文文档都比较少故个人不推荐使用），
+	cxf和Restlet最差，
+	
+	2.6  Dubbo （个人观点----无理由）
+	Dubbo是阿里巴巴公司开源的一个高性能优秀的服务框架，使得应用可通过高性能的 RPC 实现服务的输出和输入功能，可以和 Spring框架无缝集成。（资料少无法比较）
+	2.7 java6JAX-WS
+	JAX-WS2.0 (JSR 224)是Sun新的web services协议栈
+	JAVA中有三种WebService规范，分别是JAX-WS（JAX-RPC）、JAX-RS、JAXM&SAAJ。
+	JAX-WS（Java API For XML-WebService），JDK1.6 自带的版本为JAX-WS2.1，其底层支持为JAXB。早期的JAVA Web服务规范JAX-RPC（Java API ForXML-Remote 
+	Procedure Call）目前已经被JAX-WS 规范取代，JAX-WS 是JAX-RPC 的演进版本，但JAX-WS 并不完全向后兼容JAX-RPC。（）
+	
+	2.8  Apache Wink
+	REST(Representational State Transfer)  based Web Service【http://baike.soso.com/v812054.htm】是相对于传统的Web Service(SOAP+WSDL+UDDI)
+	而提出的。传统的Web Service可以很好的解决异构系统之间的通信问题，但是需要首先定义好XML格式的合同(WSDL)，client和server都必须严格遵守协议，不容易升级以及集群伸缩。
+	REST Web Service不需要事先定义格式，传输的内容也可以依据不同的client变化(json,xml,html等)，最重要的是使用源URL来唯一定位资源，对资源的增删改查映射为HTTP的四个方法，无状态传输，
+	具有非常好的伸缩性。
+	Apache Wink就是一个纯Java的REST框架。它完整的实现了JSR 311并扩展了部分功能，此外还提供了良好的扩展性，难能可贵的是还可以与流行的Java框架Spring无缝集成。目前该项目还在开发中。
+	所谓框架无非就是定义好格式，提供一些工具和钩子，让开发人员可以专
+	
+
+	下面分别介绍一个这几种Web Service框架的基本概念
+		1、JWS是Java语言对WebService服务的一种实现，用来开发和发布服务。而从服务本身的角度来看JWS服务是没有语言界限的。
+		但是Java语言为Java开发者提供便捷发布和调用WebService服务的一种途径。
+		
+		2、Axis2是Apache下的一个重量级WebService框架，准确说它是一个Web Services / SOAP / WSDL 的引擎，是WebService框架的集大成者，
+		它能不但能制作和发布WebService，而且可以生成Java和其他语言版WebService客户端和服务端代码。这是它的优势所在。但是，这也不可避免的导致了Axis2的复杂性，
+		使用过的开发者都知道，它所依赖的包数量和大小都是很惊人的，打包部署发布都比较麻烦，不能很好的与现有应用整合为一体。但是如果你要开发Java之外别的语言客户端，
+		Axis2提供的丰富工具将是你不二的选择。
+		
+		3、XFire是一个高性能的WebService框架，在Java6之前，它的知名度甚至超过了Apache的Axis2，XFire的优点是开发方便，与现有的Web整合很好，可以融为一体，
+		并且开发也很方便。但是对Java之外的语言，没有提供相关的代码工具。XFire后来被Apache收购了，原因是它太优秀了，收购后，随着Java6 JWS的兴起，
+		开源的WebService引擎已经不再被看好，渐渐的都败落了。
+		
+		4、CXF是Apache旗下一个重磅的SOA简易框架，它实现了ESB（企业服务总线）。CXF来自于XFire项目，经过改造后形成的，就像目前的Struts2来自WebWork一样。
+		可以看出XFire的命运会和WebWork的命运一样，最终会淡出人们的视线。CXF不但是一个优秀的Web Services / SOAP / WSDL 引擎，也是一个不错的ESB总线，
+		为SOA的实施提供了一种选择方案，当然他不是最好的，它仅仅实现了SOA架构的一部分。
+		 注：对于Axis2与CXF之间的关系，一个是Axis2出现的时间较早，而CXF的追赶速度快

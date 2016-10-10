@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="http://xml.apache.org/axis/wsdd/"
+	xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+	<globalConfiguration>
+		<parameter name="sendMultiRefs" value="true" />
+		<parameter name="disablePrettyXML" value="true" />
+		<parameter name="dotNetSoapEncFix" value="true" />
+		<parameter name="enableNamespacePrefixOptimization" value="false" />
+		<parameter name="sendXMLDeclaration" value="true" />
+		<parameter name="sendXsiTypes" value="true" />
+		<parameter name="attachments.implementation"
+			value="org.apache.axis.attachments.AttachmentsImpl" />
+	</globalConfiguration>
+
+	<service name="HelloWS1" provider="java:RPC">
+		<!-- 调用的包名+类名 -->
+		<parameter name="className"
+			value="com.johnny.webservice.axis1.helloworld.HelloWSImpl" />
+		<!-- 这*代表所有的方法 -->
+		<parameter name="allowedMethods" value="sayHello,saySorry" />
+	</service>
+
+	<service name="DataType1" provider="java:RPC">
+		<!-- 调用的包名+类名 -->
+		<parameter name="className"
+			value="com.johnny.webservice.axis1.datatype.DataTypeWSImpl" />
+		<parameter name="scope" value="request" />
+		<!-- 这*代表所有的方法 -->
+		<parameter name="allowedMethods" value="*" />
+		<messageReceiver
+			class="org.apache.axis1.receivers.RawXMLINOutMessageReceiver" />
+		<beanMapping languageSpecificType="java:com.johnny.webservice.axis1.datatype.Student"
+			qname="ns:Student" xmlns:ns="urn:BeanService" />
+	</service>
+
+
+	<handler name="LocalResponder"
+		type="java:org.apache.axis.transport.local.LocalResponder" />
+	<handler name="URLMapper" type="java:org.apache.axis.handlers.http.URLMapper" />
+	<handler name="Authenticate"
+		type="java:org.apache.axis.handlers.SimpleAuthenticationHandler" />
+		
+	<transport name="http">
+		<requestFlow>
+			<handler type="java:org.apache.axis.handlers.http.URLMapper" />
+		</requestFlow>
+	</transport>
+	<transport name="local">
+		<responseFlow>
+			<handler type="java:org.apache.axis.transport.local.LocalResponder" />
+		</responseFlow>
+	</transport>
+	<service name="Version" provider="java:RPC">
+		<parameter name="allowedMethods" value="getVersion" />
+		<parameter name="className" value="org.apache.axis.Version" />
+	</service>
+</deployment>
+

@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>title</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+<script type="text/javascript">
+function autoSelect()
+{
+	if(document.getElementById("txtAuto").value=="刘凯华")
+	{
+		document.getElementById("txtAuto").value="刘凯华10099961"
+	}
+	else if(document.getElementById("txtAuto").value=="李坤")
+	{
+		openwin('oneManAuto.html','',650,400);
+	}
+	else
+	{
+		openwin('oneManAuto.html','',650,400);
+	}
+}
+
+	$(document).ready(function() {//回车显示搜索结果
+		$("#txtAuto").bind('keyup', function(event) {
+			if (event.keyCode == 13) {
+				autoSelect();
+			}
+		});
+
+	});
+</script>
+</head>
+<body>
+<div id="content">
+	<div id="position">当前位置：常用组件&gt;IT组件&gt;人员选择</div>
+		<form id="form1" action="" method="post">
+			<ul class="tab_list" id="tab1">
+				<li class="selected" onClick="selectMenu(this,'tabTable0')">示例</li>
+				<li class="unselected" onClick="selectMenu(this,'tabTable1')">控件外观</li>
+				<li class="unselected" onClick="selectMenu(this,'tabTable2')">交互规范</li>
+				<!--  <li class="unselected" onClick="selectMenu(this,'tabTable3')">源代码</li>-->
+			</ul>
+			<!--标签1-->
+			<table cellpadding="0" cellspacing="1" class="tb_input" id="tabTable0">
+				<tr>
+					<td colspan="2" class="note">人员选择</td>
+				</tr>
+				<tr style="display: none">
+					<td class="td_title">人员选择（单选）</td>
+					<td><input type="text" id="txtMan" class="txt_200" value=""
+						readonly="readonly" style="cursor: pointer"
+						onclick="openwin('oneMan.html','',650,400)" /></td>
+				</tr>
+				<tr>
+					<td class="td_title" width="15%">人员选择（自动匹配）</td>
+					<td><input name="text" type="text" class="txt_200"
+						id="txtAuto" value="" /> <img src="../../images/icons/search2.gif"
+						alt="选择人员" style="cursor: pointer" onclick="autoSelect();" /> <img
+						src="../../images/icons/busy.gif" alt="停止查找"
+						style="cursor: pointer; display: none" />&nbsp;<span class="tips">示例:刘凯华，李坤</span>
+					</td>
+				</tr>
+				<tr>
+					<td class="td_title">人员选择（多选）</td>
+					<td><textarea id="txtMul" rows="3" readonly="readonly"
+							onClick="openwin('mulSelect.html','',700,450);"
+							style="cursor: pointer; width: 80%;"></textarea> <img
+						src="../../images/icons/search2.gif" style="cursor: pointer"
+						onClick="openwin('mulSelect.html','',700,450);" /> <img
+						src="../../images/icons/icon_del.gif" alt="清除"
+						style="cursor: pointer" onclick="form1.txtMulDept.value=''" />
+					</td>
+				</tr>
+				<!--<tr>
+		        <td class="td_title">人员、群组选择</td>
+		        <td><textarea name="textarea2" id="txtMul2" class="txt_400" rows="3" readonly="readonly" onclick="openwin('mulSelectG.html','',700,450);" style="cursor:pointer;width:80%;"></textarea>
+		        <img src="../../images/icons/search2.gif" style="cursor:pointer" onclick="openwin('mulSelectG.html','',700,450);"/> 
+				<br/>
+				<input type="button" class="button" value="常用群组" style="margin-top:2px;" onclick="openwin('group.html','',700,450);"/>
+				<input type="button" class="button" value="清除" onclick="form1.txtMul2.value=''"/>		</td>
+		      </tr>-->
+			</table>
+			<!--标签1结束-->
+
+			<!--标签2-->
+			<iframe src="../Interaction/application/selectManlayout.html"
+				frameborder=“0” scrolling="no" height="2900px" width="100%"
+				marginheight="0" marginwidth="0" id="tabTable1"
+				style="display: none;"></iframe>
+			<!--标签2结束-->
+
+
+			<!--标签3-->
+			<iframe src="../Interaction/application/selectMan.html"
+				frameborder=“0” scrolling="no" height="3900px" width="100%"
+				marginheight="0" marginwidth="0" id="tabTable2"
+				style="display: none;"></iframe>
+			<!--标签3结束-->
+
+			<!--标签4-->
+			<iframe src="../Interaction/application/selectMandaima.html"
+				frameborder=“0” scrolling="no" height="1000px" width="100%"
+				marginheight="0" marginwidth="0" id="tabTable3"
+				style="display: none;"></iframe>
+			<!--标签4结束-->
+		</form>
+	</div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+8.调用存储过程 - Mysql
+	8.1. 提出需求:
+		查询得到男性或女性的数量, 如果传入的是0就女性否则是男性
+	8.2. 准备数据库表和存储过程:
+	create table p_user(  
+		id int primary key auto_increment,  
+		name varchar(10),
+		sex char(2)
+	) DEFAULT CHARSET=utf8; 
+	
+	insert into p_user(name,sex) values('A',"男");  
+	insert into p_user(name,sex) values('B',"女");  
+	insert into p_user(name,sex) values('C',"男");  
+	
+	#创建存储过程(查询得到男性或女性的数量, 如果传入的是0就女性否则是男性)
+	DELIMITER $
+	CREATE PROCEDURE mybatis.ges_user_count(IN sex_id INT, OUT user_count INT)
+	BEGIN  
+	IF sex_id=0 THEN
+	SELECT COUNT(*) FROM mybatis.p_user WHERE p_user.sex='女' INTO user_count;
+	ELSE
+	SELECT COUNT(*) FROM mybatis.p_user WHERE p_user.sex='男' INTO user_count;
+	END IF;
+	END 
+	$
+	
+	#调用存储过程
+	DELIMITER ;
+	SET @user_count = 0;
+	CALL mybatis.ges_user_count(1, @user_count);
+	SELECT @user_count;
+	8.3. 创建表的实体类
+	public class User {
+		private String id;
+		private String name;
+		private String sex;
+	}
+	
+	8.4. userMapper.xml
+	<mapper namespace="com.johnny.mybatis.test7.userMapper">
+		<!-- 
+			查询得到男性或女性的数量, 如果传入的是0就女性否则是男性
+			CALL mybatis.get_user_count(1, @user_count);
+		 -->
+		 <select id="getCount" statementType="CALLABLE" parameterMap="getCountMap">
+		 	call mybatis.get_user_count(?,?)
+		 </select>
+		 <parameterMap type="java.util.Map" id="getCountMap">
+		 	<parameter property="sex_id" mode="IN" jdbcType="INTEGER"/>
+		 	<parameter property="user_count" mode="OUT" jdbcType="INTEGER"/>
+		 </parameterMap>
+	</mapper>
+	
+	8.5. 测试调用:
+	Map<String, Integer> paramMap = new HashMap<>();
+	paramMap.put("sex_id", 0);
+	
+	session.selectOne(statement, paramMap);
+			
+	Integer userCount = paramMap.get("user_count");
+	System.out.println(userCount);
+	
+	 

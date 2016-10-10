@@ -1,0 +1,25 @@
+在Ext JS或jQuery可以使用eclispe配合Spket插件自动提示代码.
+
+下面说一下Spket插件安装步骤
+
+先去官网下载spket-1.6.18.jar,运行java -jar E:\spket-1.6.18.jar
+
+会弹出一个spket的安装程序，然后--->next，选择Eclipse Plugin，Browser选择你的eclipse安装目渌，比如：D:\eclipse，然后next，
+后面默认的是C:\spket，直接next然后Install，这样就安装完成了。
+
+重启你的eclipse，然后在Window------->Proferences里，会多一个Spket的选项
+
+选择Javascript Profiles ,
+
+点击New...输入JQuery建立新的profile 
+
+点击Add Library，并选择JQuery，建立新的Library 
+
+点击Add File, 选择刚下载的JQuery文件 
+
+如果想让JQuery成为缺省的Javascript Profile，则点击Default。 
+
+最后新建js文件,选择openwith spket js editor.
+
+已经有JS提示功能啦!
+

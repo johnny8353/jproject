@@ -1,0 +1,25 @@
+Spring_使用 JdbcTemplate和JdbcDaoSupport
+	JdbcTemplate 简介
+		-为了使 JDBC 更加易于使用, Spring 在 JDBC API 上定义了一个抽象层, 以此建立一个 JDBC 存取框架.
+		-作为 Spring JDBC 框架的核心, JDBC 模板的设计目的是为不同类型的 JDBC 操作提供模板方法. 每个模板方法都能控制整个过程, 并允许覆盖过程中的特定任务. 
+		通过这种方式, 可以在尽可能保留灵活性的情况下, 将数据库存取的工作量降到最低.
+	
+	
+	简化 JDBC 模板查询
+		-每次使用都创建一个 JdbcTemplate 的新实例, 这种做法效率很低下.
+		-JdbcTemplate 类被设计成为线程安全的, 所以可以再 IOC 容器中声明它的单个实例, 并将这个实例注入到所有的 DAO 实例中.
+		-JdbcTemplate 也利用了 Java 1.5 的特定(自动装箱, 泛型, 可变长度等)来简化开发
+		-Spring JDBC 框架还提供了一个 JdbcDaoSupport 类来简化 DAO 实现. 该类声明了 jdbcTemplate 属性, 它可以从 IOC 容器中注入, 或者自动从数据源中创建.
+
+	
+	
+	在 JDBC 模板中使用具名参数
+		-在经典的 JDBC 用法中, SQL 参数是用占位符 ? 表示,并且受到位置的限制. 定位参数的问题在于, 一旦参数的顺序发生变化, 就必须改变参数绑定. 
+		-在 Spring JDBC 框架中, 绑定 SQL 参数的另一种选择是使用具名参数(named parameter). 
+		-具名参数: SQL 按名称(以冒号开头)而不是按位置进行指定. 具名参数更易于维护, 也提升了可读性. 具名参数由框架类在运行时用占位符取代
+		-具名参数只在 NamedParameterJdbcTemplate 中得到支持 
+		
+		-在 SQL 语句中使用具名参数时, 可以在一个 Map 中提供参数值, 参数名为键
+		-也可以使用 SqlParameterSource 参数
+		-批量更新时可以提供 Map 或 SqlParameterSource 的数组
+		

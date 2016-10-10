@@ -1,0 +1,427 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="../css/index.css"  rel="stylesheet" type="text/css"/>
+<title>无标题文档</title>
+<script type="text/javascript">
+function mscroll(iScrollNumber,OBJdivObject)
+	{
+			iTemp          = iScrollNumber;                          //菜单滚动长度
+			var OBJTemp    = document.getElementById(OBJdivObject);  //查找左侧菜单框架中该名字的对象
+			var iScrollTop = OBJTemp.scrollTop						 //获得层的最高数据
+			
+			if (iTemp==0)
+			{
+				return;                                              //如果滚动长度为0就返回  
+			}
+			OBJTemp.scrollTop=OBJTemp.scrollTop + iTemp;             //滚动菜单屏幕
+		if (iScrollTop==OBJTemp.scrollTop)
+		{
+    		//如果菜单不再滚动 那么就停止
+		return;
+		}
+			setTimeout("mscroll(iTemp,'" + OBJdivObject + "')",80);	  //如果一直按滚动按钮，就定时滚动相同长度的屏幕
+} 
+</script>
+</head>
+<body>
+<p class="grayline"><img src="../images/icons/guide_logo.gif"  alt="功能导航"/></p>
+<dl class="navlist">
+  <dd>
+    <dl>
+      <dt class="title">与我有关</dt>
+      <dd class="list_bg">
+        <div class="menulist" id="menulist1">
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+        </div>
+        <div class="scroll">
+          <div><img src="../images/icons/scroll_top.gif"  alt="Up" title="Up" onMouseDown="mscroll(-10,'menulist1');"  onMouseUp="mscroll(0,'menulist1')"/></div>
+          <div class="scroll_btm"><img src="../images/icons/scroll_btm.gif"  alt="Down" title="Down" onMouseDown="mscroll(10,'menulist1');"  onMouseUp="mscroll(0,'menulist1')"/></div>
+        </div>
+      </dd>
+    </dl>
+  </dd>
+  <dd>
+    <dl>
+      <dt class="title">teset</dt>
+      <dd class="list_bg">
+        <div class="menulist" id="menulist2">
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+        </div>
+        <div class="scroll">
+          <div><img src="../images/icons/scroll_top.gif"  alt="Up" title="Up" onMouseDown="mscroll(-10,'menulist2');"  onMouseUp="mscroll(0,'menulist2')"/></div>
+          <div class="scroll_btm"><img src="../images/icons/scroll_btm.gif"  alt="Down" title="Down" onMouseDown="mscroll(10,'menulist2');"  onMouseUp="mscroll(0,'menulist2')"/></div>
+        </div>
+      </dd>
+    </dl>
+  </dd>
+  <dd>
+    <dl>
+      <dt class="title">teset</dt>
+      <dd class="list_bg">
+        <div class="menulist" id="menulist3">
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+        </div>
+        <div class="scroll">
+          <div><img src="../images/icons/scroll_top.gif"  alt="Up" title="Up" onMouseDown="mscroll(-10,'menulist3');"  onMouseUp="mscroll(0,'menulist3')"/></div>
+          <div class="scroll_btm"><img src="../images/icons/scroll_btm.gif"  alt="Down" title="Down" onMouseDown="mscroll(10,'menulist3');"  onMouseUp="mscroll(0,'menulist3')"/></div>
+        </div>
+      </dd>
+    </dl>
+  </dd>
+  <dd>
+    <dl>
+      <dt class="title">teset</dt>
+      <dd class="list_bg">
+        <div class="menulist" id="menulist4">
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+        </div>
+        <div class="scroll">
+          <div><img src="../images/icons/scroll_top.gif"  alt="Up" title="Up" onMouseDown="mscroll(-10,'menulist4');"  onMouseUp="mscroll(0,'menulist4')"/></div>
+          <div class="scroll_btm"><img src="../images/icons/scroll_btm.gif"  alt="Down" title="Down" onMouseDown="mscroll(10,'menulist4');"  onMouseUp="mscroll(0,'menulist4')"/></div>
+        </div>
+      </dd>
+    </dl>
+  </dd>
+</dl>
+<dl class="navlist">
+  <dd>
+    <dl>
+      <dt class="title">与我有关</dt>
+      <dd class="list_bg">
+        <div class="menulist" id="menulist5">
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+        </div>
+        <div class="scroll">
+          <div><img src="../images/icons/scroll_top.gif"  alt="Up" title="Up" onMouseDown="mscroll(-10,'menulist5');"  onMouseUp="mscroll(0,'menulist5')"/></div>
+          <div class="scroll_btm"><img src="../images/icons/scroll_btm.gif"  alt="Down" title="Down" onMouseDown="mscroll(10,'menulist5');"  onMouseUp="mscroll(0,'menulist5')"/></div>
+        </div>
+      </dd>
+    </dl>
+  </dd>
+  <dd>
+    <dl>
+      <dt class="title">teset</dt>
+      <dd class="list_bg">
+        <div class="menulist" id="menulist6">
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+        </div>
+        <div class="scroll">
+          <div><img src="../images/icons/scroll_top.gif"  alt="Up" title="Up" onMouseDown="mscroll(-10,'menulist6');"  onMouseUp="mscroll(0,'menulist6')"/></div>
+          <div class="scroll_btm"><img src="../images/icons/scroll_btm.gif"  alt="Down" title="Down" onMouseDown="mscroll(10,'menulist6');"  onMouseUp="mscroll(0,'menulist6')"/></div>
+        </div>
+      </dd>
+    </dl>
+  </dd>
+  <dd>
+    <dl>
+      <dt class="title">teset</dt>
+      <dd class="list_bg">
+        <div class="menulist" id="menulist7">
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+        </div>
+        <div class="scroll">
+          <div><img src="../images/icons/scroll_top.gif"  alt="Up" title="Up" onMouseDown="mscroll(-10,'menulist7');"  onMouseUp="mscroll(0,'menulist7')"/></div>
+          <div class="scroll_btm"><img src="../images/icons/scroll_btm.gif"  alt="Down" title="Down" onMouseDown="mscroll(10,'menulist7');"  onMouseUp="mscroll(0,'menulist7')"/></div>
+        </div>
+      </dd>
+    </dl>
+  </dd>
+  <dd>
+    <dl>
+      <dt class="title">teset</dt>
+      <dd class="list_bg">
+        <div class="menulist" id="menulist8">
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+          <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+         <dl>
+            <dt>查询界面</dt>
+            <dd><a href="#" class="nav">表单样式表单</a></dd>
+            <dd><a href="#" class="nav">表单样2式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+            <dd><a href="#" class="nav">表单样式</a></dd>
+          </dl>
+        </div>
+        <div class="scroll">
+          <div><img src="../images/icons/scroll_top.gif"  alt="Up" title="Up" onMouseDown="mscroll(-10,'menulist8');"  onMouseUp="mscroll(0,'menulist8')"/></div>
+          <div class="scroll_btm"><img src="../images/icons/scroll_btm.gif"  alt="Down" title="Down" onMouseDown="mscroll(10,'menulist8');"  onMouseUp="mscroll(0,'menulist8')"/></div>
+        </div>
+      </dd>
+    </dl>
+  </dd>
+</dl>
+</body>
+</html>

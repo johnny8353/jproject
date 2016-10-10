@@ -1,0 +1,217 @@
+Ant的常用任务
+	Ant可以代替使用javac、java和jar等命令来执行java操作，从而达到轻松的构建和部署Java工程的目的。
+	
+	ant for循环
+		ant-contrib包扩展功能之<for> <if> <switch> 需要下载扩展包才可以 ant-contrib-1.0b3.jar
+		<!-- antcontrib 设置-->
+		<typedef resource="net/sf/antcontrib/antlib.xml" classpathref="svnant.classpath"/>
+		<echo message="The first five letters of the alphabet are:"/>
+		<for list="a,b,c,d,e" param="letter">
+		    <sequential>
+		        <echo>Letter @{letter}</echo>
+		    </sequential>
+		</for>
+		
+	利用Ant的svn任务来更新代码
+		**需要用到svn的ant相关工具包、命令支持。你需要下载svnant-1.3.1.zip，将lib的文件复制到在你的ant的lib运行环境中。
+		<!-- svn 设置-->
+		<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svnant.classpath"/>
+		<svnSetting id="svn.settings" javahl="false" svnkit="true" username="${svn.username}" password="${svn.password}" failonerror="true"/>
+		<target name="checkout" depends="tool-available" description="checkout/export project code ${svn.url} "> 
+			<echo>*********************checkout/export project code ${svn.url}*********************</echo>
+			<delete dir="${root.code.dir}"/>
+			<mkdir dir="${root.code.dir}"/>
+			<echo message="checkout/export project code ${svn.url}"></echo>
+	        <svn refid="svn.settings">
+	            <export srcUrl="${svn.url}" destPath="${root.code.dir}" revision="HEAD" force="true"/>
+	        </svn>
+		</target>
+		<target name="tool-available">
+			<echo message="run task test svnant is available"></echo>
+	        <available resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svnant.classpath" property="available.svnant"/>
+	        <echo message="SVN-ANT is available = ${available.svnant}"></echo>
+	    </target>
+	利用Ant的javac任务来编译java程序
+		Ant的javac任务用于实现编译Java程序的功能。下面来看一个简单的例子：
+		工程的根目录下建立build.xml文件，在该文件中编译src目录下的java文件，并将编译后的class文件放入build/classes目录中，在编译前，需清除classes目录
+	    <target name="clean">
+	       <delete dir="build"/>
+	    </target>
+	    <target name="compile" depends="clean">
+	    	<mkdir dir="build/classes"/>
+	    	<javac srcdir="src" destdir="build/classes"/>
+	    </target>
+
+		
+	使用Ant的java任务运行Java程序
+		<target name="clean">
+			<delete dir="build"/>
+		</target>
+	    <target name="compile" depends="clean">
+	       <mkdir dir="build/classes"/>
+	      <javac srcdir="src" destdir="build/classes"/>
+	    </target>
+	    <target name="run" depends="compile">
+	       <java classname="HelloWorld">
+	           <classpath>
+	              <pathelement path="build/classes"/>
+	           </classpath>
+	       </java>
+	    </target>
+	
+	使用Ant的jar任务生成jar文件
+		<target name="jar" depends="run">
+		<jar destfile="helloworld.jar" basedir="build/classes">
+			<manifest>
+				<attribute name="Main-class" value="HelloWorld"/>
+		    </manifest>
+		</jar>
+		</target>
+
+		此时将ant的project的default属性设置为jar，同时运行该build.xml文件，运行完毕后，可看到在工程目录下生成了一个jar包HelloWorld.jar。
+		
+	使用Ant的war任务打包J2EE Web项目
+		<?xml version="1.0"?>
+		<project name="antwebproject" default="war" basedir=".">
+			<property name="classes" value="build/classes"/>
+		    <property name="build"value="build"/>
+		    <property name="lib"value="WebRoot/WEB-INF/lib"/>
+		    <!-- 删除build路径-->
+		    <target name="clean">
+		    	<delete dir="build"/>
+		    </target>
+		    <!-- 建立build/classes路径，并编译class文件到build/classes路径下-->
+		    <target name="compile" depends="clean">
+		    	<mkdir dir="${classes}"/>
+		    	<javac srcdir="src" destdir="${classes}"/>
+		    </target>
+		    <!-- 打war包-->
+		    <target name="war" depends="compile">
+				<war destfile="${build}/antwebproject.war" webxml="WebRoot/WEB-INF/web.xml">
+		           	<!-- 拷贝WebRoot下除了WEB-INF和META-INF的两个文件夹-->
+		    		<fileset dir="WebRoot" includes="**/*.jsp"/>
+		           		<!-- 拷贝lib目录下的jar包-->
+		           		<lib dir="${lib}"/>
+		           		<!-- 拷贝build/classes下的class文件-->
+		           	<classesdir="${classes}"/>
+		       	</war>
+		    </target>
+		</project>
+		
+	
+	使用ant的scp和ssh命令
+		现在可以使用ant提供的sshexec和scp任务，由$ant_home/lib/ant-jsch.jar提供支持，但是你也要在http://www.jcraft.com/jsch/index.html
+		下载一个依靠包jsch.jar(文件名因版本而不同)，jsch同样也是http://www.sourceforge.net下的一个项目。
+			-把jsch.jar拷贝到$ant_home/lib下
+			-假如是eclipse下的ant环境必须在window->preferences->ant->runtime->classpath中加入jsch-0.1.24。
+	
+		jsch是一个ssh2的纯java实现
+		jsch连接到sshd server并采用端口映射 x11 映射; scp文件传输等，你可以把集成jsch提供的功能到你自己的java项目中，jsch 的授权方式为 bsd形式。
+		下面是用jsch完成sshexec和scp两个任务的最简单例子，假如需要更具体的内容，请参考ant用户手册
+		[sshexec任务]
+		<target name="sshexec">
+			<sshexec host="192.168.122.180" username="root"  password="123456"
+				trust="true" command="cd /;ls"/>
+		</target>
+		注意上面的trust属性一般设置为true,　假如为默认值false时,那么就要求你所连接的host必须存在于你的knownhosts文件中，并且 这个文件也必须是存在的，否则会出现 com.jcraft.jsch.jschexception: reject hostkey:192.168.122.180异常。
+		执行linux下的命令时可以用分号";"把多个命令隔开，它们将会依次执行，而不需要写多个sshexec进行多 次连接，每次连接只执行一个命令。
+		该任务的执行后输出结果如下：
+		sshexec:
+		  [sshexec] connecting to 192.168.122.180:22
+		  [sshexec] backup
+		  [sshexec] bin
+		  [sshexec] boot
+		  [sshexec] dev
+		  [sshexec] etc
+		  ...................
+		[scp任务]
+		1.拷贝单个文件到远端服务器
+			<scp file="c:/cmd.txt" todir="root:123456@192.168.122.180:/tmp" trust="true"/>
+			或
+			<scp file="c:/cmd.txt" todir="" password="123456" trust="true"/>
+		2.拷贝远端文件本地
+			<scp file="root:123456@192.168.122.180:/tmp/cmd.txt" todir="d:/my-app"  trust="true"/>
+		3.拷贝远端目录到本地，将以递归形式操作
+			<scp file="root:123456@192.168.122.180:/tmp*.java" />
+			   </fileset>
+			</scp>
+			或
+			<scp todir="root:123456@192.168.122.180:/tmp" trust="true">
+			   <fileset dir="d:/my-app" excludes="**/*.java"/>
+			</scp>
+			最后一个任务的执行输出结果如下（其他略）：
+			scp:
+				  [scp]connecting to 192.168.122.180:22
+				  [scp] sending: cmd.txt : 0
+				  [scp] file transfer time: 0.0 average rate: ? b/s
+				  [scp] sending: pom.xml : 852
+				  [scp] done.
+		 
+		当然 还有 
+		<target name="uploadToServer " description="并行上传文件">
+		<echo> ${  "echo" } </echo>
+		 
+		<parallel threadCount='2'>
+		<!--sshexec  -->
+		<sequential>
+		<sshexec host="${server}" username="${ user}" password="${ }" command="${ }${DSTAMP}" trust="true" fail />
+		</sequential>
+		 
+		<!--scp -->
+		<scp todir="${ user}:${ pwd}@${ server1}:${ path}" trust="true" verbose="true">
+		<fileset dir="${ dir}/">
+		<include name="${file.name}" />
+		</fileset>
+		</scp>
+		 
+		</parallel>
+		</target>
+		scp:
+			  [scp]connecting to 192.168.122.180:22
+			  [scp] sending: cmd.txt : 0
+			  [scp] file transfer time: 0.0 average rate: ? b/s
+			  [scp] sending: pom.xml : 852
+			  [scp] done.
+		 
+		三，复制文件或目录命令： 
+		复制文件： 
+		（1）将本地文件拷贝到 远程 
+		scp 文件名 --用户名 @计 算机IP或者计算机名称 :远程路径 
+		（2）从远程将文件拷回本地 
+		scp --用户名 @计算机IP或者计算机名称 :文件名 本地路径 
+		复制目录： 
+		（1）将本地目录拷贝到远程 
+		scp -r 目录名 用户名 @计算机IP或者计算机名称 :远程路径 
+		（2）从远程将目录拷回 本地 
+		scp -r   用户名 @计算机IP或者计算机名称 :目录名 本地路径
+		
+	Delete Task：对文件和目录进行删除
+		Delete 任务可用于删除一个或多个文件，或删除一个或多个目录和目录下的文件。默认时不会删除空目录，要删除空目录可以设定includeEmptyDirs属性为true。在Delete任务中可以使用FileSet和DirSet类型。
+		Delete Task的属性及功能
+		Delete任务包括以下属性：
+		（1）file：用于指定要删除的文件的名称，可以为相对路径或绝对路径。
+		（2）dir：指定一个将要被删除的根目录。这个目录下的子目录及文件将可能被删除。dir属性和file属性两者必须指定其一。
+		（3）verbose：作用是指定是否在命令行中输出被删除的文件的名称。默认为false。
+		（4）quiet：作用是指定当要被删除的文件或目录不存在时是否不显示提示信息。默认为false，代表要显示提示信息。
+		（5）failonerror：用于指定当出现错误时是否停止执行命令。
+		（6）includeemptydirs：表明当使用FileSet类型时是否删除空的目录。
+		（7）includes：用于指定将要删除的文件或目录的模式。可用逗号或空格符进行分隔。
+		（8）includesfile：用于指定要删除的文件的模式。已不建议使用。
+		（9）excludes：用于指定一个或多个文件模式或目录模式。这些符合条件的文件和目录将不被删除。
+		（10）excludesfile：用于指定将不被删除的文件模式，已不建议使用。
+		（11）defaultexcludes：用于指定是否使用Ant默认的default excludes模式，已不建议使用。
+		（12）deleteonexit：用于指定是否采用Java File类中的deleteOnExit()方法进行判断，如果使用这个方法，那么仅当存在文件时才进行删除，默认取值为false。
+		在执行Delete Task时使用文件过滤的实例
+		（1）删除单个文件的实例：
+		<delete file="/lib/ant.jar"/>
+		这个例子的作用是删除lib目录下的ant.jar文件。
+		（2）删除目录的实例：
+		<delete dir="lib"/>
+		这个例子的作用是删除lib目录，包括这个目录的所有子目录及文件，可以通过include或exclude类型指定删除的部分文件，而不是目录下的所有文件。
+		（3）删除所有备份文件和空的目录的例子：
+		<delete includeEmptyDirs="true">
+		    <fileset dir="." includes="**/*.bak"/>
+		  </delete>
+		这个例子的作用是删除当前目录以及其子目录下的所有.bak文件，同时也删除所有空的目录
+	
+		

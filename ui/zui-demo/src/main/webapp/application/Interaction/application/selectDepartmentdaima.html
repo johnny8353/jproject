@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>用户界面规范-BS 帮助中心</title>
+<link href="../css/main.css"  type="text/css" rel="stylesheet"/>
+<link href="../css/index.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../js/jquery.js" ></script>
+<script type="text/javascript" src="../js/main.js" ></script>
+<!--作者：刘凯华-->
+<!--时间：2009-5-19-->
+</head>
+
+<body>
+<div id="content" class="demo_help">
+
+<!--部门单选-->
+<p class="menu2">1.1 部门单选<a name="1.1"></a></p>
+
+</p>
+<p><span class="hidedetail">代码：</span></p>
+<div class="code">
+ <pre>
+ &lt;td class="td_title"&gt;部门选择（查询、表格显示）-单选&lt;/td&gt;
+ &lt;td&gt;&lt;input name="text" type="text" class="txt_400" id="txtDep4" style="cursor:pointer" onclick="openwin('searchDept2.html','',650,400)" readonly="readonly"/&gt;
+ &lt;img src="../../images/icons/search2.gif" alt="选择部门" style="cursor:pointer" onclick="openwin('searchDept2.html','',650,400)"/&gt; &lt;/td&gt;
+ </pre>
+</div>
+
+<!--部门多选-->
+<p class="menu2">1.2 部门多选<a name="1.2"></a></p>
+<p><span class="hidedetail">代码：</span></p>
+<div class="code">
+ <pre>
+   &lt;td&gt;&lt;textarea name="textarea" rows="3" readonly="readonly" id="txtMulDept2" style="cursor:pointer;width:80%" 
+   onclick="openwin_nobar('selectDepMul2.html','',800,450);"&gt;
+   &lt;/textarea&gt;
+  &lt;img src="../../images/icons/search2.gif" alt="选择部门" style="cursor:pointer" onclick="openwin_nobar('selectDepMul2.html','',800,450);"/&gt;  
+  &lt;img src="../../images/icons/icon_del.gif" alt="清除" style="cursor:pointer" onclick="form1.txtMulDept2.value=''"/&gt; &lt;/td&gt;
+ </pre>
+</div>
+</div>
+</body>
+</html>

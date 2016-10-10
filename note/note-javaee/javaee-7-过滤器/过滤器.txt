@@ -1,0 +1,129 @@
+概念：
+	Filter也称之为过滤器，它是Servlet技术中比较激动人心的技术，WEB开发人员通过Filter技术，对web服务器管理的所有web资源：例如Jsp, Servlet,
+	静态图片文件或静态 html 文件等进行拦截，从而实现一些特殊的功能。例如实现URL级别的权限访问控制、过滤敏感词汇、压缩响应信息等一些高级功能。
+
+Filter简介
+	Servlet API中提供了一个Filter接口，开发web应用时，如果编写的Java类实现了这个接口，则把这个java类称之为过滤器Filter。
+	通过Filter技术，开发人员可以实现用户在访问某个目标资源之前，对访问的请求和响应进行拦截。简单说，就是可以实现web容器
+	对某资源的访问前截获进行相关的处理，还可以在某资源向web容器返回响应前进行截获进行处理。
+
+Filter的应用场景
+
+	通过对filter过滤器的了解，可以得知在以下三种情况下可以做些处理：
+
+	1> 通过控制对chain.doFilter的方法的调用，来决定是否需要访问目标资源。
+
+	比如，可以在用户权限验证等等。判断用户是否有访问某些资源的权限，有权限放行，没权限不执行chain.doFilter方法。
+
+	2> 通过在调用chain.doFilter方法之前，做些处理来达到某些目的。
+	比如，解决中文乱码的问题等等。可以在doFilter方法前，执行设置请求编码与响应的编码。甚至可以对request接口进行封装装饰来处理get请求方式的中文乱码问题(重写相应的request.getParameter方法)。
+	使浏览器不缓存页面的过滤器：
+	
+	3> 通过在调用chain.doFilter方法之后，做些处理来达到某些目的。
+	比如对整个web网站进行压缩。在调用chain.doFilter方法之前用类A对response对象进行封装装饰，重写getOutputStream和重写getWriter方法。在类A内部中，将输出内容缓存进ByteArrayOutputStream流中，然后在chain.doFilter方法执行后，获取类A中ByteArrayOutputStream流缓存数据，用GZIPOutputStream流进行压缩下。
+
+Filter实现拦截的原理
+
+	Filter接口中有一个doFilter方法，当开发人员编写好Filter类实现doFilter方法，并配置对哪个web资源进行拦截后，
+	WEB服务器每次在调用web资源的service方法之前(服务器内部对资源的访问机制决定的)，都会先调用一下filter的doFilter方法。
+
+Filter生命周期
+
+	和Servlet一样Filter的创建和销毁也是由WEB服务器负责。不过与Servlet区别的是，它是
+	1>在应用启动的时候就进行装载Filter类(与Servlet的load-on-startup配置效果相同)。
+	2>容器创建好Filter对象实例后，调用init()方法。接着被Web容器保存进应用级的集合容器中去了等待着，用户访问资源。
+	3>当用户访问的资源正好被Filter的url-pattern拦截时，容器会取出Filter类调用doFilter方法，下次或多次访问被拦截的资源时，
+	Web容器会直接取出指定Filter对象实例调用doFilter方法(Filter对象常驻留Web容器了)。
+	4>当应用服务被停止或重新装载了，则会执行Filter的destroy方法，Filter对象销毁。
+
+	注意：init方法与destroy方法只会直接一次。
+	
+
+过滤器
+	Filter 的基本功能是对 Servlet 容器调用 Servlet 的过程进行拦截，从而在 Servlet 进行响应处理的前后实现一些特殊的功能。
+	在 Servlet API 中定义了三个接口类来开供开发人员编写 Filter 程序：Filter, FilterChain, FilterConfig
+	Filter 程序是一个实现了 Filter 接口的 Java 类，与 Servlet 程序相似，它由 Servlet 容器进行调用和执行
+	Filter 程序需要在 web.xml 文件中进行注册和设置它所能拦截的资源：Filter 程序可以拦截 Jsp, Servlet, 静态图片文件和静态 html 文件
+
+Filter 的基本工作原理
+
+	1.当在 web.xml 中注册了一个 Filter 来对某个 Servlet 程序进行拦截处理时，这个 Filter 就成了 Servlet 容器与该 Servlet 程序的通信线路上的一道关卡，该 Filter 可以对 
+	*Servlet 容器发送给 Servlet 程序的请求和 Servlet 程序回送给 Servlet 容器的相应进行拦截，可以决定是否将请求继续传递给 Servlet 程序，以及对请求和相应信息是否进行修改
+	2.在一个 web 应用程序中可以注册多个 Filter 程序，每个 Filter 程序都可以对一个或一组 Servlet 程序进行拦截。
+	3.若有多个 Filter 程序对某个 Servlet 程序的访问过程进行拦截，当针对该 Servlet 的访问请求到达时，web 容器将把这多个 Filter 程序组合成一个 Filter 链(过滤器链)。
+	*Filter 链中各个 Filter 的拦截顺序与它们在应用程序的 web.xml 中映射的顺序一致
+
+Filter 接口
+	与开发Servlet不同的是，Filter接口并没有相应的实现类可供继承，要开发过滤器，只能直接实现Filter接口。
+	1>init(FilterConfig filterConfig)throws ServletException：在 web 应用程序启动时，web 服务器将根据 web.xml 文件中的配置信息来创建每个注册的 Filter 实例对象，
+	并将其保存在服务器的内存中。*Web容器创建 Filter 对象实例后，将立即调用该 Filter 对象的 init 方法。Init 方法在 Filter 生命周期中仅执行一次，web 容器在调用 init 方法时，
+	会传递一个包含 Filter 的配置和运行环境的 FilterConfig 对象*(FilterConfig的用法和ServletConfig类似)。利用FilterConfig对象可以得到ServletContext对象，
+	以及部署描述符中配置的过滤器的初始化参数。在这个方法中，可以抛出ServletException异常，通知容器该过滤器不能正常工作。
+	2>destroy()：在Web容器卸载 Filter 对象之前被调用。该方法在Filter的生命周期中仅执行一次。在这个方法中，可以释放过滤器使用的资源
+	3>doFilter(ServletRequest request,ServletResponse response, FilterChain chain)throws java.io.IOException,ServletException：
+    doFilter()方法类似于Servlet接口的service()方法。当客户端请求目标资源的时候，容器就会调用与这个目标资源相关联的过滤器的doFilter()方法。
+	其中参数 request, response 为 web 容器或 Filter 链的上一个 Filter 传递过来的请求和相应对象；参数 chain 为代表当前 Filter 链的对象，在特定的操作完成后，
+  	可以在当前 Filter 对象的 doFilter 方法内部需要调用 FilterChain 对象的 chain.doFilter(request,response)方法才能把请求交付给 Filter 链中的下一个 Filter
+  	 或者目标 Servlet 程序去处理，也可以直接向客户端返回响应信息，或者利用RequestDispatcher的forward()和include()方法，以及HttpServletResponse的
+  	 sendRedirect()方法将请求转向到其他资源。这个方法的请求和响应参数的类型是ServletRequest和ServletResponse，也就是说，过滤器的使用并不依赖于具体的协议。
+  	 
+FilterChain接口
+	1>FilterChain接口：代表当前 Filter 链的对象。由容器实现，容器将其实例作为参数传入过滤器对象的doFilter()方法中。
+		过滤器对象使用FilterChain对象调用过滤器链中的下一个过滤器，如果该过滤器是链中最后一个过滤器，那么将调用目标资源。
+	2>doFilter(ServletRequest request,ServletResponse response)throws java.io.IOException：
+	*调用该方法将使过滤器链中的下一个过滤器被调用。如果是最后一个过滤器，会调用目标资源。
+	
+FilterConfig 接口
+	javax.servlet.FilterConfig接口：该接口类似于ServletConfig接口，由容器实现。Servlet规范将代表 ServletContext 
+	对象和 Filter 的配置参数信息都封装在该对象中。Servlet 容器将其作为参数传入过滤器对象的init()方法中。
+		·String getFilterName()：得到描述符中指定的过滤器的名字。
+		·String getInitParameter(String name)： 返回在部署描述中指定的名字为name的初始化参数的值。如果不存在返回null.
+		·Enumeration getInitParameterNames()：返回过滤器的所有初始化参数的名字的枚举集合。
+		·public ServletContext getServletContext()：返回Servlet上下文对象的引用。
+	
+	filterConfig.getInitParameter("username");//获取当前filter的初始化参数
+	filterConfig.getServletContext().getInitParameter("password");//获取全局的初始化参数
+	
+
+过滤器的部署
+	在实现一个过滤器后，需要在 web.xml 中进行注册和设置它所能拦截的资源。这可以通过<filter>和<filter-mapping>元素来完成的。
+	<filter> 元素（注册Filter）
+		<filter>元素用于在Web应用程序中注册一个过滤器。
+		在<filter>元素内
+			-<filter-name>用于为过滤器指定一个名字，该元素的内容不能为空。
+			-<filter-class>元素用于指定过滤器的完整的限定类名。
+			-<init-param>元素用于为过滤器指定初始化参数，它的子元素<param-name>指定参数的名字，<param-value>指定参数的值。在过滤器中，
+			可以使用FilterConfig接口对象来访问初始化参数。
+			
+		Servlet容器对部署描述符中声明的每一个过滤器，只创建一个实例。与Servlet类似，容器将在同一个过滤器实例上运行多个线程来同时为多个请求服务，因此，开发过滤器时，也要注意线程安全的问题。
+			<filter>
+			 	     <filter-name>testFitler</filter-name>
+				     <filter-class>org.test.TestFiter</filter-class>
+				     <init-param>
+					 <param-name>word_file</param-name>	
+					 <param-value>/WEB-INF/word.txt</param-value>
+				     </init-param>
+			</filter>
+	映射 Filter
+		<filter-mapping>元素用于设置一个 Filter 所负责拦截的资源。一个Filter拦截的资源可通过两种方式来指定：Servlet 名称和资源访问的请求路径( url样式)
+		-<filter-name>子元素用于设置filter的注册名称。该值必须是在<filter>元素中声明过的过滤器的名字
+		-<url-pattern>设置 filter 所拦截的请求路径(过滤器关联的URL样式)
+		-<servlet-name>指定过滤器所拦截的Servlet名称。
+		-<dispatcher>指定过滤器所拦截的资源被 Servlet 容器调用的方式，可以是REQUEST,INCLUDE,FORWARD和ERROR之一，**默认REQUEST.
+		 可以设置多个<dispatcher> 子元素用来指定 Filter 对资源的多种调用方式进行拦截
+			<dispatcher> 子元素可以设置的值及其意义：
+				REQUEST：当用户直接访问页面时，Web容器将会调用过滤器。如果目标资源是通过RequestDispatcher的include()或forward()方法访问时，那么该过滤器就不会被调用。
+				INCLUDE：如果目标资源是通过RequestDispatcher的include()方法访问时，那么该过滤器将被调用。除此之外，该过滤器不会被调用。
+				FORWARD：如果目标资源是通过RequestDispatcher的forward()方法访问时，那么该过滤器将被调用，除此之外，该过滤器不会被调用。
+				ERROR：如果目标资源是通过声明式异常处理机制调用时，那么该过滤器将被调用。除此之外，过滤器不会被调用。
+		<filter-mapping>
+		    <filter-name>testFilter</filter-name>
+		   <url-pattern>/index.jsp</url-pattern>
+		   <dispatcher>REQUEST</dispatcher>
+		   <dispatcher>FORWARD</dispatcher>
+		</filter-mapping>
+	
+		在同一个 web.xml 文件中可以为同一个 Filter 设置多个映射。若一个 Filter 链中多次出现了同一个 Filter 程序，这个 Filter 程序的拦截处理过程将被多次执行
+	
+
+	

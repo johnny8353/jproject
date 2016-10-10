@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.johnny.hibernate.searchway">
+
+    <class name="GDepartment" table="GG_DEPARTMENT">
+        
+        <id name="id" type="java.lang.Integer">
+            <column name="ID" />
+            <generator class="native" />
+        </id>
+    
+        <property name="name" type="java.lang.String">
+            <column name="NAME" />
+        </property>
+        
+        <set name="emps" table="GG_EMPLOYEE" inverse="true" lazy="true">
+            <key>
+                <column name="DEPT_ID" />
+            </key>
+            <one-to-many class="Employee" />
+        </set>
+        
+    </class>
+</hibernate-mapping>

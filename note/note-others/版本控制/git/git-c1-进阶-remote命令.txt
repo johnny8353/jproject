@@ -1,0 +1,67 @@
+git remote 
+	要参与任何一个 Git 项目的协作,必须要了解该如何管理远程仓库.远程仓库是指托管在网络上的项目仓库,可能会有好多个,其中有些你只能读,另外有些可以写.
+	同他人协作开发某 个项目时,需要管理这些远程仓库,以便推送或拉取数据,分享各自的工作进展.管理远程仓库的工作,包括添加远程库,移除废弃的远程库,管理各式远程库分 支,
+	定义是否跟踪这些分支,等等.本节我们将详细讨论远程库的管理和使用.
+	
+	查看当前的远程库
+		要查看当前配置有哪些远程仓库,可以用 git remote 命令,它会列出每个远程库的简短名字.在克隆完某个项目后,
+		至少可以看到一个名为 origin 的远程库,Git 默认使用这个名字来标识你所克隆的原始仓库:
+		$ git clone https://github.com/johnny8353/jproject.git
+		Cloning into 'jproject'...
+		remote: Counting objects: 3, done.
+		remote: Total 3 (delta 0), reused 3 (delta 0), pack-reused 0
+		Unpacking objects: 100% (3/3), done.
+		Checking connectivity... done.
+	
+	
+		$ cd jproject
+		（1）git remote 不带参数，列出已经存在的远程分支
+			$ git remote
+	　　		origin
+		（2）git remote -v | --verbose 列出详细信息，在每一个名字后面列出其远程url
+		此时， -v 选项(译注:此为 –verbose 的简写,取首字母),显示对应的克隆地址:
+		$ git remote -v
+		origin  https://github.com/johnny8353/jproject.git (fetch)
+		origin  https://github.com/johnny8353/jproject.git (push)
+		如果有多个远程仓库,此命令将全部列出.比如在我的 Grit 项目中,可以看到:
+	
+		$ cd grit
+		$ git remote -v
+	　　	bakkdoor git://github.com/bakkdoor/grit.git
+	　　	cho45 git://github.com/cho45/grit.git
+	　　	defunkt git://github.com/defunkt/grit.git
+	　　	koke git://github.com/koke/grit.git
+	
+		origin 这样一来,我就可以非常轻松地从这些用户的仓库中,拉取他们的提交到本地.请注意,上面列出的地址只有 origin 用的是 SSH URL 链接,
+		所以也只有这个仓库我能推送数据上去(我们会在第四章解释原因).
+	
+	　　	添加远程仓库
+	　　	要添加一个新的远程仓库,可以指定一个简单的名字,以便将来引用,运行 git remote add [shortname] [url]:
+	
+	　　	$ git remote
+	　　	origin
+	　　	$ git remote add pb git://github.com/paulboone/ticgit.git
+	　　	$ git remote -v
+	　　	origin git://github.com/schacon/ticgit.git
+	　　	pb git://github.com/paulboone/ticgit.git现在可以用字串 pb 指代对应的仓库地址了.比如说,要抓取所有 Paul 有的,但本地仓库没有的信息,可以运行 git fetch pb:
+	
+	　　	$ git fetch pb
+	　　	remote: Counting objects: 58, done.
+	　　	remote: Compressing objects: 100% (41/41), done.
+	　　	remote: Total 44 (delta 24), reused 1 (delta 0)
+	　　	Unpacking objects: 100% (44/44), done.
+	　　	From git://github.com/paulboone/ticgit
+		* [new branch] master -> pb/master
+		* [new branch] ticgit -> pb/ticgit
+	
+		现在,Paul 的主干分支(master)已经完全可以在本地访问了,对应的名字是 pb/master,你可以将它合并到自己的某个分支,或者切换到这个分支,看看有些什么有趣的更
+	
+		$ git remote rm origin		删除远程分支
+		
+		$ git remote add origin https://github.com/johnny8353/jproject.git
+		
+		$ git remote -v
+		origin  https://github.com/johnny8353/jproject.git (fetch)
+		origin  https://github.com/johnny8353/jproject.git (push)
+	
+	

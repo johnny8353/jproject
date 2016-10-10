@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd 
+	http://cxf.apache.org/jaxrs	http://cxf.apache.org/schemas/jaxrs.xsd
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<!-- 3.0以后升级了不需要这个文件了 -->
+	<!-- <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />	 -->
+	<!--<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />-->
+
+	<bean id="helloWS" class="com.johnny.webservice.cxfimp.HelloWSImpl"></bean>
+	<bean id="dataTypeWS" class="com.johnny.webservice.cxfimp2.DataTypeWSImpl"></bean>
+
+	<bean id="addHeaderInterceptor" class="com.johnny.webservice.interceptor.SoapHeaderInterceptor">
+		<constructor-arg name="userId" value="johnny"></constructor-arg>
+		<constructor-arg name="userPass" value="XXXXXX"></constructor-arg>
+	</bean>
+	<bean id="authInterceptor" class="com.johnny.webservice.interceptor.AuthInterceptor"></bean>
+
+	<jaxws:endpoint id="hello_ws" implementor="#helloWS"
+		address="/hellows">
+		<jaxws:properties>
+			<entry key="set-jaxb-validation-event-handler" value="false" />
+		</jaxws:properties>
+		<jaxws:inInterceptors>
+			<bean class="com.johnny.webservice.interceptor.LoggingInInterceptorWrap"></bean>
+		</jaxws:inInterceptors>
+		<jaxws:outInterceptors>
+			<bean class="com.johnny.webservice.interceptor.LoggingOutInterceptorWrap"></bean>
+		</jaxws:outInterceptors>
+	</jaxws:endpoint>
+	<jaxws:endpoint id="dataType_ws" implementor="#dataTypeWS"
+		address="/dataTypeWS">
+		<jaxws:properties>
+			<entry key="set-jaxb-validation-event-handler" value="false" />
+		</jaxws:properties>
+		<jaxws:inInterceptors>
+			<bean class="com.johnny.webservice.interceptor.LoggingInInterceptorWrap"></bean>
+			<ref bean="addHeaderInterceptor" />
+			<ref bean="authInterceptor" />
+		</jaxws:inInterceptors>
+		<jaxws:outInterceptors>
+			<bean class="com.johnny.webservice.interceptor.LoggingOutInterceptorWrap"></bean>
+		</jaxws:outInterceptors>
+	</jaxws:endpoint>
+
+	<import resource="classpath:spring-cxf-rest-service.xml"/>
+
+</beans>

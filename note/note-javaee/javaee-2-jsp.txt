@@ -1,0 +1,352 @@
+
+JSP:
+1). WHY: 
+	JSP 是简 Servlet 编写的一种技术, 它将 Java 代码和 HTML 语句混合在同一个文件中编写,
+	只对网页中的要动态产生的内容采用 Java 代码来编写，而对固定不变的静态内容采用普通静态 HTML 页面的方式编写。 
+
+2). Java Server Page: Java 服务器端网页. 在 HTML 页面中编写 Java 代码的页面. 
+	helloworld: 
+
+	新建一个 JSP 页面, 在 body 节点内的 <% %> 即可编写 Java 代码.
+
+	<body>
+
+		<% 
+			Date date = new Date();
+			System.out.print(date); 
+		%>
+
+	</body>
+
+3). JSP 可以放置在 WEB 应用程序中的除了 WEB-INF 及其子目录外的其他任何目录中,
+	JSP 页面的访问路径与普通 HTML 页面的访问路径形式也完全一样。
+
+4). JSP的运行原理: JSP 本质上是一个 Servlet.
+
+	每个JSP 页面在第一次被访问时, JSP 引擎将它翻译成一个 Servlet 源程序, 接着再把这个 Servlet 源程序编译成 Servlet 的 class 类文件.
+	然后再由WEB容器（Servlet引擎）像调用普通Servlet程序一样的方式来装载和解释执行这个由JSP页面翻译成的Servlet程序。 
+
+5). JSP 页面的隐含变量: 没有声明就可以使用的对象. JSP页面一共有 9 个隐含对象. 
+
+	public void _jspService(HttpServletRequest request, HttpServletResponse response)
+			throws java.io.IOException, ServletException {
+
+		PageContext pageContext = null;
+		HttpSession session = null;
+		ServletContext application = null;
+		ServletConfig config = null;
+		JspWriter out = null;
+		Object page = this;
+
+		//...
+		
+		//使用  <% %> 编写的代码在此位置. 可以用到 request, response, pageContext, session
+		//application, config, out, page 这 8 个隐含对象. (实际上还可以使用一个叫 exception 的隐含对象)
+		
+	}
+
+	①. request: HttpServletRequest 的一个对象. *
+	②. response: HttpServletResponse 的一个对象(在 JSP 页面中几乎不会调用 response 的任何方法.)
+
+	③. pageContext: 页面的上下文, 是 PageContext 的一个对象. 可以从该对象中获取到其他 8 个隐含对象. 也可以从中获取到当前
+	页面的其他信息. (学习自定义标签时使用它) *
+	④. session: 代表浏览器和服务器的一次会话, 是 HttpSession 的一个对象. 后面详细学习. *
+
+	⑤. application: 代表当前 WEB 应用. 是 ServletContext 对象. *
+	⑥. config: 当前 JSP 对应的 Servlet 的 ServletConfig 对象(几乎不使用). 若需要访问当前 JSP 配置的初始化参数, 
+	需要通过映射的地址才可以.
+
+	映射 JSP:
+	  <servlet>
+		<servlet-name>hellojsp</servlet-name>
+		<jsp-file>/hello.jsp</jsp-file>
+		<init-param>
+			<param-name>test</param-name>
+			<param-value>testValue</param-value>
+		</init-param>
+	  </servlet>
+	  
+	  <servlet-mapping>
+		<servlet-name>hellojsp</servlet-name>
+		<url-pattern>/hellojsp</url-pattern>  	
+	  </servlet-mapping>
+	  
+	⑦. out: JspWriter 对象. 调用 out.println() 可以直接把字符串打印到浏览器上. *
+	⑧. page: 指向当前 JSP 对应的 Servlet 对象的引用, 但为 Object 类型, 只能调用 Object 类的方法(几乎不使用) 
+	⑨. exception: 在声明了 page 指令的 isErrorPage="true" 时, 才可以使用. *
+
+	<%@ page isErrorPage="true" %>
+
+	pageContext, request, session, application(对属性的作用域的范围从小到大)
+	out, response, config, page 
+	exception
+
+	和属性相关的方法:
+
+		1). 方法
+
+		void setAttribute(String name, Object o): 设置属性  
+		Object getAttribute(String name): 获取指定的属性
+
+		Enumeration getAttributeNames(): 获取所有的属性的名字组成的 Enumeration 对象
+		removeAttribute(String name): 移除指定的属性 
+
+		2). pageContext, request, session, application 对象都有这些方法!
+		这四个对象也称之为域对象. 
+
+		pageContext: 属性的作用范围仅限于当前 JSP 页面
+		request:  属性的作用范围仅限于同一个请求. 
+		session: 属性的作用范围限于一次会话: 浏览器打开直到关闭称之为一次会话(在此期间会话不失效)
+		application: 属性的作用范围限于当前 WEB 应用. 是范围最大的属性作用范围, 只要在一处设置属性, 在其他各处的 JSP 或 Servlet 中
+		都可以获取到. 
+
+6). JSP模版元素: JSP页面中的静态HTML内容称 
+
+7). JSP表达式（expression）提供了将一个 java 变量或表达式的计算结果输出到客户端的简化方式，
+	它将要输出的变量或表达式直接封装在<%= 和 %>之中。
+
+	<% 
+		Date date = new Date();
+		out.print(date);
+	%>
+
+	<%= date %>
+
+8). JSP脚本片断（scriptlet）是指嵌套在<% 和 %>之中的一条或多条Java程序代码。 
+	多个脚本片断中的代码可以相互访问
+
+	<% 
+		String ageStr = request.getParameter("age");
+		Integer age = Integer.parseInt(ageStr);
+		
+		if(age >= 18){
+	%>
+			成人...
+	<%
+		}else{
+	%>
+			未成人...
+	<%
+		}
+	%>
+
+9). JSP 声明: JSP 声明将 Java 代码封装在<%！和 %>之中，它里面的代码将被插入进 Servle t的 _jspService 方法的外面
+	(在 JSP 页面中几乎从不这样使用)
+
+10). JSP注释的格式：<%-- JSP 注释 --%> <!-- HTML 注释 -->
+	区别: JSP 注释可以阻止 Java 代码的执行. 
+
+
+
+JSP起源 
+	1.在很多动态网页中，绝大部分内容都是固定不变的，只有局部内容需要动态产生和改变。 
+	2.如果使用Servlet程序来输出只有局部内容需要动态改变的网页，其中所有的静态内容也需要程序员用Java程序代码产生，整个Servlet程序的代码将非常臃肿，编写和维护都将非常困难。  
+	3.对大量静态内容的美工设计和相关HTML语句的编写，并不是程序员所要做的工作，程序员对此也不一定在行。网页美工设计和制作人员不懂Java编程，更是无法来完成这样的工作。 
+	4.为了弥补 Servlet 的缺陷，SUN公司在Servlet的基础上推出了JSP（Java Server Pages）技术作为解决方案。 
+	5.JSP是简化Servlet编写的一种技术，它将Java代码和HTML语句混合在同一个文件中编写，只对网页中的要动态产生的内容采用Java代码来编写，而对固定不变的静态内容采用普通静态HTML页面的方式编写。 
+建立对JSP的直观认识
+	1.JSP页面是由HTML语句和嵌套在其中的Java代码组成的一个普通文本文件，JSP 页面的文件扩展名必须为.jsp。
+	2.在JSP页面中编写的Java代码需要嵌套在<%和%>中，嵌套在<%和%>之间的Java代码被称之为脚本片段（Scriptlets），没有嵌套在<%和%>之间的内容被称之为JSP的模版元素。
+	3.JSP中的Java代码可以使用out.println语句将其他Java程序代码产生的结果字符串输出给客户端，也可以使用System.out.println语句将它们打印到命令行窗口。 
+	4.JSP文件就像普通的HTML文件一样，它们可以放置在WEB应用程序中的除了WEB-INF及其子目录外的其他任何目录中，JSP页面的访问路径与普通HTML页面的访问路径形式也完全一样。
+	5.在JSP页面中也可以使用一种称之为JSP表达式的元素，只需将要输出的变量或表达式直接封装在<%= 和 %>之中，就可以向客户端输出这个变量或表达式的运算结果。在JSP表达式中嵌套的变量或表达式后面不能有分号。    
+
+JSP的运行原理 
+	1.WEB容器（Servlet引擎）接收到以.jsp为扩展名的URL的访问请求时，它将把该访问请求交给JSP引擎去处理。
+	2.每个JSP 页面在第一次被访问时，JSP引擎将它翻译成一个Servlet源程序，接着再把这个Servlet源程序编译成Servlet的class类文件，
+	然后再由WEB容器（Servlet引擎）像调用普通Servlet程序一样的方式来装载和解释执行这个由JSP页面翻译成的Servlet程序。 
+	3.JSP规范也没有明确要求JSP中的脚本程序代码必须采用Java语言，JSP中的脚本程序代码可以采用Java语言之外的其他脚本语言来编写，
+	但是，JSP页面最终必须转换成Java Servlet程序。 
+	4.可以在WEB应用程序正式发布之前，将其中的所有JSP页面预先编译成Servlet程序。
+	
+JSP隐式对象 -- jsp编译成servlet
+	public void _jspService(final javax.servlet.http.HttpServletRequest request, final javax.servlet.http.HttpServletResponse response)
+	        throws java.io.IOException, javax.servlet.ServletException {
+	
+	    final javax.servlet.jsp.PageContext pageContext;
+	    javax.servlet.http.HttpSession session = null;
+	    final javax.servlet.ServletContext application;
+	    final javax.servlet.ServletConfig config;
+	    javax.servlet.jsp.JspWriter out = null;
+	    final java.lang.Object page = this;
+	    javax.servlet.jsp.JspWriter _jspx_out = null;
+	    javax.servlet.jsp.PageContext _jspx_page_context = null;
+	    try {
+	      response.setContentType("text/html; charset=UTF-8");
+	      pageContext = _jspxFactory.getPageContext(this, request, response,
+	      			null, true, 8192, true);
+	      _jspx_page_context = pageContext;
+	      application = pageContext.getServletContext();
+	      config = pageContext.getServletConfig();
+	      session = pageContext.getSession();
+	      out = pageContext.getOut();
+	      _jspx_out = out;
+	
+	      out.write("\r\n");
+	      out.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n");
+	      out.write("<html>\r\n");
+	      out.write("<head>\r\n");
+	      out.write("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\r\n");
+	      out.write("<title>Insert title here</title>\r\n");
+	      out.write("</head>\r\n");
+	      out.write("<body>\r\n");
+	      out.write("\tHelloWorld!!\r\n");
+	      out.write("</body>\r\n");
+	      out.write("</html>");
+	    } catch (java.lang.Throwable t) {
+	      if (!(t instanceof javax.servlet.jsp.SkipPageException)){
+	        out = _jspx_out;
+	        if (out != null && out.getBufferSize() != 0)
+	          try { out.clearBuffer(); } catch (java.io.IOException e) {}
+	        if (_jspx_page_context != null) _jspx_page_context.handlePageException(t);
+	        else throw new ServletException(t);
+	      }
+	    } finally {
+	      _jspxFactory.releasePageContext(_jspx_page_context);
+		}
+	}
+
+JSP与Servlet的应用比较 
+	1.JSP是一种以产生网页显示内容为中心的WEB开发技术，它可以直接使用模版元素来产生网页文档的内容。 
+	2.JSP页面的源文件要比Servlet源文件简单，并且JSP页面的开发过程要比Servlet的开发过程简单得多。
+	3.JSP引擎可以对JSP页面的修改进行检测，并自动重新翻译和编译修改过的JSP文件。
+	4.JSP技术是建立在Servlet技术基础之上的，所有的JSP页面最终都要被转换成Servlet来运行。 
+	5.在大型WEB应用程序的开发中，Servlet与JSP经常要混合使用，各司其职，Servlet通常用作控制组件，并处理一些复杂的后台业务，JSP则作为显示组件。
+	6.一次响应过程可以划分成几个功能模块来协同完成，首先由Servlet完成流程控制和业务处理，并将结果数据存储在request或session域中，
+	然后将请求转发（forward）到JSP页面，再由JSP页面从request或session域中取出结果数据并完成响应内容的输出。
+	通过这种方式实现业务逻辑与显示内容的分离，从而将应用程序开发者和网页作者的工作分离。 
+
+JSP 指令
+	1. JSP 指令: JSP指令（directive）是为JSP引擎而设计的, 
+		它们并不直接产生任何可见输出, 而只是告诉引擎如何处理JSP页面中的其余部分。
+	2. 在目前的JSP 2.0中，定义了page、include 和 taglib这三种指令
+	3. page 指令:
+		<%@ page 
+		[ language="java" ] 
+		[ extends="package.class" ] 
+		[ import="{package.class | package.*}, ..." ] 
+		[ session="true | false" ] 
+		[ buffer="none | 8kb | sizekb" ] 
+		[ autoFlush="true | false" ] 
+		[ isThreadSafe="true | false" ] 
+		[ info="text" ] 
+		[ errorPage="relative_url" ] 
+		[ isErrorPage="true | false" ] 
+		[ contentType="mimeType [ ;charset=characterSet ]" | "text/html ; charset=ISO-8859-1" ] 
+		[ pageEncoding="characterSet | ISO-8859-1" ] 
+		[ isELIgnored="true | false" ] 
+		%>
+	
+		1). page指令用于定义JSP页面的各种属性, 无论page指令出现在JSP页面中的什么地方, 
+		它作用的都是整个JSP页面, 为了保持程序的可读性和遵循良好的编程习惯, page指令最好是放在整个JSP页面的起始位置。 
+		2). page 指令常用的属性: 
+		①. import 属性: 指定当前 JSP 页面对应的 Servlet 需要导入的类. 
+		<%@page import="java.text.DateFormat"%>
+		②. session 属性: 取值为 true 或 false, 指定当前页面的 session 隐藏变量是否可用, 也可以说访问当前页面时是否一定要生成 HttpSession
+		对象. 
+		<%@ page session="false" %> 
+		
+		③. errorPage 和 isErrorPage: 
+			> errorPage 指定若当前页面出现错误的实际响应页面时什么. 其中 / 表示的是当前 WEB 应用的根目录. 
+			*如果设置了某个JSP页面的errorPage属性，那么在web.xml文件中设置的错误处理将不对该页面起作用。
+			<%@ page errorPage="/error.jsp" %> 
+		
+			> 在响应 error.jsp 时, JSP 引擎使用的请求转发的方式. 
+			> isErrorPage 指定当前页面是否为错误处理页面, 可以说明当前页面是否可以使用 exception 隐藏变量. 需要注意的是: 若指定 
+			isErrorPage="true", 并使用 exception 的方法了, 一般不建议能够直接访问该页面. 
+			
+			> 如何使客户不能直接访问某一个页面呢 ? 对于 Tomcat 服务器而言, WEB-INF 下的文件是不能通过在浏览器中直接输入地址的方式
+			来访问的. 但通过请求的转发是可以的!
+			
+			> 还可以在 web.xml 文件中配置错误页面: 
+			
+				<error-page>
+			  		<!-- 指定出错的代码: 404 没有指定的资源, 500 内部错误. -->
+				  	<error-code>404</error-code>
+				  	<!-- 指定响应页面的位置 -->
+				  	<location>/WEB-INF/error.jsp</location>
+				</error-page>
+				  
+				<error-page>
+				  	<!-- 指定异常的类型 -->
+				  	<exception-type>java.lang.ArithmeticException</exception-type>
+				  	<location>/WEB-INF/error.jsp</location>
+				</error-page>
+			
+		④. contentType: 指定当前 JSP 页面的响应类型. 实际调用的是 response.setContentType("text/html; charset=UTF-8");
+		通常情况下, 对于 JSP 页面而言其取值均为 text/html; charset=UTF-8. charset 指定返回的页面的字符编码是什么. 通常取值为 UTF-8
+		JSP引擎会根据page指令的contentType属性生成相应的调用ServletResponse.setContentType方法的语句。
+		page指令的contentType属性还具有说明JSP源文件的字符编码的作用。
+		
+		⑤. pageEncoding: 指定当前 JSP 页面的字符编码. 通常情况下该值和 contentType 中的 charset 一致. 
+		
+		⑥. isELIgnored: 指定当前 JSP 页面是否可以使用 EL 表达式. 通常取值为 false. 
+		
+	4. include 指令: <%@ include file="b.jsp" %>
+		1). include 指令用于通知 JSP 引擎在翻译当前 JSP 页面时将其他文件中的内容合并进当前 JSP 页面转换成的 Servlet 源文件中,
+		这种在源文件级别进行引入的方式称之为静态引入, 当前JSP页面与静态引入的页面紧密结合为一个Servlet。
+		2). file属性的设置值必须使用相对路径
+		3). 如果以 / 开头，表示相对于当前WEB应用程序的根目录（注意不是站点根目录），否则，表示相对于当前文件。
+		4).在将JSP文件翻译成Servlet源文件时，JSP引擎将合并被引入的文件与当前JSP页面中的指令元素（设置pageEncoding属性的page指令除外），
+		所以，除了import和pageEncoding属性之外，page指令的其他属性不能在这两个页面中有不同的设置值。 
+		5).引入文件与被引入文件是在被JSP引擎翻译成Servlet的过程中进行合并，而不是先合并源文件后再对合并的结果进行翻译。
+		当前JSP页面的源文件与被引入文件的源文件可以采用不同的字符集编码，即使在一个页面中使用page指令的pageEncoding或contentType属性
+		指定了其源文件的字符集编码，在另外一个页面中还需要用page指令的pageEncoding或contentType属性指定其源文件所使用的字符集 。 
+
+JSP标签		
+	4. jsp:incluce 标签:
+		1). <jsp:include page="b.jsp"></jsp:include>
+			<jsp:include page="relativeURL | <%=expression%>" flush="true|false" />
+			page属性用于指定被引入资源的相对路径，它也可以通过执行一个表达式来获得。
+			flush属性指定在插入其他资源的输出内容时，是否先将当前JSP页面的已输出的内容刷新到客户端。  
+			
+		2). 动态引入: 并不是像 include 指令生成一个 Servlet 源文件, 而是生成两个 Servlet 源文件, 然后通过一个方法的方式把目标页面包含进来. 
+		org.apache.jasper.runtime.JspRuntimeLibrary.include(request, response, "b.jsp", out, false);
+		
+	5. jsp:forward:
+		1).
+		<jsp:forward page="/include/b.jsp"></jsp:forward>	   
+		相当于. 
+		<% 
+			request.getRequestDispatcher("/include/b.jsp").forward(request, response);
+		%>
+	
+		2). 但使用 jsp:forward 可以使用 jsp:param 子标签向 b.jsp 传入一些参数. 同样 jsp:include 也可以使用 jsp:param 子标签. 
+		
+		<jsp:forward page="/include/b.jsp">
+			<jsp:param value="abcd" name="username"/>
+		</jsp:forward>	
+		OR
+		<jsp:include page="/include/b.jsp">
+			<jsp:param value="abcd" name="username"/>
+		</jsp:include>
+		在  b.jsp 页面可以通过 request.getParameter("username") 获取到传入的请求参数. 
+		
+<jsp:include>标签与include指令的比较 
+	1.<jsp:include>标签是在当前JSP页面的执行期间插入被引入资源的输出内容，当前JSP页面与被动态引入的资源是两个彼此独立的执行实体，
+	被动态引入的资源必须是一个能独立被WEB容器调用和执行的资源。
+	*include指令只能引入遵循JSP格式的文件，被引入文件与当前JSP文件共同合被翻译成一个Servlet的源文件。 
+	2.使用<jsp:include>标签和include指令都可以把一个页面的内容分成多个组件来生成，开发者不必再把页眉和页脚部分的相同HTML代码
+	复制到每个JSP文件中，从而可以更轻松地完成维护工作，但是都应注意最终的输出结果内容应遵循HTML语法结构，例如，
+	如果当前页面产生了<html>、</html>、<body>、</body>等标记，那么在被引入文件中就不能再输出<html>、</html>、<body>、</body>等标记。 
+	3.*<jsp:include>标签对JSP引擎翻译JSP页面的过程不起作用，它是在JSP页面的执行期间才被调用，因此不会影响两个页面的编译。
+	由于include指令是在JSP引擎翻译JSP页面的过程中被解释处理的，所以它对JSP引擎翻译JSP页面的过程起作用，如果多个JSP页面中都要
+	用到一些相同的声明，那么就可以把这些声明语句放在一个单独的文件中编写，然后在每个JSP页面中使用include指令将那个文件包含进来。 
+
+JSP取得绝对路径
+	在JavaWeb开发中，常使用绝对路径的方式来引入JavaScript和CSS文件，这样可以避免因为目录变动导致引入文件找不到的情况，常用的做法如下：
+	一、使用${pageContext.request.contextPath}
+	　　代码” ${pageContext.request.contextPath}”的作用是取出部署的应用程序名，这样不管如何部署，所用路径都是正确的。
+	例如：
+		<!--使用绝对路径的方式引入CSS文件-->
+		<link rel="stylesheet" href="${pageContext.request.contextPath}/themes/default/css/ueditor.css" type="text/css"/>
+		<!--使用绝对路径的方式引入JavaScript脚本-->
+		<script type="text/javascript" src="${pageContext.request.contextPath}/ueditor1_3_6-gbk-jsp/ueditor.config.js"></script>
+		
+		使用<%=request.getContextPath()%>和使用${pageContext.request.contextPath}达到同样的效果
+		<script type="text/javascript" src="<%=request.getContextPath()%>/ueditor1_3_6-gbk-jsp/ueditor.all.js"></script>
+		
+		filepath="resource/train.txt";
+		在Web开发中尽量使用绝对路径，前一段路径无论是用的Windows或Linux开发，都可以利用 ServletActionContext.getServletContext().getRealPath(path);
+		
+		String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+"/"; 

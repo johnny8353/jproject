@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>title</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+</head>
+<body>
+<div id="content">
+  <div id="position">当前位置：常用场景&gt;新增数据&gt;页面跳转</div>
+  <table cellspacing="0" cellpadding="0" class="tb_title">
+    <tr>
+      <td class="icon_note">单据列表
+</td>
+      <td class="tb_btn"><input name="" type="button" value="新增" class="button" onClick="location.href='addInfo.html'"/></td>
+    </tr>
+  </table>
+  <table cellpadding="0" cellspacing="1" class="tb_datalist" id="chk_list">
+    <thead>
+      <tr class="tr_title">
+        <td width="18%">资源编号</td>
+        <td width="11%">图书名称</td>
+        <td width="9%">图书数量</td>
+        <td width="8%">图书类型</td>
+        <td width="9%">本书编号</td>
+        <td width="10%">所属书架</td>
+        <td width="10%">所属地区</td>
+        <td width="10%">负责人</td>
+        <td width="11%">操作</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>BOSZ-010-0001-TPB</td>
+        <td>单片机原理</td>
+        <td>3</td>
+        <td>计算机</td>
+        <td>1024587530</td>
+        <td>WB_21</td>
+        <td>深圳</td>
+        <td>黄胜10023465</td>
+        <td><a href="addInfo.html" >修改</a> <a href="#">删除</a></td>
+      </tr>
+      <tr>
+        <td>BOSZ-010-0002-TPB</td>
+        <td>财富</td>
+        <td>5</td>
+        <td>杂志</td>
+        <td>1365478952</td>
+        <td>WC_13</td>
+        <td>深圳</td>
+        <td>黄胜10023465</td>
+        <td><a href="addInfo.html" >修改</a> <a href="#">删除</a></td>
+      </tr>
+      <tr>
+        <td>BOSZ-010-0003-TPB</td>
+        <td>红楼梦</td>
+        <td>2</td>
+        <td>小说</td>
+        <td>321456987d</td>
+        <td>EA_36</td>
+        <td>深圳</td>
+        <td>黄胜10023465</td>
+        <td><a href="addInfo.html" >修改</a> <a href="#">删除</a></td>
+      </tr>
+    </tbody>
+    <tr class="tr_pagenumber">
+      <td colspan="9"> 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+        <select name="select" >
+          <option selected>10</option>
+          <option >20</option>
+          <option>20</option>
+          <option>40</option>
+          <option>50</option>
+          <option>全部</option>
+        </select>
+        行 <img src="../../images/icons/firstpage.gif"  title="首页" class="paginate"/> <img src="../../images/icons/prepage.gif"  title="上一页" class="paginate"/>
+        <input type="text" name="textfield" class="page_txt" />
+        <input type="button" name="button" value="Go" class="btn_go" />
+        <img src="../../images/icons/nextpage.gif"  title="下一页" class="paginate"/> <img src="../../images/icons/lastpage.gif"  title="末页" class="paginate"/></td>
+    </tr>
+  </table>
+
+</div>
+</body>
+</html>

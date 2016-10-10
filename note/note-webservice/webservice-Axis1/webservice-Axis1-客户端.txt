@@ -1,0 +1,116 @@
+	4.客户端Dynamic Invocation Interface ( DII)方式 实现如下：
+		import org.apache.axis.client.Call;
+		import org.apache.axis.client.Service;
+		
+		/**
+		 * axis client
+		 * @author Michael sun
+		 */
+		public class TestClient {
+		
+		    /**
+		     * @param args
+		     * @throws Exception
+		     */
+		    public static void main(String[] args) throws Exception {
+		        String wsdlUrl = "http://localhost:8082/axis/SayHello.jws";
+		        // String wsdlUrl=”http://localhost:8080/axis/SayHello.jws?wsdl”
+		        Service s = new Service();
+		        Call call = (Call) s.createCall();
+		        call.setOperationName("sayMsg");// 这里是要调用的方法名
+		        call.setTargetEndpointAddress(wsdlUrl);// 设置调用的wsdl
+		        String val = (String) call.invoke(new Object[] { "My Michael Sun" });
+		        System.out.println("这是webservice服务器返回的信息:" + val);
+		    }
+		}
+	5.客户端Dynamic Proxy方式 实现如下：
+		public interface SayHelloInterface extends java.rmi.Remote {
+		    public String sayMsg(String name) throws java.rmi.RemoteException;
+		}
+		import java.net.URL;
+ 
+		import javax.xml.namespace.QName;
+		import javax.xml.rpc.Service;
+		import javax.xml.rpc.ServiceFactory;
+		 
+		/**
+		 * test Dynamic Proxy client
+		 * @author Michael sun
+		 */
+		public class TestProxyClient {
+		 
+		    /**
+		     * @param args
+		     * @throws Exception
+		     */
+		    public static void main(String[] args) throws Exception {
+		        String wsdlname = "http://localhost:8088/axis/SayHello.jws?wsdl";
+		        // 服务路径
+		        String namespaceUrl = "http://localhost:8088/axis/SayHello.jws";
+		        // 服务名
+		        String serviceName = "SayHelloService";
+		        // 服务
+		        String portName = "SayHello";
+		        // 创建代理对像
+		        ServiceFactory service = ServiceFactory.newInstance();
+		        // 创建远程服务
+		        Service s = service.createService(new URL(wsdlname), new QName(
+		                namespaceUrl, serviceName));
+		 
+		        SayHelloInterface proxy = (SayHelloInterface) s.getPort(new QName(
+		                namespaceUrl, portName), SayHelloInterface.class);
+		        System.out.println(proxy.sayMsg("Blue boy!"));
+		    }
+		}
+	6.Stub的方式
+		需要生成客户端代码，可以使用Eclipse自带的生成客户端代码工具
+		推荐使用Eclipse自带的webservice client生成客户带代码，较为简单高效
+		
+		import java.net.URL;
+ 
+		import javax.xml.namespace.QName;
+		 
+		import org.apache.axis.client.Call;
+		import org.apache.axis.client.Service;
+		import org.apache.axis.encoding.ser.BeanDeserializerFactory;
+		import org.apache.axis.encoding.ser.BeanSerializerFactory;
+		 
+		import stubclient.UserBean;
+		 
+		/**
+		 * test stub client
+		 * @author Michael sun
+		 */
+		public class TestStubClient {
+		 
+		    /**
+		     * @param args
+		     * @throws Exception
+		     */
+		    public static void main(String[] args) throws Exception {
+		        QName qname = new QName("http://wsaxis.michael.com", "user");
+		        Service s = new Service();
+		        Call call = (Call) s.createCall();
+		        // 注册这个bean为可序列化的.传递参数
+		        call.registerTypeMapping(UserBean.class, qname,
+		                new BeanSerializerFactory(UserBean.class, qname),
+		                new BeanDeserializerFactory(UserBean.class, qname));
+		        // 设置一下调用方法名.
+		        call.setOperationName("getBeanStr");
+		 
+		        // 设置一下这个服务的绝对路径.
+		        call.setTargetEndpointAddress(new URL(
+		                "http://localhost:8082/axis/services/MessageService?wsdl"));
+		        // 实例化一个UserBean,这个UserBean是生成client的UserBean
+		        UserBean u = new UserBean();
+		        u.setAge(28);
+		        u.setUserName("Michael");
+		        // 通知方法,并返回结果
+		        String str = (String) call.invoke(new Object[] { u });
+		 
+		        System.out.println("web service 返回信息：" + str);
+		 
+		    }
+		 
+		}
+	

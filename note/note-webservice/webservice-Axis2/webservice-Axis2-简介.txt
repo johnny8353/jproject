@@ -1,0 +1,141 @@
+Axis2是目前比较流行的WebService引擎。WebService被应用在很多不同的场景。例如，可以使用WebService来发布服务端 Java类的方法，以便使用不同的客户端进行调用。
+这样可以有效地集成多种不同的技术来完成应用系统。WebService还经常被使用在SOA中，用于 SOA各个部分交换数据。
+
+下载地址：http://archive.apache.org/dist/axis/axis2/java/core/
+
+本课程重点讲解了Axis2的核心功能，并提供了三个项目以使大家理解并掌握如何将Axis2应用于不同的场景。
+本课程站在初学者角度介绍了Axis2的大多数常用的功能，例如：以多种方式编写和发布WebService、JAX-RPC、JAX-WS、复杂类型传输、WebService会话管理、Axis2模块等
+	- Axis2是一套崭新的WebService引擎，该版本是对Axis1.x重新设计的产物。
+	- Axis2不仅支持SOAP1.1和SOAP1.2，还集成了非常流行的REST WebService，同时还支持Spring、JSON等技术。这些都将在后面的系列教程中讲解。
+
+axis2 web服务器搭建	
+	解压axis2-1.6.0-war.zip后得到一个axis2.war的文件，将该文件复制到apache-tomcat-6.0.32\webapps目录下
+	启动tomcat，之后会自动生成一个axis2的文件夹，在浏览器中输入http://localhost:8080/axis2/看到axis2界面，说明服务器搭建完成
+	
+	
+	插件下载：Eclipse axis2插件下载
+	- axis2-eclipse-codegen-plugin-1.6.2.zip
+	- axis2-eclipse-service-plugin-1.6.2.zip
+	安装插件：解压axis2-eclipse-codegen-plugin-1.6.2.zip和axis2-eclipse-service-plugin-1.6.2.zip，把得到的两个jar包放入eclipse目录下的\plugins\中，重启eclipse
+	
+	axis2单独部署-打包-发布接口：
+		1-编写要发布的接口以及实现类
+		2-打jar包，		不需要了-放在axis2的lib目录下
+		3-根据jar包产生aar包
+			-new -other-Axis2 Wizards -Axis2 Service Archiver-
+			-Class File Location: 选择class的目录 编译后的目录
+			-选择skip wsdl -next
+			-Add extend library:点击brows 选择前面已经打包好jar包，点击add next 
+			-选中复选框next
+			-选择发布的方法
+				Service Name:MyHelloWS
+				Class Name:com.johnny.webservice.axis2.helloworld.HelloWS
+			-选择arr导出目录
+		4-aar包放在\WEB-INF\services 目录下
+		5-重启web服务，查看发布的接口 - http://localhost:8082/axis2/services/MyHelloWS?wsdl
+		
+	axis2集成部署-不打包-发布
+		- 在WEB-INF目录下新建web.xml文件
+			<?xml version="1.0" encoding="UTF-8"?>
+			<web-app id="wmf" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+				<servlet>
+					<servlet-name>AxisServlet</servlet-name>
+					<servlet-class>org.apache.axis2.transport.http.AxisServlet</servlet-class>
+					<load-on-startup>1</load-on-startup>
+				</servlet>
+				<servlet-mapping>
+					<servlet-name>AxisServlet</servlet-name>
+					<url-pattern>/services/*</url-pattern>
+				</servlet-mapping>
+			</web-app>
+		- 把tomcat安装目录下的webapps/axis2/WEB-INF下的modules、service和conf文件件拷至HelloWorld下的WEB-INF目录下。
+		- 把lib下的如下jar包夜拷过去，以下jar包已经是最精简的了。
+		- 发布 service 两种方式：
+			- 方法1:然后再services下新建HelloWorld/META-INF路径，META-INF下新建services.xml，内容如下
+				<service name="HelloWorld">
+					<description>
+						HelloWorld Service Example
+				    </description>
+					<parameter name="ServiceClass">
+						com.dm.service.HelloWorld  
+				    </parameter>
+					<operation name="sayHello">
+						<messageReceiver class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+					</operation>
+					<operation name="saySorry">
+						<messageReceiver class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+					</operation>
+					<operation name="getWorld">
+						<messageReceiver class="org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver" />
+					</operation>
+				</service>
+			-方法2：根据jar包产生aar包，aar包放在\WEB-INF\services 目录下，arr打开无法进行阅读。
+			
+		**推荐使用service.xml来发布服务，因为可以结构清晰，可以通过配置文件了解发布了哪些服务。
+		
+		- 查看发布的接口
+			启动tomcat后访问http://localhost:8080/johnny/services/HelloWorld?wsdl能看到服务信息了。
+			
+	- 集成出现的问题
+		访问：http://localhost:8077/johnny/axis2-admin/
+		出现错误HTTP ERROR 404等错误
+		
+		- 拷贝WEB-INF/view tags 到工程下，需要配置web.xml，
+		<servlet>
+	        <display-name>Apache-Axis AxisAdmin Servlet (Web Admin)</display-name>
+	        <servlet-name>AxisAdminServlet</servlet-name>
+	        <servlet-class>org.apache.axis2.webapp.AxisAdminServlet</servlet-class>
+	    </servlet>
+	    
+	    <servlet-mapping>
+	        <servlet-name>AxisAdminServlet</servlet-name>
+	        <url-pattern>/axis2-admin/*</url-pattern>
+	    </servlet-mapping>	
+	    
+	    - AxisAdminServlet 类 需要在axis2.war下的WEB-INF/class下找到，并打成jar包，引入到工程下
+	    	做法：把org目录拷贝到E盘，然后doc执行如下命令，把生成后的jar放在maven库中
+	   		E:\>jar cvf axis2-webapp-1.7.3.jar org/*
+	   	
+	   		<dependency>
+				<groupId>org.apache.axis2</groupId>
+				<artifactId>axis2-webapp</artifactId>
+				<version>${axis2.version}</version>
+				<type>jar</type>
+				<scope>compile</scope>
+			</dependency>
+	   		
+	   	- 再次访问出现登录界面，默认密码在conf/axis2.xml下修改
+	   		<parameter name="userName">admin</parameter>
+			<parameter name="password">axis2</parameter>
+	
+	集成发布查看所有服务
+		- 引入 axis2所需的jar包
+		- 拷贝 axis2.war下的axis2-web 目录，还有WEB-INF下include conf	modules services 目录
+		- 重启访问 http://localhost:8077/johnny/services/listServices
+		
+	发布POJO
+		在SimpleService类中有两个方法，由于这两个方法都是public方法，因此，它们都将作为WebService方法被发布。
+		编译SimpleService类后，将SimpleService.class文件放到<Tomcat安装目录>\webapps\axis2\WEB-INF\pojo目录中（如果没有pojo目录，则建立该目录）。
+		现在我们已经成功将SimpleService类发布成了WebService。在浏览器地址栏中输入如下的URL：
+	    	http://localhost:8080/axis2/services/listServices
+		  
+		在浏览器地址栏中输入如下的两个URL来分别测试getGreeting和getPrice方法：
+	      http://localhost:8080/axis2/services/SimpleService/getGreeting?name=bill
+	      http://localhost:8080/axis2/services/SimpleService/getPrice
+		  
+		在编写、发布和测试0配置的WebService时应注意如下几点：
+	      1. POJO类不能使用package关键字声明包。
+	      2. Axis2在默认情况下可以热发布WebService，也就是说，将WebService的.class文件复制到pojo目录中时，Tomcat不需要重新启动就可以自动发布WebService。
+	      	如果想取消Axis2的热发布功能，可以打开<Tomcat安装目录>\webapps\axis2\WEB-INF\conf\axis2.xml，找到如下的配置代码：
+	      	<parameter name="hotdeployment">true</parameter>
+	      	将true改为false即可。要注意的是，Axis2在默认情况下虽然是热发布，但并不是热更新，也就是说，一旦成功发布了WebService，再想更新该WebService，就必须重启Tomcat。
+	      	这对于开发人员调试WebService非常不方便，因此，在开发WebService时，可以将Axis2设为热更新。
+	      	在axis2.xml文件中找到<parameter name="hotupdate">false</parameter>，将false改为true即可。
+	      3. 在浏览器中测试WebService时，如果WebService方法有参数，需要使用URL的请求参数来指定该WebService方法参数的值，请求参数名与方法参数名要一致，
+	      		例如，要测试getGreeting方法，请求参数名应为name，如上面的URL所示。
+	      4. 发布WebService的pojo目录只是默认的，如果读者想在其他的目录发布WebService，可以打开axis2.xml文件，并在<axisconfig>元素中添加如下的子元素：
+	      	<deployer extension=".class" directory="my"  class="org.apache.axis2.deployment.POJODeployer"/>
+	      	上面的配置允许在<Tomcat安装目录>\webapps\axis2\WEB-INF\my目录中发布WebService。例如，将本例中的SimpleService.class复制到my目录中也可以成功发布
+	      	（但要删除pojo目录中的SimpleService.class，否则WebService会重名）。	

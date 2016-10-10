@@ -1,0 +1,179 @@
+1. 基础概念篇
+	HTTP是Hyper Text Transfer Protocol（超文本传输协议）的缩写。它的发展是万维网协会（World Wide Web Consortium）和Internet工作小组IETF
+	（Internet Engineering Task Force）合作的结果，（他们）最终发布了一系列的RFC，
+	HTTP是一个属于应用层的面向对象的协议，由于其简捷、快速的方式，适用于分布式超媒体信息系统。
+
+	RFC 1945定义了HTTP/1.0版本。其中最著名的就是RFC 2616。RFC 2616定义了今天普遍使用的一个版本——HTTP 1.1。
+	
+	为了提高用户使用浏览器时的性能，现代浏览器还支持并发的访问方式，浏览一个网页时同时建立多个连接，以迅速获得一个网页上的多个图标，这样能更快速完成整个网页的传输。
+	HTTP1.1中提供了这种持续连接的方式，而下一代HTTP协议：HTTP-NG更增加了有关会话控制、丰富的内容协商等方式的支持，来提供更高效率的连接。
+
+HTTP协议的主要特点可概括如下：
+	1.支持客户/服务器模式。
+	2.简单快速：客户向服务器请求服务时，只需传送请求方法和路径。请求方法常用的有GET、HEAD、POST。每种方法规定了客户与服务器联系的类型不同。由于HTTP协议简单，
+	使得HTTP服务器的程序规模小，因而通信速度很快。
+	3.灵活：HTTP允许传输任意类型的数据对象。正在传输的类型由Content-Type加以标记。
+	4.无连接：无连接的含义是限制每次连接只处理一个请求。服务器处理完客户的请求，并收到客户的应答后，即断开连接。采用这种方式可以节省传输时间。
+	5.无状态：HTTP协议是无状态协议。无状态是指协议对于事务处理没有记忆能力。缺少状态意味着如果后续处理需要前面的信息，则它必须重传，这样可能导致每次连接传送的数据量增大。
+	另一方面，在服务器不需要先前信息时它的应答就较快。
+
+ 一、HTTP协议详解之URL篇
+
+    http（超文本传输协议）是一个基于请求与响应模式的、无状态的、应用层的协议，常基于TCP的连接方式，HTTP1.1版本中给出一种持续连接的机制，绝大多数的Web开发，
+	都是构建在HTTP协议之上的Web应用。
+
+	HTTP URL (URL是一种特殊类型的URI，包含了用于查找某个资源的足够的信息)的格式如下：
+	http://host[":"port][abs_path]
+	http表示要通过HTTP协议来定位网络资源；host表示合法的Internet主机域名或者IP地址；port指定一个端口号，为空则使用缺省端口80；abs_path指定请求资源的URI；
+	如果URL中没有给出abs_path，那么当它作为请求URI时，必须以“/”的形式给出，通常这个工作浏览器自动帮我们完成。
+	eg:
+	1、输入：www.guet.edu.cn
+	浏览器自动转换成：http://www.guet.edu.cn/
+	2、http:192.168.0.116:8080/index.jsp 
+	
+工作流程
+	一次HTTP操作称为一个事务，其工作过程可分为四步：
+	1）首先客户机与服务器需要建立连接。只要单击某个超级链接，HTTP的工作开始。
+	2）建立连接后，客户机发送一个请求给服务器，请求方式的格式为：统一资源标识符（URL）、协议版本号，后边是MIME信息包括请求修饰符、客户机信息和可能的内容。
+	3）服务器接到请求后，给予相应的响应信息，其格式为一个状态行，包括信息的协议版本号、一个成功或错误的代码，后边是MIME信息包括服务器信息、实体信息和可能的内容。
+	4）客户端接收服务器所返回的信息通过浏览器显示在用户的显示屏上，然后客户机与服务器断开连接。
+	如果在以上过程中的某一步出现错误，那么产生错误的信息将返回到客户端，有显示屏输出。对于用户来说，这些过程是由HTTP自己完成的，用户只要用鼠标点击，等待信息显示就可以了
+	
+
+1．HTTP请求格式：
+	<request line>		-	请求行、
+	<headers>			-	消息报头、
+	<blank line>
+		
+	[<request-body>]	-	请求正文
+
+	在HTTP请求中，第一行必须是一个请求行（request line），用来说明请求类型、要访问的资源以及使用的HTTP版本。
+	紧接着是一个首部（header）小节，用来说明服务器要使用的附加信息。在首部之后是一个空行，再此之后可以添加任意的其他数据[称之为主体（body）]。
+
+2．GET与POST区别
+	请求行中的GET称之为请求方式，请求方式有：
+		POST、GET、HEAD、OPTIONS、DELETE、TRACE、PUT
+	常用的有： GET、 POST
+	用户如没有设置，默认情况下浏览器向服务器发送的都是get请求，例如在浏览器直接输地址访问，点超链接访问等都是get，用户如想把请求方式改为post，可通过更改表单的提交方式实现。
+	不管POST或GET，都用于向服务器请求某个WEB资源，这两种方式的区别主要表现在数据传递上：
+
+	GET与POST方法有以下区别：
+	
+	（1）   在客户端，Get方式在通过URL提交数据，数据在URL中可以看到；POST方式，数据放置在HTML HEADER内提交。
+	
+	（2）   GET方式提交的数据最多只能有1024字节，而POST则没有此限制。
+	
+	（3）   安全性问题。正如在（1）中提到，使用 Get 的时候，参数会显示在地址栏上，而 Post 不会。
+	所以，如果这些数据是中文数据而且是非敏感数据，那么使用 get；如果用户输入的数据不是中文字符而且包含敏感数据，那么还是使用 post为好。
+	
+	（4）   安全的和幂等的。所谓安全的意味着该操作用于获取信息而非修改信息。幂等的意味着对同一 URL 的多个请求应该返回同样的结果。完整的定义并不像看起来那样严格。
+	换句话说，GET 请求一般不应产生副作用。从根本上讲，其目标是当用户打开一个链接时，她可以确信从自身的角度来看没有改变资源。比如，新闻站点的头版不断更新。
+	虽然第二次请求会返回不同的一批新闻，该操作仍然被认为是安全的和幂等的，因为它总是返回当前的新闻。反之亦然。POST 请求就不那么轻松了。
+	POST 表示可能改变服务器上的资源的请求。仍然以新闻站点为例，读者对文章的注解应该通过 POST 请求实现，因为在注解提交之后站点已经不同了（比方说文章下面出现一条注解）。
+	http://www.cnblogs.com/stu-acer/archive/2006/08/28/488802.html
+
+
+	GET与POST方法实例：
+		GET实例
+		GET /books/?name=Professional%20Ajax HTTP/1.1
+		
+		Host: www.wrox.com
+		User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.6)
+		Gecko/20050225 Firefox/1.0.1
+		Connection: Keep-Alive
+	
+		POST实例 
+		POST / HTTP/1.1			
+		
+		Host: www.wrox.com
+		User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.6)
+		Gecko/20050225 Firefox/1.0.1
+		Content-Type: application/x-www-form-urlencoded
+		Content-Length: 40
+		Connection: Keep-Alive
+		     （此处空一行）
+		name=Professional%20Ajax&publisher=Wiley
+
+ 3．表单提交中get和post方式的区别归纳如下几点：
+	（1）get是从服务器上获取数据，post是向服务器传送数据。
+	（2）对于表单的提交方式，在服务器端只能用Request.QueryString来获取Get方式提交来的数据，用Post方式提交的数据只能用Request.Form来获取。
+	（3）一般来说，尽量避免使用Get方式提交表单，因为有可能会导致安全问题。比如说在登陆表单中用Get方式，用户输入的用户名和密码将在地址栏中暴露无遗。但是在分页程序中，用Get方式就比用Post好。
+
+二．HTTP响应
+
+	1．HTTP响应格式：
+	<status line>	-	状态行、
+	<headers>		-	消息报头、
+	<blank line>
+	[<response-body>]	-	响应正文
+	
+	在响应中唯一真正的区别在于第一行中用状态信息代替了请求信息。状态行（status line）通过提供一个状态码来说明所请求的资源情况。 
+        
+       HTTP响应实例：
+		HTTP/1.1 200 OK
+		
+		Date: Sat, 31 Dec 2005 23:59:59 GMT
+		
+		Content-Type: text/html;charset=ISO-8859-1
+		
+		Content-Length: 122
+		
+		＜html＞
+		＜head＞
+		＜title＞Wrox Homepage＜/title＞
+		＜/head＞
+		＜body＞
+		＜!-- body goes here --＞
+		＜/body＞
+		＜/html＞
+ 
+
+	2．最常用的状态码有：
+	◆200 (OK): 找到了该资源，并且一切正常。
+	◆304 (NOT MODIFIED): 该资源在上次请求之后没有任何修改。这通常用于浏览器的缓存机制。
+	400 Bad Request  //客户端请求有语法错误，不能被服务器所理解
+	◆401 (UNAUTHORIZED): 客户端无权访问该资源。这通常会使得浏览器要求用户输入用户名和密码，以登录到服务器。
+	◆403 (FORBIDDEN): 客户端未能获得授权。这通常是在401之后输入了不正确的用户名或密码。
+	◆404 (NOT FOUND): 在指定的位置不存在所申请的资源。
+	500 Internal Server Error //服务器发生不可预期的错误
+	503 Server Unavailable  //服务器当前不能处理客户端的请求，一段时间后可能恢复正常
+		
+		
+	请求报头
+		请求报头允许客户端向服务器端传递请求的附加信息以及客户端自身的信息。
+		常用的请求报头
+		Accept
+			Accept请求报头域用于指定客户端接受哪些类型的信息。eg：Accept：image/gif，表明客户端希望接受GIF图象格式的资源；Accept：text/html，表明客户端希望接受html文本。
+		Accept-Charset
+			Accept-Charset请求报头域用于指定客户端接受的字符集。eg：Accept-Charset:iso-8859-1,gb2312.如果在请求消息中没有设置这个域，缺省是任何字符集都可以接受。
+		Accept-Encoding
+			Accept-Encoding请求报头域类似于Accept，但是它是用于指定可接受的内容编码。eg：Accept-Encoding:gzip.deflate.
+			如果请求消息中没有设置这个域服务器假定客户端对各种内容编码都可以接受。
+		Accept-Language
+			Accept-Language请求报头域类似于Accept，但是它是用于指定一种自然语言。eg：Accept-Language:zh-cn.如果请求消息中没有设置这个报头域，
+			服务器假定客户端对各种语言都可以接受。
+		Authorization
+			Authorization请求报头域主要用于证明客户端有权查看某个资源。当浏览器访问一个页面时，如果收到服务器的响应代码为401（未授权），
+			可以发送一个包含Authorization请求报头域的请求，要求服务器对其进行验证。
+		Host（发送请求时，该报头域是必需的）
+			Host请求报头域主要用于指定被请求资源的Internet主机和端口号，它通常从HTTP URL中提取出来的，eg：
+			我们在浏览器中输入：http://www.guet.edu.cn/index.html
+			浏览器发送的请求消息中，就会包含Host请求报头域，如下：
+			Host：www.guet.edu.cn
+			此处使用缺省端口号80，若指定了端口号，则变成：Host：www.guet.edu.cn:指定端口号
+		User-Agent
+			我们上网登陆论坛的时候，往往会看到一些欢迎信息，其中列出了你的操作系统的名称和版本，你所使用的浏览器的名称和版本，这往往让很多人感到很神奇，实际上，
+			服务器应用程序就是从User-Agent这个请求报头域中获取到这些信息。User-Agent请求报头域允许客户端将它的操作系统、浏览器和其它属性告诉服务器。不过，
+			这个报头域不是必需的，如果我们自己编写一个浏览器，不使用User-Agent请求报头域，那么服务器端就无法得知我们的信息了。
+		请求报头举例：
+		GET /form.html HTTP/1.1 (CRLF)
+		Accept:image/gif,image/x-xbitmap,image/jpeg,application/x-shockwave-flash,application/vnd.ms-excel,application/vnd.ms-powerpoint,application/msword,*/* (CRLF)
+		Accept-Language:zh-cn (CRLF)
+		Accept-Encoding:gzip,deflate (CRLF)
+		If-Modified-Since:Wed,05 Jan 2007 11:21:25 GMT (CRLF)
+		If-None-Match:W/"80b1a4c018f3c41:8317" (CRLF)
+		User-Agent:Mozilla/4.0(compatible;MSIE6.0;Windows NT 5.0) (CRLF)
+		Host:www.guet.edu.cn (CRLF)
+		Connection:Keep-Alive (CRLF)
+		
+	

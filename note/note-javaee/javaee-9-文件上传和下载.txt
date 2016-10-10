@@ -1,0 +1,81 @@
+文件上传和下载
+	在Web应用系统开发中，文件上传和下载功能是非常常用的功能，今天来讲一下JavaWeb中的文件上传和下载功能的实现。
+　　	对于文件上传，浏览器在上传的过程中是将文件以流的形式提交到服务器端的，如果直接使用Servlet获取上传文件的输入流然后再解析里面的请求参数是比较麻烦，
+	所以一般选择采用apache的开源工具common-fileupload这个文件上传组件。
+	这个common-fileupload上传组件的jar包可以去apache官网上面下载，也可以在struts的lib文件夹下面找到，struts上传的功能就是基于这个实现的。
+	common-fileupload是依赖于common-io这个包的，所以还需要下载这个包。
+
+基于表单的文件上传
+	如果在表单中使用表单元素 <input type=“file” />，浏览器在解析表单时，会自动生成一个输入框和一个按钮，输入框可供用户填写本地文件的文件名和路径名，
+	按钮可以让浏览器打开一个文件选择框供用户选择文件：
+	Enctype 属性
+		当表单需要上传文件时，需指定表单 enctype 的值为 multipart/form-data
+		在 form 元素的语法中，enctype 属性指定将数据发送到服务器时浏览器使用的编码类型。  
+		enctype 属性取值: 
+			1》application/x-www-form-urlencoded：表单 enctype 属性的默认值。这种编码方案使用有限的字符集，当使用了非字母和数字时，必须用”%HH”代替(H 代表十六进制数字)。
+			对于大容量的二进制数据或包含非 ASCII 字符的文本来说，这种编码不能满足要求。
+			2》multipart/form-data：form 设定了enctype=“multipart/form-data”属性后，表示表单以二进制传输数据 
+				
+Commons-fileupload 组件
+	Commons-fileupload 组件是 Apache 开源代码组织用来处理表单文件上传的一个子项目，该组件性能优异，可以支持任意大小的文件的上传
+	Commons-fileupload 组件从 1.1 版本开始依赖 Apache 的另一个项目：commons-io
+
+	Commons-fileupload 组件上传的基本原理 
+		FileUpload组件将页面提交的所有元素(普通form表单域，如text和文件域file)都看作一样的FileItem，这样上传页面提交的 request请求也就是一个FileItem的有序组合，
+		FileUpload组件可以解析该request，并返回一个一个的FileItem。而对每一个FileItem，FileUpload组件可以判断出它是普通form表单域还是文件file域，
+		从而根据不同的类型，采取不同的操作－－如果是表单域，就读出其值，如果是文件域，就保存文件到服务器硬盘上或者内存中。 
+		
+	Commons-fileupload 组件API
+	在 Commons-fileupload 组件中，主要用到以下三个接口和类：
+		⊙ServletFileUpload 负责处理上传的文件数据，并将每部分的数据封装成一到 FileItem 对象中。
+		⊙DiskFileItemFactory 是创建 FileItem 对象的工厂，在这个工厂类中可以配置内存缓冲区大小和存放临时文件的目录。
+		⊙ServletFileUpload 在接收上传文件数据时，会将内容保存到内存缓存区中，如果文件内容超过了 DiskFileItemFactory 指定的缓冲区的大小，
+		那么文件将被保存到磁盘上，存储为 DiskFileItemFactory 指定目录中的临时文件。等文件数据都接收完毕后，ServletUpload 在从文件中将数据写入到上传文件目录下的文件中
+				
+文件的下载
+	情景：在一些网络系统中，需要隐藏下载文件的真实地址，或者下载的文件需要一个程序来动态的确定后在传送给客户端
+	方案：利用程序编码实现下载
+		-可以增加安全访问控制，只对经过授权认证的用户提供下载
+		-可以从任意位置提供下载的数据
+	利用程序实现下载需要设置 2 个报头：
+		-Web 服务器需要告诉浏览器其所输出的内容的类型不是普通的文本文件或 HTML 文件，而是一个要保存到本地的下载文件。设置Content-Type 的值为：application/x-msdownload
+		-Web 服务器希望浏览器不直接处理相应的实体内容，而是由用户选择将相应的实体内容保存到一个文件中，这需要设置 Content-Disposition 报头。
+		该报头指定了接收程序处理数据内容的方式，在 HTTP 应用中只有 attachment 是标准方式，attachment 表示要求用户干预。
+		在 attachment 后面还可以指定 filename 参数，该参数是服务器建议浏览器将实体内容保存到文件中的文件名称。在设置 Content-Dispostion 之前一定要指定 Content-Type.	
+
+	因为要下载的文件可以是各种类型的文件，所以要将文件传送给客户端，其相应内容应该被当做二进制来处理，所以应该调用Response.getOutPutStream()方法
+	返回 ServeltOutputStream 对象来向客户端写入文件内容。                        
+
+
+文件上传步骤：
+	1.项目加入Apache的commons-fileupload文件上传组件的相关Jar包，如下图所示：
+		commons-fileupload.jar
+		common-io.jar
+	2.文件上传页面和消息提示页面
+		upload.jsp
+		message.jsp
+	3.处理文件上传的Servlet
+		UploadHandleServlet 
+	
+文件上传的细节
+　　上述的代码虽然可以成功将文件上传到服务器上面的指定目录当中，但是文件上传功能有许多需要注意的小细节问题，以下列出的几点需要特别注意的
+	　　1、为保证服务器安全，上传文件应该放在外界无法直接访问的目录下，比如放于WEB-INF目录下。
+	　　2、为防止文件覆盖的现象发生，要为上传文件产生一个唯一的文件名。
+	　　3、为防止一个目录下面出现太多文件，要使用hash算法打散存储。
+	　　4、要限制上传文件的最大值。
+	　　5、要限制上传文件的类型，在收到上传文件名时，判断后缀名是否合法。
+　　针对上述提出的5点细节问题，我们来改进一下UploadHandleServlet，改进后的代码如下：
+
+
+列出提供下载的文件资源
+　　	我们要将Web应用系统中的文件资源提供给用户进行下载，首先我们要有一个页面列出上传文件目录下的所有文件，当用户点击文件下载超链接时就进行下载操作，
+		1.编写一个ListFileServlet，用于列出Web应用系统中所有下载文件。
+		2.在Web.xml文件中配置ListFileServlet
+		3.展示下载文件的listfile.jsp页面
+		4.实现文件下载,编写一个用于处理文件下载的Servlet，DownLoadServlet
+		5.在Web.xml文件中配置DownLoadServlet
+
+			
+
+
+	

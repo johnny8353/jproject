@@ -1,0 +1,125 @@
+Java动态代理
+	之前为大家讲解过代理机制的操作，属于静态代理，特征是代理类和目标对象的类都是在编译期间确定下来，不利于程序的扩展。同时，每一个代理类只能为一个接口服务，这样一来程序开发中必然产生过多的代理。
+	最好可以通过一个代理类完成全部的代理功能。
+	动态代理是指客户通过代理类来调用其它对象的方法，并且是在程序运行时根据需要动态创建目标类的代理对象。
+		动态代理使用场合:
+		调试
+		远程方法调用
+		代理设计模式的原理: 
+	使用一个代理将对象包装起来, 然后用该代理对象取代原始对象. 任何对原始对象的调用都要通过代理. 代理对象决定是否以及何时将方法调用转到原始对象上
+	
+	Proxy ：专门完成代理的操作类，是所有动态代理类的父类。通过此类为一个或多个接口动态地生成实现类。
+		提供用于创建动态代理类和动态代理对象的静态方法
+		static Class<?>   	getProxyClass(ClassLoader loader, Class<?>... interfaces)  创建一个动态代理类所对应的Class对象
+		static Object		newProxyInstance(ClassLoader loader, Class<?>[] interfaces, InvocationHandler h)  直接创建一个动态代理对象
+		
+	1.创建一个实现接口InvocationHandler的类，它必须实现invoke方法，以完成代理的具体操作。
+		public Object invoke(Object theProxy, Method method, Object[] params) throws Throwable{
+			try
+		    {
+		         Object retval = method.invoke(targetObj, params);
+		         // Print out the result
+		         System.out.println(retval);
+		         return retval;
+		    }
+		    catch (Exception exc){}
+		 }
+	2.创建被代理的类以及接口
+	3.通过Proxy的静态方法
+		newProxyInstance(ClassLoader loader, Class[] interfaces, InvocationHandler h) 创建一个Subject接口代理
+		RealSubject target = new RealSubject();
+		// Create a proxy to wrap the original implementation
+		DebugProxy proxy = new DebugProxy(target);
+		// Get a reference to the proxy through the Subject interface
+		Subject sub = (Subject) Proxy.newProxyInstance(
+		            Subject.class.getClassLoader(),
+		            new Class[] { Subject.class }, proxy);
+
+	4.通过 Subject代理调用RealSubject实现类的方法
+    	String info = sub.say(“Peter", 24);
+    	System.out.println(info);
+    	
+ 动态代理与AOP（Aspect Orient Programming)
+	前面介绍的Proxy和InvocationHandler，很难看出这种动态代理的优势，下面介绍一种更实用的动态代理机制
+	使用Proxy生成一个动态代理时，往往并不会凭空产生一个动态代理，这样没有太大的意义。通常都是为指定的目标对象生成动态代理
+	这种动态代理在AOP中被称为AOP代理，AOP代理可代替目标对象，AOP代理包含了目标对象的全部方法。
+	但AOP代理中的方法与目标对象的方法存在差异：AOP代理里的方法可以在执行目标方法之前、之后插入一些通用处理
+	
+
+反射的缺点 Drawbacks of Reflection	
+	反射被广泛地用于那些需要在运行时检测或修改程序行为的程序中。这是一个相对高级的特性，只有那些语言基础非常扎实的开发者才应该使用它。
+	如果能把这句警示时刻放在心里，那么反射机制就会成为一项强大的技术，可以让应用程序做一些几乎不可能做到的事情。
+	尽管反射非常强大，但也不能滥用。如果一个功能可以不用反射完成，那么最好就不用。在我们使用反射技术时，下面几条内容应该牢记于心：						
+	性能第一 
+		Performance Overhead Because reflection involves types that are dynamically resolved, certain Java virtual machine 
+		optimizations can not be performed. Consequently, reflective operations have slower performance than their 
+		non-reflective counterparts, and should be avoided in sections of code which are called frequently in 
+		performance-sensitive applications. 
+		反射包括了一些动态类型，所以JVM无法对这些代码进行优化。因此，反射操作的效率要比那些非反射操作低得多。我们应该避免在经常被 执行的代码或对性能要求很高的程序中使用反射。
+	安全限制  
+		Security Restrictions Reflection requires a runtime permission which may not be present when running under a 
+		security manager. This is in an important consideration for code which has to run in a restricted security context,
+		 such as in an Applet. 
+		使用反射技术要求程序必须在一个没有安全限制的环境中运行。如果一个程序必须在有安全限制的环境中运行，如Applet，那么这就是个问题了。
+		  
+	内部暴露  
+		Exposure of Internals Since reflection allows code to perform operations that would be illegal in non-reflective code, 
+		  such as accessing  private fields and methods, the use of reflection can result in unexpected side-effects, 
+		  which may render code dysfunctional and may destroy portability. Reflective code breaks abstractions 
+		  and therefore may change behavior with upgrades of the platform. 
+		  由于反射允许代码执行一些在正常情况下不被允许的操作（比如访问私有的属性和方法），所以使用反射可能会导致意料之外的副作用－－代码有功能上的错误，
+		  降低可移植性。反射代码破坏了抽象性，因此当平台发生改变的时候，代码的行为就有可能也随着变化。
+			
+
+事例：
+package com.johnny.javase.proxy;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
+/**
+ * 使用Proxy生成一个动态代理时，往往并不会凭空产生一个动态代理，这样没有太大的意义。通常都是为指定的目标对象生成动态代理
+ * 这种动态代理在AOP中被称为AOP代理，AOP代理可代替目标对象，AOP代理包含了目标对象的全部方法。
+ * 但AOP代理中的方法与目标对象的方法存在差异：AOP代理里的方法可以在执行目标方法之前、之后插入一些通用处理
+ */
+class MyInvocationHandler2 implements InvocationHandler {
+	Object obj;// 被代理类对象的声明
+
+	public void setObject(Object obj) {
+		this.obj = obj;
+	}
+	// 执行动态代理对象的所有方法时，都会被替换成执行如下的invoke方法
+	@Override
+	public Object invoke(Object proxy, Method method, Object[] args)
+			throws Throwable {
+		HumanUtil h = new HumanUtil();
+		h.method1();
+
+		Object returnVal = method.invoke(obj, args);
+
+		h.method2();
+		return returnVal;
+	}
+}
+
+class MyProxy {
+	// 动态的创建一个代理类的对象
+	public static Object getProxyInstance(Object obj) {
+		MyInvocationHandler2 handler = new MyInvocationHandler2();
+		handler.setObject(obj);
+
+		return Proxy.newProxyInstance(obj.getClass().getClassLoader(), obj
+				.getClass().getInterfaces(), handler);
+	}
+}
+
+public class TestAOP {
+	public static void main(String[] args) {		
+		//*********
+		NikeClothFactory nike = new NikeClothFactory();
+		Object obj1 = MyProxy.getProxyInstance(nike);
+		ClothFactory cloth = (ClothFactory)obj1;
+		cloth.productCloth();
+	}
+}

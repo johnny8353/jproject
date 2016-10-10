@@ -1,0 +1,181 @@
+1、log4j已成为大型系统必不可少的一部分，log4j可以很方便的帮助我们在程序的任何位置输出所要打印的信息，便于我们对系统在调试阶段和正式运行阶段对问题分析和定位。
+	由于日志级别的不同，对系统的性能影响也是有很大的差距，日志级别越高，性能越高。 
+2、log4j主要分为error,warn,info,debug四个级别，也是使用最多的四种，日志级别从左至右依次增加。 
+3、log4j对系统性能的影响程度主要体现在以下几方面：   
+	a、日志输出的目的地，输出到控制台的速度比输出到文件系统的速度要慢。 
+	b、日志输出格式不一样对性能也会有影响，如简单输出布局(SimpleLayout)比格式化输出布局(PatternLayout)输出速度要快。
+	可以根据需要尽量采用简单输出布局格式输出日志信息。 
+	c、日志级别越低输出的日志内容就越多，对系统系能影响很大。 
+	d、日志输出方式的不同，对系统系能也是有一定影响的，采用异步输出方式比同步输出方式性能要高。 
+	e、每次接收到日志输出事件就打印一条日志内容比当日志内容达到一定大小时打印系能要低。 
+
+4、针对以上几点对系能的影响中的第4,5点，对日志配置文件做如下配置： 
+   a、设置日志缓存，以及缓存大小 
+		log4j.appender.A3.BufferedIO=true   
+		#Buffer单位为字节，默认是8K，IO BLOCK大小默认也是8K    
+		log4j.appender.A3.BufferSize=8192   
+    
+  	以上配置说明，当日志内容达到8k时，才会将日志输出到日志输出目的地。 
+  
+	b、设置日志输出为异步方式 
+		<appender name="DRFOUT" class="org.apache.log4j.DailyRollingFileAppender">    
+			<param name="File" value="logs/brws.log" />    
+			<param name="Append" value="true" />    
+			<param name="DatePattern" value="yyyy_MM_dd'.'" />    
+			<layout class="org.apache.log4j.PatternLayout">    
+				<param name="ConversionPattern" value="%d [%t] %-5p %l %x - %m%n" />    
+			</layout>    
+		</appender>
+		<appender name="ASYNCOUT" class="org.apache.log4j.AsyncAppender">    
+			<param name="BufferSize" value="512" />    
+			<appender-ref ref="DRFOUT" />    
+		</appender>    
+
+	同步情况：各线程直接获得输出流进行输出(线程间不需要同步)。 
+	异步情况：
+		1.各线程将日志写到缓存，继续执行下面的任务(这里是异步的) 
+		2.日志线程发现需要记日志时独占缓存(与此同时各线程等待，此时各线程是被阻塞住的)，从缓存中取出日志信息，获得输出流进行输出，将缓存解锁(各线程收到提醒，可以接着写日志了) 
+
+   		众所周知，磁盘IO操作、网络IO操作、JDBC操作等都是非常耗时的，日志输出的主要性能瓶颈也就是在写文件、写网络、写JDBC的时候。
+   		日志是肯定要记的，而要采用异步方式记，也就只有将这些耗时操作从主线程当中分离出去才真正的实现性能提升，也只有在线程间同步开销小于耗时操作时使用异步方式才真正有效 ！ 
+
+ 	 现在我们接着分别来看看这几种记录日志的方式： 
+	    a、将日志记录到本地文件 同样都是写本地文件Log4j本身有一个buffer处理入库，采用异步方式并不一定能提高性能(主要是如何配置好缓存大小)；
+			而线程间的同步开销则是非常大的！因此在使用本地文件记录日志时不建议使用异步方式。    
+	    b、将日志记录到JMS JMS本身是支持异步消息的，如果不考虑JMS消息创建的开销，也不建议使用异步方式。    
+		c、将日子记录到SOCKET 将日志通过Socket发送，纯网络IO操作不需要反馈，因此也不会耗时  
+	    d、将日志记录到数据库 众所周知JDBC是几种方式中最耗时的：网络、磁盘、数据库事务，都使JDBC操作异常的耗时，在这里采用异步方式入库倒是一个不错的选择。    
+		e、将日志记录到SMTP 同JDBC 
+
+5、异步输出日志工作原理   
+	AsyncAppender采用的是生产者消费者的模型进行异步地将Logging Event送到对应的Appender中。 
+	a、 生产者：外部应用了Log4j的系统的实时线程，实时将Logging Event传送进AsyncAppender里 
+	b、 中转：Buffer和DiscardSummary 
+	c、 消费者：Dispatcher线程和appenders 
+	工作原理： 
+	1） Logging Event进入AsyncAppender，AsyncAppender会调用append方法，在append方法中会去把logging Event填入Buffer中，当消费能力不如生产能力时，
+	AsyncAppender会把超出Buffer容量的Logging Event放到DiscardSummary中，作为消费速度一旦跟不上生成速度，中转buffer的溢出处理的一种方案。 
+	2）  AsyncAppender有个线程类Dispatcher，它是一个简单的线程类，实现了Runnable接口。它是AsyncAppender的后台线程。 
+
+	Dispatcher所要做的工作是： 
+	① 锁定Buffer，让其他要对Buffer进行操作的线程阻塞。 
+	② 看Buffer的容量是否满了，如果满了就将Buffer中的Logging Event全部取出，并清空Buffer和DiscardSummary
+	；如果没满则等待Buffer填满Logging Event，然后notify Disaptcher线程。 
+	③ 将取出的所有Logging Event交给对应appender进行后面的日志信息推送。 
+
+	以上是AsyncAppender类的两个关键点：append方法和Dispatcher类，通过这两个关键点实现了异步推送日志信息的功能，
+	这样如果大量的Logging Event进入AsyncAppender，就可以游刃有余地处理这些日志信息了。 
+
+
+	不久前在系统中完成了监控的功能，监控系统的信息量很大，用户对页面的每一个点击都会产生记录，每天下来的日志量有2G多，我用log4j把这些监控记录 放在日志里，然后进行异步处理，
+	但即使是这样，记录日志会对磁盘IO产生频繁的访问，而IO通常就是系统的瓶颈所在。于是对log4j配置进行一些调优就 成了必要。下面是我系统中的log4j配置：
+
+	
+	log4j.rootLogger=ERROR,fileout,stdout
+	log4j.logger.monitorLogger=INFO,monitorAppender
+	log4j.additivity.monitorLogger=false
+	
+	log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+	log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+	log4j.appender.stdout.layout.ConversionPattern=%d (%F:%L) %-5p %c - %m%n
+	
+	log4j.appender.fileout=org.apache.log4j.DailyRollingFileAppender
+	log4j.appender.fileout.File=logs/server_log.txt
+	log4j.appender.fileout.layout=org.apache.log4j.PatternLayout
+	log4j.appender.fileout.layout.ConversionPattern=%d [%t] (%F:%L) %-5p %c - %m%n
+	
+	log4j.appender.monitorAppender=org.apache.log4j.DailyRollingFileAppender
+	log4j.appender.monitorAppender.File=mtlogs/mt_log.txt
+	log4j.appender.monitorAppender.layout=org.apache.log4j.PatternLayout
+	log4j.appender.monitorAppender.layout.ConversionPattern=%m%n
+	log4j.appender.monitorAppender.DatePattern='.'yyyy-MM-dd-HH
+	log4j.appender.monitorAppender.BufferedIO=true
+	#Buffer单位为字节，默认是8K
+	log4j.appender.monitorAppender.BufferSize=8192
+	1）log4j.additivity.monitorLogger=false
+	这个选项用于控制监控logger的日志不会输出到rootlogger，否则无论会产生许多重复的数据，同时也会影响性能；
+
+	2）log4j.appender.monitorAppender.DatePattern='.'yyyy-MM-dd-HH
+	这个选项用于告诉DailyRollingFileAppender每小时输出日志，而不是默认的一天输出一次，因为监控日志的数据量很巨大，如果以天为单位输出，日志文件会很大（G级），而且再处理会很耗时。
+		其他一些输出选项还有：
+		1)'.'yyyy-MM: 每月 
+		2)'.'yyyy-ww: 每周 
+		3)'.'yyyy-MM-dd: 每天 
+		4)'.'yyyy-MM-dd-a: 每天两次 
+		5)'.'yyyy-MM-dd-HH: 每小时 
+		6)'.'yyyy-MM-dd-HH-mm: 每分钟 
+
+	3）log4j.appender.monitorAppender.BufferedIO=true
+	log4j.appender.monitorAppender.BufferSize=8192
+		这 个选项用于告诉log4j输出日志的时候采用缓冲的方式，而不是即时flush方式，并且设定了缓冲为8K，8K是默认值，可以根据日志输出的情况来修 改。
+		这个选项很重要，在测试中发现，当并发访问很高，例如每一秒100个并发以上，使用缓存跟不使用缓冲差距很大。具体数字我这里就不列出来了。
+		另外我想说的是，log4j输出缓冲日志是以8K为单位的，因为磁盘的一个block为8K，这样可以减少碎片，也就是说假设你设置缓存为18K，log4j在16K（8K*2)的时候就会输出），而不是18K。
+
+	4）组装输出内容之前可对logger的输出级别先进行判断而不要完全依赖log4j控制，因为组装输出日志内容也是要损耗效率的。
+        //若log4j并未开启info级日志记录，直接返回
+        if(!monitorLogger.isInfoEnabled()){
+            return;
+        }
+        StringBuilder log = new StringBuilder();
+        logSql.append(logPk+" ");
+        ...
+
+	5）使用异步输出 org.apache.log4j.AsyncAppender，异步输出必须使用xml方式配置才能支持，我把上面properties形式的配置文件用xml表达一下：
+		<?xml version="1.0" encoding="UTF-8"?>
+		<log4j:configuration debug="true">
+		
+		    <appender name="stdout"
+		        class="org.apache.log4j.ConsoleAppender">
+		        <layout class="org.apache.log4j.PatternLayout">
+		            <param name="ConversionPattern" value="%d (%F:%L) %-5p %c - %m%n" />
+		        </layout>
+		    </appender>
+		
+		    <appender name="fileout"
+		        class="org.apache.log4j.DailyRollingFileAppender">
+		        <layout class="org.apache.log4j.PatternLayout">
+		            <param name="ConversionPattern" value="%d [%t] (%F:%L) %-5p %c - %m%n" />
+		        </layout>
+		        <param name="File"
+		            value="logs/server_log.txt" />
+		    </appender>
+		
+		    <appender name="monitorAppender"
+		        class="org.apache.log4j.DailyRollingFileAppender">
+		        <layout class="org.apache.log4j.PatternLayout">
+		            <param name="ConversionPattern" value="%m%n" />
+		        </layout>
+		        <param name="DatePattern" value="'.'yyyy-MM-dd-HH" />        
+		        <param name="File" value="mtlogs/mt_log.txt" />
+		        <param name="BufferedIO" value="true" />
+		        <!-- 8K为一个写单元 -->
+		        <param name="BufferSize" value="8192" />
+		    </appender>
+		
+		    <appender name="async" class="org.apache.log4j.AsyncAppender">
+		        <appender-ref ref="monitorAppender"/>
+		    </appender>
+		    
+		    <root>
+		        <priority value="error" />
+		        <appender-ref ref="stdout" />
+		        <appender-ref ref="fileout" />
+		    </root>
+		    
+		    <category name="com.danga.MemCached">
+		        <priority value="error" />
+		        <appender-ref ref="fileout" />
+		    </category >
+		    
+		    <category name="com.opensymphony">
+		        <priority value="error" />
+		        <appender-ref ref="fileout" />
+		    </category >
+		    
+		    <category name="monitorLogger" additivity="false">
+		        <priority value="info" />
+		        <appender-ref ref="async" />
+		    </category >
+		</log4j:configuration>
+		
+		配置中红色的部分就是用于支持异步输出的，在用jmeter测试的过程中发觉使用异步方式，工作的不是很稳定。性能的提升也不显著。所以最后并没有采用。

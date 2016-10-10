@@ -1,0 +1,29 @@
+》在使用mybatis对数据库执行更新操作时，parameterType为某个具体的bean，而bean中传入的参数为null时，抛出异常如下：
+	Cause: java.sql.SQLException: 无效的列类型; nested exception is com.ibatis.common.jdbc.exception.NestedSQLException:   
+	解决办法一：
+		经过对代码分析，是由于未指定传入参数pxh的类型，当mybatis接收到null时，无法将其正确的进行解析，进而导致上述异常。
+		将mapper中代码修改如下：
+		<update id="update" parameterType="com.hsoft.mss.xtgl.model.Bean">
+	        update table
+	        <set>
+	                pxh  = #{pxh,jdbcType=NUMERIC}, //将pxh的类型指定为NUMERIC即可
+	                time = sysdate
+	        </set>
+	        where id = #{id,jdbcType=VARCHAR}
+		</update>
+		ibatis：
+		compliance_audit = #complianceAudit:VARCHAR#
+	解决办法二：
+		在配置文件mybatis-config.xml中加入如下代码：
+		<?xml version="1.0" encoding="UTF-8" ?>  
+		<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">  
+		<configuration>  
+		       ... 
+		    <settings>
+		        <setting name="jdbcTypeForNull" value="NULL" />
+		    </settings>
+		       ... 
+		</configuration>
+	 
+	
+	这样，即使传入参数为null，mybatis也能够将其转换成正确的数据类型，并进行存储操作。

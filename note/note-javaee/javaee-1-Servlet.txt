@@ -1,0 +1,591 @@
+Servlet-ServletConfig(获取ServletContext)-GenericServlet(Servlet 接口和 ServletConfig 接口的实现类)-HttpServlet(继承自 GenericServlet)
+
+Servlet简介
+	　　Servlet是sun公司提供的一门用于开发动态web资源的技术。
+	　　Sun公司在其API中提供了一个servlet接口，用户若想用发一个动态web资源(即开发一个Java程序向浏览器输出数据)，需要完成以下2个步骤：
+	　　1、编写一个Java类，实现servlet接口。
+	　　2、把开发好的Java类部署到web服务器中。
+	　　按照一种约定俗成的称呼习惯，通常我们也把实现了servlet接口的java程序，称之为Servlet
+	
+1. 使用 JavaEE 版的 Eclipse 开发动态的 WEB 工程(JavaWEB 项目)
+	1). 把开发选项切换到 JavaEE
+	2). 可以在 Window -> Show View 中找到 Package Explorer, 并把其拖拽到开发区的左边
+	3). 在 Servers 面板中新建 Tomcat 服务器. 一定要关联到 Tomcat 安装的根目录
+	4). 新建一个 Dynamic Web Project. 其中 Target Runtime 需选择 Tomcat6.0 
+	5). 开发 Java WEB 应用
+	6). 可以通过 run on server  来运行 WEB 项目. 
+
+Servlet容器响应客户请求的过程
+	1Servlet引擎检查是否已经装载并创建了该Servlet的实例对象。如果是，则直接执行第④步，否则，执行第②步。
+	2装载并创建该Servlet的一个实例对象：调用该 Servlet 的构造器 
+	3调用Servlet实例对象的init()方法。
+	4创建一个用于封装请求的ServletRequest对象和一个代表响应消息的ServletResponse对象，然后调用Servlet的service()方法并将请求和响应对象作为参数传递进去。
+	5WEB应用程序被停止或重新启动之前，Servlet引擎将卸载Servlet，并在卸载之前调用Servlet的destroy()方法。
+	
+Servlet的注册与运行 
+	Servlet程序必须通过Servlet容器来启动运行，并且储存目录有特殊要求，通需要存储在<WEB应用程序目录>\WEB-INF\classes\目录中。 
+	Servlet程序必须在WEB应用程序的web.xml文件中进行注册和映射其访问路径，才可以被Servlet引擎加载和被外界访问。
+	一个<servlet>元素用于注册一个Servlet，它包含有两个主要的子元素：<servlet-name>和<servlet-class>，分别用于设置Servlet的注册名称和Servlet的完整类名。 
+	一个<servlet-mapping>元素用于映射一个已注册的Servlet的一个对外访问路径，它包含有两个子元素：<servlet-name>和<url-pattern>，分别用于指定Servlet的注册名称和Servlet的对外访问路径。
+
+
+2. Servlet 的 HelloWorld
+	1). 创建一个 Servlet 接口的实现类. 
+	public class HelloServlet implements Servlet
+	
+	2). 在 web.xml 文件中配置和映射这个 Servlet
+	
+		<!-- 配置和映射 Servlet -->
+		<servlet>
+			<!-- Servlet 注册的名字 -->
+			<servlet-name>helloServlet</servlet-name>
+			<!-- Servlet 的全类名 -->
+			<servlet-class>com.johnny.javaweb.HelloServlet</servlet-class>
+		</servlet>
+		
+		<servlet-mapping>
+			<!-- 需要和某一个 servlet 节点的 serlvet-name 子节点的文本节点一致 -->
+			<servlet-name>helloServlet</servlet-name>
+			<!-- 映射具体的访问路径: / 代表当前 WEB 应用的根目录. -->
+			<url-pattern>/hello</url-pattern>
+		</servlet-mapping>
+
+3. Servlet 容器: 运行 Servlet、JSP、Filter 等的软件环境. 
+	1). 可以来创建 Servlet, 并调用 Servlet 的相关生命周期方法. 
+	2). JSP, Filter, Listener, Tag ...
+
+4. Servlet 生命周期的方法: 以下方法都是由 Serlvet 容器负责调用. 
+	1). 构造器: 只被调用一次. 只有第一次请求 Servlet 时, 创建 Servlet 的实例. 调用构造器. 
+	***这说明 Serlvet 的单实例的!
+	2). *init 方法: 只被调用一次. 在创建好实例后立即被调用. 用于初始化当前 Servlet. 
+	3). service: 被多次调用. 每次请求都会调用 service 方法. 实际用于响应请求的. 
+	4). *destroy: 只被调用一次. 在当前 Servlet 所在的 WEB 应用被卸载前调用. 用于释放当前 Servlet 所占用的资源. 
+
+5. load-on-startup 参数:
+	1).  配置在 servlet 节点中:
+		<servlet>
+			<!-- Servlet 注册的名字 -->
+			<servlet-name>secondServlet</servlet-name>
+			<!-- Servlet 的全类名 -->
+			<servlet-class>com.johnny.javaweb.SecondServlet</servlet-class>
+			<!-- 可以指定 Servlet 被创建的时机 -->
+			<load-on-startup>2</load-on-startup>
+		</servlet>
+		
+	2). load-on-startup: 可以指定 Serlvet 被创建的时机. 若为负数, 则在第一次请求时被创建.
+	*若为 0 或正数, 则在当前 WEB 应用被Serlvet 容器加载时创建实例, 且数组越小越早被创建. 
+
+6. 关于 serlvet-mapping：
+	
+	1). 同一个Servlet可以被映射到多个URL上，即多个 <servlet-mapping> 元素的<servlet-name>子元素的设置值可以是同一个
+	Servlet的注册名。 
+	
+	2). 在Servlet映射到的URL中也可以使用 * 通配符，但是只能有两种固定的格式：
+	一种格式是“*.扩展名”，另一种格式是以正斜杠（/）开头并以“/*”结尾。
+	
+	<servlet-mapping>
+		<servlet-name>secondServlet</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+	
+	OR
+	
+	<servlet-mapping>
+		<servlet-name>secondServlet</servlet-name>
+		<url-pattern>*.do</url-pattern>
+	</servlet-mapping>
+	
+	注意: 以下的既带 / 又带扩展名的不合法. 
+	
+	<servlet-mapping>
+		<servlet-name>secondServlet</servlet-name>
+		<url-pattern>/*.action</url-pattern>
+	</servlet-mapping>
+
+7. ServletConfig: 封装了 Serlvet 的配置信息, 并且可以获取 ServletContext 对象
+	1>Servlet在有些情况下可能需要访问Servlet容器或借助Servlet容器访问外部的资源，所以，Serlvet引擎需要将表示Servlet容器的对象传递给Servlet。
+	另外，在web.xml文件中为某个Servlet设置的友好名称和初始化参数等信息也需要传递给该Servlet
+	2>Servlet引擎将代表Servlet容器的对象(ServletContext)和Servlet的配置参数信息一并封装到一个称为ServletConfig的对象中，
+	并在初始化Servlet实例对象时传递给该Servlet。ServletConfig接口则用于定义ServletConfig对象需要对外提供的方法，以便在Servlet程序中可以调用这些方法来获取有关信息。
+	3>Servlet引擎调用Servlet的实例对象的init(ServletConfig config)方法将ServletConfig对象传递给Servlet。
+	Servlet.getServletConfig()方法返回init(ServletConfig config)方法传递进来的这个ServletConfig对象的引用。
+
+	
+	1). 配置 Serlvet 的初始化参数
+	
+		<servlet>
+			<servlet-name>helloServlet</servlet-name>
+			<servlet-class>com.johnny.javaweb.HelloServlet</servlet-class>
+			
+			<!-- 配置 Serlvet 的初始化参数。 且节点必须在 load-on-startup 节点的前面 -->
+			<init-param>
+				<!-- 参数名 -->
+				<param-name>user</param-name>
+				<!-- 参数值 -->
+				<param-value>root</param-value>
+			</init-param>
+			
+			<init-param>
+				<param-name>password</param-name>
+				<param-value>1230</param-value>
+			</init-param>
+			
+			<load-on-startup>-1</load-on-startup>
+			
+		</servlet>
+	
+	2). 获取初始化参数: 
+		> getInitParameter(String name): 获取指定参数名的初始化参数
+	    > getInitParameterNames(): 获取参数名组成的 Enumeration 对象. 
+	    
+	    String user = servletConfig.getInitParameter("user");
+		System.out.println("user： " + user);
+		
+		Enumeration<String> names = servletConfig.getInitParameterNames();
+		while(names.hasMoreElements()){
+			String name = names.nextElement();
+			String value = servletConfig.getInitParameter(name);
+			System.out.println("^^" + name + ": " + value);
+		}
+	
+	3). 获取 Serlvet 的配置名称(了解)
+		getServletName 
+		getServletContext 
+		
+8. ServletContext
+	1>Servlet引擎为每个WEB应用程序都创建一个对应的ServletContext对象，ServletContext对象被包含在ServletConfig对象中，
+	调用ServletConfig.getServletContext方法可以返回ServletContext对象的引用。
+	2>由于一个WEB应用程序中的所有Servlet都共享同一个ServletContext对象，所以，ServletContext对象被称之为 application 对象（Web应用程序对象）。  
+	功能：
+		获取WEB应用程序的初始化参数 
+		记录日志 
+		application域范围的属性 
+			application 对象（ServletContext对象）内部有一个哈希表集合对象，存储进application对象内的哈希表集合对象中的每对关键字/值被称为application对象的属性。 
+			存储在application对象中的属性也被称之为application域范围的属性，application域范围的属性可以被当作该WEB应用程序范围内的全局变量使用。 
+			ServletContext接口中定义了4个分别用于增加、删除、访问application域范围的属性的方法：
+				getAttributeNames方法 
+				getAttribute方法
+				removeAttribute方法 
+				setAttribute方法  
+		访问资源文件 
+		获取虚拟路径所映射的本地路径 
+		WEB应用程序之间的访问 
+		ServletContext的其他方法 
+
+	
+	1). 可以由  SerlvetConfig 获取:
+	ServletContext servletContext = servletConfig.getServletContext();
+
+	2). 该对象代表当前 WEB 应用: 可以认为 SerlvetContext 是当前 WEB 应用的一个大管家. 可以从中获取到当前 WEB 应用的各个方面的信息.
+	
+	①. 获取当前 WEB 应用的初始化参数
+	
+	设置初始化参数: 可以为所有的 Servlet 所获取, 而 Servlet 的初始化参数只用那个 Serlvet 可以获取. 
+	
+	<!-- 配置当前 WEB 应用的初始化参数 -->
+	<context-param>
+		<param-name>driver</param-name>
+		<param-value>com.mysql.jdbc.Driver</param-value>
+	</context-param>
+	
+	方法:
+	getInitParameter
+	getInitParameterNames	
+	
+	代码:
+	ServletContext servletContext = servletConfig.getServletContext();
+			
+	String driver = servletContext.getInitParameter("driver");
+	System.out.println("driver:" + driver);
+	
+	Enumeration<String> names2 = servletContext.getInitParameterNames();
+	while(names2.hasMoreElements()){
+		String name = names2.nextElement();
+		System.out.println("-->" + name); 
+	}
+	
+	②. 获取当前 WEB 应用的某一个文件在服务器上的绝对路径, 而不是部署前的路径
+	
+	getRealPath(String path);
+	
+	代码:
+	
+	String realPath = servletContext.getRealPath("/note.txt");
+	System.out.println(realPath);
+	
+	③. 获取当前 WEB 应用的名称: 
+	
+	getContextPath()
+		- ServletContext： getContextPath()	=	HttpServletRequest: getContextPath()
+	代码:
+	
+	String contextPath = servletContext.getContextPath();
+	System.out.println(contextPath); 
+	
+	④. 获取当前 WEB 应用的某一个文件对应的输入流. 
+	
+	getResourceAsStream(String path): path 的 / 为当前 WEB 应用的根目录. 
+	
+	代码:
+	
+	InputStream is2 = servletContext.getResourceAsStream("/WEB-INF/classes/jdbc.properties");
+		
+	⑤. 和 attribute 相关的几个方法: 	
+	
+9. GET 请求和 POST 请求:
+	
+	1). 使用GET方式传递参数:
+	
+	①. 在浏览器地址栏中输入某个URL地址或单击网页上的一个超链接时，浏览器发出的HTTP请求消息的请求方式为GET。 
+	②. 如果网页中的<form>表单元素的 method 属性被设置为了“GET”，浏览器提交这个FORM表单时生成的HTTP请求消息的请求方式也为GET。 
+	③. 使用GET请求方式给WEB服务器传递参数的格式：  
+	
+	http://www.johnny.com/counter.jsp?name=lc&password=123
+	
+	④. 使用GET方式传送的数据量一般限制在 1KB 以下。 
+	
+	2). 使用 POST 方式传递参数:
+	
+	①. POST 请求方式主要用于向 WEB 服务器端程序提交 FORM 表单中的数据: form 表单的 method 置为 POST
+	②. POST 方式将各个表单字段元素及其数据作为 HTTP 消息的实体内容发送给 WEB 服务器，传送的数据量要比使用GET方式传送的数据量大得多。  
+	
+	POST /counter.jsp HTTP/1.1
+	referer: http://localhost:8080/Register.html
+	content-type: application/x-www-form-urlencoded
+	host: localhost:8080
+	content-length: 43
+	
+	name=zhangsan&password=123              --请求体中传递参数. 
+	
+10. 如何在 Serlvet 中获取请求信息:
+	
+	1). Servlet 的 service() 方法用于应答请求: 因为每次请求都会调用 service() 方法
+	
+	public void service(ServletRequest request, ServletResponse response)
+				throws ServletException, IOException
+				
+	ServletRequest: 封装了请求信息. 可以从中获取到任何的请求信息.
+	ServletResponse: 封装了响应信息, 如果想给用户什么响应, 具体可以使用该接口的方法实现. 
+	
+	这两个接口的实现类都是服务器给予实现的, 并在服务器调用 service 方法时传入. 
+	
+	2). ServletRequest: 封装了请求信息. 可以从中获取到任何的请求信息.
+	
+	①. 获取请求参数: 
+	
+		> String getParameter(String name): 根据请求参数的名字, 返回参数值. 
+		若请求参数有多个值(例如 checkbox), 该方法只能获取到第一个提交的值. 
+	
+		> String[] getParameterValues(String name): 根据请求参数的名字, 返回请求参数对应的字符串数组. 
+		
+		> Enumeration getParameterNames(): 返回参数名对应的 Enumeration 对象, 
+		类似于 ServletConfig(或 ServletContext) 的 getInitParameterNames() 方法. 
+	
+		> Map getParameterMap(): 返回请求参数的键值对: key: 参数名,  value: 参数值, String 数组类型. 
+	
+	②. 获取请求的 URI:
+	
+		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+			
+		String requestURI = httpServletRequest.getRequestURI();
+		System.out.println(requestURI); //  /day_29/loginServlet
+	
+	③. 获取请求方式: 
+	
+		String method = httpServletRequest.getMethod();
+		System.out.println(method); //GET
+		
+	④. 若是一个 GET 请求, 获取请求参数对应的那个字符串, 即 ? 后的那个字符串. 
+	
+		String queryString = httpServletRequest.getQueryString();
+		System.out.println(queryString); //user=johnny&password=123456&interesting=game&interesting=party&interesting=shopping
+	
+	⑤. 获取请求的 Serlvet 的映射路径 
+	  
+	   String servletPath = httpServletRequest.getServletPath();
+	   System.out.println(servletPath);  //  /loginServlet
+	   
+	⑥. 和 attribute 相关的几个方法: 	 
+	存储在ServletRequest对象中的对象称之为请求域属性，属于同一个请求的多个处理模块之间可以通过请求域属性来传递对象数据。 
+		与请求域属性相关的方法：
+		setAttribute方法 
+		getAttribute方法  
+		removeAttribute方法
+		getAttributeNames方法 
+			  
+	获取网络连接信息 
+		getRemoteAddr方法返回发出请求的客户机的IP地址，其格式为“192.168.0.3”这种形式的字符文本。 （*） 
+		getRemoteHost方法返回发出请求的客户机的完整主机名，即“pc1.johnny.com”这种格式。
+		getRemotePort方法返回发出请求的客户机所使用的网络接口的端口号。
+		getLocalAddr方法返回WEB服务器上接收当前请求的网络接口的IP地址。
+		getLocalName方法返回WEB服务器上接收当前请求的网络接口的IP地址所对应的主机名。
+		getLocalPort方法返回WEB服务器上接收当前请求的网络接口的端口号。
+		getServerName方法返回当前请求所指向的主机名。 
+		getServerPort方法返回当前请求所连接的服务器端口号。
+		getScheme方法返回请求的协议名，例如http、https或ftp。
+	
+	3). HttpServletRequest: 是 SerlvetRequest 的子接口. 针对于 HTTP 请求所定义. 里边包含了大量获取 HTTP 请求相关的方法. 
+		获取请求头信息 
+			getHeader方法 
+			getHeaders方法 
+			getHeaderNames方法 
+			getIntHeader方法
+			getDateHeader方法
+			getContentType方法
+			getContentLength方法 
+			getCharacterEncoding方法 
+		获取请求参数 
+			getParameter方法
+			getParameterValues方法
+			getParameterNames方法 
+			getParameterMap方法 
+			
+	4). ServletResponse: 封装了响应信息, 如果想给用户什么响应, 具体可以使用该接口的方法实现. 
+	
+	①. *getWriter(): 返回 PrintWriter 对象. 调用该对象的 print() 方法, 将把 print() 中的参数直接打印
+	到客户的浏览器上. 
+	
+	②. 设置响应的内容类型: response.setContentType("application/msword");
+	
+	③. void sendRedirect(String location): 请求的重定向. (此方法为 HttpServletResponse 中定义.)
+	
+	-----------------------------------------------------------------------------
+	
+	在 web.xml 文件中设置两个 WEB 应用的初始化参数, user, password.
+	定义一个 login.html, 里边定义两个请求字段: user, password. 发送请求到 loginServlet
+	在创建一个 LoginServlet, 在其中获取请求的 user, password. 比对其和 web.xml 文件中定义的请求参数是否一致
+	若一致, 响应 Hello:xxx, 若不一致, 响应 Sorry: xxx  xxx 为 user.
+	
+	-----------------------------------------------------------------------------
+HttpServletRequestWrapper 和 HttpServletResponseWrapper
+	1). Servlet API 中提供了一个 HttpServletRequestWrapper 类来包装原始的 request 对象,
+	HttpServletRequestWrapper 类实现了 HttpServletRequest 接口中的所有方法, 
+	这些方法的内部实现都是仅仅调用了一下所包装的的 request 对象的对应方法
+	
+	//包装类实现 ServletRequest 接口. 
+	public class ServletRequestWrapper implements ServletRequest {
+	
+	    //被包装的那个 ServletRequest 对象
+	    private ServletRequest request;
+		
+		//构造器传入 ServletRequest 实现类对象
+	    public ServletRequestWrapper(ServletRequest request) {
+			if (request == null) {
+			    throw new IllegalArgumentException("Request cannot be null");   
+			}
+			this.request = request;
+	    }
+	
+		//具体实现 ServletRequest 的方法: 调用被包装的那个成员变量的方法实现。 
+	    public Object getAttribute(String name) {
+			return this.request.getAttribute(name);
+		}
+	
+	    public Enumeration getAttributeNames() {
+			return this.request.getAttributeNames();
+		}    
+		
+		//...	
+	}	
+	
+	相类似 Servlet API 也提供了一个 HttpServletResponseWrapper 类来包装原始的 response 对象
+	
+	2). 作用: 用于对 HttpServletRequest 或 HttpServletResponse 的某一个方法进行修改或增强.
+	
+	public class MyHttpServletRequest extends HttpServletRequestWrapper{
+	
+		public MyHttpServletRequest(HttpServletRequest request) {
+			super(request);
+		}
+		
+		@Override
+		public String getParameter(String name) {
+			String val = super.getParameter(name);
+			if(val != null && val.contains(" fuck ")){
+				val = val.replace("fuck", "****");//处理敏感信息
+			}
+			return val;
+		}
+	}
+
+1. GenericServlet:
+	
+	1). 是一个 Serlvet. 是 Servlet 接口和 ServletConfig 接口的实现类. 但是一个抽象类. 其中的 service 方法为抽象方法
+	
+	2). 如果新建的 Servlet 程序直接继承 GenericSerlvet 会使开发更简洁.
+	
+	3). 具体实现:
+	
+	①. 在 GenericServlet 中声明了一个 SerlvetConfig 类型的成员变量, 在 init(ServletConfig) 方法中对其进行了初始化 
+	②. 利用 servletConfig 成员变量的方法实现了 ServletConfig 接口的方法
+	③. 还定义了一个 init() 方法, 在 init(SerlvetConfig) 方法中对其进行调用, 子类可以直接覆盖 init() 在其中实现对 Servlet 的初始化. 
+	④. 不建议直接覆盖 init(ServletConfig), 因为如果忘记编写 super.init(config); 而还是用了 SerlvetConfig 接口的方法,
+	则会出现空指针异常. 
+	⑤. 新建的 init(){} 并非 Serlvet 的生命周期方法. 而 init(ServletConfig) 是生命周期相关的方法. 
+	
+	public abstract class GenericServlet implements Servlet, ServletConfig {
+	
+		/** 以下方法为 Servlet 接口的方法 **/
+		@Override
+		public void destroy() {}
+	
+		@Override
+		public ServletConfig getServletConfig() {
+			return servletConfig;
+		}
+	
+		@Override
+		public String getServletInfo() {
+			return null;
+		}
+	
+		private ServletConfig servletConfig;
+		
+		@Override
+		public void init(ServletConfig arg0) throws ServletException {
+			this.servletConfig = arg0;
+			init();
+		}
+	
+		public void init() throws ServletException{}
+	
+		@Override
+		public abstract void service(ServletRequest arg0, ServletResponse arg1)
+				throws ServletException, IOException;
+	
+		/** 以下方法为 ServletConfig 接口的方法 **/
+		@Override
+		public String getInitParameter(String arg0) {
+			return servletConfig.getInitParameter(arg0);
+		}
+	
+		@Override
+		public Enumeration getInitParameterNames() {
+			return servletConfig.getInitParameterNames();
+		}
+	
+		@Override
+		public ServletContext getServletContext() {
+			return servletConfig.getServletContext();
+		}
+	
+		@Override
+		public String getServletName() {
+			return servletConfig.getServletName();
+		}
+	
+	}
+	
+2. HttpServlet:
+	1). 是一个 Servlet, 继承自 GenericServlet. 针对于 HTTP 协议所定制. 
+	2). 在 service() 方法中直接把 ServletReuqest 和  ServletResponse 转为 HttpServletRequest 和 HttpServletResponse.
+	并调用了重载的 service(HttpServletRequest, HttpServletResponse)
+	
+	在 service(HttpServletRequest, HttpServletResponse) 获取了请求方式: request.getMethod(). 根据请求方式有创建了
+	doXxx() 方法(xxx 为具体的请求方式, 比如 doGet, doPost)
+	
+	@Override
+	 public void service(ServletRequest req, ServletResponse res)
+	    throws ServletException, IOException {
+	
+	    HttpServletRequest  request;
+	    HttpServletResponse response;
+	    
+	    try {
+	        request = (HttpServletRequest) req;
+	        response = (HttpServletResponse) res;
+	    } catch (ClassCastException e) {
+	        throw new ServletException("non-HTTP request or response");
+	    }
+	    service(request, response);
+	}
+	
+	public void service(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		//1. 获取请求方式.
+		String method = request.getMethod();
+		
+		//2. 根据请求方式再调用对应的处理方法
+		if("GET".equalsIgnoreCase(method)){
+			doGet(request, response);
+		}else if("POST".equalsIgnoreCase(method)){
+			doPost(request, response);
+		}
+	}
+	
+	public void doPost(HttpServletRequest request, HttpServletResponse response) 
+			throws ServletException, IOException{
+		// TODO Auto-generated method stub
+		
+	}
+	public void doGet(HttpServletRequest request, HttpServletResponse response) 
+			throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		
+	}
+	3). 实际开发中, 直接继承 HttpServlet, 并根据请求方式复写 doXxx() 方法即可. 
+	4). 好处: 直接由针对性的覆盖 doXxx() 方法; 直接使用 HttpServletRequest 和  HttpServletResponse, 不再需要强转. 
+3. 
+	-----------------------------------------------------------------------------
+	在 MySQL 数据库中创建一个 test_users 数据表, 添加 3 个字段: id, user, password. 并录入几条记录. 
+	
+	定义一个 login.html, 里边定义两个请求字段: user, password. 发送请求到 loginServlet
+	在创建一个 LoginServlet(需要继承自 HttpServlet, 并重写其 doPost 方法), 
+	在其中获取请求的 user, password. 
+	利用 JDBC 从 test_users 中查询有没有和页面输入的 user, password 对应的记录
+	SELECT count(id) FROM test_users WHERE user = ? AND password = ?
+	若有, 响应 Hello:xxx, 若没有, 响应 Sorry: xxx  xxx 为 user.
+	-----------------------------------------------------------------------------
+	
+4. 请求的转发和重定向:
+	1). 本质区别: 请求的转发只发出了一次请求, 而重定向则发出了两次请求. 
+	具体:
+	①. 请求的转发: 地址栏是初次发出请求的地址.
+	       请求的重定向: 地址栏不再是初次发出的请求地址. 地址栏为最后响应的那个地址 
+	②. 请求转发: 在最终的 Servlet 中, request 对象和中转的那个 request 是同一个对象. 
+	       请求的重定向: 在最终的 Servlet 中, request 对象和中转的那个 request 不是同一个对象.       
+	③. 请求的转发: 只能转发给当前 WEB 应用的的资源
+	       请求的重定向: 可以重定向到任何资源. 
+	④. 请求的转发: / 代表的是当前 WEB 应用的根目录
+	       请求的重定向: / 代表的是当前 WEB 站点的根目录. 
+	RequestDispatcher.forward方法在服务器端内部将请求转发给另外一个资源，浏览器只知道发出了请求并得到了响应结果，并不知道在服务器程序内部发生了转发行为。 
+	HttpServletResponse.sendRedirect方法对浏览器的请求直接作出响应，响应的结果就是告诉浏览器去重新发出对另外一个URL的访问请求；
+
+	
+缺省Servlet
+
+　　如果某个Servlet的映射路径仅仅为一个正斜杠（/），那么这个Servlet就成为当前Web应用程序的缺省Servlet。 
+　　凡是在web.xml文件中找不到匹配的<servlet-mapping>元素的URL，它们的访问请求都将交给缺省Servlet处理，也就是说，
+	缺省Servlet用于处理所有其他Servlet都不处理的访问请求。 
+	
+	当访问不存在的Servlet时，就使用配置的默认Servlet进行处理
+	
+	在<tomcat的安装目录>\conf\web.xml文件中，注册了一个名称为org.apache.catalina.servlets.DefaultServlet的Servlet，
+	并将这个Servlet设置为了缺省Servlet。
+
+	当访问Tomcat服务器中的某个静态HTML文件和图片时，实际上是在访问这个缺省Servlet。
+
+Servlet的线程安全问题	-	Servlet是单实例多线程运行方式，所以对象变量线程不安全，局部变量线程安全。
+	当多个客户端并发访问同一个Servlet时，web服务器会为每一个客户端的访问请求创建一个线程，并在这个线程上调用Servlet的service方法，
+	因此service方法内如果访问了同一个资源的话，就有可能引发线程安全问题。
+	
+	加锁虽然解决了线程安全问题，但是编写Servlet却万万不能用这种方式处理线程安全问题，假如有9999个人同时访问这个Servlet，
+	那么这9999个人必须按先后顺序排队轮流访问。
+	
+	针对Servlet的线程安全问题，Sun公司是提供有解决方案的：让Servlet去实现一个SingleThreadModel接口，
+	如果某个Servlet实现了SingleThreadModel接口，那么Servlet引擎将以单线程模式来调用其service方法。
+	
+　　查看Sevlet的API可以看到，SingleThreadModel接口中没有定义任何方法和常量，在Java中，把没有定义任何方法和常量的接口称之为标记接口，
+	经常看到的一个最典型的标记接口就是"Serializable"，这个接口也是没有定义任何方法和常量的，标记接口在Java中有什么用呢？
+	主要作用就是给某个对象打上一个标志，告诉JVM，这个对象可以做什么，比如实现了"Serializable"接口的类的对象就可以被序列化，
+	还有一个"Cloneable"接口，这个也是一个标记接口，在默认情况下，Java中的对象是不允许被克隆的，就像现实生活中的人一样，
+	不允许克隆，但是只要实现了"Cloneable"接口，那么对象就可以被克隆了。
+
+　　让Servlet实现了SingleThreadModel接口，只要在Servlet类的定义中增加实现SingleThreadModel接口的声明即可。  
+　　对于实现了SingleThreadModel接口的Servlet，Servlet引擎仍然支持对该Servlet的多线程并发访问，其采用的方式是产生多个Servlet实例对象，
+	并发的每个线程分别调用一个独立的Servlet实例对象。
+	
+　　实现SingleThreadModel接口并不能真正解决Servlet的线程安全问题，因为Servlet引擎会创建多个Servlet实例对象，
+	而真正意义上解决多线程安全问题是指一个Servlet实例对象被多个线程同时调用的问题。事实上，在Servlet API 2.4中，
+	已经将SingleThreadModel标记为Deprecated（过时的）。  
+	

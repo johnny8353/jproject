@@ -1,0 +1,173 @@
+使用 @RequestMapping 映射请求
+	修饰类
+		• Spring MVC 使用 @RequestMapping 注解为控制器指定可以处理哪些 URL 请求
+		• 在控制器的类定义及方法定义处都可标注@RequestMapping
+			– 类定义处：提供初步的请求映射信息。相对于 WEB 应用的根目录
+			– 方法处：提供进一步的细分映射信息。相对于类定义处的 URL。若类定义处未标注 @RequestMapping，则方法处标记的 URL 相对于WEB 应用的根目录
+		• DispatcherServlet 截获请求后，就通过控制器上@RequestMapping 提供的映射信息确定请求所对应的处理方法。
+	映射请求参数、请求方法或请求头
+		@RequestMapping 除了可以使用请求 URL 映射请求外，还可以使用请求方法、请求参数及请求头映射请求
+			• @RequestMapping 的 value、method、params 及 heads分别表示请求 URL、请求方法、请求参数及请求头的映射条件，他们之间是与的关系，联合使用多个条件可让请求映射更加精确化。
+			• params 和 headers支持简单的表达式：
+			– param1: 表示请求必须包含名为 param1 的请求参数
+			– !param1: 表示请求不能包含名为 param1 的请求参数
+			– param1 != value1: 表示请求包含名为 param1 的请求参数，但其值不能为 value1
+			– {“param1=value1”, “param2”}: 请求必须包含名为 param1 和param2的两个请求参数，且 param1 参数的值必须为 value1
+		请求方式
+			/**
+			 * 常用: 使用 method 属性来指定请求方式
+			 */
+			@RequestMapping(value = "/testMethod", method = RequestMethod.POST)
+			public String testMethod() {
+				System.out.println("testMethod");
+				return SUCCESS;
+			}
+			
+			<form action="springmvc/testMethod" method="POST">
+				<input type="submit" value="submit"/>
+			</form>
+			
+			<br><br>
+			<a href="springmvc/testMethod">Test Method</a>
+		
+		请求参数&请求头
+			/**
+			 * 了解: 可以使用 params 和 headers 来更加精确的映射请求. params 和 headers 支持简单的表达式.
+			 * 
+			 * @return
+			 */
+			@RequestMapping(value = "testParamsAndHeaders", params = { "username",
+					"age!=10" }, headers = { "Accept-Language=en-US,zh;q=0.8" })
+			public String testParamsAndHeaders() {
+				System.out.println("testParamsAndHeaders");
+				return SUCCESS;
+			}
+			
+			<a href="springmvc/testParamsAndHeaders?username=johnny&age=10">Test ParamsAndHeaders</a>
+			<br><br>
+			
+	Ant 路径匹配
+		Ant 风格资源地址支持 3 种匹配符：
+			– ?：匹配文件名中的一个字符
+			– *：匹配文件名中的任意字符
+			– **：** 匹配多层路径
+		• @RequestMapping 还支持 Ant 风格的 URL：
+		– /user/*/createUser: 匹配
+		/user/aaa/createUser、/user/bbb/createUser 等 URL
+		– /user/**/createUser: 匹配
+		/user/createUser、/user/aaa/bbb/createUser 等 URL
+		– /user/createUser??: 匹配
+		/user/createUseraa、/user/createUserbb 等 URL
+		示例
+		@RequestMapping("/testAntPath/*/abc")
+		public String testAntPath() {
+			System.out.println("testAntPath");
+			return SUCCESS;
+		}
+		
+		<a href="springmvc/testAntPath/mnxyz/abc">Test AntPath</a>
+		<br><br>
+	@PathVariable 映射 URL 绑定的占位符
+		带占位符的 URL 是 Spring3.0 新增的功能，该功能在SpringMVC 向 REST 目标挺进发展过程中具有里程碑的
+		意义
+		• 通过 @PathVariable 可以将 URL 中占位符参数绑定到控制器处理方法的入参中：URL 中的 {xxx} 占位符可以通过@PathVariable("xxx") 绑定到操作方法的入参中
+		 
+		示例
+		/**
+		 * @PathVariable 可以来映射 URL 中的占位符到目标方法的参数中.
+		 * @param id
+		 * @return
+		 */
+		@RequestMapping("/testPathVariable/{id}")
+		public String testPathVariable(@PathVariable("id") Integer id) {
+			System.out.println("testPathVariable: " + id);
+			return SUCCESS;
+		}
+		
+		<a href="springmvc/testPathVariable/1">Test PathVariable</a>
+		<br><br>
+	REST
+		REST：即 Representational State Transfer。（资源）表现层状态转化。是目前最流行的一种互联网软件架构。它结构清晰、符合标准、易于理解、扩展方便，所以正得到越来越多网站的采用
+		• 资源（Resources）：网络上的一个实体，或者说是网络上的一个具体信息。它可以是一段文本、一张图片、一首歌曲、一种服务，总之就是一个具体的存在。可以用一个URI（统一资源定位符）指向它，每种资源对应一个特定的 URI 。要获取这个资源，访问它的URI就可以，因此 URI 即为每一个资源的独一无二的识别符。
+		• 表现层（Representation）：把资源具体呈现出来的形式，叫做它的表现层（Representation）。比如，文本可以用 txt 格式表现，也可以用 HTML 格式、XML 格式、JSON 格式表现，甚至可以采用二进制格式。
+		• 状态转化（State Transfer）：每发出一个请求，就代表了客户端和服务器的一次交互过程。HTTP协议，是一个无状态协议，即所有的状态都保存在服务器端。因此，如果客户端想要操作服务器，必须通过某种手段，让服务器端发生“状态转化”（State Transfer）。而这种转化是建立在表现层之上的，所以就是 “表现层状态转化”。具体说，就是 HTTP 协议里面，四个表示操作方式的动词：GET、POST、PUT、DELETE。它们分别对应四种基本操作：GET 用来获取资源，POST 用来新建资源，PUT 用来更新资源，DELETE用来删除资源。
+		参考：http://kb.cnblogs.com/page/186516/
+		https://www.zhihu.com/question/28557115
+			
+	HiddenHttpMethodFilter 过滤器
+		示例：
+		– /order/1 HTTP GET ：得到 id = 1 的 order 
+		– /order/1 HTTP DELETE：删除 id = 1的 order 
+		– /order/1 HTTP PUT：更新id = 1的 order 
+		– /order HTTP POST：新增 order
+		• HiddenHttpMethodFilter：浏览器 form 表单只支持 GET与 POST 请求，而DELETE、PUT 等 method 并不支持，Spring3.0 添加了一个过滤器，可以将这些请求转换为标准的 http 方法，使得支持 GET、POST、PUT 与DELETE 请求。
+		
+		Web.xml:
+		<!-- 
+		配置 org.springframework.web.filter.HiddenHttpMethodFilter: 可以把 POST 请求转为 DELETE 或 POST 请求 
+		-->
+		<filter>
+			<filter-name>HiddenHttpMethodFilter</filter-name>
+			<filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+		</filter>
+		
+		<filter-mapping>
+			<filter-name>HiddenHttpMethodFilter</filter-name>
+			<url-pattern>/*</url-pattern>
+		</filter-mapping>
+		
+		/**
+		 * Rest 风格的 URL. 以 CRUD 为例: 新增: /order POST 修改: /order/1 PUT update?id=1 获取:
+		 * /order/1 GET get?id=1 删除: /order/1 DELETE delete?id=1
+		 * 
+		 * 如何发送 PUT 请求和 DELETE 请求呢 ? 1. 需要配置 HiddenHttpMethodFilter 2. 需要发送 POST 请求
+		 * 3. 需要在发送 POST 请求时携带一个 name="_method" 的隐藏域, 值为 DELETE 或 PUT
+		 * 
+		 * 在 SpringMVC 的目标方法中如何得到 id 呢? 使用 @PathVariable 注解
+		 * 
+		 */
+		@RequestMapping(value = "/testRest/{id}", method = RequestMethod.PUT)
+		public String testRestPut(@PathVariable Integer id) {
+			System.out.println("testRest Put: " + id);
+			return SUCCESS;
+		}
+		
+		@RequestMapping(value = "/testRest/{id}", method = RequestMethod.DELETE)
+		public String testRestDelete(@PathVariable Integer id) {
+			System.out.println("testRest Delete: " + id);
+			return SUCCESS;
+		}
+		
+		@RequestMapping(value = "/testRest", method = RequestMethod.POST)
+		public String testRest() {
+			System.out.println("testRest POST");
+			return SUCCESS;
+		}
+		
+		@RequestMapping(value = "/testRest/{id}", method = RequestMethod.GET)
+		public String testRest(@PathVariable Integer id) {
+			System.out.println("testRest GET: " + id);
+			return SUCCESS;
+		}
+		
+		
+		<form action="springmvc/testRest/1" method="post">
+			<input type="hidden" name="_method" value="PUT"/>
+			<input type="submit" value="TestRest PUT"/>
+		</form>
+		<br><br>
+		
+		<form action="springmvc/testRest/1" method="post">
+			<input type="hidden" name="_method" value="DELETE"/>
+			<input type="submit" value="TestRest DELETE"/>
+		</form>
+		<br><br>
+		
+		<form action="springmvc/testRest" method="post">
+			<input type="submit" value="TestRest POST"/>
+		</form>
+		<br><br>
+		
+		<a href="springmvc/testRest/1">Test Rest Get</a>
+		<br><br>
+		

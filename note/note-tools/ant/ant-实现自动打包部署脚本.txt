@@ -1,0 +1,284 @@
+
+建议的目录结构：
+	build		启动目录，ant的配置文件信息
+	code		源代码目录	
+	config		需要在编译完成后进行替换的配置文件目录
+	lib			编译时需要引用的jar包目录
+	publish		打包后存放的目录
+	
+	
+需要的jar包：
+		jsch-0.1.24.jar
+		svnant-1.3.1.zip 下的jar包
+		
+建议的配置文件
+	#svn信息
+	svn._url=https://10.5.6.119/svn/zte
+	bak.svn._url=http://172.31.100.100/svn/iMVS_DataComm
+	svn.username=6011000052
+	svn.password=hand.1234
+	
+	#部署目标服务器信息
+	hostIp=10.5.6.196
+	userId=root
+	pwd=zte(*)it
+	tomcat.dir = /oracle/apache-tomcat-7.0.54
+	
+	#路径配置信息
+	root.dir = ${basedir}/..
+	#源代码目录
+	root.code.dir = ${basedir}/../code
+	#需要在编译完成后进行替换的配置文件目录
+	root.config.dir = ${basedir}/../config
+	#编译时需要引用的jar包目录 提供两个参数，可以把jar放在root.lib.dir目录下，或者让ext.lib.dir指向所引用的jar目录
+	root.lib.dir = ${basedir}/../lib
+	ext.lib.dir = D:/apache-tomcat-7.0.70/lib
+	#打包路径
+	root.publish.dir = ${basedir}/../publish/
+	#打包文件名
+	project.publish.name = johnny
+	
+	#组件列表
+	N102 = ${root.code.dir}/N102_Javaee/ProductCode
+	N100 = ${root.code.dir}/N100_Javase/ProductCode
+	N101 = ${root.code.dir}/N101_SpringMVC/ProductCode
+	#web路径
+	webroot.dir = ${root.code.dir}/N102_Javaee/WebRoot
+	webroot.classes.dir = ${webroot.dir}/WEB-INF/classes
+	
+	#特殊文件格式 
+	root.code.fileext = **/*.xml,**/*.html,**/*.properties,**/*.config,**/*.wsdd,**/*.wsdl,**/*.json
+	
+	#
+	#------------------------------------------------------------
+	# Java compiler options
+	#------------------------------------------------------------
+	compiler.type 		= modern
+	compiler.deprecation= off
+	compiler.debug 	= on
+	compiler.optimize 	= on
+	compiler.verbose 	= off
+	
+	
+事例：具体查看 build\DEPLOY_TEST
+	
+	<?xml version="1.0" encoding="UTF-8"?>
+	<project default="dist" basedir=".">
+	    <description>auto build file</description>
+		<!--============= Properties for this build =======--> 
+		<property file = "buildconfig.properties" />
+		<property file = "buildversion.properties" /> 
+		<!-- svn 比较项目最新路径 -->
+	    <property name="svn.url" value="${svn._url}"/>
+	    <!-- svn 备份路径-->
+	    <property name="bak.svn.url" value="${bak.svn._url}"/>
+		
+		<path id="svnant.classpath">
+			<fileset dir = "${basedir}" includes = "**/*.jar" />
+	    </path>
+		
+		<path id = "project.class.path" >	
+			<fileset dir = "${webroot.dir}/WEB-INF/lib" includes = "*.jar" />
+			<fileset dir = "${root.lib.dir}" includes = "*.jar" />
+			<fileset dir = "${ext.lib.dir}" includes = "*.jar" /> 
+		</path>
+		
+		<path id="test.run.classpath">
+			<path refid="project.class.path"/>
+			<pathelement path="${webroot.classes.dir}"/><!-- test执行，指向要用到test编译目录下的类-->
+		</path>
+		
+		<!-- 变量打印-->
+		<target name="printvar" description="printVar" >
+			<echo>*********************printVar*********************</echo>
+			<echo>ant.java.version	-	${ant.java.version}</echo>
+			<echo>ant.version		-	${ant.version}</echo>
+			<echo>basedir			-	${basedir}</echo>
+			<echo>root.code.dir		-	${root.code.dir}</echo>
+			<echo>webroot.dir		-	${webroot.dir}</echo>
+			<echo>root.lib.dir		-	${root.lib.dir}</echo>
+		</target>
+		
+		<!-- svn 设置-->
+		<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svnant.classpath"/>
+		<svnSetting id="svn.settings" javahl="false" svnkit="true" username="${svn.username}" password="${svn.password}" failonerror="true"/>
+		<target name="checkout" depends="tool-available" description="checkout/export project code ${svn.url} "> 
+			<echo>*********************checkout/export project code ${svn.url}*********************</echo>
+			<delete dir="${N102}"/>
+			<delete dir="${N100}"/>
+			<delete dir="${N101}"/>
+			<echo message="checkout/export project code ${svn.url}"></echo>
+	        <svn refid="svn.settings">
+	            <export srcUrl="${svn.url}" destPath="${root.code.dir}" revision="HEAD" force="true"/>
+	        </svn>
+		</target>
+		<target name="tool-available">
+			<echo message="run task test svnant is available"></echo>
+	        <available resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svnant.classpath" property="available.svnant"/>
+	        <echo message="SVN-ANT is available = ${available.svnant}"></echo>
+	    </target>
+		
+		<!-- 执行 init 初始化目录文件-->
+		<target name = "init" description = "Initialize project class path" >
+			<tstamp>
+				<format property = "DSTAMP" pattern = "MM-dd-yyyy" />
+				<format property = "TSTAMP" pattern = "h:mm:ss" />
+			</tstamp>
+			<echo message = "${DSTAMP} ${TSTAMP}" ></echo>
+			<echo> ******************************************************** </echo>
+			<echo> setting project class path </echo>
+			<echo> ******************************************************** </echo>
+			<echo/> 
+			<echo> ******************************************************** </echo>
+			<echo> deleting existing classes </echo>
+	   	    <delete dir="${webroot.classes.dir}"/>
+	   	    <delete dir="${root.publish.dir}"/>
+			<echo> ******************************************************** </echo>
+			<mkdir dir="${webroot.classes.dir}"/>
+		    <mkdir dir="${root.publish.dir}"/>
+		</target> 
+		
+		<!-- Compile src  -->
+		<target name="CompileSrc" description="compile the source " >
+			<echo>Compile Siebel src java files:</echo>
+			<javac encoding="UTF-8" srcdir="${root.code.dir}" destdir="${webroot.classes.dir}"
+	               fork        = "true"
+	               debug       = "${compiler.debug}" 			
+	               compiler    = "${compiler.type}" 
+	               optimize    = "${compiler.optimize}" 	
+	               deprecation = "${compiler.deprecation}" 
+	               verbose     = "${compiler.verbose}"
+				   source	   = "1.6"
+	               target      = "1.6"
+	               memoryInitialSize = "512m"
+	               memoryMaximumSize = "1024m"
+	               nowarn      = "true"
+	               failonerror = "true">
+				<classpath refid = "project.class.path"/>
+			</javac>
+			<echo>copy src xml and properties files:</echo>
+			<copy includeemptydirs="true"  todir="${webroot.classes.dir}">
+				<fileset dir="${N102}" includes="${root.code.fileext}"/>
+				<fileset dir="${N100}" includes="${root.code.fileext}"/>
+				<fileset dir="${N101}" includes="${root.code.fileext}"/>
+			</copy>
+			<!-- 编译完成后需要替换config下的配置文件  -->
+			<copy overwrite="true" todir="${webroot.dir}/">        
+				<fileset dir="${root.config.dir}/${project.publish.name}.war" />			 
+		    </copy>
+		</target>
+		
+		<!-- 打包  -->
+		<target name="war" description="generate the war distribution" >
+			<echo>generate the war distribution:</echo>
+			<war destfile="${root.publish.dir}${project.publish.name}.war" webxml="${webroot.dir}/WEB-INF/web.xml" duplicate="preserve">
+				<fileset dir="${webroot.dir}"/>
+			</war>
+		</target>
+		
+		<!-- 记录打包次数  -->
+		<target name = "build.counter" > 
+			<propertyfile file = "./buildversion.properties" > 
+				<entry key = "build.littlever" type = "int" operation = "+" value = "1" pattern = "0000" /> 
+			</propertyfile> 
+			<echo message = "Build counter: ${build.littlever}" /> 
+		</target>
+		
+		<!-- auto deploy app -->
+		<target name="depolyApp" depends="stopTomcat">
+			<scp file="${root.publish.dir}${project.publish.name}.war" 
+				 todir="${userId}@${hostIp}:${tomcat.dir}/webapps/${project.publish.name}.war" 
+				 password="${pwd}" trust="true"/>
+			<sshexec host="${hostIp}" username="${userId}"  password="${pwd}" trust="true"
+					 command="cd ${tomcat.dir}/webapps/;rm -rf ${project.publish.name};cd ${tomcat.dir}/bin/;./startup.sh"/>
+		</target>
+		<target name="stopTomcat">
+			<sshexec host="${hostIp}" username="${userId}"  password="${pwd}" trust="true"
+	             command="cd ${tomcat.dir}/bin/;./shutdown.sh;cd ${tomcat.dir}/webapps/;rm -rf ${project.publish.name}.war;"/>
+		</target>
+		
+		<!-- 开始测试 -->
+		<target name="testStart" description="测试TestCase">
+			<echo>**************** Siebel Junit Test start... **********************</echo>
+			<echo>Ant's location is ${env.ANT_HOME}</echo>
+			<!-- 如果<junit>标签下，既有<test>标签又有<batchtest>标签，它们均会执行-->
+			<!-- 设置errorproperty与failureproperty属性，是为了，当在测试时，如遇到error或failure时，就在产生报告后，停止build-->
+			<!-- 这里，用了fork、forkmode以及maxmemory属性，是让Ant运行与测试运行，使用不同的JVM，让它们的效率高一点-->
+			<junit
+				   fork="true"
+				   maxmemory="256M"
+				   forkmode="perBatch">
+				<classpath refid="test.run.classpath"/>
+				
+				<!-- 这里，<sysproperty>标签相当于，命令行中，使用 -D 命令(为属性赋值)，当然，这是在新的JVM里-->
+				<sysproperty key="test.url" value="http://localhost:8088/"/>
+				<sysproperty key="debug" value="true"/>
+				<sysproperty key="data.dir" file="./data"/>
+				<sysproperty key="file.encoding" value="gbk"/>
+				<sysproperty key="sun.jnu.encoding" value="gbk"/>
+				<!-- 当程序中，有用到assert时，我们可以在这里设置，哪些包的哪些类的assert有效与无效
+					 本配置：说明，除包d1.core下的类Events中的assert失效外，其它的都有效
+				-->
+				<assertions enableSystemAssertions="true">
+					<enable/>
+					<enable package="com"/>
+					<!-- <disable class="d1.core.Events"/> -->
+				</assertions>
+				
+				<!-- Junit测试报告输出格式：三种 brief、plain与xml-->
+				<!-- usefile="true"后，控制台将不会有信息输出，它将输出到指定的目录下-->
+				<!-- classname属性与type属性，任选其一，其中classname，由包名+类名，如：classname="org.apache.tools.ant.taskdefs.optional.junit.BriefJUnitResultFormatter"
+					 extension属性，表示后缀名
+				-->
+				<formatter type="brief"
+						   extension=".html"
+						   usefile="true"/><!-- 缺省时，报告文件后缀名为.txt-->
+				
+				<formatter type="xml"/><!-- 缺省时，报告文件后缀名为.xml-->
+				
+				<!-- 一个<test>标签只能，测试一个，
+				如果想测试多个，可以写多个<test>标签，但是它的效率比<batchtest>低 -->
+				<!-- 输出Junit测试报告：outfile为文件名（缺省时，由"Test-"与name属性组成），todir为报告目录，以及上面的，
+					 extension为报告后缀名（缺省时，就为相应JunitResultFormmater接口的实现类指定的后缀名）-->
+				<!--
+				<test name="${test.suite}"  outfile="Test-${test.suite}" todir="${test.reports}"/>
+				-->
+				<!-- <batchtest>标签，可以测试多个test-->
+				<batchtest todir="${root.publish.dir}">
+					<fileset dir="${webroot.classes.dir}">
+						<include name="**/*AllTests.class"/> 
+					</fileset>
+				</batchtest>
+			</junit>
+			
+			<antcall target="report_exchange_to_html"/>
+			<!-- 当测试有error或failure时，就停止build-->
+			<fail if="test.failed">
+				*自动单元测试完成!但有测试未通过的用例*
+			</fail>
+			<echo>*****自动单元测试完成!*****</echo>
+		</target> 
+		
+		<!-- 将${test.data.dir}目录下的所有以"TEST-"打头的xml文件，转化为HTML文件，并存放到${test.reports.dir}目录下-->
+		<target name="report_exchange_to_html" description="将产生的xml报告，转化成Html">
+			<!-- <junitreport>标签有两个属性：tofile与todir 
+			     tofile：将之前junit产生的xml格式结果，聚集在一起，
+			形成一个总的xml（这里，只是聚集后文件的名称，缺省是用的Test-TestSuites.xml）
+			-->
+			<junitreport todir="${root.publish.dir}">
+				<fileset dir="${root.publish.dir}">
+					<include name="TEST-*.xml"/>
+				</fileset>
+				<!-- <report>标签有三个属性：format、styledir以及todir
+					format：两种frames与noframes
+					styledir：使用缺省，在%ANT_HOME%/lib/ant-junit.jar里
+					todir：存放转换后的html结果目录
+				-->
+				<report format="frames" todir="${root.publish.dir}"/>
+			</junitreport>
+	
+		</target>
+		
+		<!-- 执行 printvar,checkout,init,CompileSrc,war,build.counter,depolyApp-->
+		<target name="dist" depends="printvar,testStart" description="distribute"/>
+	</project>

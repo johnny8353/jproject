@@ -1,0 +1,251 @@
+“当 XML（扩展标记语言）于 1998 年 2 月被引入软件工业界时，它给整个行业带来了一场风暴。
+有史以来第一次，这个世界拥有了一种用来结构化文档和数据的通用且适应性强的格式，它不仅仅可以用于 WEB，而且可以被用于任何地方。”
+
+XML 指可扩展标记语言
+XML 被设计用来传输和存储数据。
+
+什么是 XML?
+	XML 指可扩展标记语言（EXtensible Markup Language）
+	XML 是一种标记语言，很类似 HTML
+	XML 的设计宗旨是传输数据，而非显示数据
+	XML 标签没有被预定义。您需要自行定义标签。
+	XML 被设计为具有自我描述性。
+	XML 是 W3C 的推荐标准
+	
+XML 与 HTML 的主要差异
+	XML 不是 HTML 的替代。
+	XML 和 HTML 为不同的目的而设计：
+	XML 被设计为传输和存储数据，其焦点是数据的内容。
+	HTML 被设计用来显示数据，其焦点是数据的外观。
+	HTML 旨在显示信息，而 XML 旨在传输信息。	
+	
+没有任何行为的 XML
+XML 是不作为的。
+	也许这有点难以理解，但是 XML 不会做任何事情。XML 被设计用来结构化、存储以及传输信息。
+	下面是 John 写给 George 的便签，存储为 XML：
+	<note>
+		<to>George</to>
+		<from>John</from>
+		<heading>Reminder</heading>
+		<body>Don't forget the meeting!</body>
+	</note>
+	上面的这条便签具有自我描述性。它拥有标题以及留言，同时包含了发送者和接受者的信息。
+	但是，这个 XML 文档仍然没有做任何事情。它仅仅是包装在 XML 标签中的纯粹的信息。我们需要编写软件或者程序，才能传送、接收和显示出这个文档。
+XML 仅仅是纯文本
+	XML 没什么特别的。它仅仅是纯文本而已。有能力处理纯文本的软件都可以处理 XML。
+	不过，能够读懂 XML 的应用程序可以有针对性地处理 XML 的标签。标签的功能性意义依赖于应用程序的特性。
+通过 XML 您可以发明自己的标签
+	上例中的标签没有在任何 XML 标准中定义过（比如 <to> 和 <from>）。这些标签是由文档的创作者发明的。
+	这是因为 XML 没有预定义的标签。
+	在 HTML 中使用的标签（以及 HTML 的结构）是预定义的。HTML 文档只使用在 HTML 标准中定义过的标签（比如 <p> 、<h1> 等等）。
+	XML 允许创作者定义自己的标签和自己的文档结构。
+XML 不是对 HTML 的替代
+	XML 是对 HTML 的补充。
+	XML 不会替代 HTML，理解这一点很重要。在大多数 web 应用程序中，XML 用于传输数据，而 HTML 用于格式化并显示数据。
+对 XML 最好的描述是：
+	XML 是独立于软件和硬件的信息传输工具。
+	XML 是 W3C 的推荐标准
+	可扩展标记语言 (XML) 于 1998 年 2 月 10 日成为 W3C 的推荐标准。
+	如需有关 W3C XML 活动的更多信息，请访问我们的 W3C 教程。
+XML 无所不在
+	当我们看到 XML 标准突飞猛进的开发进度，以及大批的软件开发商采用这个标准的日新月异的速度时，真的是不禁感叹这真是令人叹为观止。
+	目前，XML 在 Web 中起到的作用不会亚于一直作为 Web 基石的 HTML。
+	XML 无所不在。XML 是各种应用程序之间进行数据传输的最常用的工具，并且在信息存储和描述领域变得越来越流行。
+	
+XML 用于创建新的 Internet 语言
+	很多新的 Internet 语言是通过 XML 创建的：
+	其中的例子包括：
+	XHTML - 最新的 HTML 版本
+	WSDL - 用于描述可用的 web service
+	WAP 和 WML - 用于手持设备的标记语言
+	RSS - 用于 RSS feed 的语言
+	RDF 和 OWL - 用于描述资源和本体
+	SMIL - 用于描述针针对 web 的多媒体	
+	
+XML 树结构
+	XML 文档形成了一种树结构，它从“根部”开始，然后扩展到“枝叶”。
+	
+XML 语法规则
+	-所有 XML 元素都须有关闭标签
+	-XML 标签对大小写敏感
+	-XML 必须正确地嵌套
+	-XML 文档必须有根元素
+	-XML 的属性值须加引号
+	-实体引用
+		在 XML 中，一些字符拥有特殊的意义。
+		如果你把字符 "<" 放在 XML 元素中，会发生错误，这是因为解析器会把它当作新元素的开始。
+		这样会产生 XML 错误：
+		<message>if salary < 1000 then</message>
+		为了避免这个错误，请用实体引用来代替 "<" 字符：
+		<message>if salary &lt; 1000 then</message> 
+		在 XML 中，有 5 个预定义的实体引用：
+			&lt;	<	小于
+			&gt;	>	大于
+			&amp;	&	和号
+			&apos;	'	单引号
+			&quot;	"	引号
+		注释：在 XML 中，只有字符 "<" 和 "&" 确实是非法的。大于号是合法的，但是用实体引用来代替它是一个好习惯。
+			
+	-在 XML 中，空格会被保留
+
+XML 元素
+	XML 元素指的是从（且包括）开始标签直到（且包括）结束标签的部分。
+	
+	XML 命名规则
+		XML 元素必须遵循以下命名规则：
+			-名称可以含字母、数字以及其他的字符
+			-名称不能以数字或者标点符号开始
+			-名称不能以字符 “xml”（或者 XML、Xml）开始
+			-名称不能包含空格
+			-可使用任何名称，没有保留的字词。
+			
+最佳命名习惯
+	使名称具有描述性。使用下划线的名称也很不错。
+	名称应当比较简短，比如：<book_title>，而不是：<the_title_of_the_book>。
+	避免 "-" 字符。如果您按照这样的方式进行命名："first-name"，一些软件会认为你需要提取第一个单词。
+	避免 "." 字符。如果您按照这样的方式进行命名："first.name"，一些软件会认为 "name" 是对象 "first" 的属性。
+	避免 ":" 字符。冒号会被转换为命名空间来使用（稍后介绍）。
+	XML 文档经常有一个对应的数据库，其中的字段会对应 XML 文档中的元素。有一个实用的经验，即使用数据库的名称规则来命名 XML 文档中的元素。
+	非英语的字母比如 éòá 也是合法的 XML 元素名，不过需要留意当软件开发商不支持这些字符时可能出现的问题。		
+	
+XML 元素是可扩展的
+	XML 元素是可扩展，以携带更多的信息。
+	XML 的优势之一，就是可以经常在不中断应用程序的情况进行扩展。	
+	
+XML 属性	
+	XML 元素可以在开始标签中包含属性，类似 HTML。
+	属性 (Attribute) 提供关于元素的额外（附加）信息。
+	元数据（有关数据的数据）应当存储为属性，而数据本身应当存储为元素。
+	
+XML 元素 vs. 属性
+	请看这些例子：
+	<person sex="female">
+	  <firstname>Anna</firstname>
+	  <lastname>Smith</lastname>
+	</person> 
+	
+	<person>
+	  <sex>female</sex>
+	  <firstname>Anna</firstname>
+	  <lastname>Smith</lastname>
+	</person> 
+	在第一个例子中，sex 是一个属性。在第二个例子中，sex 则是一个子元素。两个例子均可提供相同的信息。
+	没有什么规矩可以告诉我们什么时候该使用属性，而什么时候该使用子元素。我的经验是在 HTML 中，属性用起来很便利，但是在 XML 中，您应该尽量避免使用属性。
+	如果信息感觉起来很像数据，那么请使用子元素吧。
+	
+XML 验证	-	DTD & Schema
+	拥有正确语法的 XML 被称为“形式良好”的 XML。
+	通过 DTD 验证的 XML 是“合法”的 XML。
+	
+	形式良好的 XML 文档
+		“形式良好”或“结构良好”的 XML 文档拥有正确的语法。
+		“形式良好”（Well Formed）的 XML 文档会遵守前几章介绍过的 XML 语法规则：
+		XML 文档必须有根元素
+		XML 文档必须有关闭标签
+		XML 标签对大小写敏感
+		XML 元素必须被正确的嵌套
+		XML 属性必须加引号
+		
+XML 浏览器支持	
+	几乎所有的主流浏览器均支持 XML 和 XSLT。
+	Mozilla Firefox
+		从 1.0.2 版本开始，Firefox 就已开始支持 XML 和 XSLT（包括 CSS）。
+	Mozilla
+		Mozilla 含有用于 XML 解析的 Expat，并支持显示 XML + CSS。Mozilla 同时拥有对 Namespaces 的某些支持。
+		Mozilla 同样可做到对 XSLT 的执行（XSLT implementation）。
+	Netscape
+		自从版本 8 开始，Netscape 开始使用 Mozilla 的引擎，因此它对 XML / XSLT 的支持与 Mozilla 是相同的。
+	Opera
+		自从版本 9 开始，Opera 已经拥有对 XML / XSLT（以及 CSS）的支持。版本 8 仅支持 XML + CSS。
+	Internet Explorer
+		自从版本 6 开始，Internet Explorer 就开始支持 XML、Namespaces、CSS、XSLT 以及 XPath。
+		注释：Internet Explorer 5 同样拥有对 XML 的支持，但是 XSL 部分与 W3C 的官方标准不兼容！
+		
+使用 XSLT 显示 XML
+
+	通过使用 XSLT，您可以向 XML 文档添加显示信息。
+	使用 XSLT 显示 XML
+		XSLT 是首选的 XML 样式表语言。
+		XSLT (eXtensible Stylesheet Language Transformations) 远比 CSS 更加完善。
+		使用 XSLT 的方法之一是在浏览器显示 XML 文件之前，先把它转换为 HTML，正如以下的这些例子演示的那样：
+		
+	在服务器上通过 XSLT 转换 XML
+		在上例中，XSLT 转换是由浏览器完成的，浏览器读取的是 XML 文件。
+		在使用 XSLT 来转换 XML 时，不同的浏览器可能会产生不同结果。为了减少这种问题，可以在服务器上进行 XSLT 转换。
+		请注意，不论转换由服务器还是由浏览器进行，输出结果完成相同。
+		
+XML 解析器
+	所有现代浏览器都内建了供读取和操作 XML 的 XML 解析器。
+	解析器把 XML 转换为 XML DOM 对象 - 可通过 JavaScript 操作的对象。	
+	事例1	- 
+		<html>
+		<body>
+		<h1>W3School.com.cn Internal Note</h1>
+		<p>
+		<b>To:</b> <span id="to"></span><br />
+		<b>From:</b> <span id="from"></span><br />
+		<b>Message:</b> <span id="message"></span>
+		</p>
+		
+		<script>
+		txt="<note>";
+		txt=txt+"<to>George</to>";
+		txt=txt+"<from>John</from>";
+		txt=txt+"<heading>Reminder</heading>";
+		txt=txt+"<body>Don't forget the meeting!</body>";
+		txt=txt+"</note>";
+		
+		if (window.DOMParser)
+		  {
+		  parser=new DOMParser();
+		  xmlDoc=parser.parseFromString(txt,"text/xml");
+		  }
+		else // Internet Explorer
+		  {
+		  xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
+		  xmlDoc.async="false";
+		  xmlDoc.loadXML(txt);
+		  }
+		
+		document.getElementById("to").innerHTML=xmlDoc.getElementsByTagName("to")[0].childNodes[0].nodeValue;
+		document.getElementById("from").innerHTML=xmlDoc.getElementsByTagName("from")[0].childNodes[0].nodeValue;
+		document.getElementById("message").innerHTML=xmlDoc.getElementsByTagName("body")[0].childNodes[0].nodeValue;
+		</script>
+		
+		</body>
+		</html>
+		
+	实例2-读取文件
+		if (window.XMLHttpRequest)
+		{// code for IE7+, Firefox, Chrome, Opera, Safari
+			xmlhttp=new XMLHttpRequest();
+		}
+		else
+		{// code for IE6, IE5
+			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.open("GET","/example/xmle/note.xml",false);
+		xmlhttp.send();
+		xmlDoc=xmlhttp.responseXML;
+		
+XML DOM	
+	DOM （Document Object Model，文档对象模型）定义了访问和操作文档的标准方法。	
+	XML DOM
+		XML DOM (XML Document Object Model) 定义了访问和操作 XML 文档的标准方法。
+		DOM 把 XML 文档作为树结构来查看。能够通过 DOM 树来访问所有元素。可以修改或删除它们的内容，并创建新的元素。元素，它们的文本，以及它们的属性，都被认为是节点。
+		在下面的例子中，我们使用 DOM 引用从 <to> 元素中获取文本：
+		xmlDoc.getElementsByTagName("to")[0].childNodes[0].nodeValue
+		xmlDoc -由解析器创建的 XML 文档
+		getElementsByTagName("to")[0] - 第一个 <to> 元素
+		childNodes[0] - <to> 元素的第一个子元素（文本节点）
+		nodeValue - 节点的值（文本本身）
+		
+HTML DOM
+	HTML DOM (HTML Document Object Model) 定义了访问和操作 HTML 文档的标准方法。
+	可以通过 HTML DOM 访问所有 HTML 元素。
+	在下面的例子中，我们使用 DOM 引用来改变 id="to" 的 HTML 元素的文本：
+		document.getElementById("to").innerHTML=
+	document - HTML 文档
+		getElementById("to") - 其中的 id="to" 的 HTML 元素
+		innerHTML - HTML 元素的内部文本
+		

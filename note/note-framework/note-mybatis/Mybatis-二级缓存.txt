@@ -1,0 +1,159 @@
+9. Mybatis缓存
+	9.1. 理解MyBatis缓存
+		正如大多数持久层框架一样，MyBatis 同样提供了一级缓存和二级缓存的支持
+		1.	一级缓存: 基于PerpetualCache 的 HashMap本地缓存，其存储作用域为 Session，当 Session flush 或 close 之后，该Session中的所有 Cache 就将清空。
+		2. 二级缓存与一级缓存其机制相同，默认也是采用 PerpetualCache，HashMap存储，不同在于其存储作用域为 Mapper(Namespace)，并且可自定义存储源，如 Ehcache。
+		3. 对于缓存数据更新机制，当某一个作用域(一级缓存Session/二级缓存Namespaces)的进行了 C/U/D 操作后，默认该作用域下所有 select 中的缓存将被clear。
+
+	9.2. Mybatis一级缓存
+		1) 提出需求:
+			根据id查询对应的用户记录对象
+		2). 准备数据库表和数据
+		CREATE TABLE c_user(
+			id INT PRIMARY KEY AUTO_INCREMENT, 
+			NAME VARCHAR(20), 
+			age INT
+		);
+		INSERT INTO c_user(NAME, age) VALUES('Tom', 12);
+		INSERT INTO c_user(NAME, age) VALUES('Jack', 11);
+		3). 创建表的实体类
+		public class User implements Serializable{
+		
+			private int id;
+			private String name;
+			private int age;
+		}
+		4). userMapper.xml
+		<?xml version="1.0" encoding="UTF-8" ?>
+		<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		<mapper namespace="com.johnny.mybatis.test8.userMapper">
+		
+			<select id="getUser" parameterType="int" resultType="_CUser">
+				select * from c_user where id=#{id}
+			</select>
+		
+			<update id="updateUser" parameterType="_CUser">
+				update c_user set
+				name=#{name}, age=#{age} where id=#{id}
+			</update>
+		</mapper>
+		5). 测试:
+		
+		/*
+		 * 一级缓存: 也就Session级的缓存(默认开启)
+		 */
+		@Test
+		public void testCache1() {
+			SqlSession session = MybatisUtils.getSession();
+			String statement = "com.johnny.mybatis.test8.userMapper.getUser";
+			User user = session.selectOne(statement, 1);
+			System.out.println(user);
+			
+			/*
+			 * 一级缓存默认就会被使用
+			 */
+			/*
+			user = session.selectOne(statement, 1);
+			System.out.println(user);
+			*/
+			
+			/*
+			 1. 必须是同一个Session,如果session对象已经close()过了就不可能用了 
+			 */
+			/*
+			session = MybatisUtils.getSession();
+			user = session.selectOne(statement, 1);
+			System.out.println(user);
+			*/
+			
+			/*
+			 2. 查询条件是一样的
+			 */
+			/*
+			user = session.selectOne(statement, 2);
+			System.out.println(user);
+			*/
+			
+			/*
+			 3. 没有执行过session.clearCache()清理缓存
+			 */
+			/*
+			session.clearCache(); 
+			user = session.selectOne(statement, 2);
+			System.out.println(user);
+			*/
+			
+			/*
+			 4. 没有执行过增删改的操作(这些操作都会清理缓存)
+			 */
+			/*
+			session.update("com.johnny.mybatis.test8.userMapper.updateUser",
+					new User(2, "user", 23));
+			user = session.selectOne(statement, 2);
+			System.out.println(user);
+			*/
+		}
+		
+	9.3. Mybatis二级缓存
+		1). 添加一个<cache>在userMapper.xml中
+		<mapper namespace="com.johnny.mybatis.test8.userMapper">
+			<cache/>
+		2). 测试
+		/*
+		 * 测试二级缓存
+		 */
+		@Test
+		public void testCache2() {
+			String statement = "com.johnny.mybatis.test8.userMapper.getUser";
+		
+			SqlSession session = MybatisUtils.getSession();
+			User user = session.selectOne(statement, 1);
+			session.commit();
+			System.out.println("user="+user);
+			
+			SqlSession session2 = MybatisUtils.getSession();
+			user = session2.selectOne(statement, 1);
+			session.commit();
+			System.out.println("user2="+user);
+		}
+		3). 补充说明
+		1. 映射语句文件中的所有select语句将会被缓存。 
+		2. 映射语句文件中的所有insert，update和delete语句会刷新缓存。 
+		3. 缓存会使用Least Recently Used（LRU，最近最少使用的）算法来收回。 
+		4. 缓存会根据指定的时间间隔来刷新。 
+		5. 缓存会存储1024个对象
+		
+		<cache 
+		eviction="FIFO"  //回收策略为先进先出
+		flushInterval="60000" //自动刷新时间60s
+		size="512" //最多缓存512个引用对象
+		readOnly="true"/> //只读
+		
+MyBatis 包含一个非常强大的查询缓存特性，它可以非常方便地配置和定制。 MyBatis 3中的缓存实现的很多改进都已经实现了，使得它更加强大而且易于配置。
+默认情况下是没有开启缓存的，除了局部的 session 缓存，可以增强变现而且处理循环依赖也是必须的。要开启二级缓存，你需要在你的 SQL 映射文件中添加一行：
+<cache/>
+字面上看就是这样。这个简单语句的效果如下：
+ 映射语句文件中的所有 select 语句将会被缓存。
+ 映射语句文件中的所有 insert， update 和 delete 语句会刷新缓存。
+ 缓存会使用 Least Recently Used（ LRU，最近最少使用的）算法来收回。
+ 根据时间表（比如 no Flush Interval，没有刷新间隔），缓存不会以任何时间顺序来刷新。
+ 缓存会存储列表集合或对象（无论查询方法返回什么）的 1024 个引用。
+ 缓存会被视为是 read/write（可读/可写）的缓存，意味着对象检索不是共享的，而且可以安全地被调用者修改，而不干扰其他调用者或线程所做的潜在修改。
+	所有的这些属性都可以通过缓存元素的属性来修改。比如：
+	<cache
+	eviction="FIFO"
+	flushInterval="60000"
+	size="512"
+	readOnly="true"/>
+	这个更高级的配置创建了一个 FIFO 缓存，并每隔 60 秒刷新， 存数结果对象或列表的
+	512 个引用，而且返回的对象被认为是只读的，因此在不同线程中的调用者之间修改它们会
+	导致冲突。
+	可用的收回策略有：
+	 LRU – 最近最少使用的：移除最长时间不被使用的对象。
+	 FIFO – 先进先出：按对象进入缓存的顺序来移除它们。
+	 SOFT – 软引用：移除基于垃圾回收器状态和软引用规则的对象。
+	 WEAK – 弱引用：更积极地移除基于垃圾收集器状态和弱引用规则的对象。
+	默认的是 LRU。
+	flushInterval（刷新间隔）可以被设置为任意的正整数，而且它们代表一个合理的毫秒形式的时间段。默认情况是不设置，也就是没有刷新间隔，缓存仅仅调用语句时刷新。
+	size（引用数目）可以被设置为任意正整数，要记住你缓存的对象数目和你运行环境的可用内存资源数目。默认值是 1024。readOnly（只读）属性可以被设置为 true 或 false。只读的缓存会给所有调用者返回缓
+	存对象的相同实例。因此这些对象不能被修改。这提供了很重要的性能优势。可读写的缓存会返回缓存对象的拷贝（通过序列化）。这会慢一些，但是安全，因此默认是 false。

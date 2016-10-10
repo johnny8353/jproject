@@ -1,0 +1,20 @@
+读取properties文件
+	//文件在具体包内
+	ClassLoader loader = this.getClass().getClassLoader();
+	InputStream is = loader.getResourceAsStream("com\\zte\\itp\\reflect\\jdbc.properties");
+
+	//文件在代码根目录
+	ClassLoader classLoader = getClass().getClassLoader();
+	InputStream is = classLoader.getResourceAsStream("jdbc.properties");
+				
+	InputStream is = ServletConfig.getServletContext().getResourceAsStream("/WEB-INF/classes/jdbc.properties");
+
+	Properties pros = new Properties();
+	pros.load(is);
+	String name = pros.getProperty("user");
+	
+读取本地html、json等文件
+		monitorListBO = null;
+		String fNamePath=Thread.currentThread().getContextClassLoader().getResource("monitorData.json").getFile();
+		String fNameStr=ReadFromFile.readFileByLines(fNamePath);
+		monitorListBO = (MonitorListBO) GSONUtil.getJavaFromGsonStr(MonitorListBO.class, fNameStr);

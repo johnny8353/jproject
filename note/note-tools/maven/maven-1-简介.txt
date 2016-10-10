@@ -1,0 +1,167 @@
+http://maven.apache.org/
+很多开源项目都使用maven，比如struts2，spring。
+
+http://www.cnblogs.com/xdp-gacl/p/3498271.html
+Ant是软件构建工具，Maven的定位是软件项目管理和理解工具。Maven除了具备Ant的功能外，还增加了以下主要的功能：
+	1）使用Project Object Model来对软件项目管理；
+	2）内置了更多的隐式规则，使得构建文件更加简单；
+	3）内置依赖管理和Repository来实现依赖的管理和统一存储；
+	4）内置了软件构建的生命周期；
+
+Maven的基本概念
+	Maven(翻译为"专家"，"内行")是跨平台的项目管理工具。主要服务于基于Java平台的项目构建，依赖管理和项目信息管理。
+	项目构建
+　　		项目构建过程包括【清理项目】→【编译项目】→【测试项目】→【生成测试报告】→【打包项目】→【部署项目】这几个步骤，这六个步骤就是一个项目的完整构建过程。
+		理想的项目构建是高度自动化，跨平台，可重用的组件，标准化的，使用maven就可以帮我们完成上述所说的项目构建过程。
+	依赖管理
+　　		依赖指的是jar包之间的相互依赖，比如我们搭建一个Struts2的开发框架时，光光有struts2-core-2.3.16.3.jar这个jar包是不行的，
+		struts2-core-2.3.16.3.jar还依赖其它的jar包，依赖管理指的就是使用Maven来管理项目中使用到的jar包，
+		Maven管理的方式就是“自动下载项目所需要的jar包，统一管理jar包之间的依赖关系”。
+		
+		这个也许会maven最突出的特点了使用maven不需要上网单独下载jar包，只需要在配置文件pom.xml中配置jar包的依赖关系，就可以自动的下载jar包到我们的项目中。
+		这样，别人开发或者使用这个工程时，不需要来回的拷贝jar包，只需要复制这个pom.xml就可以自动的下载这些jar包。
+	　　	而且，我们自己下载jar包，还有可能造成版本的不一致，这样在协同开发的过程中就有可能造成代码运行的不一致。通过使用maven精确的匹配jar包，就不会出现这种问题
+	
+	使用Maven的好处
+		-Maven中使用约定，约定java源代码代码必须放在哪个目录下，编译好的java代码又必须放到哪个目录下，这些目录都有明确的约定。
+		-Maven的每一个动作都拥有一个生命周期，例如执行 mvn install 就可以自动执行编译，测试，打包等构建过程
+		-只需要定义一个pom.xml,然后把源码放到默认的目录，Maven帮我们处理其他事情
+		-使用Maven可以进行项目高度自动化构建，依赖管理(这是使用Maven最大的好处)，仓库管理。
+	
+Maven下载	-	apache-maven-3.3.9
+	下载地址：http://maven.apache.org/download.cgi
+	Maven目录分析
+	    bin：含有mvn运行的脚本
+	    boot：含有plexus-classworlds类加载器框架
+	    conf：含有settings.xml配置文件
+	    lib：含有Maven运行时所需要的java类库
+	    LICENSE.txt, NOTICE.txt, README.txt针对Maven版本，第三方软件等简要介绍
+
+Maven安装
+	1、首先要确保电脑上已经安装了JDK(要jdk 1.6+的版本)，配置好JDK的环境变量，使用如下的两个命令检查检查JDK安装的情况。	
+		Echo %JAVA_HOME%
+		Java -version
+	2、对apache-maven-3.2.3-bin.zip进行解压缩
+　　		对apache-maven-3.2.3-bin.zip进行解压缩，解压目录最好不要有中文
+	3、设置系统环境变量MAVEN_HOME
+		MAVEN_HOME	-	D:\apache-maven-3.3.9
+	4、设置环境变量Path
+		将%MAVEN_HOME%\bin加入Path中，一定要注意要用分号；与其他值隔开;
+	5.验证Maven安装是否成功
+		输入"mvn –v"命令 查看Maven的相关信息
+	6、设置MAVEN_OPTS环境变量(可选配置)
+		由于Maven命令实际上是执行了Java命令，所以可以通过JAVA命令参数的方式来设置MAVEN运行参数。MAVEN_OPTS环境变量正是用于此用途
+		MAVEN_OPTS
+		-Xms128m -Xmx512m，分别设置JVM的最小和最大内存：	
+		
+Maven的简单使用
+	-Maven项目的目录约定
+		MavenProjectRoot(项目根目录)
+		   |----src
+		   |     |----main
+		   |     |         |----java ——存放项目的.java文件
+		   |     |         |----resources ——存放项目资源文件，如spring, hibernate配置文件
+		   |     |----test
+		   |     |         |----java ——存放所有测试.java文件，如JUnit测试类
+		   |     |         |----resources ——存放项目资源文件，如spring, hibernate配置文件
+		   |----target ——项目输出位置
+		   |----pom.xml ----用于标识该项目是一个Maven项目
+
+	-手动创建Maven项目，使用Maven编译
+		1、创建项目根文件夹，例如Maven01
+		2、在Maven01文件夹中创建“pom.xml”文件，如下图所示：
+			<?xml version="1.0" encoding="UTF-8"?>
+			<project xmlns="http://maven.apache.org/POM/4.0.0" 
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+			xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+			http://maven.apache.org/xsd/maven-4.0.0.xsd">
+			    <!--所有的Maven项目都必须配置这四个配置项-->
+			    <modelVersion>4.0.0</modelVersion>
+			    <!--groupId指的是项目名的项目组，默认就是包名-->
+			    <groupId>cn.gacl.maven.hello</groupId>
+			    <!--artifactId指的是项目中的某一个模块，默认命名方式是"项目名-模块名"-->
+			    <artifactId>hello-first</artifactId>
+			    <!--version指的是版本，这里使用的是Maven的快照版本-->
+			    <version>SNAPSHOT-0.0.1</version>
+			</project>
+		3.编写Java类文件，Maven项目规定，所有的*.java文件必须放在src目录下的main目录下的java目录中，在Maven01项目根目录中创建一个src目录，
+		然后在src目录中创建main目录，在main目录中再创建java文件夹
+			在java文件夹下创建一个Hello.java文件
+			在Hello.java文件中编写如下代码：
+				public class Hello{
+				    public static void main(String[] args){
+				        System.out.println("Hello Maven");
+				    }
+				}
+		4.使用Maven编译Hello.java，首先进入到项目根目录，然后使用命令”mvn compile”进行编译
+			使用Maven编译完成之后，在项目根目录下会生成一个target文件夹
+			打开target文件夹，可以看到里面有一个classes文件夹
+			classes文件夹存放的就是编译成功后生成的.class文件
+			[INFO] ------------------------------------------------------------------------
+			[INFO] BUILD SUCCESS
+			[INFO] ------------------------------------------------------------------------
+			[INFO] Total time: 42:02 min
+			[INFO] Finished at: 2016-08-22T15:20:44+08:00
+			[INFO] Final Memory: 10M/28M
+			[INFO] ------------------------------------------------------------------------
+		5.使用"mvn clean"命令清除编译结果，也就是把编译生成的target文件夹删掉
+			执行完"mvn clean"命令后，target文件夹就会被删除了。
+	
+	-**修改从Maven中心仓库下载到本地的jar包的默认存储位置
+		从Maven中心仓库下载到本地的jar包的默认存放在”${user.home}/.m2/repository”中，${user.home}表示当前登录系统的用户目录，如下图所示
+		Jar包存放在这个位置不太好，我们希望能够自己定义下载下来的jar包的存放位置，因此我们可以自己设置下载到本地时的jar包的存放目录。
+　　		在“E:\”目录下创建一个“repository”文件夹
+		找到apache-maven-3.2.3\conf目录下的settings.xml文件，如下图所示：	
+		<localRepository>E:/repository</localRepository>
+		把jar包下载到本地的好处就是，当编译时，会优先从本地的jar包去找，如果本地存在，就直接拿来用，如果不存在，就从Maven的中心仓库去下载。如下图所示：
+		
+		第一次执行"mvn compile"和"mvn clean"这两个命令时，Maven会去中央仓库下载需要的jar包，
+		而第二次执行这两个命令时，由于所需的jar包已经在本地的仓库中存储，所以就可以直接拿来用了，这样就省去了去中央仓库下载jar包的时间。
+	
+	-*代理的配置
+		https://repo.maven.apache.org/maven2	- 保证本地使用浏览器可以连接到maven的中心库，如果使用命令报错，判断是否是通过代理访问
+		maven项目在编译、测试、打包里，会需要从maven的中央仓库(即：maven组织公布在互联网上的一个站点，里面已经收录了目前绝大多数主流的jar包)下载jar包等文件，
+		如果使用代理服务器上网，需要配置代理服务器。
+
+		找到%MAVEN_HOME%\conf\settings.xml编辑该文件，找到下面这段
+			<proxies>
+			    <!-- proxy
+			     | Specification for one proxy, to be used in connecting to the network.
+			     |
+			    <proxy>
+			      <id>optional</id>
+			      <active>true</active>
+			      <protocol>http</protocol>
+			      <username>proxyuser</username>
+			      <password>proxypass</password>
+			      <host>proxy.host.net</host>
+			      <port>80</port>
+			      <nonProxyHosts>local.net|some.host.com</nonProxyHosts>
+			    </proxy>
+			    -->
+			  </proxies>
+		把注释去掉，host这里填写代理服务器的地址（可以用IP）以及port端口，如果需要用户名/密码认证，则填写username/password节点，否则username/password这二个节点去掉，
+		nonProxyHosts表示某些地址不需要经过代理服务器，多个地址之间用|分隔，支持通配符，比如172.156.*
+		  <proxies>
+		    <proxy>
+		      <id>optional</id>
+		      <active>true</active>
+		      <protocol>http</protocol>
+		      <host>proxy.zte.com.cn</host>
+		      <port>80</port>
+		      <nonProxyHosts>local.net|some.host.com</nonProxyHosts>
+		    </proxy>
+		  </proxies>
+	
+			  
+理解“仓库”
+	-首次运行完mvn -version后，会在用户目录下创建一个.m2的目录(比如：C:\Users\当前用户名\.m2\)，这个目录是maven的“本地仓库”，仓库是maven中一个很重要的概念。
+	-试想一下，我们会在工作中同时创建很多项目，每个项目可能都会引用一些公用的jar包(.NET中是dll文件)，一种作法是每个项目里，都复制一份这些依赖的jar包(或dll文件)，
+	这样显然不好，相同的文件在硬盘上保存了多份，太占用空间，而且这些依赖的jar包(或dll文件)的版本也不太好管理
+	(比如某个公用的jar包，从1.0升级到2.0，如果所有引用这个jar包的项目都需要更新，必须一个个项目的修改)。
+	-maven的仓库则很好的解决了这些问题，它在每台机器上创建一个本机仓库，把本机上所有maven项目依赖的jar包统一管理起来，而且这些jar包用“坐标”来唯一标识
+	(注：坐标是另一个重要的概念，后面还会讲到，这里只要简单理解成“唯一识别某个jar包文件名、版本号”的标识即可)，这样所有maven项目就不需要再象以前那样把jar包复制到lib目录中，
+	整个maven项目看起来十分清爽。
+	
+测试驱动
+	Maven是测试驱动的开发思路，因此工程创建初期，就包含两个文件夹，main和test。一个用于放置开发的java文件，一个用于写test单元测试。这样每次开发的时候，提前设计单元测试，就能帮助减少BUG。

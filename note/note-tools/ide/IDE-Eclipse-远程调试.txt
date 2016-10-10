@@ -1,0 +1,98 @@
+在软件开发中，调试是不可或缺的一个环节，它可以帮助开发人员提高效率，节省开发时间。在我认为，本地调试是最优选择，通常情况下，当无法实现本地调试时，我们才会考虑远程调试。
+
+有些项目是运行在Linux 操作系统上，而我们大多数项目是在Windows 平台上完成开发的。特别是在投资银行领域，很多电子交易程序运行在Linux 服务器上，这会让开发过程显得较为繁琐，
+因为我们没法在本地的开发环境中运行这些代码。
+
+有时候无论是出于开发还是调试的考虑，我们可以让项目运行在Windows 平台上，但有时候，一些不可控因素，比如您的项目需要提供开发库的平台，或者需要一些Linux模块，Windows平台上无法满足这些需求，
+或者您的项目规模太大，无法在Windows 平台上成功运行，由于项目过度依赖一些系统，没法在Windows 开发平台中创建相同的运行环境。
+
+这种情况下，我的解决方法是借助模拟的对象来测试项目。当然，有时候通过线程单独来运行应用程序模块并不见得是最好的解决方案，特别是您需要在运行时环境下通过调试项目来查找一些子问题，这些方法就会显得不太实用。
+
+Eclipse为我们提供了最有用的功能，称为“远程调试Remote Debug”。
+借助于远程调试，您可以在Windows 平台上调试Linux的运行情况，为了提高开发效率，非常有必要了解清楚如何安装远程调试，如何在Eclipse中实现远程调试。
+
+Web容器设置
+	注意:这是java命令的参数，不能换行，博客文章里面一行写不下，所以有换行，tomcat和resin3各一行，weblogic 两行"-"号后面紧跟字母"-"号前面是空格
+	Tomcat
+		修改Tomcat/bin/startup.bat文件，在最前面加上如下代码
+			SET CATALINA_OPTS=-server -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
+		注意上面命令必须写成一行中间不能有换行，-前是空格-后是非空格，由于显示器分辨率不同，该文章在显示的时候可能会有换行的情况。
+		启动Tomcat启动tomcat/bin/startup.bat
+	
+	weblogic8
+	set DEBUG_OPTS=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=7000,suspend=n
+	%JAVA_HOME%/bin/java %DEBUG_OPTS% %JAVA_VM% %MEM_ARGS% %JAVA_OPTIONS% -Dweblogic.Name=%SERVER_NAME% -Dweblogic.ProductionModeEnabled=%PRODUCTION_MODE% -Dweblogic.management.username= %WLS_USER% -Dweblogic.management.password= %WLS_PW% -Djava.security.policy="%WL_HOME%/server/lib/weblogic.policy" weblogic.Server
+	
+	resin3
+	httpd.exe -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=9000
+	
+	WAS
+		实际上 WAS 就支持远程调试的设置，打开它，你只需要用 Eclipse Debug 中的 Remote Java Application 功能连接到服务器上相应端口即行。
+		设置很简单，这样的办法你甚至可以在闲时偷偷的调试一下生产环境的 WAS 应用以验证测试环境难以/无法重现的问题。具体做法如下(WAS 5.x 和 6.x 下的操作基本相同)： 
+
+		一：配置 WAS，打开调试服务
+	    	 进到 WAS(或ND) 的管理控制台，在服务器->WAS应用程序服务器中，点击要启用调试服务的应用服务器，其他属性-然后进入调试服务，
+	    	 勾选上启动(指定当服务器启动时服务器是否将尝试启动指定的服务。)。
+	     	JVM 调试端口默认为 7777，注意该端口不能有冲突(如有多个应服务器要启用调试服务时，需要指定别的端口)。其他选项默认，或根据实际来设定。
+	　  		确定、保存后重启应用服务器，WAS Base 版需要回到操作系统下重启，如果是在 ND 管理控制台下，可直接在页面中重启应用服务器。
+			默认调试参数：	-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7777
+	
+		二：配置 Eclipse，使用远程调试
+		　　	Eclipse 的菜单 Run -> Open Debug Dialog 窗口中，右击 Remote Java Application->New，在右方的 Conect 标签页中，
+			选择你要调试的Project(即发布到 WAS 下启用了调试服务的，在你的 Eclipse 中存在的项目)，Host 填上 WAS 服务器的 IP，Port 就是前面的 JVM 调试端口。
+			其他两个标签页 Source/Common 可留意下。
+	
+	　　		点击 Debug 按钮，这时候 Eclipse 即处理于侦听  WAS 服务器的 JVM 调试端口的状态。
+	　　
+	　　	三：打上断点，调试应用
+	　　		在你的 Eclipse 中的项目(注意，该项目已部署到 WAS 上的) 要调试的代码行中打上断点，然后可以在网页上浏览 WAS 上的该应用。当执行到所在断点的代码行时，Eclipse 就会停在该行上，让你尽情的 F5/F6 的跳，像平时那样 Watch/Inspect/Display表达式或变量。
+	
+	　　其他缺点就是：
+	　　1）观察不到控制台的输出，还得看 WAS 的 SystemOut.log 文件或日志文件。 
+	　　2）JSP 文件无法调试，因为定位不到原码，并且这种方式也不足以聪明。
+	　　3）代码更新后，需手工把类文件或 JSP 文件拷到 WAS 的相应目录下。
+	　　4）启动了调试服务后，严重影响功能，通过鼠标点击就能感觉到，所以正式系统上完事后赶紧关了该功能。
+		
+如何在Eclipse中安装远程调试
+　　	1)在Eclipse中安装Java项目
+	2) 选择项目，在“Run”菜单选项下选择“Debug Configurations”
+	3) 调试配置窗口将会弹出，选择左边的“Remote Java Application”图标，右键选择“New”。
+	4) 点击“New”以后，Eclipse会为您选中的项目创建远程Java应用配置。接下来的一步是为远程调试安装主机和端口。
+	5) 现在输入主机名和端口，如果你想从Eclipse中关闭运行在Linux平台上的 Java应用程序，请选中"Allow termination of remote VM”复选框。
+		选择要调试的project，输入host 和port
+		*向主机注册后，后续在任意机子访问该host port，都会判断有没有断点，有的话都会进入断点。只能注册一台debug客户机
+	6) 在调试之前，确保设置好Java进程的各项调试信息，同时确保在同一个主机和端口上监听Java进程，否则Eclipse无法正常建立连系。
+	7) 点击“Debug”开始调试主机和端口。
+	8) 您也可以在"Remote Java Application” 中，"Debug Configurations"菜单下选中您的项目，然后点击"DEBUG"。
+
+　	提示一：在JVM DEBUG参数中，有一个参数叫"suspend"，它的取值有两个，“y”或者“n”，如果您刚开始就想调试的话，将参数设置为"suspend=y"，这样Eclipse会远程连接Java应用程序。
+　　	如果你想先运行项目，然后连接Eclipse，那么可以将参数设置为"suspend=n"，这样的话，Java应用程序会正常运行，之后Eclipse会开始远程连接。
+　　	提示二：使用启动脚本输入JVM调试参数，在脚本中使用变量isDebugEnabled或者REMOTE_DEBUG_PORT，当你想远程调试Java应用程序的时候，可以将这个变量导出。整个操作过程非常简单，
+	只需要一次性的安装即可。
+　　	提示三：如果你得到错误提示"Failed to connect to remote VM. Connection refused"或者"Connection refused: connect"，那么可能出现的原因有两种可能。
+	第一是您的Java项目没有运行在远程主机上，第二是输入端口和主机名有误，验证成功后，可以填写完整的主机名。
+　　	提示四：您也要确保本地Eclipse和远程Eclipse运行的是相同的代码库。使用调试选项"-g"可以编译代码，Eclipse可以轻松搜集调试信息，比如本地变量的调试信息，默认情况下，
+	使用调试选项“-g”，类文件可能更大，因为它可能会包含一些调试信息。
+
+
+
+为了远程调试一个Java应用程序，确保JVM的调试选项如下：
+　　		java -Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y suspend=y -jar stockTradingGUI.jar
+	使用Java Debug Wire Protocol (jdwp) protocol ，我们可以让Java应用程序stockTradingGUI进入调试模式，监听端口为8001。
+	suspend=y 时，Eclipse 将应用程序连接到指定调试端口后，应用程序才开始运行。
+　　	有一点非常重要，先运行应用程序，然后连接它，否则Eclipse会抛出异常"Failed to connect to remote VM. Connection refused”.
+
+
+
+
+下面按步骤进行讲解
+1.    将web应用部署到Tomcat的webapp目录下
+2.    修改Tomcat/bin/startup.bat文件，在最前面加上如下代码
+SET CATALINA_OPTS=-server -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
+注意上面命令必须写成一行中间不能有换行，-前是空格-后是非空格，由于显示器分辨率不同，该文章在显示的时候可能会有换行的情况。
+3．必须先启动Tomcat启动tomcat/bin/startup.bat
+4．设置断点
+5．在eclipse中配置debug，配置完成后点击debug按钮。
+6．打开浏览器访问在第1步部署的web应用，访问index.jsp
+7．当浏览器访问index.jsp时，由于调用了com.syj.test.DebugTest.test，又因在test方法中设置了断点，所以程序会被断点拦截，如图：
+8．不需要调试的时候点击断开，需要调试的时候再点击debug

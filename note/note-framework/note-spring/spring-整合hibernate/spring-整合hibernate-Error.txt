@@ -1,0 +1,42 @@
+
+1>	Spring整合hibernate报错事务会得到一个异常: get is not valid without active transaction
+	<property name="current_session_context_class">thread</property>
+	这个属性的作用:这样配置是本地jdbc事务配置,你通过getCurrentSession创建的session会绑定到当前线程
+
+	平时在单独使用hibernate的时候,习惯于配置属性
+	<property name="current_session_context_class">thread</property>
+	根据文档,这个是hibernate3.1以后的一个新扩展,目的在于可以让我们在某一个上下文环境(比如说当前线程)中可以通过SessionFactory.getCurrentSession()得到同一个session会话.
+	 
+	后来当我们把spring,hibernate整合的时候,在spring的主配置文件当中,我们也习惯于带入这样的配置
+	<props><prop key="hibernate.current_session_context_class">thread</prop>
+	接下来在spring配置文件中,会使用spring2.x的声明式的方式来配置事务
+	由spring来管理hiberante的事务,这个时候我们试着运行一个类似于这样的方法
+	public void find() {
+		Session se = sf.getCurrentSession();
+		//此处不需要se.beginTransaction(),事务已经交由spring管理
+		Dept d = (Dept) se.get(Dept.class, new Long(12));
+	}
+	会得到一个异常: get is not valid without active transaction.
+	这个错误一般情况是因为由getCurrentSession得到的session中没有获得的transaction,我们一般要手动的调用se.beginTransaction(),来打开一个活动的事务.
+	是问题是,我们在spring的配置文件中不是已经通过aop,指定了此处由spring来管理事务吗,怎么还要手动处理事务?
+	答案: 
+	<prop key="hibernate.current_session_context_class">thread</prop>改为
+	<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate3.SpringSessionContext</prop>(默认配置)
+	 
+	参考:
+	1. hibernate文档:
+	使用 Hibernate 的大多数应用程序需要某种形式的“上下文相关的”会话，特定的会话在整个特定的上下文范围内始终有效。
+	然而，对不同类型的应用程序而言，要为什么是组成这种“上下文”下一个定义通常是困难的；不同的上下文对“当前”这个概念定义了不同的范围
+	2.在hibernate中,thread,jta,manager的配置其实都是对应了3个hibernate的实现类
+	org.hibernate.context.ThreadLocalSessionContext
+	3.在sessionFactory配置文件中
+	应将hibernate.current_session_context_class设为org.springframework.orm.hibernate3.SpringSessionContext（默认为此值）
+	应当把session要绑定的上下文设置为由spring环境管理(因为我们的事务aop也是在spring范围中),这个时候spring中的事务配置才会起作用(当然,以前是thread上下文环境的session,
+	而事务托管在spring上下文中,当然spring无法管理到thread上下文的session的事务咯)综上所述,其实仔细看ThreadLocalSessionContext,JTASessionContext,
+	ManagedSessionContext,SpringSessionContext我们都会发现,他们都实现了一个接口org.hibernate.context.CurrentSessionContext关于这个接口,
+	请参阅 org.hibernate.context.CurrentSessionContext 接口的 Javadoc，那里有关于它的契约的详细讨论。它定义了单一的方法，currentSession()，
+	特定的实现用它来负责跟踪当前的上下文相关的会话 最后,我们知道,其实线程绑定也好,上下文绑定也好,最后都是,使用实现了CurrentSessionContext接口的一个类,来跟踪session,
+	然后我们通过这个类的对象来获得被它跟踪的session,以达到在我们定义的上下文环境中调用getCurrentSession方法获得的总是同一个session
+	
+	
+	

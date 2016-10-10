@@ -1,0 +1,83 @@
+用JavaScript解析XML数据是常见的编程任务，JavaScript能做的，JQuery当然也能做。下面我们来总结几个使用JQuery解析XML的例子。
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$.ajax({
+	  	url: 'http://www.nowamagic.net/cgi/test.xml',
+	  	dataType: 'xml',
+	  	success: function(data){
+		  	//console.log(data);
+		 	$(data).find("channel").find("item").each(function(index, ele) {
+				var titles = $(ele).find("title").text();
+				var links = $(ele).find("link").text();
+				console.log(titles+'-----');
+				$("#noticecon").find('ol').append('<li><a href="'+links+'">'+titles+'</a></li>');
+			});
+		}
+	});
+}) 
+</script>
+
+<div id="noticecon">
+	<ol>
+	</ol>
+</div>
+
+<script type="text/javascript">
+	$.get("http://www.nowamagic.net/cgi/test.xml", function(data){
+		$(data).find('channel').find('item').each(function(index, ele){
+			var titles = $(ele).find('title').text();
+			var links = $(ele).find('link').text();
+			$("#noticecon").find('ol').append('<li><a href="'+links+'">'+titles+'</a></li>');
+		})
+	});
+</script>
+
+<div id="noticecon">
+	<ol>
+	</ol>
+</div>
+
+一般步骤如下：
+	1. 读取xml文件
+
+	$("<xml><root><item></item></root></xml>").find("item").length;
+
+	<?xml version="1.0" encoding="utf-8" ?>
+	<fields>
+	  <field Name="Name1">
+		<fieldname>dsname</fieldname>
+		<datatype>字符</datatype>
+	  </field>
+	  <field Name="Name2">
+		<fieldname>dstype</fieldname>
+		<datatype>字符</datatype>
+	  </field>
+	</fields>
+
+	$(xml).find("field").each(function() {
+		var field = $(this);
+		var fName = field.attr("Name");//读取节点属性
+		var dataType = field.find("datatype").text();//读取子节点的值
+	});
+使用jQuery解析XML
+	$(request.responseXML).find("marker").each(function() {
+	 var marker = $(this);
+	 var point = {
+	  marker.attr("lat"),
+	  marker.attr("lng")
+	 };
+	});
+
+使用$.parseXML()解析XML
+	如果你已经把XML内容读到了字符串里，你可以使用$.parseXML()方法分析它：
+	xml = $.parseXML( $('body > pre').text() );
+	 
+	$(xml).find("entry").each(function() {
+	  var $this = $(this), 
+		item = {
+		  Address1: $this.find("Address1").text(),
+		  Address2: $this.find("Address2").attr('name')
+		   
+		}
+	});

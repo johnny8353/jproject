@@ -1,0 +1,174 @@
+6.实现关联表查询
+	6.1. 一对一关联
+		1). 提出需求
+		根据班级id查询班级信息(带老师的信息)
+		2). 创建表和数据
+		CREATE TABLE teacher(
+			t_id INT PRIMARY KEY AUTO_INCREMENT, 
+			t_name VARCHAR(20)
+		);
+		CREATE TABLE class(
+			c_id INT PRIMARY KEY AUTO_INCREMENT, 
+			c_name VARCHAR(20), 
+			teacher_id INT
+		);
+		ALTER TABLE class ADD CONSTRAINT fk_teacher_id FOREIGN KEY (teacher_id) REFERENCES teacher(t_id);	
+		
+		INSERT INTO teacher(t_name) VALUES('LS1');
+		INSERT INTO teacher(t_name) VALUES('LS2');
+		
+		INSERT INTO class(c_name, teacher_id) VALUES('bj_a', 1);
+		INSERT INTO class(c_name, teacher_id) VALUES('bj_b', 2);
+		3). 定义实体类：
+		public class Teacher {
+			private int id;
+			private String name;
+		}
+		public class Classes {
+			private int id;
+			private String name;
+			private Teacher teacher;
+		}
+		
+		4). 定义sql映射文件ClassMapper.xml
+		<!-- 
+		方式一：嵌套结果：使用嵌套结果映射来处理重复的联合结果的子集
+		         封装联表查询的数据(去除重复的数据)
+		select * from class c, teacher t where c.teacher_id=t.t_id and  c.c_id=1
+		-->
+		<select id="getClass" parameterType="int" resultMap="ClassResultMap">
+			select * from class c, teacher t where c.teacher_id=t.t_id and  c.c_id=#{id}
+		</select>
+		<resultMap type="_Classes" id="ClassResultMap">
+			<id property="id" column="c_id"/>
+			<result property="name" column="c_name"/>
+			<association property="teacher" javaType="_Teacher">
+				<id property="id" column="t_id"/>
+				<result property="name" column="t_name"/>
+			</association>
+		</resultMap>
+		
+		<!-- 
+		方式二：嵌套查询：通过执行另外一个SQL映射语句来返回预期的复杂类型
+			SELECT * FROM class WHERE c_id=1;
+			SELECT * FROM teacher WHERE t_id=1   //1 是上一个查询得到的teacher_id的值
+		-->
+		
+		 <select id="getClass2" parameterType="int" resultMap="ClassResultMap2">
+			select * from class where c_id=#{id}
+		 </select>
+		 <resultMap type="_Classes" id="ClassResultMap2">
+			<id property="id" column="c_id"/>
+			<result property="name" column="c_name"/>
+			<association property="teacher" column="teacher_id" select="getTeacher">
+		</association>
+		 </resultMap>
+		 
+		 <select id="getTeacher" parameterType="int" resultType="_Teacher">
+			SELECT t_id id, t_name name FROM teacher WHERE t_id=#{id}
+		 </select>
+		
+		5). 测试
+		@Test
+		public void testOO() {
+			SqlSession sqlSession = factory.openSession();
+			Classes c = sqlSession.selectOne("com.johnny.day03_mybatis.test5.OOMapper.getClass", 1);
+			System.out.println(c);
+		}
+		
+		@Test
+		public void testOO2() {
+			SqlSession sqlSession = factory.openSession();
+			Classes c = sqlSession.selectOne("com.johnny.day03_mybatis.test5.OOMapper.getClass2", 1);
+			System.out.println(c);
+		}
+	 
+	6.2. 一对多关联
+		1). 提出需求
+		根据classId查询对应的班级信息,包括学生,老师
+		2). 创建表和数据：
+		CREATE TABLE student(
+			s_id INT PRIMARY KEY AUTO_INCREMENT, 
+			s_name VARCHAR(20), 
+			class_id INT
+		);
+		INSERT INTO student(s_name, class_id) VALUES('xs_A', 1);
+		INSERT INTO student(s_name, class_id) VALUES('xs_B', 1);
+		INSERT INTO student(s_name, class_id) VALUES('xs_C', 1);
+		INSERT INTO student(s_name, class_id) VALUES('xs_D', 2);
+		INSERT INTO student(s_name, class_id) VALUES('xs_E', 2);
+		INSERT INTO student(s_name, class_id) VALUES('xs_F', 2);
+		
+		
+		3). 定义实体类：
+		public class Student {
+			private int id;
+			private String name;
+		}
+		
+		public class Classes {
+			private int id;
+			private String name;
+			private Teacher teacher;
+			private List<Student> students;
+		}
+		4). 定义sql映射文件ClassMapper.xml
+		<!-- 
+		方式一: 嵌套结果: 使用嵌套结果映射来处理重复的联合结果的子集
+		SELECT * FROM class c, teacher t,student s WHERE c.teacher_id=t.t_id AND c.C_id=s.class_id AND  c.c_id=1
+		 -->
+		<select id="getClass3" parameterType="int" resultMap="ClassResultMap3">
+			select * from class c, teacher t,student s where c.teacher_id=t.t_id and c.C_id=s.class_id and  c.c_id=#{id}
+		</select>
+		<resultMap type="_Classes" id="ClassResultMap3">
+			<id property="id" column="c_id"/>
+			<result property="name" column="c_name"/>
+			<association property="teacher" column="teacher_id" javaType="_Teacher">
+				<id property="id" column="t_id"/>
+				<result property="name" column="t_name"/>
+			</association>
+			<!-- ofType指定students集合中的对象类型 -->
+			<collection property="students" ofType="_Student">
+				<id property="id" column="s_id"/>
+				<result property="name" column="s_name"/>
+			</collection>
+		</resultMap>
+		
+		<!-- 
+			方式二：嵌套查询：通过执行另外一个SQL映射语句来返回预期的复杂类型
+				SELECT * FROM class WHERE c_id=1;
+				SELECT * FROM teacher WHERE t_id=1   //1 是上一个查询得到的teacher_id的值
+				SELECT * FROM student WHERE class_id=1  //1是第一个查询得到的c_id字段的值
+		 -->
+		 <select id="getClass4" parameterType="int" resultMap="ClassResultMap4">
+			select * from class where c_id=#{id}
+		 </select>
+		 <resultMap type="_Classes" id="ClassResultMap4">
+			<id property="id" column="c_id"/>
+			<result property="name" column="c_name"/>
+			<association property="teacher" column="teacher_id" javaType="_Teacher" select="getTeacher2"></association>
+			<collection property="students" ofType="_Student" column="c_id" select="getStudent"></collection>
+		 </resultMap>
+		 
+		 <select id="getTeacher2" parameterType="int" resultType="_Teacher">
+			SELECT t_id id, t_name name FROM teacher WHERE t_id=#{id}
+		 </select>
+		 
+		 <select id="getStudent" parameterType="int" resultType="_Student">
+			SELECT s_id id, s_name name FROM student WHERE class_id=#{id}
+		 </select>
+		
+		5). 测试：
+		@Test
+		public void testOM() {
+			SqlSession sqlSession = factory.openSession();
+			Classes c = sqlSession.selectOne("com.johnny.day03_mybatis.test5.OOMapper.getClass3", 1);
+			System.out.println(c);
+		}
+		
+		@Test
+		public void testOM2() {
+			SqlSession sqlSession = factory.openSession();
+			Classes c = sqlSession.selectOne("com.johnny.day03_mybatis.test5.OOMapper.getClass4", 1);
+			System.out.println(c);
+		}

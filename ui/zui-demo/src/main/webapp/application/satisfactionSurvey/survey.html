@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>满意度调查</title>
+<link href="../../css/survey.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript">
+function showtxt()
+{
+	if(document.getElementById("chk_other").checked==true)
+	{
+		document.getElementById("feed_others").style.display="";
+	}
+	else
+	{
+		document.getElementById("feed_others").style.display="none";
+	}
+}
+function checktxt()
+{
+	document.getElementById('numc').innerHTML = inputtxt.value.length;
+}
+</script>
+</head>
+<body>
+<div id="survey">
+  <div id="sur_top"></div>
+  <div id="sur_content">
+    <div class="sur_title">满意度调查</div>
+    <table cellspacing="0" cellpadding="0" class="tb_survey">
+      <tr class="tr_title">
+        <td class="top">您对此功能是否满意？ </td>
+      </tr>
+      <tr>
+        <td><label>
+          <input type="radio" name="chk"/>
+          非常满意</label></td>
+      </tr>
+      <tr>
+        <td><label>
+          <input type="radio" name="chk"/>
+          满意</label></td>
+      </tr>
+      <tr>
+        <td><label>
+          <input type="radio" name="chk"/>
+          合格</label></td>
+      </tr>
+      <tr>
+        <td><label>
+          <input type="radio" name="chk"/>
+          不满意</label></td>
+      </tr>
+      <tr>
+        <td class="line">
+			<div>&nbsp;</div>
+		</td>
+      </tr>
+      <tr class="tr_title">
+        <td>您认为哪方面需要改进？</td>
+      </tr>
+      <tr>
+        <td><label>
+          <input type="checkbox" name="chk2"/>
+          速度慢</label></td>
+      </tr>
+      <tr>
+        <td><label>
+          <input type="checkbox" name="chk2"/>
+          不好用</label></td>
+      </tr>
+      <tr>
+        <td><label>
+          <input type="checkbox" name="chk2"/>
+          不稳定</label></td>
+      </tr>
+      <tr>
+        <td class="line">
+			<div>&nbsp;</div>
+		</td>
+      </tr>
+	  <tr class="tr_title">
+        <td>您对此功能的意见或建议：</td>
+      </tr>
+      <tr id="feed_others">
+        <td colspan="4"><textarea rows="4" style="width:98%" id="inputtxt" onkeyup="checktxt()" onkeydown="checktxt()"></textarea>
+          <div class="data_num"><span id="numc">0</span>/500</div></td>
+      </tr>
+      <tr>
+        <td class="btm">&nbsp;</td>
+      </tr>
+      <tr>
+        <td>
+			<div style=" width:150px;margin:0 auto;">
+				<a href="#" class="link" id="yes" style="margin-top:15px; margin-bottom:10px;">提交</a> <a href="#" class="link" id="no" style="margin-top:15px;margin-bottom:10px;">取消</a>
+			</div>
+		</td>
+      </tr>
+    </table>
+  </div>
+  <div id="sur_btm"></div>
+</div>
+</body>
+</html>

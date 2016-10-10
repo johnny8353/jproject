@@ -1,0 +1,48 @@
+基础Constants
+ 	<!-- 把它设置为开发模式，发布时要设置为false -->
+    <constant name="struts.devMode" value="true" />
+    <!-- 设置在class被修改时是否热加载，发布时要设置为false -->
+    <constant name="struts.convention.classes.reload" value="true"/>
+    <!-- 自动动态方法的调用，使用这个设置后可以这样调用：action!method -->
+    <constant name="struts.enable.DynamicMethodInvocation" value="true" />
+    <!-- 指定jsp文件所在的目录地址 -->
+    <constant name="struts.convention.result.path" value="/WEB-INF/content/" />
+    <!-- 使用struts-default默认的转换器，如果是rest的使用：rest-default，rest需要rest的jar插件 -->
+    <constant name="struts.convention.default.parent.package" value="struts-default"/>
+    <!-- 用于配置包名后缀。默认为action、actions、struts-->
+    <constant name="struts.convention.package.locators" value="actions" />
+    <!-- 用于配置类名后缀，默认为Action，设置后，Struts2只会去找这种后缀名的类做映射 -->
+    <constant name="struts.convention.action.suffix" value="Action"/>
+    <!-- 设置即使没有@Action注释，依然创建Action映射。默认值是false。因为Convention-Plugin是约定优于配置的风格，
+        可以不通过注解根据预先的定义就能访问相应Action中的方法 -->
+    <constant name="struts.convention.action.mapAllMatches" value="true"/>
+    <!-- 自定义jsp文件命名的分隔符 -->
+    <constant name="struts.convention.action.name.separator" value="-" />
+    <!-- 国际化资源文件名称 -->
+    <constant name="struts.custom.i18n.resources" value="i18n" />
+    <!-- 是否自动加载国际化资源文件  -->
+    <constant name="struts.i18n.reload" value="true" />
+    <!-- 浏览器是否缓存静态内容 -->
+    <constant name="struts.serve.static.browserCache" value="false" />
+     <!-- 上传文件大小限制设置 -->
+    <constant name="struts.multipart.maxSize" value="-1" />
+    <!-- 主题，将值设置为simple，即不使用UI模板。这将不会生成额外的html标签 -->
+    <constant name="struts.ui.theme" value="simple" />
+    <!-- 编码格式 -->
+    <constant name="struts.i18n.encoding" value="UTF-8" />
+
+
+主题
+	主题: 为了让所有的 UI 标签能够产生同样的视觉效果而归集到一起的一组模板. 即风格相近的模板被打包为一个主题
+		-simple: 把 UI 标签翻译成最简单的 HTML 对应元素, 而且会忽视行标属性
+		-xhtml: xhtml 是默认的主题. 这个主题的模板通过使用一个布局表格提供了一种自动化的排版机制. 
+		-css_xhtml: 这个主题里的模板与 xhtml 主题里的模板很相似, 但它们将使用 css 来进行布局和排版
+		-ajax: 这个主题里的模板以 xhtml 主题里德模板为基础, 但增加了一些 Ajax 功能. 
+	修改主题:
+		-通过 UI 标签的 theme 属性
+		-在一个表单里, 若没有给出某个 UI 标签的 theme 属性, 它将使用这个表单的主题
+		-在 page, request, session 或 application 中添加一个 theme 属性
+			request.setAttribute("theme", "xhtml");
+		-修改 struts.properties 文件中的 struts.ui.theme 属性. 
+			<constant name="struts.ui.theme" value="simple"></constant>
+

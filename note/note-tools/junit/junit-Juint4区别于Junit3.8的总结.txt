@@ -1,0 +1,32 @@
+junit4和hamcrest是两个不同的框架，不同的东西。只不过是junit使用了hamcrest框架而已。
+
+JUnit的两种主要版本是JUnit 3.8和JUnit 4，前者使用反射，后者使用反射和注解。
+	1Junit4使用org.junit.*包，而Junit3.8使用的是Junit.Framework.*包。
+	2Junit4不使用Junit3.8相同的约定，一个测试方法不必以'test'为前缀，但要使用@Test注解。测试方法必须返回void，并且是无参数的。
+
+Junit4常用的几个annotation介绍：
+	Before:初始化方法（相当于setup）
+	After:释放资源（相当于teardowm）
+	Test:测试方法，在这里可以测试期间异常和超时时间。
+	Ignore:忽略的测试方法。
+	BeforeClass:针对所有测试方法，只执行一次，且必须为static void.
+	AfterClass:针对所有测试方法，只执行一次。
+	
+	一个Junit4单元测试用例执行顺序为：BeforeClass-Before-@Test-@After-@AfterClass
+	每个测试方法的调用顺序为：@Before-@Test-@After.
+	@Test(expected=*.class)在junit4之前，对错误的测试，我们只能通过fail来产生一个错误，并在try里面assertTrue(true)来测试。现在，通过@Test元数据中的expected属性。expected属性一个异常的类型。
+	@Test(timeout=xxx)该元数据传入了一个时间（毫秒）给测试方法，如果测试方法在制定的时间内没运行完，测试也失败。
+	@Ignore 该元数据标记的测试方法在测试中会被忽略。@Ignore("还没实现的方法")。
+
+在每一个junit3.8测试类中：必须继承于TestCase类 
+	测试方法需要满足如下原则：
+	 * 1、public的
+	 * 2、void的
+	 * 3、无方法参数
+	 * 4、方法名字必须以test开头
+ 
+而在junit4中：
+	 * 不必继承TestCase
+	 * 方法必须是public 
+	 * 方法不必以test开头 ，但是在方式上要加上注解@Test
+	 * 不必有main方法，点击右键，Run As-> Junit

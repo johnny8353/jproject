@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>title</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+<script type="text/javascript">
+ //based jquery
+  function addOptions(obj)
+  {
+  $(obj).show();
+  var cloneNode =   $(obj).clone(true);
+  $(obj).hide();
+  cloneNode.appendTo($(obj).parent());
+  }
+
+  function delOptions(obj)
+  {
+
+ // if(confirm('确定要删除吗？'))
+//  {
+//   $(obj).remove();
+//   }
+
+$(obj).remove();
+  }
+</script>
+</head>
+<body>
+<div id="content">
+  <div id="position">当前位置：常用场景&gt;新增数据&gt;新增行</div>
+  <table cellspacing="0" cellpadding="0" class="tb_title">
+    <tr>
+      <td class="icon_note">单据列表</td>
+      <td class="tb_btn"><input name="" type="button" value="新增" class="button" onclick="addOptions(document.getElementById('cloneObj'));"/>
+      </td>
+    </tr>
+  </table>
+  <table cellpadding="0" cellspacing="1" class="tb_datalist">
+    <thead>
+      <tr class="tr_title">
+        <td width="22%">单据号</td>
+        <td width="19%">本币金额</td>
+        <td width="39%">部门</td>
+        <td width="15%">操作</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>HS301-5000020011</td>
+        <td align="right">343.00</td>
+        <td>研发体系-业务研究院-IT中心开发部</td>
+        <td><a href="#">修改</a> <a href="#" onclick="delOptions(this.parentNode.parentNode)">删除</a></td>
+      </tr>
+      <tr>
+        <td>HS302-2005000021</td>
+        <td align="right">256.00</td>
+        <td>研发体系-业务研究院-IT中心开发部</td>
+        <td><a href="#">修改</a> <a href="#" onclick="delOptions(this.parentNode.parentNode)">删除</a></td>
+      </tr>
+      <tr>
+        <td>HS301-2005000010</td>
+        <td align="right">105.00</td>
+        <td>研发体系-业务研究院-IT中心开发部</td>
+        <td><a href="#">修改</a> <a href="#" onclick="delOptions(this.parentNode.parentNode)">删除</a></td>
+      </tr>
+      <tr id="cloneObj" style="display:none">
+        <td><input type="text" name="textfield2" class="txt_150"/></td>
+        <td><input type="text" name="textfield3" class="txt_100"/></td>
+        <td>研发体系-业务研究院-IT中心系统部</td>
+        <td><a href="#">保存</a> <a href="#" onclick="delOptions(this.parentNode.parentNode)">取消</a></td>
+      </tr>
+    </tbody>
+    <tr class="tr_pagenumber">
+      <td colspan="4"> 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+        <select name="select" >
+          <option selected>10</option>
+          <option >20</option>
+          <option>20</option>
+          <option>40</option>
+          <option>50</option>
+          <option>全部</option>
+        </select>
+        行 <img src="../../images/icons/firstpage.gif"  title="首页" class="paginate"/> <img src="../../images/icons/prepage.gif"  title="上一页" class="paginate"/>
+        <input type="text" name="textfield" class="page_txt" />
+        <input type="button" name="button" value="Go" class="btn_go" />
+        <img src="../../images/icons/nextpage.gif"  title="下一页" class="paginate"/> <img src="../../images/icons/lastpage.gif"  title="末页" class="paginate"/></td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>

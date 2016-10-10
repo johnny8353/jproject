@@ -1,0 +1,62 @@
+
+
+	会话超时：
+		针对应用场景的不同，不同应用期望的会话超时时间各不相同。WebSphere应用服务器的会话管理分为Application server、Application、Web Module三个级别。
+		顾名思义，在每个特定级别上更改的会话管理的配置，对当前级别起作用。部署在WebSphere应用服务器上的应用，默认的会话超时时间为30分钟，默认的会话管理级别是Application Server。
+		如果您期望更改您的应用，例如，DefaultApplication的会话超时时间，可按如下步骤进行：选择应用程序>应用程序名>会话管理(图13)，选择“覆盖会话管理”，
+		并在“设置超时”中填上期望的会话超时时间。点击“确定”保存即可。 
+	会话管理
+		Websphere默认未开启URL会话重写，需要修改并重启。维护客户端和服务端会话有两种实现方式，
+			其一是通过URL会话重写，即上面所列的URL后加“;jsessionid=xxx”的方式，
+			另一种是通过Cookie,在产生会话时，应用服务器向客户端Cookie中写一个名为JSESSIONID的会话ID，客户端每次请求时都将Cookie带上来
+		选择应用程序>应用程序名>会话管理
+			默认启用cookie，手动勾选 启用URL重写
+			还可以设置	最大内存中会话数
+
+性能设置
+	Java虚拟机堆大小（JVM Heap Size）: 
+		控制JVM代码可使用的堆大小，单位M。该参数在服务器->应用程序服务器>进程定义>Java虚拟机中进行设置。
+		JVM最大堆大小默认是256M，在生产环境中通常要根据机器物理内存情况、应用运行特性来设置，且多数情况下都要把此参数调大。
+		根据经验，内存充足时，通常的调整在500M到1024M之间。需要注意的是，建议JVM Heap的最大值不要超过1024M，
+		如果JVM Heap Size过大，可能会引起内存分页，或者造成JVM垃圾回收时间过长，反而影响应用服务器性能。有关Java虚拟机调优的具体信息，请参考调整JVM参数。 
+	Web容器线程池：
+		该参数在“服务器 > 应用程序服务器 > server1 > 线程池”的“WebContainer”中进行设置，默认值是10到50。如果硬件资源允许，通常会把线程池的最大大小调到100。 
+	数据源连接池：
+		该参数在资源->JDBC->数据源->数据源名称，选择“连接池设置”中设置，默认大小为1到10。根据资源设置的队列(Queue)原则，从Web容器线程池，到数据源连接池的参数设置，
+		应该是从大到小的管道。前面我们列举了Web容器线程池的最大值设置100，对于数据源连接池，设置的最大值通常不超过50。多数情况下调整为30。
+		实际运行中可以修改此参数值，观察调整对性能是否有正面影响。
+		注意，如果把数据库连接池最大大小调得过大，JVM有限的资源都耗费在维护连接池、处理与数据库连接上，可能反而造成WAS性能的下降。 
+
+-------10.5.6.46 启动命令
+ps -ef | grep java | grep -v grep | cut -c 9-15 | xargs kill -s 9
+	1、启动控制台：/opt/IBM/WebSphere/AppServer/bin/startManager.sh
+	2、启动节点：/opt/IBM/WebSphere/AppServer/profiles/AppSrv01/bin/startNode.sh
+	3.启动服务命令：/opt/IBM/WebSphere/AppServer/profiles/AppSrv01/bin/startServer.sh MSMSTASK
+	                /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/bin/startServer.sh MSMT
+	                /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/bin/startServer.sh MSMSFIX
+	停止命令
+	1.停止服务命令：/opt/IBM/WebSphere/AppServer/profiles/AppSrv01/bin/stopServer.sh MSMSTASK
+	                /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/bin/stopServer.sh MSMT
+	                /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/bin/stopServer.sh MSMSFIX
+	2、停止节点：/opt/IBM/WebSphere/AppServer/profiles/AppSrv01/bin/stopNode.sh
+	3、停止控制台：/opt/IBM/WebSphere/AppServer/bin/stopManager.sh
+	每操作完一个，可以查看下是否启动成功：ps -ef|grep java
+		
+--安装完默认端口
+	登陆控制台的方式：
+	https://10.3.64.180:9043/admin		WC_adminhost_secure
+	http://10.3.64.180:9060/admin		WC_Adminhost
+	访问应用的方式
+	https://10.3.64.180:9443/johnny/	WC_default_secure
+	http://10.3.64.180:9080/johnny/		WC_default
+
+您必须启用管理安全性，才能使用联合存储库功能管理用户和组。  
+  	在管理控制台-安全中启用“全局安全性”，并把“应用程序安全性”、“执行Java 2安全性”选项前的勾去掉——我们今天只考虑控制台的安全性。
+	    接下来对于“用户注册表”的选择，有三种方法：
+	    最简单的——配置本地操作系统用户
+	    单击安全性 > 全局安全性。
+	    在“用户注册表”下，单击本地操作系统。
+	    在服务器用户标识字段中输入有效用户名。
+	    在服务器用户密码字段中输入用户密码。
+
+	 

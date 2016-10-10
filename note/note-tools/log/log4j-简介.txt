@@ -1,0 +1,231 @@
+一．Log4j 
+	1.简介 
+		Log4j是Apache的一个开放源代码项目 
+		使用Log4j,我们可以很方便的来记录日志. 
+		从http://www.apache.org/dist/logging/log4j/1.2.14/下载最新的稳定版本 
+		
+	2.用法 
+		把log4j-1.2.14.jar丢到lib目录下，使用log4j前需要定义配置文件,也可以不使用,而是在代码中配置log4j环境.但是使用配置文件使应用程序更加灵活。 
+		
+		log4j配置文件有三个主要的组件:Logger,Appender和Layout,分别为日志类型,日志输出目的地,日志输出格式. 
+		
+		跟proxool类似,log4j支持两种类型的配置文件,xml和properties 
+		log4j.properties配置文件如下:(需要把log4j的配置文件放在classpath下) 
+
+二．commons-logging介绍 
+	log4j与commons-logging两个包,都是记日志的,为什么要两个一起用呢? 
+	commons-logging是为"所有的Java日志实现"提供一个统一的接口,它自身的日志功能平常弱,而log4j功能非常强大全面,所以拿两者配合使用. 
+		commons-logging工作原理: 
+		1. 首先在classpath下寻找自己的配置文件commons-logging.properties,如果找到,则使用其中定义的Log实现类 
+		2. 如果找不到commons-logging.properties文件,则在查找是否已定义系统环境变量org.apache.commons.logging.Log,找到则使用其定义的Log实现类 
+		3. 查看classpath中是否有Log4j的包,如果发现,则自动使用Log4j作为日志实现类 
+		4. 使用JDK自身的日志实现类(JDK1.4以后才有日志实现类) 
+		5. 使用commons-logging自己提供的一个简单的日志实现类SimpleLog 
+		(以上顺序不保证完全准确,请参考官方文档) 
+	commons-logging总是能找到一个日志实现类,并且尽可能找到一个"最合适"的日志实现类. 
+		1、可以不需要配置文件 
+		2、自动判断有没有Log4j包,有则自动使用之 
+		3、最悲观的情况下也总能保证提供一个日志实现(SimpleLog) 
+
+例子 1：
+	<?xml version="1.0" encoding="UTF-8" ?>   
+	<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">   
+	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">   
+	   
+	    <!-- ========================== 自定义输出格式说明================================ -->
+		日记记录的优先级priority，优先级由高到低分为 
+		OFF ,FATAL ,ERROR ,WARN ,INFO ,DEBUG ,ALL。
+		Log4j建议只使用FATAL ,ERROR ,WARN ,INFO ,DEBUG这五个级别。
+	    <!-- %p 输出优先级，即DEBUG，INFO，WARN，ERROR，FATAL -->   
+	    <!-- %r 输出自应用启动到输出该log信息耗费的毫秒数  -->   
+		<!-- %m 输出代码指定信息，如info(“message”),输出message -->
+	    <!-- %c 输出所属的类目，通常就是所在类的全名 -->   
+	    <!-- %t 输出产生该日志事件的线程名 -->   
+	    <!-- %n 输出一个回车换行符，Windows平台为“/r/n”，Unix平台为“/n” -->   
+	    <!-- %d 输出日志时间点的日期或时间，默认格式为ISO8601，也可以在其后指定格式，比如：%d{yyy MMM dd HH:mm:ss,SSS}，输出类似：2002年10月18日 22：10：28，921  -->   
+	    <!-- %l 输出日志事件的发生位置，包括类目名、发生的线程，以及在代码中的行数。举例：Testlog4.main(TestLog4.java:10)  -->   
+	    <!-- ========================================================================== -->   
+	       
+	    <!-- ========================== 输出方式说明================================ -->   
+	    <!-- Log4j提供的appender有以下几种:  -->   
+	    <!-- org.apache.log4j.ConsoleAppender(控制台),  -->   
+	    <!-- org.apache.log4j.FileAppender(文件),  -->   
+	    <!-- org.apache.log4j.DailyRollingFileAppender(每天产生一个日志文件), -->   
+	    <!-- org.apache.log4j.RollingFileAppender(文件大小到达指定尺寸的时候产生一个新的文件),  -->   
+	    <!-- org.apache.log4j.WriterAppender(将日志信息以流格式发送到任意指定的地方)   -->   
+		<!-- ========================================================================== -->   
+		<!-- 输出到日志文件  -->   
+	    <appender name="filelog_appender"   
+	        class="org.apache.log4j.RollingFileAppender">   
+	        <!-- 设置File参数：日志输出文件名 -->   
+	        <param name="File" value="log/testlog4jxml_all.log" />   
+	        <!-- 设置是否在重新启动服务时，在原有日志的基础添加新日志 -->   
+	        <param name="Append" value="true" />   
+	        <!-- 设置文件大小 -->   
+	        <param name="MaxFileSize" value="1MB" />   
+	        <!-- 设置文件备份个数，当log文件的大小超过上面文件设置的大小时，就会进行备份。当设置的文件备份个数用完后，它会自动覆盖原有的log -->   
+	        <param name="MaxBackupIndex" value="10" />   
+	        <!-- 设置输出文件项目和格式 -->   
+	        <layout class="org.apache.log4j.PatternLayout">   
+	            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p (%c:%L)- %m%n" />   
+	        </layout>   
+	    </appender>   
+	   
+		<!-- 输出到日志文件 每天一个日志  -->   
+	    <appender name="filelog_daily" class="org.apache.log4j.DailyRollingFileAppender">      
+	        <param name="File" value="log/daily.log" />      
+	        <param name="DatePattern" value="'daily.'yyyy-MM-dd'.log'" />      
+	        <layout class="org.apache.log4j.PatternLayout">      
+	            <param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss/} %-5p] [%t] (%c:%L) - %m%n" />      
+	        </layout>      
+	    </appender>    
+	   
+		<!-- 输出到控制台中 -->   
+	    <appender name="console" class="org.apache.log4j.ConsoleAppender">   
+	        <layout class="org.apache.log4j.PatternLayout">   
+	            <param name="ConversionPattern"   
+	                value="%d{yyyy-MM-dd HH:mm:ss} %-5p: %m%n" />   
+	            <!-- "%-5p: [%t] [%c{3}.%M(%L)] | %m%n" -->   
+	        </layout>   
+	    </appender>   
+	   
+		<appender name="EMAIL_QQ" class="org.apache.log4j.net.SMTPAppender">   
+	        <param name="Threshold" value="INFO"/>   
+	        <param name="BufferSize" value="128" />   
+	        <param name="SMTPHost" value="smtp.qq.com" />   
+	        <param name="SMTPUsername" value="cjjvictory" />   
+	        <param name="SMTPPassword" value="***" />   
+	        <param name="From" value="cjjvictory@qq.com" />   
+	        <param name="To" value="cjjvictory@gmail.com" />   
+	        <param name="Subject" value="测试邮件发送" />   
+	        <param name="LocationInfo" value="true" />   
+	        <param name="SMTPDebug" value="true" />   
+	        <layout class="org.cjj.log4j.extend.PatternLayout_zh">   
+	            <param name="ConversionPattern" value="[%d{ISO8601}] %-5p %c %m%n"/>   
+	        </layout>   
+	    </appender>   
+	   
+		<!--- 异步测试，当日志达到缓存区大小时候执行所包的appender -->   
+	    <appender name="ASYNC_test" class="org.apache.log4j.AsyncAppender">      
+			<param name="BufferSize" value="10"/>      
+			<appender-ref ref="EMAIL_QQ"/>   
+	   </appender>   
+	   
+		<!-- 设置包限制输出的通道 -->   
+	    <category name="org.cjj" additivity="false">   
+		<!-- 日志输出级别，起码可以有5个级别，可以扩展自己的级别，邮件发送必须是ERROR级别不好用，所以最后自己扩展一个邮件发送级别 -->   
+				<level value="ERROR" />   
+				<appender-ref ref="filelog_daily" />   
+				<appender-ref ref="daily_appender" />   
+				<appender-ref ref="console" />   
+				<appender-ref ref="ASYNC_test" />   
+		 </category>   
+	   
+	</log4j:configuration>  
+
+
+例子： jbpm - log4j.xml
+	<?xml version="1.0" encoding="UTF-8" ?>
+	<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+	
+	<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+		<!-- appender 部分是可用的日志输出方式定义，可以定义多个 -->
+		<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+			<layout class="org.apache.log4j.PatternLayout">
+				<param name="ConversionPattern" value="%c %d{ISO8601}
+				-- %p -- %m%n"/>
+			</layout>
+		</appender>
+	
+		<appender name="DEBUG" class="org.apache.log4j.RollingFileAppender">
+			<param name="File" value="c:/riatest-debug.log"/>
+			<param name="Append" value="true"/>
+			<param name="MaxFileSize" value="500KB"/>
+			<param name="MaxBackupIndex" value="2"/>
+			<layout class="org.apache.log4j.PatternLayout">
+				<param name="ConversionPattern" value="%c %d{ISO8601}
+				-- %p -- %m%n"/>
+			</layout>
+			<filter class="org.apache.log4j.varia.LevelRangeFilter">
+				<param name="LevelMin" value="DEBUG" />
+				<param name="LevelMax" value="DEBUG" />
+			</filter>
+		</appender>
+	
+		<appender name="INFO" class="org.apache.log4j.RollingFileAppender">
+			<param name="File" value="c:/riatest-info.log"/>
+			<param name="Append" value="true"/>
+			<param name="MaxFileSize" value="500KB"/>
+			<param name="MaxBackupIndex" value="2"/>
+			<layout class="org.apache.log4j.PatternLayout">
+				<param name="ConversionPattern" value="%c %d{ISO8601}
+			-- %p -- %m%n"/>
+			</layout>
+			<filter class="org.apache.log4j.varia.LevelRangeFilter">
+				<param name="LevelMin" value="INFO" />
+				<param name="LevelMax" value="INFO" />
+			</filter>
+		</appender>
+	
+		<appender name="WARN" class="org.apache.log4j.RollingFileAppender">
+			<param name="File" value="c:/riatest-warn.log"/>
+			<param name="Append" value="true"/>
+			<param name="MaxFileSize" value="500KB"/>
+			<param name="MaxBackupIndex" value="2"/>
+			<layout class="org.apache.log4j.PatternLayout">
+				<param name="ConversionPattern" value="%c %d{ISO8601}
+				-- %p -- %m%n"/>
+			</layout>
+			<filter class="org.apache.log4j.varia.LevelRangeFilter">
+				<param name="LevelMin" value="WARN" />
+				<param name="LevelMax" value="WARN" />
+			</filter>
+		</appender>
+	
+		<appender name="ERROR" class="org.apache.log4j.RollingFileAppender">
+			<param name="File" value="c:/riatest-error.log"/>
+			<param name="Append" value="true"/>
+			<param name="MaxFileSize" value="500KB"/>
+			<param name="MaxBackupIndex" value="2"/>
+			<layout class="org.apache.log4j.PatternLayout">
+				<param name="ConversionPattern" value="%c %d{ISO8601}
+				-- %p -- %m%n"/>
+			</layout>
+			<filter class="org.apache.log4j.varia.LevelRangeFilter">
+				<param name="LevelMin" value="ERROR" />
+				<param name="LevelMax" value="ERROR" />
+			</filter>
+		</appender>
+	
+		
+	
+		<!--  category 部分定义了特定包或者类的输出级别和方式，可以有多个 -->
+		<category name="org.apache">
+		   <priority value="warn"/>
+		   <appender-ref ref="WARN"/>
+		</category>
+	
+		<category name="net.sf">
+		   <priority value="warn"/>
+		   <appender-ref ref="WARN"/>
+		</category>
+		
+		<!-- additivity 如果additivity为false，那么只生成一个rollinglogfile.log的日志文件，屏幕上没有日志信息输出。
+		如果additivity为true那么，屏幕上有日志信息显示（因为rootLogger 的日志输出终端为stdout-屏幕），而且会生成rollinglogfile.log的日志文件。
+		additivity在log4j默认为true。这解释了为什么有些时候，一个日志信息在屏幕上会有多次输出。-->
+		<category name="com.zte.ssb" additivity="false">
+		   <priority value="info"/>
+		   <appender-ref ref="INFO"/>
+		</category>
+		
+		
+		<!--  root部分定义了log4j的默认输出级别和方式  -->
+		<root>
+			<priority value="warn"/>
+			<appender-ref ref="INFO"/>
+			<appender-ref ref="WARN"/>
+			<appender-ref ref="ERROR"/>
+			<appender-ref ref="STDOUT"/>
+		</root>
+	
+	</log4j:configuration> 

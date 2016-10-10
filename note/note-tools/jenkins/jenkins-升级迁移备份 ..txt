@@ -1,0 +1,18 @@
+升级Jenkins
+	Jenkins的开发迭代非常快，每周发布一个开发版本，长期支持版每半年更新一次(ps:大版本更新)。如此频繁的更新，怎么升级呢？
+		war：下载新版的war文件，替换旧版本war文件。重启即可。
+		二进制：卸载旧版本，安装新版本即可。
+	Jenkins程序下载地址：http://mirrors.jenkins-ci.org/
+
+	note：升级前，请测试该版本和你本地数据的兼容性。如何测试：将JENKINS_HOME拷贝一份到新的机器，用新版的程序启动。测试对应的插件和配置。
+
+迁移和备份
+	首先找到JENKINS_HOME，因为Jenkins的所有的数据都是以文件的形式存放在JENKINS_HOME目录中。所以不管是迁移还是备份，只需要操作JENKINS_HOME就行了。
+
+	迁移：建议将JENKINS_HOME打包后在拷贝，windows上可以用zip，rar等，Linux上有zip，tar等。然后将打包的文件解压到新的JENKINS_HOME目录就行了。
+	
+	备份：
+		-Jenkins纳入版本控制
+		-临时备份，整个压缩文件
+
+

@@ -1,0 +1,71 @@
+5.2.	使用JDK开发WebService （jdk1.6及以上）
+	1).开发服务器端
+	•	Web Service编码：
+	–	@WebService( SEI和SEI的实现类)
+	–	@WebMethod(SEI中的所有方法)
+	•	发布Web Service：
+	–	Endpoint(终端, 发布webservice)
+			String address = "http://10.17.183.43:8989/johnny/hellows";
+			Endpoint.publish(address , new HelloWSImpl());
+	2）开发客户端1		-	wsimort	工具
+	•	使用eclipse提供的web service浏览器访问
+	–	查看对应的wsdl文档：…..?wsdl (一般浏览器)
+	–	请求webService并查看请求和响应消息(webservice浏览器)
+	
+	•	创建客户端应用编码方式访问
+	–	借助jdk的wsimort.exe工具生成客户端代码：
+			wsimport也是在JDK的bin目录下的一个exe文件（Windows版），主要功能是根据服务端发布的wsdl文件生成客户端存根及框架，负责 与Web Service 服务器通信，并在将其封装成实例，
+			客户端可以直接使用，就像使用本地实例一样。对Java而言，wsimport帮助程序员生存调用web service所需要的客户端类文件.java和.class。
+			要提醒指出的是，wsimport可以用于非Java的服务器端，如：服务器端也许是C# 编写的web service，通过wsimport则生成Java的客户端实现。
+			
+			wsimport -keep url   //url为wsdl文件的路径,本地或url
+			在jdk的bin目录下有一个wsimport.exe的工具，使用该工具可以根据wsdl地址生成java的客户端代码。
+			常用命令如下：
+			wsimport  -keep -d d:\ -s d:\src -p com.map -verbose http://192.168.1.33:9003/Map/V2?wsdl  
+			-keep：是否生成java源文件
+			-d：指定输出目录
+			-s：指定源代码输出目录
+			-p：以package的形式生成文件
+			-verbose：在控制台显示输出信息
+		调用代码	
+			public void TestJAXWS(){
+				/**
+				 <service name="HelloWSImplService">
+					<port name="HelloWSImplPort" binding="tns:HelloWSImplPortBinding">
+				  		<soap:address location="http://10.17.183.43:8989/johnny/hellows" /> 
+				  	</port>
+				 </service>
+				 */
+				HelloWSImplService helloWSImplService = new HelloWSImplService();
+				HelloWSImpl helloWSImpl = helloWSImplService.getHelloWSImplPort();
+				String result = helloWSImpl.sayHello("johnny");
+				System.out.println("JAX_WS client:"+result);
+			}
+	–	借助生成的代码编写请求代码
+	
+	
+	问题1：生成的java对象HelloWSImplService使用了绝对地址引用wsdl文件？？
+		
+	
+5.3.	监听请求: 使用Eclipse的TCP/IP工具(端口转发)
+1.	将服务器端的WSDL文档保存到客户端本地
+2.	修改文档: 将端口号从8989改为8080
+3.	根据本地的wsdl文档生成客户端代码, 并编写客户端的调用代码
+4.	配置eclipse的TCP/IP,启动监听
+5.	执行客户端代码发送WebService请求
+
+5.4.	调用免费的web service(天气预报)
+1.	Google”免费WebService”, 找到提供天气预报Webservice的网络地址
+–	http://webservice.webxml.com.cn/WebServices/WeatherWS.asmx
+-	http://webservice.36wu.com/MobilePhoneService.asmx
+2.	使用eclipse的web service浏览器访问
+
+3.	客户端编码方式访问
+–	借助命令工具自动生成客户端代码
+–	借助生成的代码编写请求代码
+
+说明: 直接生成客户端代码会抛异常, 无法生成客户端代码, 解决办法:
+1.	将对应的wsdl文档保存到本地
+2.	修改wsdl文档的部分内容:
+将 <s:element ref="s:schema" /><s:any /> 替换成 <s:any minOccurs="2" maxOccurs="2"/>
+备注: 这个是Java调用net的webservice都有的问题

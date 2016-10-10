@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serviceGroup>
+	<service name="HelloWS1">
+		<description>
+			HelloWorld Service Example
+		</description>
+		<parameter name="ServiceClass">
+			com.johnny.webservice.axis2.helloworld.HelloWSImpl
+		</parameter>
+		<operation name="sayHello">
+			<messageReceiver class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+		</operation>
+		<operation name="saySorry">
+			<messageReceiver class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+		</operation>
+		<operation name="getWorld">
+			<messageReceiver
+				class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+		</operation>
+	</service>
+	<service name="HelloWorld2">
+		<description>
+			HelloWorld Service Example
+		</description>
+		<parameter name="ServiceClass">
+			com.johnny.webservice.axis2.helloworld.HelloWSImpl
+		</parameter>
+		<operation name="sayHello">
+			<messageReceiver class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+		</operation>
+		<operation name="saySorry">
+			<messageReceiver class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+		</operation>
+		<operation name="getWorld">
+			<messageReceiver
+				class="org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver" />
+		</operation>
+	</service>
+</serviceGroup>

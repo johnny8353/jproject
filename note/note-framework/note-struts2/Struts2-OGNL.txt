@@ -1,0 +1,61 @@
+1. 关于值栈:
+1). helloWorld 时, ${productName} 读取 productName 值, 实际上该属性并不在 request 等域对象中, 而是从值栈中获取的. 
+2). ValueStack: 
+	I.  可以从 ActionContext 中获取值栈对象
+	II. 值栈分为两个逻辑部分
+		> Map 栈: 实际上是 OgnlContext 类型, 是个 Map, 也是对 ActionContext 的一个引用. 里边保存着各种 Map:
+		         requestMap, sessionMap, applicationMap, parametersMap, attr
+		> 对象栈: 实际上是 CompoundRoot 类型, 是一个使用 ArrayList 定义的栈. 里边保存各种和当前 Action 实例相关的对象.
+		                   是一个数据结构意义的栈.
+	<s:debug></s:debug> 输出	                   
+2. Struts2 利用 s:property 标签和 OGNL 表达式来读取值栈中的属性值
+	 在 JSP 页面上可以可以利用 OGNL(Object-Graph Navigation Language: 对象-图导航语言) 访问到值栈(ValueStack) 里的对象属性.
+	 1). 值栈中的属性值:
+	 	> 对于对象栈: 对象栈中某一个对象的属性值
+	 	> Map 栈: request, session, application 的一个属性值 或 一个请求参数的值. 
+		若希望访问值栈中 ContextMap 中的数据, 需要给 OGNL 表达式加上一个前缀字符 #. 如果没有前缀字符 #, 搜索将在 ObjectStack 里进行. 
+	 	
+	 2). 读取对象栈中对象的属性:
+	 	> 若想访问 Object Stack 里的某个对象的属性. 可以使用以下几种形式之一: 
+		  object.propertyName ; object['propertyName'] ; object["propertyName"]	
+		> ObjectStack 里的对象可以通过一个从零开始的下标来引用. ObjectStack 里的栈顶对象可以用 [0] 来引用, 
+		     它下面的那个对象可以用 [1] 引用. 
+		  [0].message   
+		> [n] 的含义是从第 n 个开始搜索, 而不是只搜索第 n 个对象
+		> 若从栈顶对象开始搜索, 则可以省略下标部分: message 
+		> 结合 s:property 标签: <s:property value="[0].message" />  <s:property value="message" />
+	 3). 默认情况下, Action 对象会被 Struts2 自动的放到值栈的栈顶. 
+	 
+	调用字段和方法
+		可以利用 OGNL 调用
+			-任何一个 Java 类里的静态字段或方法.
+			-被压入到 ValueStack 栈的对象上的公共字段和方法. 
+		默认情况下, Struts2 不允许调用任意 Java 类静态方法,  需要重新设置 struts.ognl.allowStaticMethodAccess 标记变量的值为 true. 
+		调用静态字段或方法需要使用如下所示的语法:
+			-@fullyQualifiedClassName@fieldName: @java.util.Calendar@DECEMBER
+			-@fullyQualifiedClassName@methodName(argumentList): @app4.Util@now()
+		调用一个实例字段或方法的语法, 其中 object 是 Object Stack 栈里的某个对象的引用:
+			-.object.fieldName: [0].datePattern
+			-.object.methodName(argumentList): [0].repeat(3, “Hello”);
+	访问数组类型的属性
+		有些属性将返回一个对象数组而不是单个对象, 可以像读取任何其他对象属性那样读取它们. 这种数组型属性的各个元素以逗号分隔, 并且不带方括号
+		可以使用下标访问数组中指定的元素: colors[0]
+		可以通过调用其 length 字段查出给定数组中有多少个元素: colors.length
+	访问 List 类型的属性	
+		有些属性将返回的类型是 java.util.List, 可以像读取任何其他属性那样读取它们. 这种 List 的各个元素是字符串, 以逗号分隔, 并且带方括号
+		可以使用下标访问 List 中指定的元素: colors[0]
+		可以通过调用其 size 方法或专用关键字 size 的方法查出给定List 的长度: colors.size 或 colors.size()
+		可以通过使用 isEmpty() 方法或专用关键字 isEmpty 来得知给定的 List 是不是空. colors.isEmpty 或 colors.isEmpty()
+		还可以使用 OGNL 表达式来创建 List, 创建一个 List 与声明一个 Java 数组是相同的: {“Red”, “Black”, “Green”}
+	访问 Map 类型的属性
+		读取一个 Map 类型的属性将以如下所示的格式返回它所有的键值对: 
+		若希望检索出某个 Map 的值, 需要使用如下格式: map[key] 
+		可以使用 size 或 size() 得出某个给定的 Map 的键值对的个数
+		可以使用 isEmpty 或 isEmpty() 检查某给定 Map 是不是空. 
+		可以使用如下语法来创建一个 Map: 
+	使用 EL 访问值栈中对象的属性 
+		<s:property value=“fieldName”> 也可以通过 JSP EL 来达到目的: ${fieldName}
+		原理: Struts2 将包装 HttpServletRequest 对象后的 org.apache.struts2.dispatcher.StrutsRequestWrapper 对象传到页面上, 而这个类重写了 getAttribute() 方法.   
+				
+	
+			

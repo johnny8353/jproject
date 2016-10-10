@@ -1,0 +1,1492 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>用户界面规范-BS 帮助中心</title>
+<link href="../css/main.css"  type="text/css" rel="stylesheet"/>
+<link href="../css/index.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../js/jquery.js" ></script>
+<script type="text/javascript" src="../js/main.js" ></script>
+<!--作者：刘凯华-->
+<!--时间：2009-5-19-->
+</head>
+
+<body>
+<div id="content" class="demo_help">
+
+<!--表格制作-->
+<p class="menu1">1 表格制作</p>
+
+<!--查询表格-->
+<p class="menu2">1.1 查询表格<a name="1.1"></a></p>
+<p>
+  查询数据时使用查询表格样式。
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>table样式为：class="tb_input" 且 cellspacing="1"</li>
+<li>表头td样式为：class=&quot;search&quot;</li>
+<li>表格一般分为4例，标题td样式为：class=&quot;td_title&quot;,标题列占百分比为10%-15%</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/search.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+  &lt;table cellspacing="1" cellpadding="0" class="tb_search"&gt;
+    &lt;tr&gt;
+      &lt;td colspan="4" class="search"&gt;请填写查询条件&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td class="td_title" width="12%"&gt;单据号&lt;/td&gt;
+      &lt;td width="40%"&gt;&lt;input type="text" name="txtNo" class="txt_120"/&gt;&lt;/td&gt;
+      &lt;td class="td_title" width="12%"&gt;申请人&lt;/td&gt;
+      &lt;td&gt;&lt;input type="text" name="txtPerson" class="txt_120"/&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td colspan="4" align="right"&gt;
+        &lt;input name="btnSearch" type="button" value="查询" class="button" onclick="searchresult();"/&gt;
+        &lt;input name="btnReset" type="reset" value="清空" class="button"/&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+ </pre>
+</div>
+
+<!--信息表格-->
+<p class="menu2">1.2 信息表格<a name="1.2"></a></p>
+<p>
+  新增、查看信息时使用信息表格样式。
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>table样式为：class="tb_input" 且 cellspacing="1"</li>
+<li>表格一般分为4例，标题td样式为：class=&quot;td_title&quot;,标题列占百分比为10%-15%</li>
+<li>对表格的操作按钮放在表格外，操作按钮div样式为：class=&quot;tab_operate&quot;</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/input.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;table cellpadding="0" cellspacing="1" class="tb_input"&gt;
+      &lt;tr&gt;
+        &lt;td colspan="4" class="note"&gt;图书信息&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"&gt;资源编号&lt;/td&gt;
+        &lt;td colspan="3"&gt;BOSZ-010-0001-TPB&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title" width="12%"&gt;图书名称&lt;span class="must"&gt;*&lt;/span&gt;&lt;/td&gt;
+        &lt;td width="38%"&gt;&lt;input type="text" name="txt22" class="txt_120"/&gt;&lt;/td&gt;
+        &lt;td width="12%" class="td_title"&gt;图书数量&lt;span class="must"&gt;*&lt;/span&gt;&lt;/td&gt;
+        &lt;td width="38%"&gt;&lt;input type="text" name="txt2" class="txt_120"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"&gt;图书类型&lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" name="txt222" class="txt_120"/&gt;&lt;/td&gt;
+        &lt;td class="td_title"&gt;本书编号&lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" name="txt224" class="txt_120"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+    &lt;div class="tab_operate"&gt;
+      &lt;input type="button" class="button" id="btnSave" value="提交"/&gt;
+      &lt;input type="button" class="button" id="btnSubmit" value="取消"/&gt;
+    &lt;/div&gt;
+ </pre>
+</div>
+
+<!--查询结果表头-->
+<p class="menu2">1.3 查询结果表头<a name="1.3"></a></p>
+<p>
+  在查询结果表格前，用来放标题及操作按钮。
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>table样式为：class="tb_title"</li>
+<li>标题td样式为：class="icon_note"</li>
+<li>操作按钮td样式为：class="tb_btn"</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/head.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;table cellspacing="0" cellpadding="0" class="tb_title"&gt;
+      &lt;tr&gt;
+        &lt;td class="icon_note"&gt;单据列表&lt;/td&gt;
+        &lt;td class="tb_btn"&gt;&lt;input name="" type="button" value="新增" class="button"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+ </pre>
+</div>
+
+<!--查询结果表格-->
+<p class="menu2">1.4 查询结果表格<a name="1.4"></a></p>
+<p>
+  此样式用于查询结果。</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>table样式为class="tb_datalist" 且 cellspacing="1"</li>
+<li>标题行放在"thead"之间，tr样式为：class=&quot;tr_title&quot;，td内不用再写样式</li>
+<li>数据行放在"tbody"之间才能使demo有奇偶行、鼠标划过及选中效果</li>
+<li>翻页控件放在"tfoot"之间，其colspan参数值应等于数据行列值，否则在IE8下会出错。如：数据行有7列，则colspan="7"</li>
+</ol>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/result.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+  &lt;table cellpadding="0" cellspacing="1" class="tb_datalist"&gt;
+      &lt;thead&gt;
+        &lt;tr class="tr_title"&gt;
+          &lt;td width="18%"&gt;单据号&lt;/td&gt;
+          &lt;td width="10%"&gt;申请人&lt;/td&gt;
+          &lt;td width="11%"&gt;提交日期&lt;/td&gt;
+          &lt;td width="12%"&gt;本币金额&lt;/td&gt;
+          &lt;td width="27%"&gt;部门&lt;/td&gt;
+          &lt;td width="11%"&gt;单据状态&lt;/td&gt;
+          &lt;td width="11%"&gt;操作&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td&gt;HS301-5000020011&lt;/td&gt;
+          &lt;td&gt;王伟10010933&lt;/td&gt;
+          &lt;td&gt;2008-10-24&lt;/td&gt;
+          &lt;td align="right"&gt;343.00&lt;/td&gt;
+          &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td&gt;审核中&lt;/td&gt;
+          &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td&gt;HS302-2005000021&lt;/td&gt;
+          &lt;td&gt;张伟50001023&lt;/td&gt;
+          &lt;td&gt;2008-10-22&lt;/td&gt;
+          &lt;td align="right"&gt;256.00&lt;/td&gt;
+          &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td&gt;已提交&lt;/td&gt;
+          &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+      &lt;tr class="tr_pagenumber"&gt;
+        &lt;td colspan="7"&gt; 
+              第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+              &lt;select name="select" &gt;
+                &lt;option selected&gt;10&lt;/option&gt;
+                &lt;option &gt;20&lt;/option&gt;
+                &lt;option&gt;20&lt;/option&gt;
+                &lt;option&gt;40&lt;/option&gt;
+                &lt;option&gt;50&lt;/option&gt;
+                &lt;option&gt;全部&lt;/option&gt;
+              &lt;/select&gt;
+              行 &lt;img src="../../../images/icons/firstpage.gif" title="首页" class="paginate"/&gt; &lt;
+              img src="../../../images/icons/prepage.gif" title="上一页" class="paginate"/&gt;
+              &lt;input type="text" name="textfield" class="page_txt" /&gt;
+              &lt;input type="button" name="button" value=&quot;Go&quot; class="btn_go" /&gt;
+              &lt;img src="../../../images/icons/nextpage.gif" title="下一页" class="paginate"/&gt; &lt;
+              img src="../../../images/icons/lastpage.gif" title="末页" class="paginate"/&gt;
+          &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+ </pre>
+</div>
+
+<br/>
+<br/>
+<!--控件使用-->
+<p class="menu1">2 控件使用</p>
+
+<!--日期控件-->
+<p class="menu2">2.1 日期控件<a name="2.1"></a></p>
+<p>
+  先在"head"之间引入日期控件JS,然后把日期控件代码拷贝过来即可
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>引入日期控件时JS时，路径要正确</li>
+<li>img的onclick事件中的参数一定要与input的name相同</li>
+<li>在同一页面存在多个日期控件时，各日期控件的name要保持唯一性</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/date.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+     &lt;script type="text/javascript" src="../../js/dateTextBox.js"&gt;&lt;/script&gt;
+     &lt;input name="dateStart" class="txt_120" onChange="fCheckDateTime('dateStart')"/&gt;
+     &lt;img border="0" src="../../../images/icons/calendar.gif" width="16" height="15"  style="cursor:pointer"
+          onclick="javascript:fPopCalendar(dateStart,dateStart,dateStart.value );"/&gt; 至
+     &lt;input name="dateEnd" class="txt_120" onChange="fCheckDateTime('dateEnd')"/&gt;
+     &lt;img border="0" src="../../../images/icons/calendar.gif" width="16" height="15"  style="cursor:pointer"
+          onclick="javascript:fPopCalendar(dateEnd,dateEnd,dateEnd.value );"/&gt;
+ </pre>
+</div>
+
+<!--翻页控件-->
+<p class="menu2">2.2 翻页控件<a name="2.2"></a></p>
+<p>
+  翻页控件为table的最后一行，放在"tbody"外或“tfoot”中
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>tr样式为：class="tr_pagenumber"</li>
+<li>翻页控件td的colspan参数值应等于数据行列值，否则在IE8下会出错。如：数据行有7列，则colspan="7"</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/pagenumber.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+     &lt;tr class="tr_pagenumber"&gt;
+        &lt;td colspan="7"&gt; 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+          &lt;select name="select" &gt;
+            &lt;option selected&gt;10&lt;/option&gt;
+            &lt;option &gt;20&lt;/option&gt;
+            &lt;option&gt;20&lt;/option&gt;
+            &lt;option&gt;40&lt;/option&gt;
+            &lt;option&gt;50&lt;/option&gt;
+            &lt;option&gt;全部&lt;/option&gt;
+          &lt;/select&gt;
+          行 &lt;img src="../../../images/icons/firstpage.gif" title="首页" class="paginate"/&gt;
+          &lt;img src="../../../images/icons/prepage.gif" title="上一页" class="paginate"/&gt;
+          &lt;input type="text" name="textfield" class="page_txt" /&gt;
+          &lt;input type="button" name="button" value=&quot;Go&quot; class="btn_go" /&gt;
+          &lt;img src="../../../images/icons/nextpage.gif" title="下一页" class="paginate"/&gt;
+          &lt;img src="../../../images/icons/lastpage.gif" title="末页" class="paginate"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+ </pre>
+</div>
+
+<!--排序控件-->
+<p class="menu2">2.3 排序控件<a name="2.3"></a></p>
+<p>
+  对查询结果进行排序
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>引入日期控件时JS时，路径要正确</li>
+<li>jquery.js要放在引用JS文件的最新面</li>
+<li>js代码中的"#myTable"为排序table的id</li>
+<li>标题tr必须放在"thead"之间</li>
+<li>标题列标签使用th而非td</li>
+<li><a href="../js/tablesorter/jQuery插件之tablesorter表格排序.mht.htm"  target="_blank">点击查看</a>更多关于排序控件的使用帮助 </li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/sort.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;script type="text/javascript" src="../../js/jquery.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="../../js/tablesorter/jquery.tablesorter.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+	 $(function() {
+			$("#myTable").tablesorter({sortList: [[0,0]], headers: { 3:{sorter: false}, 
+            4:{sorter: false}, 5:{sorter: false}, 6:{sorter: false}}});
+	  });
+    &lt;/script&gt;
+    &lt;table cellpadding="0" cellspacing="1" class="tb_datalist" id="myTable"&gt;
+       &lt;thead&gt;
+          &lt;tr class="tr_title"&gt;
+            &lt;th width="18%"&gt;单据号&lt;/th&gt;
+            &lt;th width="10%"&gt;申请人&lt;/th&gt;
+            &lt;th width="11%"&gt;提交日期&lt;/th&gt;
+            &lt;th width="12%"&gt;本币金额&lt;/th&gt;
+            &lt;th width="27%"&gt;部门&lt;/th&gt;
+            &lt;th width="14%"&gt;单据状态&lt;/th&gt;
+            &lt;th width="8%"&gt;操作&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          &lt;tr&gt;
+            &lt;td&gt;HS301-5000020011&lt;/td&gt;
+            &lt;td&gt;王伟10010933&lt;/td&gt;
+            &lt;td&gt;2008-10-24&lt;/td&gt;
+            &lt;td align="right"&gt;343.00&lt;/td&gt;
+            &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+            &lt;td&gt;审核中&lt;/td&gt;
+            &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/tbody&gt;
+     &lt;/table&gt;
+ </pre>
+</div>
+
+<!--树开控件-->
+<p class="menu2">2.4 树形控件<a name="2.4"></a></p>
+<p>
+  树形控件主要用于展示组织机构、目录等
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>先引入树形控件的css和js</li>
+<li>注意保证树形控件的图标路径[var d = new dTree('d','../../js/dtree/img/');]的正确，否则图标无法显示</li>
+<li><a href="../js/dtree/api.html"  target="_blank">点击查看</a>更多关于树形控件的使用帮助</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/tree.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+     &lt;link href="../../js/dtree/dtree.css" type="text/css" rel="stylesheet"/&gt; 
+     &lt;script src="../../js/dtree/dtree.js" type="text/javascript"&gt;&lt;/script&gt;
+     &lt;div class="dtree"&gt;
+	   &lt;script type="text/javascript"&gt;
+            var d = new dTree('d','../../js/dtree/img/');
+            d.config.target = "mainFrame";
+            d.config.useIcons = true;
+    
+            d.add(0,-1,'我的所有文档','mainContent.html');
+            d.add(1,0,'公文包');
+            d.add(2,0,'收藏夹','mainContent.html');
+            d.add(3,0,'办公素材','mainContent.html');
+            d.add(4,0,'收件箱','mainContent.html');
+            d.add(5,1,'XX会议纪要','mainContent.html');
+            d.add(6,1,'XX谈话记录','mainContent.html');
+            d.add(7,1,'XX合同书','mainContent.html');
+            d.add(8,1,'XX报账单','mainContent.html');
+            d.add(9,2,'重要图片','mainContent.html',);
+            d.add(10,2,'精彩文章','mainContent.html');
+            d.add(11,2,'学习资料','mainContent.html');
+            d.add(12,3,'常用小图标','mainContent.html');
+            d.add(13,3,'PPT模版','mainContent.html');
+            d.add(14,4,'未读消息','mainContent.html');
+            d.add(15,4,'已读消息','mainContent.html');
+            d.add(16,0,'我的回收站','mainContent.html','','','../../js/dtree/img/trash.gif');
+    
+            document.write(d);
+        &lt;/script&gt;
+     &lt;/div&gt;
+ </pre>
+</div>
+
+<!--人员选择控件-->
+<p class="menu2">2.5 人员选择控件<a name="2.5"></a></p>
+<p>
+  用于人员选择，分为单人选择、多人选择、人员/群组选择
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>引入jquery.js和main.js 且 jquery.js要放在main.js前面</li>
+<li>设置放大镜图标中的onclick参数：onclick="openwin('oneMan.html','',650,400)"，“oneMan.html“为弹出窗口的页面，“650”为弹出窗口的长度，“400”为弹出窗口的高度</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/selectman.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;table cellpadding="0" cellspacing="1" class="tb_input"&gt;
+      &lt;tr&gt;
+        &lt;td colspan="2" class="note"&gt;人员选择样式&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td width="20%" class="td_title"&gt;人员选择(单选)&lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" name="txtNo" class="txt_150"/&gt;
+            &lt;img src="../../../images/icons/search2.gif" alt="选择人员" style="cursor:pointer" 
+            onclick="openwin('oneMan.html','',650,400)"/&gt; &nbsp;&lt;span class="tips"&gt;可输可选LOV:常用于查询条件&lt;/span&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"&gt;人员选择(多选)&lt;/td&gt;
+        &lt;td&gt;&lt;textarea name="txt222" class="txt_400" rows="3" readonly="readonly"
+                onClick="openwin('mulSelect.html','',650,400);" style="cursor:pointer"&gt;&lt;/textarea&gt;
+                &lt;img src="../../../images/icons/search2.gif" style="cursor:pointer" 
+                onClick="openwin('mulSelect.html','',650,400);"/&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"&gt;人员选择(多选、带组织树)&lt;/td&gt;
+        &lt;td&gt;&lt;textarea name="textarea" class="txt_400" rows="3" readonly="readonly"
+            onclick="openwin('mulSelectAll.html','',750,450);" style="cursor:pointer"&gt;&lt;/textarea&gt;
+            &lt;img src="../../../images/icons/search2.gif" style="cursor:pointer" 
+            onclick="openwin('mulSelectAll.html','',750,450);"/&gt; 
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"&gt;人员、群组选择&lt;/td&gt;
+        &lt;td&gt;&lt;textarea name="textarea2" class="txt_400" rows="3" readonly="readonly"
+             onclick="openwin('manGroup.html','',750,450);" style="cursor:pointer"&gt;&lt;/textarea&gt;
+            &lt;img src="../../../images/icons/search2.gif" style="cursor:pointer" 
+            onclick="openwin('manGroup.html','',750,450);"/&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+ </pre>
+</div>
+
+<!--部门选择控件-->
+<p class="menu2">2.6 部门选择控件<a name="2.6"></a></p>
+<p>
+  用于组织部门的选择，分为单个部门选择、多个部门选择
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>引入jquery.js和main.js 且 jquery.js要放在main.js前面</li>
+<li>设置放大镜图标中的onclick参数：onclick="openwin_nobar('selectDep.html','',350,500)"，“selectDep.html“为弹出窗口的页面，“350”为弹出窗口的长度，“500”为弹出窗口的高度</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/selectdept.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;table cellpadding="0" cellspacing="1" class="tb_input"&gt;
+      &lt;tr&gt;
+        &lt;td colspan="2" class="note"&gt;部门选择&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title" width="20%"&gt;部门选择(单选)&lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" name="txtNo" class="txt_150"/&gt;
+            &lt;img src="../../../images/icons/search2.gif" alt="选择部门" style="cursor:pointer" 
+            onclick="openwin_nobar('selectDep.html','',350,500)"/&gt; &nbsp;&lt;span class="tips"&gt;可输可选LOV:常用于查询条件&lt;/span&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"&gt;部门选择(单选)&lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" name="txtNo" class="txt_150" readonly="readonly"/&gt;
+          &lt;img src="../../../images/icons/search2.gif" alt="选择部门" style="cursor:pointer"
+          onclick="openwin_nobar('selectDep.html','',350,500);"/&gt; &nbsp;&lt;span class="tips"&gt;不可输可选&lt;/span&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"&gt;部门选择(带查询条件)&lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" name="txtNo2" class="txt_150" readonly="readonly"/&gt;
+          &lt;img src="../../../images/icons/search2.gif" alt="选择人员" style="cursor:pointer"
+          onclick="openwin('searchDept.html','',650,400)"/&gt; &nbsp;&nbsp;&lt;span class="tips"&gt;通过查询条件查找部门，适用于低带宽&lt;/span&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"&gt;部门选择(多选)&lt;/td&gt;
+        &lt;td&gt;&lt;textarea name="txt222" class="txt_400" rows="3" readonly="readonly"
+            onClick="openwin_nobar('selectDepMul.html','',350,500);" style="cursor:pointer"&gt;&lt;/textarea&gt;
+          &lt;img src="../../../images/icons/search2.gif" style="cursor:pointer"
+          onClick="openwin_nobar('selectDepMul.html','',350,500);"/&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+ </pre>
+</div>
+
+<br/>
+<br/>
+<!--表格制作-->
+<p class="menu1">3 表单风格</p>
+
+<!--折叠表单-->
+<p class="menu2">3.1 折叠表单<a name="3.1"></a></p>
+<p>
+  页面内存在较多表单时，应考虑使用折叠表单。
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>引入jquery.js和main.js 且 jquery.js要放在main.js前面</li>
+<li>折叠table样式为：class="tb_title_gray"</li>
+<li>标题td样式为：class="hidetit"[显示为&quot;-&quot;号]或class="showtit"[显示为&quot;+&quot;号];另外一个td样式为：class="tb_btn",用来放操作按钮</li>
+<li>折叠对象为table即可</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/colltab.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;script type="text/javascript" src="../../js/jquery.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="../../js/main.js"&gt;&lt;/script&gt;
+    &lt;table cellpadding="0" cellspacing="1" class="tb_datalist"&gt;
+      &lt;thead&gt;
+        &lt;tr class="tr_title"&gt;
+          &lt;td width="19%" height="26"&gt;收款人名称&lt;/td&gt;
+          &lt;td width="25%"&gt;总行&lt;/td&gt;
+          &lt;td width="21%"&gt;支付方式&lt;/td&gt;
+          &lt;td width="23%"&gt;金额&lt;/td&gt;
+          &lt;td width="12%"&gt;操作&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tr id="cloneObj1"&gt;
+        &lt;td&gt;&lt;input type="text" value="" class="txt_100"/&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" value="" class="txt_150"/&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;select name="select" class="txt_100"&gt;
+		&lt;option selected="selected"&gt;请选择&lt;/option&gt;
+		&lt;option&gt;在线支付&lt;/option&gt;
+		&lt;option&gt;银行转账&lt;/option&gt;
+		&lt;/select&gt;
+        &lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" value="" class="txt_50"/&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;a href="#"&gt;保存&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+ </pre>
+</div>
+
+<!--标签式表单-->
+<p class="menu2">3.2 标签式表单<a name="3.2"></a></p>
+<p>
+  当页面内存在同级表单时，使用标签式表单可方便用户快速切换查看
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>引入jquery.js和main.js 且 jquery.js要放在main.js前面</li>
+<li>ul样式为：class="tab_list"，id为：id="tab1"</li>
+<li>标签对象table id要按格式顺序取值，格式为id="tabTable0"、id="tabTable1"、id="tabTable2"...</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/tab.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;script type="text/javascript" src="../../js/jquery.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="../../js/main.js"&gt;&lt;/script&gt;
+    &lt;ul class="tab_list" id="tab1"&gt;
+      &lt;li class="selected" onClick="selectMenu(this,'tabTable0')"&gt;标签1&lt;/li&gt;
+      &lt;li class="unselected" onClick="selectMenu(this,'tabTable1')"&gt;标签2&lt;/li&gt;
+      &lt;li class="unselected" onClick="selectMenu(this,'tabTable2')"&gt;标签3&lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;!--标签1--&gt;
+    &lt;table cellpadding="0" cellspacing="1" class="tb_datalist" id="tabTable0"&gt;
+        &lt;thead&gt;
+          &lt;tr class="tr_title"&gt;
+            &lt;td width="27%"&gt;单据号&lt;/td&gt;
+            &lt;td width="22%"&gt;本币金额&lt;/td&gt;
+            &lt;td width="34%"&gt;部门&lt;/td&gt;
+            &lt;td width="17%"&gt;操作&lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+        
+          &lt;tr&gt;
+            &lt;td&gt;HS301-5000020011&lt;/td&gt;
+            &lt;td align="right"&gt;343.00&lt;/td&gt;
+            &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+            &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+          &lt;tr&gt;
+            &lt;td&gt;HS302-2005000021&lt;/td&gt;
+            &lt;td align="right"&gt;256.00&lt;/td&gt;
+            &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+            &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+          &lt;tr&gt;
+            &lt;td&gt;HS301-2005000010&lt;/td&gt;
+            &lt;td align="right"&gt;105.00&lt;/td&gt;
+            &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+            &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/tbody&gt;
+        &lt;tfoot&gt;
+          &lt;tr class="tr_pagenumber"&gt;
+            &lt;td colspan="4"&gt; 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+              &lt;select name="select" &gt;
+                &lt;option selected&gt;10&lt;/option&gt;
+                &lt;option &gt;20&lt;/option&gt;
+                &lt;option&gt;20&lt;/option&gt;
+                &lt;option&gt;40&lt;/option&gt;
+                &lt;option&gt;50&lt;/option&gt;
+                &lt;option&gt;全部&lt;/option&gt;
+              &lt;/select&gt;
+              行 &lt;img src="../../../images/icons/firstpage.gif" title="首页" class="paginate"/&gt; 
+              &lt;img src="../../../images/icons/prepage.gif" title="上一页" class="paginate"/&gt;
+              &lt;input type="text" name="textfield" class="page_txt" /&gt;
+              &lt;input type="button" name="button" value=&quot;Go&quot; class="btn_go" /&gt;
+              &lt;img src="../../../images/icons/nextpage.gif" title="下一页" class="paginate"/&gt; 
+              &lt;img src="../../../images/icons/lastpage.gif" title="末页" class="paginate"/&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/tfoot&gt;
+      &lt;/table&gt;
+    
+    
+    &lt;!--标签2--&gt;
+    
+    &lt;table cellpadding="0" cellspacing="1" class="tb_datalist" id="tabTable1" style="display:none"&gt;
+        &lt;thead&gt;
+          &lt;tr class="tr_title"&gt;
+            &lt;td width="27%"&gt;单据号222&lt;/td&gt;
+            &lt;td width="22%"&gt;本币金额&lt;/td&gt;
+            &lt;td width="34%"&gt;部门&lt;/td&gt;
+            &lt;td width="17%"&gt;操作&lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+        
+          &lt;tr&gt;
+            &lt;td&gt;HS301-5000020011&lt;/td&gt;
+            &lt;td align="right"&gt;343.00&lt;/td&gt;
+            &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+            &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+          &lt;tr&gt;
+            &lt;td&gt;HS302-2005000021&lt;/td&gt;
+            &lt;td align="right"&gt;256.00&lt;/td&gt;
+            &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+            &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+          &lt;tr&gt;
+            &lt;td&gt;HS301-2005000010&lt;/td&gt;
+            &lt;td align="right"&gt;105.00&lt;/td&gt;
+            &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+            &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/tbody&gt;
+        &lt;tfoot&gt;
+          &lt;tr class="tr_pagenumber"&gt;
+            &lt;td colspan="4"&gt; 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+              &lt;select name="select" &gt;
+                &lt;option selected&gt;10&lt;/option&gt;
+                &lt;option &gt;20&lt;/option&gt;
+                &lt;option&gt;20&lt;/option&gt;
+                &lt;option&gt;40&lt;/option&gt;
+                &lt;option&gt;50&lt;/option&gt;
+                &lt;option&gt;全部&lt;/option&gt;
+              &lt;/select&gt;
+              行 &lt;img src="../../../images/icons/firstpage.gif" title="首页" class="paginate"/&gt; 
+              &lt;img src="../../../images/icons/prepage.gif" title="上一页" class="paginate"/&gt;
+              &lt;input type="text" name="textfield" class="page_txt" /&gt;
+              &lt;input type="button" name="button" value=&quot;Go&quot; class="btn_go" /&gt;
+              &lt;img src="../../../images/icons/nextpage.gif" title="下一页" class="paginate"/&gt; 
+              &lt;img src="../../../images/icons/lastpage.gif" title="末页" class="paginate"/&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/tfoot&gt;
+      &lt;/table&gt;
+    
+    &lt;!--标签3--&gt;
+      &lt;table cellpadding="0" cellspacing="1" class="tb_datalist" id="tabTable2" style="display:none"&gt;
+        &lt;thead&gt;
+          &lt;tr class="tr_title"&gt;
+            &lt;td width="27%"&gt;单据号333&lt;/td&gt;
+            &lt;td width="22%"&gt;本币金额&lt;/td&gt;
+            &lt;td width="34%"&gt;部门&lt;/td&gt;
+            &lt;td width="17%"&gt;操作&lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+        
+          &lt;tr&gt;
+            &lt;td&gt;HS301-5000020011&lt;/td&gt;
+            &lt;td align="right"&gt;343.00&lt;/td&gt;
+            &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+            &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+          &lt;tr&gt;
+            &lt;td&gt;HS302-2005000021&lt;/td&gt;
+            &lt;td align="right"&gt;256.00&lt;/td&gt;
+            &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+            &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+          &lt;tr&gt;
+            &lt;td&gt;HS301-2005000010&lt;/td&gt;
+            &lt;td align="right"&gt;105.00&lt;/td&gt;
+            &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+            &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/tbody&gt;
+        &lt;tfoot&gt;
+          &lt;tr class="tr_pagenumber"&gt;
+           &lt;td colspan="4"&gt; 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+              &lt;select name="select" &gt;
+                &lt;option selected&gt;10&lt;/option&gt;
+                &lt;option &gt;20&lt;/option&gt;
+                &lt;option&gt;20&lt;/option&gt;
+                &lt;option&gt;40&lt;/option&gt;
+                &lt;option&gt;50&lt;/option&gt;
+                &lt;option&gt;全部&lt;/option&gt;
+              &lt;/select&gt;
+              行 &lt;img src="../../../images/icons/firstpage.gif" title="首页" class="paginate"/&gt; 
+              &lt;img src="../../../images/icons/prepage.gif" title="上一页" class="paginate"/&gt;
+              &lt;input type="text" name="textfield" class="page_txt" /&gt;
+              &lt;input type="button" name="button" value=&quot;Go&quot; class="btn_go" /&gt;
+              &lt;img src="../../../images/icons/nextpage.gif" title="下一页" class="paginate"/&gt; 
+              &lt;img src="../../../images/icons/lastpage.gif" title="末页" class="paginate"/&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/tfoot&gt;
+      &lt;/table&gt;
+ </pre>
+</div>
+
+
+<!--树+表单-->
+<p class="menu2">3.3 树+表单<a name="3.3"></a></p>
+<p>
+  左边为树形控件，右边为主内容区，中间的icon可隐藏/显示树形控件区域
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>采用框架[frameset]结构,组合当前位置、导航、切换、主内容4个页面</li>
+<li>topPosition.html为当前位置页面;tree.html为导航页面;switch.html为切换页面;mainContent.html为主内容页面</li>
+<li>要调整导航与主内容的宽度，可调整cols="200,12,*"，其中"200"为导航的宽度，“*”为主内容宽度，表示宽度自适应</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/treetab.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+   &lt;frameset rows="25,*" frameborder="no" border="0" framespacing="0"&gt;
+      &lt;frame src="topPosition.html" name="topPosition" scrolling="No" noresize="noresize" id="topFrame"/&gt;
+      &lt;frameset cols="200,12,*" frameborder="no" border="0" framespacing="0" id="conframe"&gt;
+        &lt;frame src="tree.html" name="leftTree" scrolling="No" noresize="noresize" id="leftTree"/&gt;
+        &lt;frame src="switch.html" name="switchBar" id="switchBar" title="switchFrame" scrolling="No"/&gt;
+        &lt;frame src="mainContent.html" name="mainFrame" id="mainFrame"/&gt;
+      &lt;/frameset&gt;
+   &lt;/frameset&gt;
+ </pre>
+</div>
+
+<!--表格嵌套-->
+<p class="menu2">3.4 表格嵌套<a name="3.4"></a></p>
+<p>
+  表格嵌套时，被嵌套的表格不要使用标题，保持界面的简洁
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>被嵌套的表格放在td内，表格样式可以为class="tb_input"、class="tb_datalist"等</li>
+<li>如果有对被嵌套表格的操作，尽量使用超链接而不是按钮，避免在界面上堆积过多的按钮</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/tablein.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;table cellpadding="0" cellspacing="1" class="tb_input"&gt;
+      &lt;tr&gt;
+        &lt;td colspan="2" class="note"&gt;任务信息&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td width="15%" class="td_title"&gt;里程碑&lt;/td&gt;
+        &lt;td align="right"&gt;&lt;a href="#" onclick="addOptions(document.getElementById('cloneObj'));"&gt;新增里程碑&lt;/a&gt;&nbsp;
+          &lt;table cellpadding="0" cellspacing="1" class="tb_datalist" style="text-align:left;"&gt;
+            &lt;thead&gt;
+              &lt;tr class="tr_title"&gt;
+                &lt;td width="28%"&gt;里程碑目标&lt;/td&gt;
+                &lt;td width="20%"&gt;责任人&lt;/td&gt;
+                &lt;td width="11%"&gt;操作&lt;/td&gt;
+              &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+              &lt;tr id="cloneObj" style="display:none"&gt;
+                &lt;td&gt;&lt;input name="textfield2" type="text" class="txt_200" id="textfield2" value="" /&gt;&lt;/td&gt;
+                &lt;td&gt;&lt;input name="txt222" type="text" class="txt_100" style="cursor:pointer"
+                onclick="openwin('mulSelect.html','',650,400);" value="" readonly="readonly" /&gt;
+                  &lt;img src="../../../images/icons/search2.gif" style="cursor:pointer"
+                  onClick="openwin('mulSelect.html','',650,400);"/&gt; &lt;/td&gt;
+                &lt;td&gt;&lt;a href="#"&gt;保存&lt;/a&gt; &lt;a href="#" 
+                onclick="delOptions(this.parentNode.parentNode)"&gt;删除&lt;/a&gt; &lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;td&gt;P1.2版本新增需求开发&lt;/td&gt;
+                &lt;td&gt;王伟10010933&lt;/td&gt;
+                &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;td&gt;易用性改进&lt;/td&gt;
+                &lt;td&gt;王伟10010933&lt;/td&gt;
+                &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;td&gt;P2.0版本上线&lt;/td&gt;
+                &lt;td&gt;王伟10010933&lt;/td&gt;
+                &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+            &lt;/tbody&gt;
+          &lt;/table&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+ </pre>
+</div>
+
+<!--访问记录-->
+<p class="menu2">3.5 访问记录<a name="3.5"></a></p>
+<p>
+  记录用户访问的信息。
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>引入jquery.js和main.js 且 jquery.js要放在main.js前面</li>
+<li>访问记录为两部分，标题和内容，标题div样式为：class="log",内容div样式为：class="log_div"</li>
+<li>内容div的display属性可以设置访问记录内容默认是否显示，style="display:none"为不显示；style="display:"为显示</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/log.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;div class="log"&gt;XXXXXXX(标题、内容可自定义,如"最新信息"、"功能描述"等) &lt;/div&gt;
+    &lt;div class="log_div" style="display:none"&gt;
+    &lt;hr /&gt;
+    &lt;table cellspacing="0" cellpadding="0" class="tb_log"&gt;
+      &lt;tr&gt;
+        &lt;td&gt;张冠中10029782&lt;/td&gt;
+        &lt;td&gt;2005-7-4 14:13:46&lt;/td&gt;
+        &lt;td&gt;登陆&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;王新龙10020059&lt;/td&gt;
+        &lt;td&gt;2005-7-4 13:20:18&lt;/td&gt;
+        &lt;td&gt;登陆&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;王朝阳10033491&lt;/td&gt;
+        &lt;td&gt;2005-7-1 11:37:20&lt;/td&gt;
+        &lt;td&gt;登陆失败&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+    &lt;/div&gt;
+ </pre>
+</div>
+
+<br/>
+<br/>
+<!--4提示信息-->
+<p class="menu1">4 提示信息</p>
+
+<!--常用提示-->
+<p class="menu2">4.1 常用提示<a name="4.1"></a></p>
+<p>
+  包括操作前的提示和操作后的反馈。
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>引入提示信息需要的js,“弹出提示”必须引入“jquery.js”和“jquery.blockUI.js”，tooltip提示必须引入“jquery.js”和“tootip.js”</li>
+<li>操作反馈中弹出div的id要保持唯一性，即id="info"在此界面上是唯一的</li>
+<li>操作反馈代码较多，此处只列出操作提示的代码</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/tips.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;script src="../../js/jquery.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="../../js/jquery.blockUI.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="../../js/main.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="../../js/tootip.js"&gt;&lt;/script&gt;
+    &lt;table cellpadding="0" cellspacing="1" class="tb_input"&gt;
+      &lt;tr&gt;
+        &lt;td colspan="2" class="note"&gt;操作提示&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"  width="15%"&gt;控件后直接文字提示&lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" name="txtNo" class="txt_120"/&gt;
+        &lt;span class="tips"&gt;如果部门没有专职审批人，请填写部门部长姓名+工号&lt;/span&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"&gt;控件内直接提示&lt;/td&gt;
+        &lt;td&gt;&lt;input id="search" name="search" type="text" value="请输入关键字
+        " onfocus="if(this.value=='请输入关键字'){ this.value='';this.style.color='#000'}
+        " onblur="if(this.value==''){this.value='请输入关键字';this.style.color='#999'};"
+        class="txt_300 input_tips" /&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"&gt;控件tooltip提示&lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" name="txtNo2" class="txt_300 tooltip" title="请填写详细的收货地址，否则可能无法寄达"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"&gt;控件后icon提示&lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" name="txtNo3" class="txt_300"/&gt;
+        &lt;img src="../../../images/icons/icon_help.gif" class="tooltip" title="请填写详细的收货地址，否则可能无法寄达
+        &lt;br/&gt;地址格式为：XX省XX市XX县XX街道XX号"/&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+ </pre>
+</div>
+
+<!--常用提示-->
+<p class="menu2">4.2 常用图标<a name="4.2"></a></p>
+<p>
+  提供系统中常用的删除、下载、附件等图标</p>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/icons.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;table cellpadding="0" cellspacing="1" class="tb_input"&gt;
+      &lt;tr&gt;
+        &lt;td colspan="2" class="note"&gt;常用图标&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title" width="12%"&gt;删除&lt;/td&gt;
+        &lt;td&gt;&lt;img src="../../../images/icons/icon_del.gif" alt="删除" title="删除" class="delete_img"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"&gt;下载&lt;/td&gt;
+        &lt;td&gt;&lt;img src="../../../images/icons/icon_download.gif" alt="下载" title="下载" class="download_img"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title"&gt;附件&lt;/td&gt;
+        &lt;td&gt;&lt;img src="../../../images/icons/fj.gif" alt="附件" title="附件" class="attach_img"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td rowspan="4" class="td_title"&gt;进度条&lt;/td&gt;
+        &lt;td&gt;大：&lt;img src="../../../images/icons/busy_big.gif" alt="进度条" title="进度条"/&gt; &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;小：&lt;img src="../../../images/icons/busy.gif" alt="进度条" title="进度条"/&gt; &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;img src="../../../images/icons/waitbar.gif" alt="进度条" title="进度条"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+ </pre>
+</div>
+
+<br/>
+<br/>
+<!--5Demo易用性-->
+<p class="menu1">5 Demo易用性</p>
+
+<!--单个查询-->
+<p class="menu2">5.1 单个查询<a name="5.1"></a></p>
+<p>
+  只有一个查询条件时，为了减少查询表格占据的空间，把查询按钮直接放在查询条件的后面，查询条件表头可根据实际情况取舍。
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/ssearch.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;table cellspacing="1" cellpadding="0" class="tb_search"&gt;
+    &lt;tr&gt;
+      &lt;td colspan="2" class="search"&gt;请填写查询条件&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td class="td_title" width="12%"&gt;单据号&lt;/td&gt;
+      &lt;td&gt;&lt;input type="text" name="txtNo" class="txt_120"/&gt;
+        &lt;input name="btnSearch" type="button" value="查询" class="button" onclick="searchresult();"/&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+ </pre>
+</div>
+
+<!--高级查询-->
+<p class="menu2">5.2 高级查询<a name="5.2"></a></p>
+<p>
+  当查询条件较多时，查询条件表格可能会占据界面较多的空间，使查询结果的空间减少，也影响整体美观。此时，保留常用的查询条件(2-4个)，把不常用的查询条件隐藏，作为高级查询。
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/gjsearch.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;script type="text/javascript" src="../../js/jquery.js"&gt;&lt;/script&gt;
+	&lt;script type="text/javascript" src="../../js/main.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+     function showSenior()
+     {
+       if(document.getElementById("seniorSearch").checked == true)
+       {
+         document.getElementById("seniorSearch1").style.display = "";
+         document.getElementById("seniorSearch2").style.display = "";
+       }
+       
+       else
+       {
+         document.getElementById("seniorSearch1").style.display = "none";
+         document.getElementById("seniorSearch2").style.display = "none";
+       }
+     }
+    &lt;/script&gt;
+    &lt;table cellspacing="1" cellpadding="0" class="tb_search"&gt;
+    &lt;tr&gt;
+      &lt;td colspan="4" class="search"&gt;请填写查询条件&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td class="td_title" width="12%"&gt;单据号&lt;/td&gt;
+      &lt;td width="36%"&gt;&lt;input type="text" name="txtNo" class="txt_120"/&gt;
+      &lt;/td&gt;
+      &lt;td class="td_title" width="12%"&gt;提交日期&lt;/td&gt;
+      &lt;td&gt;&lt;input name="dateStart" class="txt_120" onChange="fCheckDateTime('dateStart')"/&gt;
+        &lt;img border="0" src="../../../images/icons/calendar.gif" width="16" height="15"  
+        style="cursor:pointer" onclick="javascript:fPopCalendar(dateStart,dateStart,dateStart.value );"/&gt; 至
+        &lt;input name="dateEnd" class="txt_120" onChange="fCheckDateTime('dateEnd')"/&gt;
+        &lt;img border="0" src="../../../images/icons/calendar.gif" width="16" height="15"  
+        style="cursor:pointer" onclick="javascript:fPopCalendar(dateEnd,dateEnd,dateEnd.value );"/&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr style="display:none" id="seniorSearch1"&gt;
+      &lt;td class="td_title" width="12%"&gt;申请人&lt;/td&gt;
+      &lt;td&gt;&lt;input type="text" name="txtPerson" class="txt_120"/&gt;
+        &lt;img src="../../../images/icons/search2.gif" alt="选择人员" style="cursor:pointer"
+        onclick="openwin('../formStyle/oneMan.html','',650,400)"/&gt; &lt;/td&gt;
+      &lt;td class="td_title"&gt;部门&lt;/td&gt;
+      &lt;td&gt;&lt;input type="text" name="txtDep" class="txt_120"/&gt;
+        &lt;img src="../../../images/icons/search2.gif" alt="选择部门" style="cursor:pointer"
+        onclick="openwin('../formStyle/selectDep.html','',350,500)"/&gt; &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr style="display:none" id="seniorSearch2"&gt;
+      &lt;td class="td_title"&gt;单据状态&lt;/td&gt;
+      &lt;td colspan="3"&gt;&lt;input type="text" name="txtNo4" class="txt_120"/&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td colspan="4" align="right"&gt;&lt;input name="" type="checkbox" value="" id="seniorSearch" 
+      onclick="showSenior()"/&gt;
+        &lt;label for="seniorSearch"&gt;高级查询&lt;/label&gt;
+        &lt;input name="btnSearch" type="button" value="查询" class="button" 
+        onclick="searchresult();"/&gt;
+        &lt;input name="btnReset" type="reset" value="清空" class="button"/&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+ </pre>
+</div>
+
+<!--隐藏查询条件-->
+<p class="menu2">5.3 隐藏查询条件<a name="5.3"></a></p>
+<p>
+  有时，查询条件并不是主体，但又要方便用某些户查询数据，此时可先把查询条件隐藏，让有需要的用户可以使用。</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>引入需要的js:“jquery.js”和“main.js”</li>
+<li>把隐藏的查询条件内容放在tbody标签内</li>
+<li>查询表头样式：class="showtitle"显示为"+"号，此时tobdy标签style="display:none"；class="hidetitle"显示为"-"号，此时tbody标签style="display:"</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/showsearch.gif"  alt="图例"/>
+<img src="../images/hidesearch.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+    &lt;script type="text/javascript" src="../../js/jquery.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="../../js/main.js"&gt;&lt;/script&gt;
+    &lt;table cellspacing="1" cellpadding="0" class="tb_search"&gt;
+    &lt;tr&gt;
+      &lt;td colspan="4" class="showtitle"&gt;&lt;span id="search_tip"&gt;显示查询条件&lt;/span&gt; &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tbody style="display:none"&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title" width="12%"&gt;单据号&lt;/td&gt;
+        &lt;td width="40%"&gt;&lt;input type="text" name="txtNo" class="txt_120"/&gt;&lt;/td&gt;
+        &lt;td class="td_title" width="12%"&gt;申请人&lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" name="txtPerson" class="txt_120"/&gt;
+          &lt;img src="../../../images/icons/search2.gif" alt="选择人员" style="cursor:pointer"
+          onclick="openwin('../formStyle/oneMan.html','',650,400)"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="td_title" width="12%"&gt;提交日期&lt;/td&gt;
+        &lt;td width="38%"&gt;&lt;input name="dateStart" class="txt_120" 
+        onChange="fCheckDateTime('dateStart')"/&gt;
+          &lt;img border="0" src="../../../images/icons/calendar.gif" width="16" height="15" style="cursor:pointer"
+          onclick="javascript:fPopCalendar(dateStart,dateStart,dateStart.value );"/&gt; 至
+          &lt;input name="dateEnd" class="txt_120" onChange="fCheckDateTime('dateEnd')"/&gt;
+          &lt;img border="0" src="../../../images/icons/calendar.gif" width="16" height="15" style="cursor:pointer"
+          onclick="javascript:fPopCalendar(dateEnd,dateEnd,dateEnd.value );"/&gt;&lt;/td&gt;
+        &lt;td class="td_title" width="12%"&gt;单据状态&lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" name="txtNo2" class="txt_120"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td colspan="4" align="right"&gt;&lt;input name="btnSearch" type="button" value="查询" class="button" /&gt;
+          &lt;input name="btnReset" type="reset" value="清空" class="button"/&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+ </pre>
+</div>
+
+<!--查询结果滚动-->
+<p class="menu2">5.4 查询结果滚动<a name="5.4"></a></p>
+<p>
+  查询结果列表字段较多，在一屏内无法显示完全或即使能显示也被压缩得很难看，此时应考虑使用让查询结果左右滚动。
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>查询结果的左右滚动仅指查询结果区域内左右滚动，禁止整个页面滚动</li>
+<li>scrollTable为滚动table的id，searchresult为滚动区域div的id</li>
+<li>要在打开页面时直接显示滚动的查询结果，必须在body内加onload="divHeight()"</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/scroll.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+   &lt;script type="text/javascript"&gt;
+	function divHeight()
+	 {
+	  var Table = document.getElementById("scrollTable");
+	  var div = document.getElementById("searchresult");
+	  div.style.height=Table.clientHeight + 23 +"px"; 
+	  //alert(div.style.height);
+	  //如果直接显示div，还要在body中onload此代码
+	 }
+   &lt;/script&gt;
+   &lt;div class="scrolldiv" id="searchresult"  style="display:none;"&gt;
+    &lt;table cellpadding="0" cellspacing="1" class="tb_datalist" id="scrollTable"&gt;
+      &lt;thead&gt;
+        &lt;tr class="tr_title"&gt;
+          &lt;td nowrap="nowrap"&gt;单据号&lt;/td&gt;
+          &lt;td nowrap="nowrap"&gt;申请人&lt;/td&gt;
+          &lt;td nowrap="nowrap"&gt;提交日期&lt;/td&gt;
+          &lt;td nowrap="nowrap"&gt;本币金额&lt;/td&gt;
+          &lt;td&gt;部门&lt;/td&gt;
+          &lt;td&gt;部门&lt;/td&gt;
+          &lt;td&gt;部门&lt;/td&gt;
+          &lt;td&gt;部门&lt;/td&gt;
+          &lt;td&gt;部门&lt;/td&gt;
+          &lt;td nowrap="nowrap"&gt;单据状态&lt;/td&gt;
+          &lt;td&gt;操作&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td nowrap="nowrap"&gt;HS302-2005000021&lt;/td&gt;
+          &lt;td nowrap="nowrap"&gt;张伟50001023&lt;/td&gt;
+          &lt;td nowrap="nowrap"&gt;2008-10-22&lt;/td&gt;
+          &lt;td align="right" nowrap="nowrap"&gt;256.00&lt;/td&gt;
+          &lt;td nowrap="nowrap"&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td nowrap="nowrap"&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td nowrap="nowrap"&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td nowrap="nowrap"&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td nowrap="nowrap"&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td nowrap="nowrap"&gt;已提交&lt;/td&gt;
+          &lt;td nowrap="nowrap"&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td&gt;HS301-5000020011&lt;/td&gt;
+          &lt;td&gt;王伟10010933&lt;/td&gt;
+          &lt;td&gt;2008-10-24&lt;/td&gt;
+          &lt;td align="right"&gt;343.00&lt;/td&gt;
+          &lt;td &gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td&gt;审核中&lt;/td&gt;
+          &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td&gt;HS301-2005000010&lt;/td&gt;
+          &lt;td&gt;刘伟10023456&lt;/td&gt;
+          &lt;td&gt;2008-10-11&lt;/td&gt;
+          &lt;td align="right"&gt;105.00&lt;/td&gt;
+          &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td&gt;研发体系-业务研究院-IT中心开发部&lt;/td&gt;
+          &lt;td&gt;已审核&lt;/td&gt;
+          &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#"&gt;删除&lt;/a&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+      &lt;tr class="tr_pagenumber"&gt;
+        &lt;td colspan="11"&gt; 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+          &lt;select name="select" &gt;
+            &lt;option selected&gt;10&lt;/option&gt;
+            &lt;option &gt;20&lt;/option&gt;
+            &lt;option&gt;20&lt;/option&gt;
+            &lt;option&gt;40&lt;/option&gt;
+            &lt;option&gt;50&lt;/option&gt;
+            &lt;option&gt;全部&lt;/option&gt;
+          &lt;/select&gt;
+          行 &lt;img src="../../../images/icons/firstpage.gif" title="首页" class="paginate"/&gt;
+          &lt;img src="../../../images/icons/prepage.gif" title="上一页" class="paginate"/&gt;
+          &lt;input type="text" name="textfield" class="page_txt" /&gt;
+          &lt;input type="button" name="button" value=&quot;Go&quot; class="btn_go" /&gt;
+          &lt;img src="../../../images/icons/nextpage.gif" title="下一页" class="paginate"/&gt; 
+          &lt;img src="../../../images/icons/lastpage.gif" title="末页" class="paginate"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/div&gt;
+ </pre>
+</div>
+
+<!--连续添加-->
+<p class="menu2">5.5 连续添加<a name="5.5"></a></p>
+<p>
+  适用于用户需要同时添加多条数据的场景，通过连续添加选项，减少界面的交互，提高操作效率
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>弹出窗口连续添加使用js:window.close()；页面跳转连续添加使用js:history.go(-1),详见代码</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/muladd.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+   &lt;script type="text/javascript"&gt;
+	function checkadd()
+	{
+	  if(document.getElementById('conAdd').checked == false)
+	  {
+		window.close();//关闭窗口
+		//history.go(-1);//返回上页
+	  }
+	 else
+	 {
+	   return false();
+	 }
+	}
+   &lt;/script&gt;
+   &lt;div class="tab_operate"&gt;
+      &lt;label&gt;
+      &lt;input name="" type="checkbox" value="" id="conAdd"/&gt;
+      连续添加 &lt;/label&gt;
+      &lt;input type="submit" class="button" id="btnSave" value="提交" onclick="checkadd();"/&gt;
+      &lt;input type="button" class="button" id="btnCancle" value="取消"/&gt;
+   &lt;/div&gt;
+ </pre>
+</div>
+
+<!--表格内新增行-->
+<p class="menu2">5.6 表格内新增行<a name="5.6"></a></p>
+<p>
+  指直接在表格内直接添加行，让用户可以直接在当前界面编辑，减少操作步骤，提高操作的效率
+</p>
+<p><span class="notice">注意：</span>
+<ol class="notice_ol">
+<li>在tbody内新增id="cloneObj"行，并隐藏:style="display:none"</li>
+<li>如果删除时要让用户确认，取消js的注释即可(把“//”去掉)</li>
+</ol>
+</p>
+<p><span class="hidedetail">图例：</span></p>
+<div class="code">
+<img src="../images/add.gif"  alt="图例"/>
+</div>
+<p><span class="showdetail">代码：</span></p>
+<div class="code" style="display:none">
+ <pre>
+   &lt;script type="text/javascript" src="../../js/jquery.js"&gt;&lt;/script&gt;
+	&lt;script type="text/javascript"&gt;
+     //based jquery
+      function addOptions(obj)
+      {
+      $(obj).show();
+      var cloneNode =   $(obj).clone(true);
+      $(obj).hide();
+      cloneNode.appendTo($(obj).parent());
+      }
+    
+      function delOptions(obj)
+      {
+    
+     // if(confirm('确定要删除吗？'))
+    //  {
+    //   $(obj).remove();
+    //   }
+    
+    $(obj).remove();
+      }
+    &lt;/script&gt;
+    &lt;table cellspacing="0" cellpadding="0" class="tb_title"&gt;
+    &lt;tr&gt;
+      &lt;td class="icon_note"&gt;单据列表&lt;/td&gt;
+      &lt;td class="tb_btn"&gt;&lt;input name="" type="button" value="新增" class="button" 
+      onclick="addOptions(document.getElementById('cloneObj'));"/&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+  &lt;table cellpadding="0" cellspacing="1" class="tb_datalist"&gt;
+    &lt;thead&gt;
+      &lt;tr class="tr_title"&gt;
+        &lt;td width="46%"&gt;单据号&lt;/td&gt;
+        &lt;td width="30%"&gt;本币金额&lt;/td&gt;
+        &lt;td width="24%"&gt;操作&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;
+        &lt;td&gt;HS301-2005000010&lt;/td&gt;
+        &lt;td align="right"&gt;105.00&lt;/td&gt;
+        &lt;td&gt;&lt;a href="#"&gt;修改&lt;/a&gt; &lt;a href="#" onclick="delOptions(this.parentNode.parentNode)"&gt;删除&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr id="cloneObj" style="display:none"&gt;
+        &lt;td&gt;&lt;input type="text" name="textfield2" class="txt_150"/&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;input type="text" name="textfield3" class="txt_100"/&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;a href="#"&gt;保存&lt;/a&gt; &lt;a href="#" onclick="delOptions(this.parentNode.parentNode)"&gt;删除&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+      &lt;tr class="tr_pagenumber"&gt;
+        &lt;td colspan="3"&gt; 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+          &lt;select name="select" &gt;
+            &lt;option selected&gt;10&lt;/option&gt;
+            &lt;option &gt;20&lt;/option&gt;
+            &lt;option&gt;20&lt;/option&gt;
+            &lt;option&gt;40&lt;/option&gt;
+            &lt;option&gt;50&lt;/option&gt;
+            &lt;option&gt;全部&lt;/option&gt;
+          &lt;/select&gt;
+          行 &lt;img src="../../../images/icons/firstpage.gif" title="首页" class="paginate"/&gt;
+          &lt;img src="../../../images/icons/prepage.gif" title="上一页" class="paginate"/&gt;
+          &lt;input type="text" name="textfield" class="page_txt" /&gt;
+          &lt;input type="button" name="button" value=&quot;Go&quot; class="btn_go" /&gt;
+          &lt;img src="../../../images/icons/nextpage.gif" title="下一页" class="paginate"/&gt;
+          &lt;img src="../../../images/icons/lastpage.gif" title="末页" class="paginate"/&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/table&gt;
+ </pre>
+</div>
+
+
+<br/>
+<br/>
+<!--6常用js-->
+<p class="menu1">6 常用js</p>
+
+<!--页面跳转-->
+<p class="menu2">6.1 页面跳转<a name="6.1"></a></p>
+<p>
+  页面跳转可用超链接或js实现，它们的效果是一样的。
+</p>
+<p><span class="hidedetail">代码：</span></p>
+<div class="code" style="display:">
+ <pre>
+     超链接：&lt;a href="aa.html">超链接&lt;/a&gt;
+    js实现：&lt;a href="#" onclick="location.href='aa.html'"&gt;js实现&lt;/a&gt;
+    操作按钮:&lt;input type="button" class="button" value="新增" onclick="location.href='aa.html'"/&gt;
+    返回、取消、上一步：onclick="history.go(-1)",其中参数“-1”为回退的次数，如“-1”表示回退一次
+ </pre>
+</div>
+
+<!--弹出窗口-->
+<p class="menu2">6.2 弹出窗口<a name="6.2"></a></p>
+<p>
+  点击链接或按钮弹出模态窗口，在规范demo中，只需要引入jquery.js、main.js,然后使用函数：onclick="openwin('aa.html','',650,400)",aa.html为弹出窗口的页面，650为弹出窗口的长度，400为弹出窗口高度，弹出窗口在界面上居中显示。
+</p>
+<p><span class="hidedetail">代码：</span></p>
+<div class="code" style="display:">
+ <pre>
+   通过链接弹出窗口：&lt;a href="#" onclick="openwin('aa.html','',650,400)"&gt;&lt;/a&gt;
+   通过按钮弹出窗口:&lt;input type="button" class="button" value="新增" onclick="openwin('aa.html','',650,400)"/&gt;
+ </pre>
+</div>
+
+<!--弹出窗口-->
+<p class="menu2">6.3 显示/隐藏<a name="6.3"></a></p>
+<p>
+  显示/隐藏可通过两种方式实现：
+  <ol class="notice_ol">
+     <li>display隐藏的对象不保留其占据的物理空间: style="display:none"为隐藏，style="display:"为显示</li>
+     <li>visibility隐藏的对象保留其占据的物理空间: style="visibility:hidden"为隐藏，style="visibility:visible"为显示</li>
+  </ol>
+</p>
+<p><span class="hidedetail">代码：</span></p>
+<div class="code" style="display:">
+ <pre>
+   假设有一块区域或元素的id="test"，以下两种方式都可实现显示隐藏：
+   &lt;script type="text/javascript"&gt;
+	   function show()
+	   {
+		document.getElementById("test").style.display = "" //display显示
+	   }
+	   
+	   function hide()
+	   {
+		document.getElementById("test").style.display = "none" //display隐藏
+	   }
+	   
+	   //注意：使用visibility隐藏时，仍会占据空间
+	   function showV()
+	   {
+		document.getElementById("test").style.visibility = "visible" //visibility显示
+	   }
+	   
+	   function hideV()
+	   {
+		document.getElementById("test").style.visibility = "hidden" //visibility隐藏
+	   }
+   &lt;/script&gt;
+ </pre>
+</div>
+
+
+<br/>
+<br/>
+<!--7FAQ-->
+<p class="menu1">7 FAQ</p><a name="7"></a>
+<p>
+  列举在制作demo过程中，常见的问题及解决办法
+</p>
+<ol class="notice_ol">
+
+ <!--问题1-->
+  <li><span class="hidefaq">在原有demo基础上加入新规范demo中的效果或新老demo合并，应该怎么做？</span>
+      <div style="display:none">
+        <strong>第一步 文件拷贝</strong>：把新规范demo中的js文件、css文件分别拷入原demo中的js、css文件夹内(不会冲突)，把新规范demo的images文件夹内的icons和login文件夹拷贝到原demo的images文件夹内;<br/>
+        <strong>第二步 引用文件</strong>：对于新页面，可直接把新规范中的页面拷贝过来，然后修改js、css的路径即可；修改老页面，则要先要保证页面的"!DOCTYPE"及"html"是规范的，一些小问题都是由于它们不规范引出的：
+              <pre>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+然后引入js及main.css，注意要把main.css放在cssCn.css后面（即让main.css覆盖cssCn.css）
+         </pre>
+      </div>
+  </li>
+  
+  <!--问题2-->
+  <li><span class="hidefaq">规范demo中提供的main.css样式不能满足需求，应该怎么办？</span>
+      <div style="display:none">
+        出现这种情况时，可以在“common.css”内新增样式，或通知UI添加新样式，严禁在main.css内新增样式
+      </div>
+  </li>
+  
+  <!--问题3-->
+  <li><span class="hidefaq">系统demo上传到svn后，直接预览览出错，应该怎么解决？</span>
+      <div style="display:none">
+        解决办法请参照文档：<a href="Demo 预览出错解决办法-1.doc"  target="_blank">Demo 预览出错解决办法.doc</a>
+      </div>
+  </li>
+  
+</ol>
+<br/>
+<br/>
+<br/>
+
+</div>
+</body>
+</html>

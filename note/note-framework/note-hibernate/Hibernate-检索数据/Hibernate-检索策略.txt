@@ -1,0 +1,149 @@
+检索数据时的 2 个问题：
+	- 不浪费内存：当 Hibernate 从数据库中加载 Customer 对象时, 如果同时加载所有关联的 Order 对象, 而程序实际上仅仅需要访问 Customer 对象, 
+	那么这些关联的 Order 对象就白白浪费了许多内存.
+	- 更高的查询效率：发送尽可能少的 SQL 语句
+	
+				可选的检索策略	默认值	受影响的检索方法
+		类级别	立即检索				Session.load()
+				延迟检索		延迟		——Session.get()/Query.list()都会立即检索	
+								
+		关联级别	立即检索		延迟		Session.load()/get()
+				延迟检索				Query（注意，Query会忽略xml中配置的迫切左外连接策略）
+				迫切左外连接检索			Criteria
+		
+		
+
+类级别的检索策略
+	- 类级别可选的检索策略包括立即检索和延迟检索, 默认为延迟检索
+		- 立即检索: 立即加载检索方法指定的对象
+		- 延迟检索: 延迟加载检索方法指定的对象。在使用具体的属性时，再进行加载
+	- 类级别的检索策略可以通过 <class> 元素的 lazy 属性进行设置
+	- 如果程序加载一个对象的目的是为了访问它的属性, 可以采取立即检索. 
+	- 如果程序加载一个持久化对象的目的是仅仅为了获得它的引用, 可以采用延迟检索。注意出现懒加载异常！
+	- 无论 <class> 元素的 lazy 属性是 true 还是 false, Session 的 get() 方法及 Query 的 list() 方法在类级别总是使用立即检索策略
+	- 若 <class> 元素的 lazy 属性为 true 或取默认值, Session 的 load() 方法不会执行查询数据表的 SELECT 语句, 仅返回代理类对象的实例, 该代理类实例有如下特征:
+		- 由 Hibernate 在运行时采用 CGLIB 工具动态生成
+		- Hibernate 创建代理类实例时, 仅初始化其 OID 属性
+		- 在应用程序第一次访问代理类实例的非 OID 属性时, Hibernate 会初始化代理类实例
+
+一对多和多对多的检索策略
+	- 在映射文件中, 用 <set> 元素来配置一对多关联及多对多关联关系. <set> 元素有 lazy 和 fetch 属性
+		- lazy: 主要决定 orders 集合被初始化的时机. 即到底是在加载 Customer 对象时就被初始化, 还是在程序访问 orders 集合时被初始化
+		- fetch: 取值为 “select” 或 “subselect” 时, 决定初始化 orders 的查询语句的形式;  若取值为”join”, 则决定 orders 集合被初始化的时机
+		- 若把 fetch 设置为 “join”, lazy 属性将被忽略
+		- <set> 元素的 batch-size 属性：用来为延迟检索策略或立即检索策略设定批量检索的数量. 批量检索能减少 SELECT 语句的数目, 提高延迟检索或立即检索的运行性能. 
+	
+		延迟检索和增强延迟检索
+			- 在延迟检索(lazy 属性值为 true) 集合属性时, Hibernate 在以下情况下初始化集合代理类实例 
+				- 应用程序第一次访问集合属性: iterator(), size(), isEmpty(), contains() 等方法
+				- 通过 Hibernate.initialize() 静态方法显式初始化
+			- 增强延迟检索(lazy 属性为 extra): 与 lazy=“true” 类似. 主要区别是增强延迟检索策略能进一步延迟 Customer 对象的 orders 集合代理实例的初始化时机：
+				- 当程序第一次访问 orders 属性的 iterator() 方法时, 会导致 orders 集合代理类实例的初始化
+				- 当程序第一次访问 order 属性的 size(), contains() 和 isEmpty() 方法时, Hibernate 不会初始化 orders 集合类的实例,
+					 仅通过特定的 select 语句查询必要的信息, 不会检索所有的 Order 对象
+		
+		<set> 元素的 batch-size 属性
+			- <set> 元素有一个 batch-size 属性, 用来为延迟检索策略或立即检索策略设定批量检索的数量. 批量检索能减少 SELECT 语句的数目, 提高延迟检索或立即检索的运行性能. 
+			
+		在映射文件中, 用 <set> 元素来配置一对多关联及多对多关联关系. <set> 元素有 lazy 和 fetch 属性
+			- lazy: 主要决定 orders 集合被初始化的时机. 即到底是在加载 Customer 对象时就被初始化, 还是在程序访问 orders 集合时被初始化
+			- fetch: 取值为 “select” 或 “subselect” 时, 决定初始化 orders 的查询语句的形式;  若取值为”join”, 则决定 orders 集合被初始化的时机
+			- 若把 fetch 设置为 “join”, lazy 属性将被忽略
+			
+		用带子查询的 select 语句整批量初始化 orders 集合(fetch 属性为 “subselect”)
+			- <set> 元素的 fetch 属性: 取值为 “select” 或 “subselect” 时, 决定初始化 orders 的查询语句的形式;  若取值为”join”, 则决定 orders 集合被初始化的时机.默认值为 select 
+			- 当 fetch 属性为 “subselect” 时
+				- 假定 Session 缓存中有 n 个 orders 集合代理类实例没有被初始化, Hibernate 能够通过带子查询的 select 语句, 来批量初始化 n 个 orders 集合代理类实例
+				- batch-size 属性将被忽略
+				- 子查询中的 select 语句为查询 CUSTOMERS 表 OID 的 SELECT 语句
+		迫切左外连接检索(fetch 属性值设为 “join”)			
+			- <set> 元素的 fetch 属性: 取值为 “select” 或 “subselect” 时, 决定初始化 orders 的查询语句的形式;  若取值为”join”, 则决定 orders 集合被初始化的时机.默认值为 select 
+			- 当 fetch 属性为 “join” 时:
+				- 检索 Customer 对象时, 会采用迫切左外连接(通过左外连接加载与检索指定的对象关联的对象)策略来检索所有关联的 Order 对象
+				- lazy 属性将被忽略
+				- Query 的list() 方法会忽略映射文件中配置的迫切左外连接检索策略, 而依旧采用延迟加载策略
+				
+		lazy取值	fetch取值	检索策略
+		true	未设置	采用延迟检索策略，是默认选择
+		false	未设置	采用立即检索策略。——当使用Hibernate二级缓存时，可考虑采用立即检索
+		extra	未设置	采用增强延迟检索策略，尽可能延迟集合属性的初始化时机
+		ANY		select	通过select语句来初始化集合属性：select * from ORDERS where CUSTOMER_ID in (1,2,3);
+		ANY		subselect	通过subselect语句来初始化集合属性：select * from ORDERS where CUSTOMER_ID in (select ID from CUSTOMERS)
+		ANY		join	采用迫切左外连接检索策略；此时lazy的取值会被忽略
+						select * from CUSTOMERS left outer join ORDERS
+						          on CUSTOMER.ID = ORDERS.CUSTOMER_ID
+						          where CUSTOMERS.ID = 1;
+				
+多对一和一对一关联的检索策略
+	- 和 <set> 一样, <many-to-one> 元素也有一个 lazy 属性和 fetch 属性.
+	
+		- 若 fetch 属性设为 join, 那么 lazy 属性被忽略
+		- 迫切左外连接检索策略的优点在于比立即检索策略使用的 SELECT 语句更少. 
+		- 无代理延迟检索需要增强持久化类的字节码才能实现
+
+	- Query 的 list 方法会忽略映射文件配置的迫切左外连接检索策略, 而采用延迟检索策略
+	- 如果在关联级别使用了延迟加载或立即加载检索策略, 可以设定批量检索的大小, 以帮助提高延迟检索或立即检索的运行性能. 
+	- Hibernate 允许在应用程序中覆盖映射文件中设定的检索策略.
+	
+	
+检索策略小结
+	类级别和关联级别可选的检索策略及默认的检索策略
+	
+	
+	3 种检索策略的运行机制
+		立即检索	
+			优点：不管对象处于持久化状态、游离状态，都可以从一个对象导航到与他关联的另一个对象
+			缺点：select语句数目多；
+				可能加载程序不需要访问的对象，浪费内存
+			使用场景：
+				类级别
+				程序需要立即访问的对象
+				使用了二级缓存
+		延迟检索
+			优点：由应用程序决定需要加载哪些对象
+				避免立即检索的缺点
+			缺点：如果要访问游离状态的代理类实例，则必须保证其在持久化状态时已经被初始化
+			使用场景：
+				一对多、多对多关联时
+				程序不需要立即访问的对象
+				
+		迫切左外连接
+			优点：不管对象处于持久化状态、游离状态，都可以从一个对象导航到与他关联的另一个对象
+				select语句数目少
+			缺点：复杂的表连接会影响性能；
+				可能加载程序不需要访问的对象，浪费内存
+			使用场景：
+				多对一、一对一关联
+				程序需要立即访问的对象
+				数据库系统具有良好的表连接性能
+				
+	lazy与fetch
+		lazy
+			作用:		决定被初始化的时机	
+			类级别:	true：延迟检索（default）
+					false：立即检索
+			一对多关联级别<set>:
+					true：延迟检索（default）
+					extra：增强延迟检索
+					false：立即检索
+			多对一关联级别<many-to-one>:
+					proxy：延迟检索
+					no-proxy：无代理延迟检索
+					false：立即检索	
+		fetch	——fetch配置为join时，会覆盖lazy配置
+			作用:		决定初始化属性对象时的查询语句形式
+			类级别:	无此属性
+			一对多关联级别<set>:
+					select：select查询语句（default）
+					subselect：带子查询的select语句
+					join：迫切左外连接检索
+			多对一关联级别<many-to-one>:
+					select：select查询语句
+					join：迫切左外连接检索
+					
+							
+	映射文件中用于设定检索策略的几个属性
+	
+	
+	比较 Hibernate 的三种检索策略
+													

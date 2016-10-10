@@ -1,0 +1,87 @@
+比较常用的RESTful框架就有Jersey、Spring REST、CXF RESTful，这些都可以很好的整合Spring框架，发布也相当的简单。且简单、易用、易上手，文档也比较丰富。
+
+-	REST 是一种软件架构模式，只是一种风格，不是像SOAP 那样本身承载着一种消息协议，也可以叫做REST 是基于HTTP协议的软件架构。
+-	REST 中重要的两个概念就是资源定位和资源操作，而HTTP 协议恰好完整的提供了这两个要点，HTTP 协议中的URI 可以完成资源定位，GET、POST、OPTION等方法可以完成资源操作，
+	因此REST 完全依赖HTTP 协议就可以完成Web 服务，而不像SOAP 协议那样只利用HTTP 的传输特性，定位与操作由SOAP 协议自身完成，也正是由于SOAP 消息的存在，使得SOAP 笨重。
+	你也可以说REST 充分利用了HTTP 协议的特性，而不是像SOAP 那样只利用了其传输这一特性（事实上大多数人提到HTTP 协议就只会想到它能用于数据传输）。
+-	REST 是一种软件架构理念，现在被移植到Web 服务上（因此不要提到REST 就马上想到WebService，JAX-RS 只是将REST 设计风格应用到Web 服务开发），
+	那么在开发Web 服务上，偏于面向资源的服务适用于REST，偏于面向活动的服务。另外，REST 简单易用，效率高，SOAP 成熟度较高，安全性较好。
+	REST 提供的网络服务叫做OpenAPI，它不仅把HTTP 作为传输协议，也作为处理数据的工具，可以说对HTTP 协议做了较好的诠释，充分体现了HTTP 技术的网络能力。
+	目前Google、Amazon、淘宝都有基于REST 的OpenAPI 提供调用。
+ 
+WebService中,JAX-RS 只是将REST 设计应用到Web 服务开发.JAX-RS提供对了REST的支持
+      
+CXF的Rest使用的JAX-RS规范。JAX-RS: Java API for RESTful Web Services是一个Java编程语言的应用程序接口,支持按照 表象化状态转变 (REST)架构风格创建Web服务Web服务.
+ JAX-RS使用了Java SE 5引入的Java 标注来简化Web服务客户端和服务端的开发和部署。
+ 	java.ws.rs 是 jax-rs 规范中定义的包名。
+	jax-rs 全程 Java API for RESTful Services
+	jax-rs 规范 目前版本是 2.0。 
+	
+	JAX-RS提供了一些标注将一个资源类，一个POJOJava类，封装为Web资源。标注包括：
+	（1）、@Path，标注资源类或方法的相对路径
+	（2）、@GET，@PUT，@POST，@DELETE，标注方法是用的HTTP请求的类型
+	（3）、@Produces，标注返回的MIME媒体类型，（ 注解标注，这个注解可以包含一组字符串，默认值是*/*，它指定REST 服务的响应结果的MIME 类型，
+		例如：application/xml、application/json、image/jpeg 等），也可以同时返回多种类型，但具体生成结果时使用哪种格式取决于ContentType。CXF 默认返回的是JSON 字符串。
+	（4）、@PathParam，@QueryParam，@HeaderParam，@CookieParam，@MatrixParam，@FormParam,分别标注方法的参数来自于HTTP请求的不同位置，
+		例如@PathParam来自于URL的路径，@QueryParam来自于URL的查询参数，@HeaderParam来自于HTTP请求的头信息，@CookieParam来自于HTTP请求的Cookie。
+ 	
+ 
+注意：前两章说的CXF与spring整合及  都是使用JAX-WS规范。JAX-WS规范是一组XML web services的JAVA API。jaxws 是配置SOAP 方式的Web 服务
+ 
+ 
+Spring中引入了两个新的名称空间jaxws、jaxrs，因为CXF 实现了Spring 的NamespaceHandler 接口，实现这个接口可以在Spring 中增加额外的配置。
+那么jaxws 自然是配置SOAP 方式的Web 服务，你可以看到有jaxws:server、jaxws:endpoint、jaxws:client 三个元素，jaxws:server 和jaxws:endpoint 是等效的
+都用于发布Web 服务，出现jaxws:endpoint 的原因是JAX-WS 规范中使用EndPoint 发布Web 服务（前面使用过这种方式），CXF 为了和JAX-WS 对应，
+提供了这个与jaxws:server 功能一样的配置元素；jaxrs是REST 方式的Web 服务，有jaxrs:server、jaxrs:client 两个元素。
+	
+	pom.xml:
+	<dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+		<version>${cxf.version}</version>
+	</dependency>
+	
+	spring:
+	<?xml version="1.0" encoding="UTF-8"?>
+	<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="
+		http://cxf.apache.org/jaxrs	http://cxf.apache.org/schemas/jaxrs.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+		<bean id="restfulSample" class="com.johnny.webservice.restful.RestfulSampleImpl" />
+		<!-- 这里的地址很重要，客户端需要通过这个地址来访问WebService -->
+		<jaxrs:server id="restServiceContainer" address="/rest">
+			<jaxrs:serviceBeans>
+				<ref bean="restfulSample" />
+			</jaxrs:serviceBeans>
+			<jaxrs:extensionMappings>
+				<entry key="json" value="application/json" />
+				<entry key="xml" value="application/xml" />
+			</jaxrs:extensionMappings>
+			<jaxrs:languageMappings>
+				<entry key="en" value="en-gb" />
+			</jaxrs:languageMappings>
+		</jaxrs:server>
+	</beans>
+		
+为cxf服务加上wadl描述信息
+
+
+我们在开发cxf rest服务的时候，往往需要为每个服务添加描述文档，以前我们可能是将描述文档用word或者excel记录，
+现在介绍一种通过cxf-rt-rs-service-description自动生成wadl描述文档的方法。
+	1. 首先我们在项目中引入cxf-rt-rs-service-description包，通过maven方式构建
+	<dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-rt-rs-service-description</artifactId>
+	</dependency>
+	
+	2. 在服务中添加描述信息
+	@GET
+	@Path("/reses/{resId}/{userId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Description(value = "展示资源详情", target = DocTarget.METHOD)
+	public ReturnMsg<ResourceDTO> showRes(@PathParam("resId") String resId, @PathParam("userId") String userId);
+
+
+	

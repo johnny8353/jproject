@@ -1,0 +1,71 @@
+第一种：直接复制法
+	假设Eclipse的安装目录在C:\eclipse，解压下载的eclipse 插件或者安装eclipse 插件到指定目录AA(如：c:\AA)文件夹，打开AA 文件夹，
+	在AA文件夹里分别包含两个文件夹features和plugins ，然后把两个文件夹里的文件分别复制到C:\eclipse下所对应的文件夹下的features 和plugins 下，
+	一般的把插件文件直接复制到eclipse目录里是最直接也是最愚蠢的一种方法！因为日后想要删除这些插件会非常的困难，不推荐使用。
+	
+	注意：直接将插件包解压到plugins文件夹下之后，重启eclipse，可能不会加载新的插件。
+	解决方法是：
+	1、打开命令行，到当前eclipse的目录下，输入eclipse -clean，重新启动eclipse，这样eclipse就会加上新的插件了。
+	2、如果插件不能生效，则请将eclipse\configuration\org.eclipse.update目录删除后再启动eclipse；
+	你可以在eclipse的菜单"Help"-->"About Eclipse SDK"-->"Feature Details" 和"Plug-in Details"中看到新安装的插件。
+	
+第二种：Link
+
+	在eclipse目录 （ECLIPSE_HOME）下创建一个links目录，然后将你自己的插件放在你想放的任何地方，这个时候你放插件的目录我称她为插件目录 （PLUGIN_HOME），
+	然后在你的%ECLIPSE_HOME%\links\目录下创建一个link文件，比如我要安装一个vss插件，我就在我 的links目录下创建了：VSS_1.6.1.link文件。
+	而这个VSS_1.6.1.link文件则是指向的我的插件目录 （PLUGIN_HOME，比如在我的机器上插件目录为D:\eclipse\plugins_new）。VSS_1.6.1.link文件的内容是：
+		path=D:\\JavaDev\\plugins\\vssplugin_1.6.1
+	
+	第 二种安装插件的时候需要注意，如果你是一个单独的jar文件，则最好在link文件指定的目录下创建这样级别的目录：eclipse\plugins \xxx.xxx（插件名称和版本号），
+	然后将jar文件放在这个目录下即可。比如vss插件在我的机器上的目录是D:\eclipse \plugins_new\vssplugin_1.6.1\eclipse\plugins\org.vssplugin_1.6.1，
+	下有一个文 件：vssplugin.jar
+	
+	两种方法的插件安装之后需要重新启动eclipse才能看到插件。如果某一个插件已经安装了想要重新安 装，只要将文件替换或者修改link文件的路径即可。
+	如果发现认不到插件，可能是你的插件不支持你的当前eclipse版本，请检查。也有可能是系统配置 引起的，我出现过一次，
+	我的解决方法是将ECLIPSE_HOME下的configuration目录下的所有文件删除，剩下config.ini文件。
+	
+	第二种的延伸方法（比较好用）：Eclipse插件使用links目录的用法
+		
+		假设把插件安装在d:\myplugin目录中，则myplugin的目录结构一定要是这样的：
+		d:\\myplugin\\eclipse\\plugins\\插件 及 d:\\myplugin\\eclipse\\features\\插件
+		例如安装EclipseME插件到d:\myplugin目录中，则目录结构
+		
+		d:\\myplugin\\eclipse\\plugins\\eclipseme_0.4.5。
+		再假设eclipse安装在d:\eclipse目录中，则在eclipse目录中创建名称为links的目录，在links目录中建立一个link文件，比如myplugin.link，
+		该文件内容为path=d:\\myplugin。
+		启动eclipse，插件即安装上了，如果想暂时不启动插件，只需把myplugin.link文件删除即可。
+	
+	补充说明：
+	1. 插件可以分别安装在多个自定义的目录中。
+	2. 一个自定义目录可以安装多个插件。
+	3. link文件的文件名及扩展名可以取任意名称，比如myplugin.txt，goodplugin都可以。
+	4. link文件可以有多行path=插件目录，对应多个自定义插件目录，每一行的path参数都将生效。
+	5. 在links目录也可以有多个link文件，每个link文件中的path参数都将生效。
+	6. 插件目录可以使用相对路径，如果我们把myplugin目录创建在eclipse安装目录中，如上例中的
+	
+	d:\eclipse目录中，则只需设置path=myplugin即可。
+
+
+第三种方法：本地（离线）安装
+	选择Help->Software Updates->Manager Configuration,选择Add an Existing Location,找到要安装的插件。
+	
+
+第四种方法：在线安装
+	选择Help->Software Updates->Find and Install,
+	然后选择Search for new features to install后点next,
+	 选择New Remote Site...
+	输入插件名与更新网址，网址在网上可以查到。举个例子：
+	 安装Maven:在New Update Site对话框中输入
+	    name:Maven
+	    URL: http://m2eclipse.codehaus.org/update/  
+	    点击OK->Finish,更新后选择插件安装，最后就算是完成了。
+	    
+第5种方法：使用dropins安装插件
+	从Eclipse3.5开始，安装目录下就多了一个dropins目录。只要将插件解压后拖到该目录即可安装插件。
+	比如安装svn插件subclipse-1.8.16.zip，只需要如下的三步即可：
+	1、使用winrar等压缩软件将压缩包解压至某一文件夹，比如subclipse-1.8.16
+	2、将此目录移动/复制至Eclipse安装目录下的dropins目录
+	3、重启Eclipse。
+	由于此种安装方式可以将不同的插件安装在不同的目录里，并且不用麻烦地写配置文件，因此管理起来会非常方便，推荐使用。
+	
+	需注意一点，就是dropins文件夹与解压后的plugins文件夹之多只能有一层文件夹（可以是中文），或者没有也行，但中间一定不能再多出1个文件夹：

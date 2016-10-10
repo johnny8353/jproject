@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>title</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/jquery.js" ></script>  
+<script>   
+(function($){    
+$.fn.selInit = function(){return $(this).html("<option>请选择</option>");};    
+$.area = function(){    
+    $("#province").selInit();    
+    $("#city").selInit();    
+    $("#county").selInit();    
+    var area = {    
+        北京:{北京:"东城,西城,海淀,宣武,丰台"},    
+        江苏:{南京:"江宁,六合,下关,浦口",无锡:"北塘,滨湖,江阴,宜兴"},    
+        山东:{菏泽:"鄄城,牡丹区",济南:"济南a,济南b"}    
+        //...    
+    };    
+    $.each(area,function(p){$("#province").append("<option>"+p+"</option>");});    
+    $("#province").change(function(){    
+        $("#city").selInit();    
+        $("#county").selInit();    
+        $.each(area,function(p,x){    
+            if($("#province option:selected").text() == p){    
+                $.each(x,function(c,cx){    
+                    $("#city").append("<option>"+c+"</option>");    
+                });    
+                $("#city").bind("change",function(){    
+                    $("#county").selInit();    
+                    $.each(x,function(c,cx){    
+                        if($("#city option:selected").text() == c){    
+                                $.each(cx.split(","),function(){    
+                                    $("#county").append("<option>"+this+"</option>");    
+                                });    
+                            }    
+                    });    
+                });    
+            }    
+        });    
+    });    
+};    
+})(jQuery);    
+$(function(){    
+    $("select").css("width","100px");    
+    $.area();    
+    });    
+</script>   
+</head>   
+<body>  
+<div id="content">
+  <div id="position">当前位置：常用组件&gt;选择组件&gt;三级联动控件</div>
+  <table width="100%" border="0" cellpadding="0" cellspacing="1" class="tb_input">
+        <tr>
+          <td width="200" colspan="4" class="note">二级联动控件</td>
+        </tr>
+    <tr>
+ <td width="12%" class="td_title">区域</td>
+      <td  > 
+    <select id="province"><option>请选择</option></select>   
+       <select id="city"><option>请选择</option></select>   
+       <select id="county"><option>请选择</option></select> 
+</td>
+    </tr>
+  </table>
+</div>  
+</body>   
+</html> 
+
+ 

@@ -1,0 +1,81 @@
+Axis官方网站：http://ws.apache.org/axis/
+可以在官网下载最新1.4的包：axis-bin-1_4.zip
+将解压后的axis-1_4\webapps\下的axis目录考到%TOMCAT_HOME%/Webapps/目录下
+启动tomcat后在浏览器里输入http://localhost:8082/axis会看到下图所示（ps：本人的tomcat端口为8082）
+
+
+点击上图中的Validataion链接,页面上会提示已经有的包和缺少的包的信息,根据提示将必须的包下载全，
+将这些类包复制到 %tomcathome%/webapps/axis/WEB-INF/lib/目录下重新启动tomcat,直到Validation页面中看不到有Error与Warning的提示信息。
+
+如果提示缺少xmlsec.jar(附件提供下载)可以到 http://santuario.apache.org/download.html下载.
+
+Axis支持三种web service的客户端访问方式，分别为：
+	Dynamic Invocation Interface ( DII)
+	Dynamic Proxy方式
+	Stubs方式
+	
+下面介绍axis部署和发布web service的方式：
+	JWS -即时发布
+	WSDD – 定制发布
+	
+一、JWS
+	JWS（Java WebService）是最简单的一种方式。Axis允许把普通Java类的源文件的扩展名改为.jws，然后把它简单的copy到AXIS_HOME下。这
+	样，Axis 会自动编译.jws文件，并把它自动加入到Java Web Servie的服务中。非常简单和灵活，但是这种方式的缺点是：只能是java源代码，同时类中不能含有包名。具体过程如下
+	
+		1.用Eclipse或者文本编辑器编写一个java类SayHello.java(此类不含包名)
+		2.将上面的类(SayHello.java)copy到%tomcat_home%/webapps/axis/目录下,只需要把类的源文件(不是class)到这个目录下,重命名为:SayHello.jws
+		3.打开浏览器输入:http://localhost:8082/axis/SayHello.jws 会看到：
+			击上图Click to see the WSDL 的链接，就可以看到生成的wsdl。
+		
+二、WSDD
+	- 配置web.xml
+		<?xml version="1.0" encoding="UTF-8"?>
+		<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+		
+			<display-name>Archetype Created Web Application</display-name>
+			<!--webService axis -->
+			<servlet>
+				<servlet-name>AxisServlet</servlet-name>
+				<servlet-class>
+					org.apache.axis.transport.http.AxisServlet
+				</servlet-class>
+				<load-on-startup>100</load-on-startup>
+			</servlet>
+			<servlet-mapping>
+				<servlet-name>AxisServlet</servlet-name>
+				<url-pattern>/AxisServlet</url-pattern>
+			</servlet-mapping>
+		
+			<servlet-mapping>
+				<servlet-name>AxisServlet</servlet-name>
+				<url-pattern>/services/*</url-pattern>
+			</servlet-mapping>
+			<servlet-mapping>
+				<servlet-name>AxisServlet</servlet-name>
+				<url-pattern>*.jws</url-pattern>
+			</servlet-mapping>
+		</web-app>
+		
+	- 配置：Server-config.wsdd
+		<?xml version="1.0" encoding="UTF-8"?>
+		<deployment xmlns="http://xml.apache.org/axis/wsdd/"
+			xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+			<transport name="http">
+				<requestFlow>
+					<handler type="java:org.apache.axis.handlers.http.URLMapper" />
+				</requestFlow>
+			</transport>
+			<transport name="local">
+				<responseFlow>
+					<handler type="java:org.apache.axis.transport.local.LocalResponder" />
+				</responseFlow>
+			</transport>
+			<service name="Version" provider="java:RPC">
+				<parameter name="allowedMethods" value="getVersion" />
+				<parameter name="className" value="org.apache.axis.Version" />
+			</service>
+		</deployment>
+	 
+		

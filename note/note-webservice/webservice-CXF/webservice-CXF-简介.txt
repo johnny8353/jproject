@@ -1,0 +1,102 @@
+使用apache CXF和maven开发Web Service
+	目前主要的java webservice框架剩下了axis2和cxf。本文对两个框架的目标、标准支持、开发和部署等方面进行了简单的对比。
+	对于在现有web应用中发布webservice，本文建议使用cxf。 更进一步，本文介绍了cxf的嵌入式代码和web容器两种发布方式。
+	
+1.  Web Service是什么？
+	Web service是一个平台独立的，低耦合的，自包含的、基于可编程的web的应用程序，可使用开放的XML（标准通用标记语言下的一个子集）标准来描述、发布、发现、协调和配置这些应用程序，
+	用于开发分布式的互操作的应用程序。
+
+	Web Service技术， 能使得运行在不同机器上的不同应用无须借助附加的、专门的第三方软件或硬件， 就可相互交换数据或集成。依据Web Service规范实施的应用之间， 
+	无论它们所使用的语言、 平台或内部协议是什么， 都可以相互交换数据。Web Service是自描述、 自包含的可用网络模块， 可以执行具体的业务功能。Web Service也很容易部署，
+	 因为它们基于一些常规的产业标准以及已有的一些技术，诸如标准通用标记语言下的子集XML、HTTP。Web Service减少了应用接口的花费。
+	Web Service为整个企业甚至多个组织之间的业务流程的集成提供了一个通用机制。
+	
+	Axis 2和CXF都是来自于Apache， 各个方面相差不多，但是考虑到目前市场上使用CXF比较多一点，就才用了CXF。
+	
+	CXF提供了spring的集成，同时还提供了org.apache.cxf.transport.servlet.CXFServlet用于在web容器中发布WebService。 
+	前面的例子中增加了整个apache-cxf的依赖，所以会自动增加对srping的引用。只需要写beans配置文件和web.xml文件即可。
+	
+	1.对比Axis2和CXF
+		jws的发布对java webservice框架产生了巨大的影响，经过大浪淘沙，目前java开发webservice的框架主要包括axis2和cxf。
+		axis2和cxf都是apache旗下的产品，但是其目的不同，导致webservice开发方法也不一样。两个框架都得到了开发者的支持。有必要对二者进行以下对比。
+
+ 
+ 					Axis2				CXF
+		目标			WebService引擎		简易的SOA框架，可以作为ESB
+		ws* 标准支持	不支持WS-Policy		WS-Addressing，WS-Policy， WS-RM， WS-Security，WS-I Basic Profile
+		数据绑定支持	XMLBeans、JiBX、JaxMe 、JaxBRI、ADB		JAXB, Aegis, XMLBeans, SDO, JiBX
+		spring集成	不支持				支持
+		应用集成		困难					简单
+		多语言		支持C/C++				不支持
+		部署			web应用				嵌入式
+		服务监控和管理	支持					不支持
+	结论：
+	如果希望以一种一致的方式实现webservice，特别是有跨语言的需求时，应该使用Axis2
+	如果需要在现有的java程序（包括web应用）中增加webservice支持，应该使用CXF
+	
+	2.编写服务类
+	从Java6开始，WebService API从Java EE复制到了Java SE。并遵循了一系列的标准，比如JSR181(Web Service 元数据），JSR224（JAX-WS,基于XML的WebService API），JSR67（SAAJ，SOAP附件标准）等。 并分别定义到javax.jws, javax.xml.ws 和 javax.xml.soap包中。
+	
+	JSR181支持使用标注（annotation）来定义WebService。在javax.jws中主要的标注类包括：
+
+ 
+	标注			说明
+	WebService	将 Java 类标记为实现 Web Service，或者将 Java 接口标记为定义 Web Service 接口
+	WebMethod	定制Web Service方法
+	WebParam	定制Web Service方法的参数
+	WebResult	定制Web Service方法的返回值
+	SOAPBinding	指定WebService的SOAP映射样式
+	使用标注可以在不改变代码逻辑的前提下让外部代码能够获得更多的元数据。下面就用javax.jws定义的标注来声明一个WebService:
+	
+	1.创建cxf服务端
+			String address = "http://10.17.183.43:8989/johnny/hellows";
+			Endpoint.publish(address , new HelloWSImpl());		
+	2.创建CXF客户端 
+
+		正常开发两个独立系统之间互操作的服务，需要双方协商好WSDL，然后根据WSDL规范去实现互操作性。在本示例中，我们已经开发完成了服务端程序，下面需要开发客户端程序，
+		为了达到客户端调用服务端的目的，我们需要通过双方协商好的WSDL（这里直接通过访问服务端服务地址得到）来生成Java存根类文件。
+	
+		CXF发行版提供了一个名为“wsdl2java.bat”的工具，该工具可以通过WSDL为特定的服务创建stub。该工具有如下参数：
+		-p : 指定其wsdl的命名空间，即要生成代码的包名。
+		-d : 指定要产生代码所在目录。
+		-client : 生成客户端测试web service的代码。
+		-server : 生成服务器启动web service的代码。
+		-impl : 生成web service的实现代码。
+		-ant : 生成build.xml文件。
+		-compile : 生成代码后编译。
+		-quient : 静默模式，不输出警告与错误信息。
+		-all : 生成所有开始端点代码：types, service proxy, service interface, server mainline, client mainline, implementation object, and an Ant build.xml file。
+		一般用到的命令：“wsdl2java –p 生成代码的包名–d 生成代码的路径 wsdl地址”。执行命令生成本示例的stub代码文件：
+		
+	客户端调用 - 1	也可以利用Java自带的方式生成WS客户端文件：
+		D:\Program Files\Java\jdk1.6.0_26\bin>wsimport -s D:/workspaceNew/shortcutDemo/s
+		rc/com/creditease/ns/adapter/channel/impl http://10.100.30.37:8089/ns-adapter-ch
+		annel/services/CeFinalPaymentWS?wsdl
+		
+	客户端调用 - 2	D:\apache-cxf-2.7.6\bin>wsdl2java.bat -p com.johnny -d D:/ http://10.100.30.37:8089/ns-adapter-channel/services/PaymentWS?wsdl
+		
+		CXF在实现上存在诸多的底层实现，jaxws, rs等等诸多的内容，这里只选取jaxws来做为示例，至于其他的诸多实现，笔者也不是非常熟悉，姑且放下不论。
+		好了，经过了漫长的配置和调试之后，相信大家对于如何使用cxf进入开发状态有了一个初步的认识。
+		
+	   	 目前来说，越来越多的企业和系统已经迁移至基于http请求的json或者xml格式的请求，而非标准的soap/webservice请求，究其原因还是soap/webservice过于复杂、标准虽好，但是用着不多。
+	   	 关键是看是否简单易用，可以快速解决开发中存在的问题，在这个方面json/xml则是非常的简单。
+	   	 
+	客户端调用 - 3：使用Eclipse自带的webservice client生成客户带代码
+	NEW - Other - Web Service Client - NEXT
+	service definition - http://localhost:8077/johnny/webservice/dataTypeWS?wsdl	-	 NEXT
+	-	选择生成的工程目录 ->* check Define custome mapping for namespace to package 自定义生成的包
+	-	Mapping pairs 	-> Add ->	http://cxfimp2.webservice.johnny.com/ - com.johnny.webservice.client.cxf.helloworld
+						
+	推荐使用Eclipse自带的webservice client生成客户带代码，较为简单高效
+	
+为wsdl添加友好型说明	-	DataTypeWS
+	类：
+	@WebService
+	@WSDLDocumentationCollection({ @WSDLDocumentation(value = "数据中心用户信息接口：为第三方子系统提供用户信息，访问此接口的客户端需要IP授权。"
+			+ "作者：xxx，邮箱：xxx@126.com", placement = WSDLDocumentation.Placement.TOP) })
+	public interface DataTypeWS {
+		@WebMethod
+		@WebResult(name = "result")
+		@WSDLDocumentation("addStudent-说明信息")
+		public boolean addStudent(@WebParam(name = "student") Student s);
+	}

@@ -1,0 +1,50 @@
+
+#	uname -a 查看系统64位还是32位
+#	cat /proc/cpuinfo | grep "processor" | wc -l 	cpu cores    ：该逻辑核所处CPU的物理核数	siblings       ：单个CPU逻辑物理核数
+#	cat /proc/version  查看linux版本
+#	cat /etc/sysconfig/network	     
+#	cat /etc/hosts				主机名
+#	cat /etc/redhat-release   Linux查看版本当前操作系统发行版信息
+#	ll -h						按M、G为单位查看文件
+#	ll -t						时间从大到小 (从 小到大 ll -rt)
+#	ll -Sh 						文件大小从大到小(从 小到大 ll -rSh)
+#	chmod a+x *sh				为这几个sh文件添加可执行权限
+#	chrom -R 775 *sh
+#	kill -9  进程号  　　				直接关闭进程
+#	kill -15 pid				先关闭和其有关的程序，再将其关闭
+#	netstat -apn | grep 1521 	 查看端口号
+#	grep -i ipvs				-i大小写无关
+#	df -h 						获取文件大小,能针对整个分区。由于df直接读取超级块，所以运行速度不受文件多少影响
+#	du -h --max-depth=1 /usr 	获取文件大小,不一定非要针对一个分区，针对的目录中文件很多，du速度就会很慢了
+#	> a.txt						清空a.txt文件
+#	ll > a.txt					把ll命令的结果输出到a.txt,ll >> a.txt为追加输出
+#	ll|tee a.txt				把ll命令的结果输出到a.txt,tee -a a.txt为追加输出
+#	pstree -p | wc -l			pstree -p 树方式查看进程。查询当前整个系统已用的线程或进程数 wc -l查看行数
+#	lsof
+#	mount -o loop /mnt/e/fc/rhel-3-i386-as-disc1.iso /mnt/cdrom
+#	shutdown now
+#	reboot
+#	ps -ef | grep siebel | grep -v grep | cut -c 9-15 | xargs kill -s 9
+#	rpm -ivh --nodeps libgomp* --replacefiles    安装
+#	rpm -qa|grep gcc-4.1.2
+#	rpm -e --nodeps libgomp*     卸载
+#	yum -y install gcc
+#	yum list available | grep libXext 查看yum可用的包，然后使用yum install直接安装
+#	yum  install   libXext.i686
+#	find -iname OPatch	查找文件
+#	修改语言/etc/sysconfig/i18n文件,如LANG="zh_CN.UTF-8"   LANG="en_US.UTF-8"
+#	date -R 查看时间
+#	date -s 05/10/2009
+#	date -s 10:18:00
+#	iostat -x	查看系统io情况
+#	sar -d 2 3	iowait % < 20%%util接近100%，I/O系统已经满负荷的在工作，该磁盘可能存在瓶颈 2秒采样一次，采样3次
+#	vmstat -t 1	CPU利用率：us <= 70%，sys <= 35%，us + sys <= 70%。r可运行队列的线程数
+#	vmstat -t 5|tee -a all.log		输出服务器性能监控，追加输出到all.log
+#	zip -r mydata.zip mydata 压缩
+#	tar -xvf httpd-2.2.4.tar.gz   解包
+# 	tar -cvf /tmp/etc.tar /etc <==仅打包，不压缩！
+#	tar -zcvf /tmp/etc.tar.gz /etc <==打包后，以 gzip 压缩
+#	tar -jcvf /tmp/etc.tar.bz2 /etc <==打包后，以 bzip2 压缩
+#	rpm -ql httpd	列出所有文件
+#	vi /etc/rc.d/rc.local			启动执行文件
+

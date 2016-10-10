@@ -1,0 +1,138 @@
+环境搭建：
+	1，和前边几个框架的大概流程一样，首先需要我们拷入必备的jar包。jar包的拷入奔着一个够用即可的原则，用什么拷贝什么，当然有些日志输出，单元测试是为了更好的观察框架而拷入的不是必备的。
+	这里讲到是用MySQL来进行演示，所以使用了mysql的驱动jar包：
+		antlr-2.7.6.jar (生成SQL语句)
+		asm.jar(字节码增强工具类)
+		c3p0-0.9.1.jar(数据源连接池组件)
+		cglib-2.1.3.jar(代理组件，基于继承的)
+		commons-collections-2.1.1.jar(集合工具类组件，会进行高效的操作)
+		commons-logging-1.0.4.jar(日志输出的转换组件)
+		log4j-1.2.11.jar(日志输出组件，更加详细和可以控制输出格式，及目的地)
+		dom4j-1.6.1.jar(XML解析)
+		ehcache-1.2.3.jar(缓存组件)
+		ejb3-persistence.jar(持久化操作的规范jar包)
+		hibernate3.jar(框架的核心jar包)
+		jta.jar(全局的事务管理)
+		junit-3.8.1.jar        (单元测试)                        
+		mysql-connector-java-3.1.13-bin.jar        (MySQL数据库驱动jar包)
+	2，引入配置文件：
+		hibernate.cfg.xml  Hibernate核心配置文件（包括数据库的连接配置，映射文件的读取等）
+		log4j.properties          Log4j的日志输出控制文件
+		News.hbm.xml  映射文件(一个实体类对应一个此类的映射文件。)
+	3，核心配置文件hibernate.cfg.xml的编写：
+		 <?xml version="1.0" encoding="UTF-8"?>
+		<!DOCTYPE hibernate-configuration PUBLIC
+				"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+				"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+		<hibernate-configuration>
+			<session-factory>
+				<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+				<property name="hibernate.connection.username">root</property>
+				<property name="hibernate.connection.password">1230</property>
+				<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/hibernate</property>
+		        
+		        <!-- 配置 hibernate 的基本信息 -->
+				<!-- 
+					hibernate 所使用的数据库方言
+					方言：根据指定的方言与数据库打交道，完成SQL的具有语句生成，因为不同的数据库sql语法还是有区别的，
+					这里相当于告诉Hibernate框架，我们使用的是什么数据库。
+						MySQL : org.hibernate.dialect.MySQLDialect
+						Oracle : org.hibernate.dialect.OracleDialect
+				 -->
+				
+				<property name="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</property>
+		
+				<!-- 执行操作时是否在控制台打印 SQL -->
+				<property name="hibernate.show_sql">true</property>
+		
+				<!-- 是否对 SQL 进行格式化 -->
+				<property name="hibernate.format_sql">true</property>
+		
+				<!-- 指定自动生成数据表的策略 -->
+				<property name="hibernate.hbm2ddl.auto">update</property>
+		
+				<!-- 指定关联的 .hbm.xml 文件 管理所有的映射资源文件，应该将我们的所有的映射配置文件设置到这里，这样我们框架才能找到 -->
+				<mapping resource="com/johnny/hibernate/helloworld/News.hbm.xml" />
+				
+			</session-factory>
+		</hibernate-configuration>
+	4,   *.hbm.xml与实体类对应的用来做映射的文件的编写，我觉的这里是重点，设计的知识点比较多。这里简单看一个，后边会总结这里边的语法： 
+		<?xml version="1.0"?>
+		<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+		<!-- Generated 2016-9-10 14:35:37 by Hibernate Tools 3.4.0.CR1 -->
+		<hibernate-mapping>
+			<class name="com.johnny.hibernate.helloworld.News" table="NEWS">
+				<id name="id" type="java.lang.Integer">
+					<column name="ID" />
+					<!-- 指定主键的生成方式, native: 使用数据库本地方式 
+					mysql数据采用的auto_increment属性来生成主键值，一般主键字段需要设置的类型为int   
+					-->
+					<generator class="native" />
+				</id>
+				<property name="title" type="java.lang.String">
+					<column name="TITLE" />
+				</property>
+				<property name="author" type="java.lang.String">
+					<column name="AUTHOR" />
+				</property>
+				<property name="date" type="java.util.Date">
+					<column name="DATE" />
+				</property>
+			</class>
+		</hibernate-mapping>
+ 	5,上边已经做好了实体类和数据表的映射了，我们可以通过Hibernate框架提供的方法进行对数据库的数据操作了，简单看一个dao层类的实现：				
+		@Test
+		public void test() {
+			
+			System.out.println("test...");
+			
+			//1. 创建一个 SessionFactory 对象
+			SessionFactory sessionFactory = null;
+			
+			//1). 创建 Configuration 对象: 对应 hibernate 的基本配置信息和 对象关系映射信息
+			Configuration configuration = new Configuration().configure();
+			
+			//4.0 之前这样创建
+	//		sessionFactory = configuration.buildSessionFactory();
+			
+			//2). 创建一个 ServiceRegistry 对象: hibernate 4.x 新添加的对象
+			//hibernate 的任何配置和服务都需要在该对象中注册后才能有效.
+			ServiceRegistry serviceRegistry = 
+					new ServiceRegistryBuilder().applySettings(configuration.getProperties())
+					                            .buildServiceRegistry();
+			
+			//3).
+			sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+			
+			//2. 创建一个 Session 对象
+			Session session = sessionFactory.openSession();
+			
+			//3. 开启事务
+			Transaction transaction = session.beginTransaction();
+			
+			//4. 执行保存操作
+			News news = new News("Java12345", "johnny", new Date(new java.util.Date().getTime()));
+			session.save(news);
+			
+			//5. 提交事务 
+			transaction.commit();
+			
+			//6. 关闭 Session
+			session.close();
+			
+			//7. 关闭 SessionFactory 对象
+			sessionFactory.close();
+		}
+
+	这样一看我们的方法写的代码也是挺多了，想说的是这里只是写出了Hibernate框架是从创建sessionFactory对象，然后创建session对象，通过session对象进行对数据库的操作。
+	其实真正的开发中，我们会把这些对象，事务的操作交给框架来管理，我们需要做的就是持久化操作的那些代码，是非常少的。
+
+	 综上为Hibernate实现一个简单插入news数据的例子，当然如果数据库关系复杂了，或者更多的设置，后边会进行相关总结。
+	 最后来看看Hibernate框架的优缺点吧，当然这些优缺点都是相对而言呢，看用在什么环境下了！
+	 优点：
+        1，轻量级的ORM框架
+		2，对JDBC进行了很好的封装，使用了ORM做了映射，那么就可以通过面向对象的方式很容易的操作数据库了。
+		3，它还提供了缓存机制，可以提高效率。等
+	 缺点：1，如果对大量的数据进行频繁的操作，性能效率比较低，不如直接使用JDBC。
+	 总而言之对于框架，我们利用其优秀的一面，避开其不好的一面，使其对我们开发发挥最大的作用即可！！！

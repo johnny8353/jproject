@@ -1,0 +1,10 @@
+1》org.apache.axis2.AxisFault: Service class HelloWS must have public as access Modifier
+	1、确保接口和类都用public关键字做了修饰
+	2、确保在发布Services的打包时选择服务类的时候选择的是具体的实现类而不是接口（自己栽在了这里）
+	
+2》The ServiceClass object does not implement the required method in the following form: OMElement addStudent(OMElement e)
+	为每个方法定义
+	<operation name="getAllStudentsMap">
+		<messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-out"
+			class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+	</operation>

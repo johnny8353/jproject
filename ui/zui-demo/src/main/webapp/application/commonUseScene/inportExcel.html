@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>title</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+<script type="text/javascript" src="../../js/datePicker/WdatePicker.js" ></script>
+</head>
+<body>
+<div id="content">
+  <div id="position">当前位置：常用场景&gt;功能按钮&gt;导入Excel</div>
+  <table cellspacing="0" cellpadding="0" class="tb_title">
+      <tr>
+        <td class="icon_note">采购清单</td>
+        <td class="tb_btn">
+          <input type="button" class="button" value="导入Excel" onClick="openwin('inportExcelInfo.html','',800,500);"/>
+        </td>
+      </tr>
+  </table>
+    <table cellpadding="0" cellspacing="1" class="tb_datalist">
+      <thead>
+        <tr class="tr_title">
+          <td width="23%">图书室</td>
+          <td width="29%">地点</td>
+          <td width="20%">所属地区</td>
+          <td width="18%">管理员</td>
+          <td>操作</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>本部图书室</td>
+          <td>莲塘716栋5F</td>
+          <td>深圳</td>
+          <td>王伟10010933</td>
+          <td><a href="modifyInfo2.html" >修改</a> <a href="#">删除</a></td>
+        </tr>
+        <tr>
+          <td>网络图书室</td>
+          <td>西丽同富裕</td>
+          <td>深圳</td>
+          <td>张伟50001023</td>
+          <td><a href="modifyInfo2.html" >修改</a> <a href="#">删除</a></td>
+        </tr>
+      </tbody>
+      <tr class="tr_pagenumber">
+        <td colspan="5"> 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+          <select name="select" >
+            <option selected>10</option>
+            <option >20</option>
+            <option>20</option>
+            <option>40</option>
+            <option>50</option>
+            <option>全部</option>
+          </select>
+          行 <img src="../../images/icons/firstpage.gif"  title="首页" class="paginate"/> <img src="../../images/icons/prepage.gif"  title="上一页" class="paginate"/>
+          <input type="text" name="textfield" class="page_txt" />
+          <input type="button" name="button" value="Go" class="btn_go" />
+          <img src="../../images/icons/nextpage.gif"  title="下一页" class="paginate"/> <img src="../../images/icons/lastpage.gif"  title="末页" class="paginate"/></td>
+      </tr>
+    </table>
+</div>
+</body>
+</html>

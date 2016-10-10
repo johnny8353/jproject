@@ -1,0 +1,87 @@
+CXF的拦截器是CXF功能最主要的扩展点。通过自定义的Interceptor，可以改变请求和响应的一些消息处理，其中最基本的原理还是一个动态代理。
+ 
+Interceptor是CXF架构中一个很有特色的模式。你可以在不对核心模块进行修改的情况下，动态添加很多功能。这对于CXF这个以处理消息为中心的服务框架来说是非常有用的，
+CXF通过在Interceptor中对消息进行特殊处理，实现了很多重要功能模块，例如：日志记录，Soap消息处理，消息的压缩处理。
+ 
+如果你想对CXF进行扩展，建议你先从interceptor开始。
+为了更好的学习和使用CXF，最好先阅读官方的用户手册：
+http://cwiki.apache.org/CXF20DOC/index.html
+
+
+添加拦截器	-	Endpoint发布
+	public static void main(String[] args) {
+		String address = "http://192.168.10.165:8888/day01_ws/datatypews";
+		Endpoint endpoint = Endpoint.publish(address , new HelloWSImpl());
+		System.out.println(endpoint);
+		EndpointImpl endpointImpl  = (EndpointImpl) endpoint;
+		
+		//服务端的入拦截器
+		List<Interceptor<? extends Message>> inInterceptors = endpointImpl.getInInterceptors();
+		inInterceptors.add(new CheckUserInterceptor());
+		
+		System.out.println("发布webservice成功!");
+	}
+	
+	--CXF发布
+	public class HelloWorldServer { 
+        public static void main(String[] args) { 
+            JaxWsServerFactoryBean factory = new JaxWsServerFactoryBean(); 
+            factory.setServiceClass(HelloWorldImpl.class); 
+            factory.setAddress("http://localhost:8080/service/HelloWorld"); 
+            factory.getInInterceptors().add(new LoggingInInterceptor()); 
+            Server server = factory.create(); 
+            server.start(); 
+        } 
+	}
+	
+	--CXF客户端
+	public static void main(String[] args) { 
+        JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean(); 
+        factory.setAddress("http://localhost:8080/service/HelloWorld"); 
+        factory.setServiceClass(HelloWorld.class); 
+        factory.getInInterceptors().add(new LoggingInInterceptor()); 
+        HelloWorld helloWorld = (HelloWorld) factory.create(); 
+        String msg = helloWorld.sayHello("World"); 
+        System.out.println(msg); 
+	} 
+	
+添加拦截器	-	Spring集成
+	<jaxws:endpoint id="dataType_ws" implementor="#dataTypeWS"
+		address="/dataTypeWS">
+		<jaxws:inInterceptors>
+			<bean class="org.apache.cxf.interceptor.LoggingInInterceptor"></bean>  
+		</jaxws:inInterceptors>
+		<jaxws:outInterceptors>
+			<bean class="org.apache.cxf.interceptor.LoggingOutInterceptor"></bean>
+		</jaxws:outInterceptors>
+	</jaxws:endpoint>
+	
+定义自己的Interceptor
+ 
+	自定的Interceptor一定要实现CXF的Interceptor接口，这个接口中有两个方法：
+	 
+	 void handleFault(T message)
+	          当拦截消息处理失败时候所调用的方法。
+	 void handleMessage(T message)
+	          拦截了一个消息，并做处理的方法。
+	 
+	对于SOAP这种XML格式的消息，开发者处理太过于麻烦，并且CXF提供大量的已经实现好的拦截器可供使用，只要灵活运用这些拦截器就可以满足大部分开发的要求。
+	
+多拦截器的捆绑
+ 
+	由于不光CXF内置有拦截器，而且还可以自定义拦截器。这样WebServcie的SEI可能配置多个、一大堆拦截器，这样很不方便。在Struts2中可以自定义拦截器，他还提供了自定义拦截器堆栈的功能，
+	将多个拦截器捆绑在一起使用。这样不必要一个一个的去注册拦截器。在CXF中也有类似功能，可以将拦截器捆绑在一起，你就可以将它注册到你要使用的地方，而不必一个一个拦截器的注册使用。
+	
+	 实现拦截器的捆绑过程非常的简单，继承AbstractFeature 类来实现一个新的特征， 只需要覆盖initializeProvider 方法即可。其实Feature 就是将一组拦截器放在其中，然后一并注册使用。
+ 
+	具体实现如下：
+	 
+	public class HelloWorldFeature extends AbstractFeature {
+	
+		@Override
+		protected void initializeProvider(InterceptorProvider provider, Bus bus) {
+			provider.getInInterceptors().add(new LoggingInInterceptor());
+			provider.getInInterceptors().add(new HelloInInterceptor());
+			provider.getOutInterceptors().add(new LoggingOutInterceptor());
+		}
+	}

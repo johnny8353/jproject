@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+	<!-- 导入资源文件 -->
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+	
+	<!-- 配置 C3P0 数据源 -->
+	<!-- -->
+	<bean id="dataSource"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="user" value="${jdbc.user}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+		<property name="jdbcUrl" value="${jdbc.jdbcUrl}"></property>
+		<property name="driverClass" value="${jdbc.driverClass}"></property>
+
+		<property name="initialPoolSize" value="${jdbc.initPoolSize}"></property>
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize}"></property>
+	</bean>
+	 
+	
+	   <!-- 数据源定义 -->
+	   <!--
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClass}" />
+        <property name="url" value="${jdbc.jdbcUrl}" />
+        <property name="username" value="${jdbc.user}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="validationQuery" value="select current_date"/>
+    </bean>
+     -->
+	<!-- 1. 数据源 : DriverManagerDataSource -->
+	<!-- 
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		<property name="url" value="jdbc:mysql://localhost:3306/mybatis"/>
+		<property name="username" value="root"/>
+		<property name="password" value="root"/>
+	</bean>
+	-->
+	
+	<!-- 
+		2. mybatis的SqlSession的工厂: SqlSessionFactoryBean 
+			dataSource / typeAliasesPackage
+	-->
+	<bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<!-- <property name="configLocation" value="classpath:mybatis-config.xml"/>   -->
+		<!-- 需要扫描的sqlmapper文件 -->
+		<property name="mapperLocations" value="classpath:com/johnny/spring/mybatis/**/mapper/*.xml"></property>
+		<!-- 配置实体类的别名 -->
+		<property name="typeAliasesPackage" value="com.johnny.spring.mybatis.bean"/>
+	</bean>
+
+	<!-- 
+		3. mybatis自动扫描加载Sql映射文件 : MapperScannerConfigurer 
+			sqlSessionFactory / basePackage
+			MapperScannerConfigurer是spring和mybatis整合的mybatis-spring jar包中提供的一个类。
+			想要了解该类的作用，就得先了解MapperFactoryBean。
+			MapperFactoryBean的出现为了代替手工使用SqlSessionDaoSupport或SqlSessionTemplate编写数据访问对象(DAO)的代码,使用动态代理实现。
+			之后想使用这个UserMapper接口的话，直接通过spring注入这个bean，然后就可以直接使用了，spring内部会创建一个这个接口的动态代理。
+			当发现要使用多个MapperFactoryBean的时候，一个一个定义肯定非常麻烦，于是mybatis-spring提供了MapperScannerConfigurer这个类，它将会查找类路径下的映射器并自动将它们创建成MapperFactoryBean。
+	-->
+	<bean id="config" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- 这段配置会扫描basePackage下的所有接口，然后创建各自接口的动态代理类。 -->
+		<property name="basePackage" value="com.johnny.spring.mybatis.mapper"/>
+		<property name="sqlSessionFactoryBeanName" value="sessionFactory"/>
+	</bean>
+	
+	<!-- 4. 事务管理 : DataSourceTransactionManager -->
+	<bean id="manager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<!-- 5. 使用声明式事务 -->
+	<tx:annotation-driven transaction-manager="manager" />
+</beans>

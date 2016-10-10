@@ -1,0 +1,186 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://cxfimp2.webservice.johnny.com/"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http"
+	name="DataTypeWSImplService" targetNamespace="http://cxfimp2.webservice.johnny.com/">
+	<wsdl:types>
+		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+			xmlns:tns="http://cxfimp2.webservice.johnny.com/" elementFormDefault="unqualified"
+			targetNamespace="http://cxfimp2.webservice.johnny.com/" version="1.0">
+			<xs:element name="addStudent" type="tns:addStudent" />
+			<xs:element name="addStudentResponse" type="tns:addStudentResponse" />
+			<xs:element name="getAllStudentsMap" type="tns:getAllStudentsMap" />
+			<xs:element name="getAllStudentsMapResponse" type="tns:getAllStudentsMapResponse" />
+			<xs:element name="getStudentById" type="tns:getStudentById" />
+			<xs:element name="getStudentByIdResponse" type="tns:getStudentByIdResponse" />
+			<xs:element name="getStudentsByPrice" type="tns:getStudentsByPrice" />
+			<xs:element name="getStudentsByPriceResponse" type="tns:getStudentsByPriceResponse" />
+			<xs:complexType name="getStudentsByPrice">
+				<xs:sequence>
+					<xs:element name="price" type="xs:float" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="getStudentsByPriceResponse">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="result"
+						type="tns:student" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="student">
+				<xs:sequence>
+					<xs:element name="id" type="xs:int" />
+					<xs:element minOccurs="0" name="name" type="xs:string" />
+					<xs:element name="price" type="xs:float" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="addStudent">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="student" type="tns:student" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="addStudentResponse">
+				<xs:sequence>
+					<xs:element name="result" type="xs:boolean" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="getStudentById">
+				<xs:sequence>
+					<xs:element name="id" type="xs:int" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="getStudentByIdResponse">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="result" type="tns:student" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="getAllStudentsMap">
+				<xs:sequence />
+			</xs:complexType>
+			<xs:complexType name="getAllStudentsMapResponse">
+				<xs:sequence>
+					<xs:element name="result">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="entry">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element minOccurs="0" name="key" type="xs:int" />
+											<xs:element minOccurs="0" name="value" type="tns:student" />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:schema>
+	</wsdl:types>
+	<wsdl:message name="getStudentsByPriceResponse">
+		<wsdl:part element="tns:getStudentsByPriceResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getStudentById">
+		<wsdl:part element="tns:getStudentById" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getAllStudentsMap">
+		<wsdl:part element="tns:getAllStudentsMap" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="addStudentResponse">
+		<wsdl:part element="tns:addStudentResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getAllStudentsMapResponse">
+		<wsdl:part element="tns:getAllStudentsMapResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getStudentByIdResponse">
+		<wsdl:part element="tns:getStudentByIdResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getStudentsByPrice">
+		<wsdl:part element="tns:getStudentsByPrice" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="addStudent">
+		<wsdl:part element="tns:addStudent" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:portType name="DataTypeWS">
+		<wsdl:operation name="getStudentsByPrice">
+			<wsdl:input message="tns:getStudentsByPrice" name="getStudentsByPrice">
+			</wsdl:input>
+			<wsdl:output message="tns:getStudentsByPriceResponse"
+				name="getStudentsByPriceResponse">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="addStudent">
+			<wsdl:input message="tns:addStudent" name="addStudent">
+			</wsdl:input>
+			<wsdl:output message="tns:addStudentResponse" name="addStudentResponse">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getStudentById">
+			<wsdl:input message="tns:getStudentById" name="getStudentById">
+			</wsdl:input>
+			<wsdl:output message="tns:getStudentByIdResponse" name="getStudentByIdResponse">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getAllStudentsMap">
+			<wsdl:input message="tns:getAllStudentsMap" name="getAllStudentsMap">
+			</wsdl:input>
+			<wsdl:output message="tns:getAllStudentsMapResponse"
+				name="getAllStudentsMapResponse">
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="DataTypeWSImplServiceSoapBinding"
+		type="tns:DataTypeWS">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="addStudent">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="addStudent">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="addStudentResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getStudentsByPrice">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="getStudentsByPrice">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="getStudentsByPriceResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getAllStudentsMap">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="getAllStudentsMap">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="getAllStudentsMapResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getStudentById">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="getStudentById">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="getStudentByIdResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="DataTypeWSImplService">
+		<wsdl:port binding="tns:DataTypeWSImplServiceSoapBinding"
+			name="DataTypeWSImplPort">
+			<soap:address location="http://localhost:8077/cxf/webservice/dataTypeWS" />
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,50 @@
+Axis2是目前比较流行的WebService引擎。WebService被应用在很多不同的场景。例如，可以使用WebService来发布服务端 Java类的方法，以便使用不同的客户端进行调用。
+这样可以有效地集成多种不同的技术来完成应用系统。WebService还经常被使用在SOA中，用于 SOA各个部分交换数据。
+	客户端调用：
+		-传统客户端【阻塞式客户端的编写】
+			新建AsixBlockClient类，获取数据
+		-使用RPC方法调用WebService
+			编写AsixRPCClient.java类，获取数据。注：添加User.java、City.java至项目中。	
+		-使用Stub方式调用WebService
+			运用wsdl2java简化客户端，使用Stub方式调用WebService
+	
+采用Stub：
+	客户端调用-1：使用Axis2 Code Generator生成客户端代码
+		- 保存wsdl文件，放在对应的包目录下
+		- 右击new- other- Axis2 Wizards- Axis2 Code Generator- next
+		- 选择Generate java source code from a wsdl file	- Next
+		- 填写具体工程和包名
+			- 选择 wsdl file location
+			- 填写codegen Option
+				Codegen option - Custom
+				Custom package name - 填写包名	
+		- Next - 填写code保存的路径
+		- 把代码到拷贝到工程下，引入jar包
+			*生成的包名是服务器端工程的包名，目前有很多错误，需要手动修改，较为麻烦
+		- 编写测试调用代码
+			不能修改服务器地址
+			@Test
+			public void TestHelloWorld() throws RemoteException{
+				MyHelloWS helloWS = new MyHelloWSStub();
+				SayHello sayHello0 = new SayHello();
+				sayHello0.setArgs0("--fff");
+				SayHelloResponse helloResponse = helloWS.sayHello(sayHello0);
+				System.out.println(helloResponse.get_return());//Hello AXIS2！ --fff
+			}
+		- 结论：缺点较多
+		
+	客户端调用 - 2：使用axis2 wsdl2java 命令生成客户端代码 	helloworld2
+		wsdl2java -uri \axis2\helloworld2\helloworld.wsdl  -p com.johnny.webservice.client.axis2.helloworld2 -o c:\\
+			-uri 	添加 wsdl的url或者本地路径
+			-p		包路径
+			-o		生成的文件保存目录
+			
+	客户端调用 - 3：使用Eclipse自带的webservice client生成客户带代码
+		NEW - Other - Web Service Client - NEXT
+		service definition - http://localhost:8077/johnny/webservice/dataTypeWS?wsdl	-	 NEXT
+		-	选择生成的工程目录 ->* check Define custome mapping for namespace to package 自定义生成的包
+		-	Mapping pairs 	-> Add ->	http://cxfimp2.webservice.johnny.com/ - com.johnny.webservice.client.cxf.helloworld
+					
+		
+	*推荐使用 Eclipse自带的webservice client生成客户带代码 或  wsdl2java，生成的代码不需要修改
+		

@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>FrameLeftTop</title>
+<link href="../css/index.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../js/jquery.js" ></script>
+<script type="text/javascript" src="../js/index.js" ></script>
+<script type="text/javascript">
+$(function()
+ {
+   ///鼠标经过样式
+  $(".img").hover(function(){
+     $(this).addClass("img_hover");   
+    },function(){
+     $(this).removeClass("img_hover");  
+    });
+	
+   ///关闭菜单
+  $("#imgHideMenu").click(function()
+    {
+	 window.parent.document.getElementById("mainFrameSet").cols="0,1,*";
+	 window.parent.rightup.document.getElementById("showtoc").style.display = "";
+	});
+ 
+
+	
+})
+  function expandall()
+    {
+    	if(top.topframe.frametopmenu.mode == "Outlook")
+    	{
+        	top.leftmenu.expandOlkAll();
+        }
+        else
+        {
+        	top.leftmenu.changeAllItemsStatus("expand");
+        }
+    }
+      
+    function collapseall()
+    {
+    	if(top.topframe.frametopmenu.mode == "Outlook")
+    	{
+        	top.leftmenu.collapseOlkAll();
+        }
+        else
+        {
+        	top.leftmenu.changeAllItemsStatus("collapse");
+        }
+    }
+	
+	 
+</script>
+
+</head>
+<body>
+<div id="frameleft_top">
+  <div id="frameleft_left">
+    <img id="imgDown" title="向下滚动菜单" src="../images/icons/arrdown_out.gif"  class="img" onMouseDown="mscroll(30,'treeManu');"  onMouseUp="mscroll(0,'treeManu')"/>
+    <img id="imgUp" title="向上滚动菜单" src="../images/icons/arrup_out.gif"  class="img" onMouseDown="mscroll(-30,'treeManu');"  onMouseUp="mscroll(0,'treeManu')"/>
+    <img id="imgExpandAll" title="全部展开" src="../images/icons/expandall_out.gif"  class="img" onclick="expandall()"/>
+    <img id="imgCollapseAll" title="全部收缩" src="../images/icons/collapseall_out.gif"  class="img" onclick="collapseall()"/>
+  </div>
+  <div id="frameleft_right">
+     <img id="imgHideMenu" title="关闭菜单"  src="../images/icons/closemenu_out.gif"  class="img"/>
+  </div>
+</div>
+</body>
+</html>

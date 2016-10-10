@@ -1,0 +1,69 @@
+持久化对象的状态
+	站在持久化的角度, Hibernate 把对象分为 4 种状态: 持久化状态, 临时状态, 游离状态, 删除状态. Session 的特定方法能使对象从一个状态转换到另一个状态. 
+
+
+持久化对象的状态
+	临时对象（Transient）: 
+		在使用代理主键的情况下, OID 通常为 null
+		不处于 Session 的缓存中
+		在数据库中没有对应的记录
+	持久化对象(也叫”托管”)（Persist）：
+		OID 不为 null
+		位于 Session 缓存中
+		若在数据库中已经有和其对应的记录, 持久化对象和数据库中的相关记录对应
+		Session 在 flush 缓存时, 会根据持久化对象的属性变化, 来同步更新数据库
+		在同一个 Session 实例的缓存中, 数据库表中的每条记录只对应唯一的持久化对象
+	删除对象(Removed)
+		在数据库中没有和其 OID 对应的记录
+		不再处于 Session 缓存中
+		一般情况下, 应用程序不该再使用被删除的对象
+	游离对象(也叫”脱管”) （Detached）：
+		OID 不为 null
+		不再处于 Session 缓存中
+		一般情况需下, 游离对象是由持久化对象转变过来的, 因此在数据库中可能还存在与它对应的记录
+
+Session 的 save() 方法
+	Session 的 save() 方法使一个临时对象转变为持久化对象
+	Session 的 save() 方法完成以下操作:
+		把 News 对象加入到 Session 缓存中, 使它进入持久化状态
+		选用映射文件指定的标识符生成器, 为持久化对象分配唯一的 OID. 在 使用代理主键的情况下, setId() 方法为 News 对象设置 OID 使无效的.
+		计划执行一条 insert 语句：在 flush 缓存的时候
+	Hibernate 通过持久化对象的 OID 来维持它和数据库相关记录的对应关系. 当 News 对象处于持久化状态时, 不允许程序随意修改它的 ID
+	persist() 和 save() 区别：
+		当对一个 OID 不为 Null 的对象执行 save() 方法时, 会把该对象以一个新的 oid 保存到数据库中;  但执行 persist() 方法时会抛出一个异常.
+		
+Session 的 get() 和 load() 方法
+	都可以根据跟定的 OID 从数据库中加载一个持久化对象
+	区别:
+		当数据库中不存在与 OID 对应的记录时, load() 方法抛出 ObjectNotFoundException 异常, 而 get() 方法返回 null
+		两者采用不同的延迟检索策略：load 方法支持延迟加载策略。而 get 不支持。
+
+Session 的 update() 方法
+	Session 的 update() 方法使一个游离对象转变为持久化对象, 并且计划执行一条 update 语句.
+	若希望 Session 仅当修改了 News 对象的属性时, 才执行 update() 语句, 可以把映射文件中 <class> 元素的 select-before-update 设为 true. 该属性的默认值为 false
+	当 update() 方法关联一个游离对象时, 如果在 Session 的缓存中已经存在相同 OID 的持久化对象, 会抛出异常
+	当 update() 方法关联一个游离对象时, 如果在数据库中不存在相应的记录, 也会抛出异常. 
+
+Session 的 saveOrUpdate() 方法
+	Session 的 saveOrUpdate() 方法同时包含了 save() 与 update() 方法的功能
+	游离对象-update
+	临时对象-save
+	判定对象为临时对象的标准
+		Java 对象的 OID 为 null
+		映射文件中为 <id> 设置了 unsaved-value  属性, 并且 Java 对象的 OID 取值与这个 unsaved-value 属性值匹配
+
+Session 的 delete() 方法
+	-Session 的 delete() 方法既可以删除一个游离对象, 也可以删除一个持久化对象
+	-Session 的 delete() 方法处理过程
+		计划执行一条 delete 语句
+		把对象从 Session 缓存中删除, 该对象进入删除状态.
+	-Hibernate 的 cfg.xml 配置文件中有一个 hibernate.use_identifier_rollback 属性, 其默认值为 false, 若把它设为 true, 
+	将改变 delete() 方法的运行行为: delete() 方法会把持久化对象或游离对象的 OID 设置为 null, 使它们变为临时对象
+	
+
+具体例子：
+	
+
+
+	
+

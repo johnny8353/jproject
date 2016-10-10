@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>图表查询--供应商供货分析</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+<script type="text/javascript" src="../../js/tablesorter/jquery.tablesorter.js" ></script>
+<script type="text/javascript" src="../../js/datePicker/WdatePicker.js" ></script>
+<script type="text/javascript">
+	function showSenior()
+ {
+   if(document.getElementById("seniorSearch").checked == true)
+   {
+     document.getElementById("seniorSearch1").style.display = "";
+	 document.getElementById("seniorSearch2").style.display = "";
+   }
+   
+   else
+   {
+     document.getElementById("seniorSearch1").style.display = "none";
+	 document.getElementById("seniorSearch2").style.display = "none";
+   }
+ }
+ 
+</script>
+</head>
+<body>
+<div id="content">
+<div id="position">当前位置：需求复用&gt;查询界面&gt;供货商供货分析(统计图表)</div>
+  <table cellspacing="1" cellpadding="0" class="tb_search">
+    <tr>
+      <td colspan="4" class="search">请填写查询条件</td>
+    </tr>
+    <tr>
+      <td class="td_title" width="12%">供货商</td>
+      <td width="36%"><input type="text" name="txtNo" class="txt_120"/>
+        <img src="../../images/icons/search2.gif"  alt="选择人员" style="cursor:pointer"  onclick="openwin('../formStyle/oneMan.html','',650,400)"/></td>
+      <td class="td_title" width="12%">供货日期</td>
+      <td><input id="dateStart" type="text" class="txt_120"/>
+		<img src="../../js/datePicker/skin/datePicker.gif"  align="absmiddle" style="cursor:pointer" onClick="WdatePicker({el:'dateStart'})" /> 至
+        <input id="dateEnd" type="text" class="txt_120"/>
+		<img src="../../js/datePicker/skin/datePicker.gif"  align="absmiddle" style="cursor:pointer" onClick="WdatePicker({el:'dateEnd'})" /></td>
+    </tr>
+    <tr >
+      <td class="td_title" width="12%">统计粒度</td>
+      <td>
+      <label><input type="radio" name="ra1" value="radiobutton" />
+        周</label>
+        <label><input name="ra1" type="radio" value="radiobutton" checked="checked" />
+        月</label>
+        <label><input type="radio" name="ra1" value="radiobutton" />
+        年</label></td>
+      <td class="td_title">统计对象</td>
+      <td>
+      <label><input name="ra2" type="radio" value="radiobutton" checked="checked" />
+        金额</label>
+        <label><input type="radio" name="ra2" value="radiobutton" />
+        数量</label></td>
+    </tr>
+    <tr >
+      <td class="td_title">结果显示</td>
+      <td colspan="3">
+      <label><input name="checkbox3" type="checkbox" value="checkbox" checked="checked" />
+        统计表</label>
+        <label><input name="checkbox4" type="checkbox" value="checkbox" checked="checked" />
+        统计图</label> </td>
+    </tr>
+    <tr>
+      <td colspan="4" align="right"><input name="btnSearch" type="button" value="查询" class="button"/>
+        <input name="btnReset" type="reset" value="清空" class="button"/>      </td>
+    </tr>
+  </table>
+ 
+    <table cellspacing="1" cellpadding="0" class="tb_input" style="margin-top:5px">
+      <tr>
+        <td colspan="4" class="note">供货商供货统计图</td>
+      </tr>
+      <tr>
+        <td class="td_title" width="12%">显示数据标签</td>
+        <td width="30%">
+        <label>
+        <input name="ra3" type="radio" value="radiobutton"/>
+        是</label>
+        <label>
+          <input type="radio" name="ra3" value="radiobutton" checked="checked"/>
+          否</label></td>
+        <td class="td_title" width="12%">图表尺寸</td>
+        <td>宽度
+          <input name="beginTime32"   value="600" size="6" />
+          高度
+          <input name="beginTime322" value="400" size="6" />
+          (单位：像素，最大：1024×768)</td>
+      </tr>
+      <tr>
+        <td colspan="4" align="center" valign="middle"><img name="" src="../../images/chart.gif"  width="494" height="292" alt="" /></td>
+      </tr>
+    </table>
+   
+    <table cellspacing="0" cellpadding="0" class="tb_title" style="margin-top:5px;">
+      <tr>
+        <td class="icon_note">供货商供货统计表</td>
+        <td class="tb_btn">&nbsp;</td>
+      </tr>
+    </table>
+    <table cellpadding="0" cellspacing="1" class="tb_datalist" id="myTable">
+      <thead>
+        <tr class="tr_title">
+          <th width="4%" rowspan="2">序号&nbsp;
+            </td>
+          </th>
+          <th width="9%" rowspan="2">供货商编号
+            </td>
+          <th width="10%" rowspan="2">供货商名称
+          <th colspan="5">统计粒度：月</th>
+          <th width="11%" rowspan="2">汇总&nbsp;
+            </td>
+        </tr>
+        <tr class="tr_title">
+          <th>200601
+          <th>200602
+          <th>&nbsp;
+            </td>
+            200603
+          <th>&nbsp;
+            </td>
+            200604
+          <th>&nbsp;
+            </td>
+            200605 
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>S0001</td>
+          <td>捷联文化</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>S0002</td>
+          <td>华盛图书</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>S0003</td>
+          <td>……</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td colspan="3">汇总</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="tr_pagenumber">
+          <td colspan="9"> 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+            <select name="select" >
+              <option selected>10</option>
+              <option >20</option>
+              <option>20</option>
+              <option>40</option>
+              <option>50</option>
+              <option>全部</option>
+            </select>
+            行 <img src="../../images/icons/firstpage.gif"  title="首页" class="paginate"/> <img src="../../images/icons/prepage.gif"  title="上一页" class="paginate"/>
+            <input type="text" name="textfield" class="page_txt" />
+            <input type="button" name="button" value="Go" class="btn_go" />
+            <img src="../../images/icons/nextpage.gif"  title="下一页" class="paginate"/> <img src="../../images/icons/lastpage.gif"  title="末页" class="paginate"/>
+             <img src="../../images/icons/excel.png"   onclick="openwin('exportExcel.html','',280,320);" class="icon" style="cursor:pointer" alt="导出Excel" title="导出Excel"/>
+            </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</body>
+</html>

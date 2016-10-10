@@ -1,0 +1,70 @@
+什么是 Hibernate ?
+	-Hibernate是一个开放源代码的对象关系映射框架，它对JDBC进行了非常轻量级的对象封装，它将POJO与数据库表建立映射关系，是一个全自动的orm框架，
+	-hibernate可以自动生成SQL语句，自动执行，使得Java程序员可以随心所欲的使用对象编程思维来操纵数据库。 Hibernate可以应用在任何使用JDBC的场合.
+	-利用Hibernate框架我们就可以不再编写重复的JDBC代码，不再反复的测试我们的SQL语句写的如何。
+	-既可以在Java的客户端程序使用，也可以在Servlet/JSP的Web应用中使用，最具革命意义的是，Hibernate可以在应用EJB的J2EE架构中取代CMP，完成数据持久化的重任。	
+
+一，Hibernate到底是什么？
+	Hibernate是一个基于元数据的轻量级的ORM框架：
+	1,元数据（Meta Data）:data about data(数据的数据)，也就是说描述一个对象数据，相当于这个对象的上下文环境。
+	2，轻量级：占用资源少，没有侵入性。（其实我认为这只是相对而言，如果和Ibatis相比，它到成重量级的了）。
+	3，ORM：（Object Relation Mapping）对象关系数据库的映射
+		这是Hibernate框架的重点，也就是说将我们程序中的实体（bean，这里也叫POJO）和数据库中的表进行映射。Java类型和sql类型映射，面向对象设计和关系型数据库设计的映射，
+		从而我们只需要将更多的精力放到业务中，而不是sql数据库方面。
+		ORM的思想：将关系数据库中表中的记录映射成为对象，以对象的形式展现，程序员可以把对数据库的操作转化为对对象的操作。
+		ORM 采用元数据来描述对象-关系映射细节, 元数据通常采用 XML 格式, 并且存放在专门的对象-关系映射文件中.
+	4，POJO：（Plain Ordinary Java Object）,无格式的普通java对象，也就是上边说的实体，和数据库做映射的简单类。只是在这里提出了一个新的名词而已。
+	 总而言之，Hibernate就是将我们的数据库表和程序的POJO类进行映射，数据的操作进行了封装，使我们不用把数据库弄得非常精通，我们会面向对象编程就可以了，
+	 这样大大提高了我们的编程效率，而且对个人的知识要求也降低了。（Hibernate的设计目的是这样的，可是我觉的要想更好的应用Hibernate，更好的掌握开发的来龙去脉，
+	 这是要求我们要有更高的能力了，知其然知其所以然了）
+
+
+对象的持久化
+	狭义的理解，“持久化”仅仅指把对象永久保存到数据库中
+	广义的理解，“持久化”包括和数据库相关的各种操作：
+		保存：把对象永久保存到数据库中。
+		更新：更新数据库中对象(记录)的状态。
+		删除：从数据库中删除一个对象。
+		查询：根据特定的查询条件，把符合查询条件的一个或多个对象从数据库加载到内存中。
+		加载：根据特定的OID，把一个对象从数据库加载到内存中。
+			为了在系统中能够找到所需对象，需要为每一个对象分配一个唯一的标识号。在关系数据库中称之为主键，而在对象术语中，则叫做对象标识(Object identifier-OID). 
+			
+流行的ORM框架
+	Hibernate:
+		非常优秀、成熟的 ORM 框架。
+		完成对象的持久化操作
+		Hibernate 允许开发者采用面向对象的方式来操作关系数据库。
+		消除那些针对特定数据库厂商的 SQL 代码
+	myBatis：
+		相比 Hibernate 灵活高，运行速度快
+		开发速度慢，不支持纯粹的面向对象操作，需熟悉sql语
+		  句，并且熟练使用sql语句优化功能 
+	TopLink
+	OJB
+
+
+安装 hibernate 插件
+	安装方法说明（hibernatetools-4.1.1.Final）：
+	Help --> Install New Software...
+	Click Add... 
+	In dialog Add Site dialog, click Archive... 
+	Navigate to hibernatetools-Update-4.1.1.Final_2013-12-08_01-06-33-B605.zip  and click  Open 
+	Clicking OK in the Add Site dialog will bring you back to the dialog 'Install' 
+	Select the Jboss Tools hibernatetools Nightly Build Update Site that has appeared 
+	Click Next  and then Finish 
+	Approve the license 
+	Restart eclipse when that is asked
+
+核心接口
+	Hibernate的核心接口一共有5个，分别为:Session、SessionFactory、Transaction、Query和 Configuration。
+	这5个核心接口在任何开发中都会用到。通过这些接口，不仅可以对持久化对象进行存取，还能够进行事务控制。下面对这五的核心接口分别加以介绍。
+	　　·Session接口:Session接口负责执行被持久化对象的CRUD操作(CRUD的任务是完成与数据库的交流，包含了很多常见的SQL语句。)。
+		但需要注意的是Session对象是非线程安全的。同时，Hibernate的session不同于JSP应用中的HttpSession。这里当使用session这个术语时，
+		其实指的是Hibernate中的session，而以后会将HttpSesion对象称为用户session。
+	　　·SessionFactory接口:SessionFactroy接口负责初始化Hibernate。它充当数据存储源的代理，并负责创建Session对象。这里用到了工厂模式。
+		需要注意的是SessionFactory并不是轻量级的，因为一般情况下，一个项目通常只需要一个SessionFactory就够，当需要操作多个数据库时，可以为每个数据库指定一个SessionFactory。
+	　　·Configuration接口:Configuration接口负责配置并启动Hibernate，创建SessionFactory对象。在Hibernate的启动的过程中，
+		Configuration类的实例首先定位映射文档位置、读取配置，然后创建SessionFactory对象。
+	　　·Transaction接口:Transaction接口负责事务相关的操作。它是可选的，开发人员也可以设计编写自己的底层事务处理代码。
+	　　·Query和Criteria接口:Query和Criteria接口负责执行各种数据库查询。它可以使用HQL语言或SQL语句两种表达方式。
+	

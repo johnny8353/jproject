@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="pragma" content="no-cache"> 
+<title>人员选择</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript">
+window.onload = function ()
+	{
+	if(window.name!='a')
+	 {
+	 setTimeout('location.reload()',1000);
+	 }
+	 window.name='a';
+	}
+</script>
+</head>
+<body>
+<div id="content">
+     <table cellpadding="0" cellspacing="1" class="tb_search">
+    <tr>
+      <td colspan="2" class="search">请填写查询条件</td>
+    </tr>
+      <tr>
+        <td width="15%" class="td_title">姓名/工号</td>
+        <td><input type="text" name="txt2222" class="txt_150"/>
+        &nbsp;
+        <input name="btnSearch" type="button" value="查询" class="button" onclick="searchresult();"/></td>
+      </tr>
+      
+    </table>
+	
+    
+	<table cellpadding="0" cellspacing="1" class="tb_datalist" style="display:" id="searchresult">
+    <thead>
+      <tr class="tr_title">
+        <td width="10%">选择</td>
+        <td width="22%">员工</td>
+        <td width="68%">部门</td>
+        </tr>
+    </thead>
+    
+    <tbody>
+    <tr>
+      <td><a href="#">选择</a></td>
+      <td>李坤00086676</td>
+      <td>流程&IT-IT中心-IT中心系统部</td>
+      </tr>
+    <tr>
+      <td><a href="#">选择</a></td>
+      <td>李坤10087261</td>
+      <td>产品研发体系有线＆业务产品经营部-有线研究院-固网南京软件开发一部</td>
+      </tr>
+    <tr>
+      <td><a href="#">选择</a></td>
+      <td>李坤30094529</td>
+      <td>物流体系-生产-部件生产部</td>
+      </tr>
+    <tr>
+      <td><a href="#">选择</a></td>
+      <td>李坤30085696</td>
+      <td>物流体系-计划供应-配送部</td>
+    </tr>
+    <tr>
+      <td><a href="#">选择</a></td>
+      <td>李坤10078257</td>
+      <td>工程服务部-有线网络服务中心-固网产品支持部</td>
+    </tr>
+    </tbody>
+    
+    <tr class="tr_pagenumber">
+      <td colspan="3"> 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+        <select name="select" >
+          <option selected>10</option>
+          <option >20</option>
+          <option>20</option>
+          <option>40</option>
+          <option>50</option>
+          <option>全部</option>
+        </select>
+        行 <img src="../../images/icons/firstpage.gif"  title="首页" class="paginate"/> <img src="../../images/icons/prepage.gif"  title="上一页" class="paginate"/>
+        <input type="text" name="textfield" class="page_txt" />
+        <input type="button" name="button" value="Go" class="btn_go" />
+        <img src="../../images/icons/nextpage.gif"  title="下一页" class="paginate"/> <img src="../../images/icons/lastpage.gif"  title="末页" class="paginate"/></td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>

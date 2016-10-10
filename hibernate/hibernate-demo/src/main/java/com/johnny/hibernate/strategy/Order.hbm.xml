@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.johnny.hibernate.strategy">
+
+    <class name="Order6" table="ORDERS6">
+
+        <id name="orderId" type="java.lang.Integer">
+            <column name="ORDER_ID" />
+            <generator class="native" />
+        </id>
+        
+        <property name="orderName" type="java.lang.String">
+            <column name="ORDER_NAME" />
+        </property>
+        
+		<many-to-one 
+			name="customer" class="Customer6" 
+			column="CUSTOMER_ID"
+			lazy="false"
+			fetch="join"></many-to-one>
+
+    </class>
+</hibernate-mapping>

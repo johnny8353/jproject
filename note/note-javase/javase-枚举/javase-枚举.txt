@@ -1,0 +1,94 @@
+枚举类入门
+  	enum 的全称为 enumeration， 是 JDK 1.5  中引入的新特性，存放在 java.lang 包中。
+	JDK1.5之前需要自定义枚举类
+	JDK 1.5 新增的 enum 关键字用于定义枚举类
+	若枚举只有一个成员, 则可以作为一种单例模式的实现方式
+	
+枚举类的属性
+	枚举类对象的属性不应允许被改动, 所以应该使用 private final 修饰
+	枚举类的使用 private final 修饰的属性应该在构造器中为其赋值
+	若枚举类显式的定义了带参数的构造器, 则在列出枚举值时也必须对应的传入参数
+
+Enum枚举类
+	必须在枚举类的第一行声明枚举类对象。
+	枚举类和普通类的区别：
+		-使用 enum 定义的枚举类默认继承了 java.lang.Enum 类
+		-枚举类的构造器只能使用 private 访问控制符
+		-枚举类的所有实例必须在枚举类中显式列出(, 分隔    ; 结尾). 列出的实例系统会自动添加 public static final 修饰
+	JDK 1.5 中可以在 switch 表达式中使用Enum定义的枚举类的对象作为表达式, case 子句可以直接使用枚举值的名字, 无需添加枚举类作为限定
+
+使用 Enum 定义的 Season
+
+枚举类的主要方法：
+	values()方法：返回枚举类型的对象数组。该方法可以很方便地遍历所有的枚举值。
+	valueOf(String str)：可以把一个字符串转为对应的枚举类对象。要求字符串必须是枚举类对象的“名字”。如不是，会有运行时异常。
+实现接口的枚举类
+	和普通 Java 类一样，枚举类可以实现一个或多个接口
+	若需要每个枚举值在调用实现的接口方法呈现出不同的行为方式, 则可以让每个枚举值分别来实现该方法
+
+原始的接口定义常量
+	public interface IConstants {
+	    String MON = "Mon";
+	    String TUE = "Tue";
+	    String WED = "Wed";
+	    String THU = "Thu";
+	    String FRI = "Fri";
+	    String SAT = "Sat";
+	    String SUN = "Sun";
+	}
+语法（定义）
+    创建枚举类型要使用 enum 关键字，隐含了所创建的类型都是 java.lang.Enum 类的子类（java.lang.Enum 是一个抽象类）。枚举类型符合通用模式 Class Enum<E extends Enum<E>>，而 E 表示枚举类型的名称。枚举类型的每一个值都将映射到 protected Enum(String name, int ordinal) 构造函数中，在这里，每个值的名称都被转换成一个字符串，并且序数设置表示了此设置被创建的顺序。
+
+	public enum EnumTest {
+	    MON, TUE, WED, THU, FRI, SAT, SUN;
+	}
+	这段代码实际上调用了7次 Enum(String name, int ordinal)：
+	
+	new Enum<EnumTest>("MON",0);
+	new Enum<EnumTest>("TUE",1);
+	new Enum<EnumTest>("WED",2);
+    ... ...
+    
+实例：
+/**
+ * 类 编 号：
+ * 类 名 称：EnumTest
+ * 内容摘要：可以把 enum 看成是一个普通的 class，它们都可以定义一些属性和方法，
+ * 不同之处是：enum 不能使用 extends 关键字继承其他类，因为 enum 已经继承了 java.lang.Enum（java是单一继承）。
+ * 完成日期：2016年8月3日
+ * 编码作者：JohnnyHuang 黄福强
+ */
+public enum EnumTest {
+	//枚举类的所有实例必须在枚举类中显式列出(, 分隔    ; 结尾). 列出的实例系统会自动添加 public static final 修饰
+	MON(1), TUE(2), WED(3), THU(4), FRI(5), SAT(6);
+
+	private int value;
+
+	private EnumTest(int value) {
+		this.value = value;
+	}
+
+	public int getValue() {
+		return value;
+	}
+}
+
+//遍历、switch 等常用操作
+@Test
+public void test1() {
+	for (EnumTest e : EnumTest.values()) {
+		System.out.println(e.toString());
+	}
+	EnumTest test = EnumTest.TUE;
+	switch (test) {
+		case MON:
+			System.out.println("今天是星期一");
+			break;
+		case TUE:
+			System.out.println("今天是星期二");
+			break;
+		default:
+			System.out.println(test);
+			break;
+	}
+}

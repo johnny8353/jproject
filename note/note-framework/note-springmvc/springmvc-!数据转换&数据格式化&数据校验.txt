@@ -1,0 +1,240 @@
+数据绑定流程
+	• 1. Spring MVC 主框架将 ServletRequest 对象及目标方法的入参实例传递给 WebDataBinderFactory 实例，以创建 DataBinder 实例对象
+	• 2. DataBinder 调用装配在 Spring MVC 上下文中的ConversionService 组件进行数据类型转换、数据格式化工作。将 Servlet 中的请求信息填充到入参对象中
+	• 3. 调用 Validator 组件对已经绑定了请求消息的入参对象进行数据合法性校验，并最终生成数据绑定结果BindingData 对象
+	• 4. Spring MVC 抽取 BindingResult 中的入参对象和校验错误对象，将它们赋给处理方法的响应入参
+
+	• Spring MVC 通过反射机制对目标处理方法进行解析，将请求消息绑定到处理方法的入参中。数据绑定的核心部件是DataBinder，运行机制如下：
+数据转换
+	• Spring MVC 上下文中内建了很多转换器，可完成大多数 Java 类型的转换工作。
+自定义类型转换器
+	• ConversionService 是 Spring 类型转换体系的核心接口。
+	• 可以利用 ConversionServiceFactoryBean 在 Spring 的 IOC容器中定义一个 ConversionService. Spring 将自动识别出IOC 
+		容器中的 ConversionService，并在 Bean 属性配置及Spring MVC 处理方法入参绑定等场合使用它进行数据的转换
+	• 可通过 ConversionServiceFactoryBean 的 converters 属性注册自定义的类型转换器
+Spring 支持的转换器
+	• Spring 定义了 3 种类型的转换器接口，实现任意一个转换器接口都可以作为自定义转换器注册到ConversionServiceFactroyBean 中：
+	– Converter<S,T>：将 S 类型对象转为 T 类型对象
+	– ConverterFactory：将相同系列多个 “同质” Converter 封装在一起。如果希望将一种类型的对象转换为另一种类型及其子类的对象（例如将 String 转换为 Number 及 Number 子类（Integer、Long、Double 等）对象）可使用该转换器工厂类
+	– GenericConverter：会根据源类对象及目标类对象所在的宿主类中的上下文信息进行类型转换
+自定义转换器示例
+• <mvc:annotation-driven conversion-service=“conversionService”/> 会将自定义的 ConversionService 注册到Spring MVC 的上下文中
+	<form action="testConversionServiceConverer" method="POST">
+		<!-- lastname-email-gender-department.id 例如: GG-gg@johnny.com-0-105 -->
+		Employee: <input type="text" name="employee"/>
+		<input type="submit" value="Submit"/>
+	</form>
+	<br><br>
+
+	
+关于 mvc:annotation-driven
+	• <mvc:annotation-driven /> 会自动注册RequestMappingHandlerMapping、RequestMappingHandlerAdapter 与ExceptionHandlerExceptionResolver 三个bean。
+	• 还将提供以下支持：
+	– 支持使用 ConversionService 实例对表单参数进行类型转换
+	– 支持使用 @NumberFormat annotation、@DateTimeFormat注解完成数据类型的格式化
+	– 支持使用 @Valid 注解对 JavaBean 实例进行 JSR 303 验证
+	– 支持使用 @RequestBody 和 @ResponseBody 注解
+	
+	为何配置了<mvc:default-servlethandler/>和<mvc:view-controller/>后RuqeustMapping不可用？配置了<mvc:annotation-driven />解决了这些问题呢？
+
+
+@InitBinder
+	• 由 @InitBinder 标识的方法，可以对 WebDataBinder 对象进行初始化。WebDataBinder 是 DataBinder 的子类，用于完成由表单字段到 JavaBean 属性的绑定
+	• @InitBinder方法不能有返回值，它必须声明为void。
+	• @InitBinder方法的参数通常是是 WebDataBinder
+	
+	表单转为JavaBean的时候不对lastName赋值
+	//	@InitBinder
+	//	public void initBinder(WebDataBinder binder){
+	//		binder.setDisallowedFields("lastName");
+	//	}
+	
+	
+	
+	
+数据格式化
+	• 对属性对象的输入/输出进行格式化，从其本质上讲依然属于 “类型转换” 的范畴。
+	• Spring 在格式化模块中定义了一个实现ConversionService 接口的FormattingConversionService 实现类，该实现类扩展了 GenericConversionService，因此它既具有类型转换的功能，又具有格式化的功能
+	• FormattingConversionService 拥有一个FormattingConversionServiceFactroyBean 工厂类，后者用于在 Spring 上下文中构造前者
+	• FormattingConversionServiceFactroyBean 内部已经注册了 :
+	– NumberFormatAnnotationFormatterFactroy：支持对数字类型的属性使用 @NumberFormat 注解
+	– DateTimeFormatAnnotationFormatterFactroy：支持对日期类型的属性使用 @DateTimeFormat 注解
+	• 装配了 FormattingConversionServiceFactroyBean 后，就可以在 Spring MVC 入参绑定及模型数据输出时使用注解驱动了。<mvc:annotation-driven/> 默认创建的ConversionService 实例即为FormattingConversionServiceFactroyBean
+	
+	• @DateTimeFormat 注解可对java.util.Date、java.util.Calendar、java.long.Long 时间类型进行标注：
+	– pattern 属性：类型为字符串。指定解析/格式化字段数据的模式，如：”yyyy-MM-dd hh:mm:ss”
+	– iso 属性：类型为 DateTimeFormat.ISO。指定解析/格式化字段数据的ISO模式，包括四种：ISO.NONE（不使用） -- 默认、ISO.DATE(yyyy-MM-dd) 、ISO.TIME(hh:mm:ss.SSSZ)、ISO.DATE_TIME(yyyy-MM-dd hh:mm:ss.SSSZ)
+	– style 属性：字符串类型。通过样式指定日期时间的格式，由两位字符组成，第一位表示日期的格式，第二位表示时间的格式：S：短日期/时间格式、M：中日期/时间格式、L：长日期/时间格式、F：完整日期/时间格式、-：忽略日期或时间格式
+	
+	• @NumberFormat 可对类似数字类型的属性进行标注，它拥有两个互斥的属性：
+	– style：类型为 NumberFormat.Style。用于指定样式类型，包括三种：Style.NUMBER（正常数字类型）、Style.CURRENCY（货币类型）、 Style.PERCENT（百分数类型）
+	– pattern：类型为 String，自定义样式，如patter="#,###"；
+示例
+	POJO:
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	private Date birth;
+	
+	@NumberFormat(pattern="#,###,###.#")
+	private Float salary;
+	
+	
+	@RequestMapping(value="/emp", method=RequestMethod.POST)
+	public String save(@Valid Employee employee, Errors result, 
+			Map<String, Object> map){
+		System.out.println("save: " + employee);
+		
+		if(result.getErrorCount() > 0){
+			System.out.println("出错了!");
+			
+			for(FieldError error:result.getFieldErrors()){
+				System.out.println(error.getField() + ":" + error.getDefaultMessage());
+			}
+			
+			//若验证出错, 则转向定制的页面
+			map.put("departments", departmentDao.getDepartments());
+			return "input";
+		}
+		
+		employeeDao.save(employee);
+		return "redirect:/emps";
+	}
+	
+	
+	springmvc.xml:
+	<mvc:default-servlet-handler/>
+	
+	<mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>	
+	
+	<!-- 配置 ConversionService -->
+	<bean id="conversionService"
+		class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="converters">
+			<set>
+				<ref bean="employeeConverter"/>
+			</set>
+		</property>	
+	</bean>
+
+数据校验
+	JSR 303
+		• JSR 303 是 Java 为 Bean 数据合法性校验提供的标准框架，它已经包含在 JavaEE 6.0 中 .
+		• JSR 303 通过在 Bean 属性上标注类似于 @NotNull、@Max等标准的注解指定校验规则，并通过标准的验证接口对 Bean进行验证
+	Hibernate Validator 扩展注解
+		• Hibernate Validator 是 JSR 303 的一个参考实现，除支持所有标准的校验注解外，它还支持以下的扩展注解
+	
+	
+	Spring MVC 数据校验
+		• Spring 4.0 拥有自己独立的数据校验框架，同时支持 JSR303 标准的校验框架。
+		• Spring 在进行数据绑定时，可同时调用校验框架完成数据校验工作。在 Spring MVC 中，可直接通过注解驱动的方式进行数据校验
+		• Spring 的 LocalValidatorFactroyBean 既实现了 Spring 的Validator 接口，也实现了 JSR 303 的 Validator 接口。只要在 Spring 容器中定义了一个LocalValidatorFactoryBean，即可将其注入到需要数据校验的 Bean 中。
+		• Spring 本身并没有提供 JSR303 的实现，所以必须将JSR303 的实现者的 jar 包放到类路径下。
+		• <mvc:annotation-driven/> 会默认装配好一个LocalValidatorFactoryBean，通过在处理方法的入参上标注 @valid 注解即可让 Spring MVC 在完成数据绑定后执行数据校验的工作
+		• 在已经标注了 JSR303 注解的表单/命令对象前标注一个@Valid，Spring MVC 框架在将请求参数绑定到该入参对象后，就会调用校验框架根据注解声明的校验规则实施校验
+		• Spring MVC 是通过对处理方法签名的规约来保存校验结果的：前一个表单/命令对象的校验结果保存到随后的入参中，这个保存校验结果的入参必须是 BindingResult 或Errors 类型，这两个类都位于org.springframework.validation 包中
+		• 需校验的 Bean 对象和其绑定结果对象或错误对象时成对出现的，它们之间不允许声明其他的入参
+		• Errors 接口提供了获取错误信息的方法，如 getErrorCount() 或getFieldErrors(String field)
+		• BindingResult 扩展了 Errors 接口
+	
+	
+	在目标方法中获取校验结果
+		• 在表单/命令对象类的属性中标注校验注解，在处理方法对应的入参前添加 @Valid，Spring MVC 就会实施校验并将校验结果保存在被校验入参对象之后的 BindingResult 或Errors 入参中。
+		• 常用方法：
+		– FieldError getFieldError(String field)
+		– List<FieldError> getFieldErrors()
+		– Object getFieldValue(String field)
+		– Int getErrorCount()
+	在页面上显示错误
+		• Spring MVC 除了会将表单/命令对象的校验结果保存到对应的 BindingResult 或 Errors 对象中外，还会将所有校验结果保存到 “隐含模型”
+		• 即使处理方法的签名中没有对应于表单/命令对象的结果入参，校验结果也会保存在 “隐含对象” 中。
+		• 隐含模型中的所有数据最终将通过 HttpServletRequest 的属性列表暴露给 JSP 视图对象，因此在 JSP 中可以获取错误信息
+		• 在 JSP 页面上可通过 <form:errors path=“userName”>显示错误消息
+	提示消息的国际化
+		• 每个属性在数据绑定和数据校验发生错误时，都会生成一个对应的 FieldError 对象。
+		• 当一个属性校验失败后，校验框架会为该属性生成 4 个消息代码，这些代码以校验注解类名为前缀，结合modleAttribute、属性名及属性类型名生成多个对应的消息代码：例如 User 类中的 password 属性标准了一个 @Pattern 注解，当该属性值不满足 @Pattern 所定义的规则时, 就会产生以下 4个错误代码：
+		– Pattern.user.password
+		– Pattern.password
+		– Pattern.java.lang.String
+		– Pattern
+		• 当使用 Spring MVC 标签显示错误消息时， Spring MVC 会查看WEB 上下文是否装配了对应的国际化消息，如果没有，则显示默认的错误消息，否则使用国际化消息
+		• 若数据类型转换或数据格式转换时发生错误，或该有的参数不存在，或调用处理方法时发生错误，都会在隐含模型中创建错误消息。其错误代码前缀说明如下：
+		– required：必要的参数不存在。如 @RequiredParam(“param1”)标注了一个入参，但是该参数不存在
+		– typeMismatch：在数据绑定时，发生数据类型不匹配的问题
+		– methodInvocation：Spring MVC 在调用处理方法时发生了错误
+		• 注册国际化资源文件
+		
+		
+	示例
+		hibernate validator Jar包：
+		- hibernate-validator-5.0.0.CR2
+		- hibernate-validator-annotation-processor-5.0.0.CR2.jar
+		-- classmate-0.8.0.jar
+		-- jboss-logging-3.1.1.GA.jar
+		-- validation-api-1.1.0.CR1.jar
+		
+		springmvc.xml：
+		<mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>	
+		<!-- 配置国际化资源文件 -->
+		<bean id="messageSource"
+			class="org.springframework.context.support.ResourceBundleMessageSource">
+			<property name="basename" value="i18n"></property>
+		</bean>
+		
+		Action：
+		@RequestMapping(value="/emp", method=RequestMethod.POST)
+		public String save(@Valid Employee employee, Errors result, 
+				Map<String, Object> map){
+			System.out.println("save: " + employee);
+			
+			if(result.getErrorCount() > 0){
+				System.out.println("出错了!");
+				
+				for(FieldError error:result.getFieldErrors()){
+					System.out.println(error.getField() + ":" + error.getDefaultMessage());
+				}
+				
+				//若验证出错, 则转向定制的页面
+				map.put("departments", departmentDao.getDepartments());
+				return "input";
+			}
+			
+			employeeDao.save(employee);
+			return "redirect:/emps";
+		}
+		
+		jsp:
+		显示所有错误信息
+		<form:errors path="*"></form:errors>
+		LastName: <form:input path="lastName"/>
+		<form:errors path="lastName"></form:errors>
+		Email: <form:input path="email"/>
+		<form:errors path="email"></form:errors>
+		<br>
+		<!--  
+			1. 数据类型转换
+			2. 数据类型格式化
+			3. 数据校验. 
+			1). 如何校验 ? 注解 ?
+			①. 使用 JSR 303 验证标准
+			②. 加入 hibernate validator 验证框架的 jar 包
+			③. 在 SpringMVC 配置文件中添加 <mvc:annotation-driven />
+			④. 需要在 bean 的属性上添加对应的注解
+			⑤. 在目标方法 bean 类型的前面添加 @Valid 注解
+			2). 验证出错转向到哪一个页面 ?
+			注意: 需校验的 Bean 对象和其绑定结果对象或错误对象时成对出现的，它们之间不允许声明其他的入参
+			3). 错误消息 ? 如何显示, 如何把错误消息进行国际化
+		-->
+		Birth: <form:input path="birth"/>
+		<form:errors path="birth"></form:errors>
+		<br>
+		
+		POJO：
+		@Email
+		private String email;
+		
+		@Past
+		@DateTimeFormat(pattern="yyyy-MM-dd")
+		private Date birth;
+		
+		@NumberFormat(pattern="#,###,###.#")
+		private Float salary;
+				

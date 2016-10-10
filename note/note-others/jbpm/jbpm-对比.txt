@@ -1,0 +1,40 @@
+
+jBPM5与Activiti5比较
+	主要相似之处：
+	- 都是BPMN2过程建模和执行环境。
+	- 都是BPM系统（符合BPM规范）。
+	- 都是开源项目-遵循ASL协议（ Apache的 软件许可）。
+	- 都源自JBoss（Activiti5是jBPM4的衍生，jBPM5则基于Drools Flow）。
+	- 都很成熟，从无到有，双方开始约始于2年半前。
+	- 都有对人工任务的生命周期管理。 Activiti5和jBPM5唯一的区别是jBPM5基于WebService - HumanTask标准来描述人工任务和管理生命周期。 
+	如有兴趣了解这方面的标准及其优点，可参阅WS - HT规范介绍  。
+	- 都使用了不同风格的 Oryx 流程编辑器对BPMN2建模。 jBPM5采用的是 Intalio 维护的开源项目分支。 Activiti5则使用了Signavio维护的分支。
+	主要差异之处：
+	- 技术支撑公司/商业模式
+	- 项目负责人/技术社区
+	- 项目的目标
+	- 选择的标准
+Activiti5与jBPM5技术组成对比：
+序号	技术组成	Activiti					jBPM5
+1	数据库持久层ORM	MyBatis3					Hibernate3
+2	持久化标准		无							JPA规范
+3	事务管理		MyBatis机制/Spring事务控制	Bitronix，基于JTA事务管理
+4	数据库连接方式	Jdbc/DataSource				Jdbc/DataSource
+5	支持数据库		Oracle、SQL Server、MySQL等多数数据库	Oracle、SQL Server、MySQL等多数数据库
+6	设计模式		Command模式、观察者模式等	无
+7	内部服务通讯	Service间通过API调用		基于Apache Mina异步通讯
+8	集成接口		SOAP、Mule、RESTful			消息通讯
+9	支持的流程格式	BPMN2、xPDL、jPDL等			目前仅只支持BPMN2 xml
+10	引擎核心		PVM（流程虚拟机）			Drools
+11	技术前身		jBPM3、jBPM4				Drools Flow
+12	所属公司		Alfresco					jBoss.org
+
+Activiti5使用Spring进行引擎配置以及各个Bean的管理，综合使用IoC和AOP技术，使用CXF作为Web Services实现的基础，使用MyBatis进行底层数据库ORM的管理，
+预先提供Bundle化包能较容易的与OSGi进行集成，通过与Mule ESB的集成和对外部服务（Web Service、RESTful等）的接口可以构建全面的SOA应用；
+
+jBPM5使用jBoss.org社区的大多数组件，以Drools Flow为核心组件作为流程引擎的核心构成，以Hibernate作为数据持久化ORM实现，采用基于JPA/JTA的可插拔的持久化和事务控制规范，
+使用Guvnor作为流程管理仓库，能够与Seam、Spring、OSGi等集成。
+
+对我们自己的项目，其实我更关注的是流程引擎的执行效率以及性能，每小时几十万甚至上百万的流程需要执行，需要多少个服务，集群、负载的策略是什么，会不会有冲突？目前这方面的资料还是比较少的，
+很多问题只有实际遇用到的时候才会去想办法解决。不过就我个人的感觉而言，Activiti上手比较快，界面也比较简洁、直观，值得一试
+

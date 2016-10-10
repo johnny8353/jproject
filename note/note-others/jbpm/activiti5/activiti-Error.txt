@@ -1,0 +1,16 @@
+》 安装Activiti Designer 5 插件一直报错
+	 	'org.eclipse.emf.transaction 1.4.0' but it could not be found
+	 	org.activiti.designer.feature_5.15.0.201407081458" does not exist
+	 	Cannot complete the install because one or more required items could not be found.
+  		Software being installed: Activiti Eclipse BPMN 2.0 Designer 5.14.1 (org.activiti.designer.feature.feature.group 5.14.1)
+  		Missing requirement: Activiti Eclipse BPMN 2.0 Designer 5.14.1 (org.activiti.designer.feature.feature.group 5.14.1) 
+  		requires 'org.eclipse.emf.transaction 1.4.0' but it could not be found
+	 	需要classic版本的eclipse，下了一个classic版本的eclipse -4.2版本的，然后在plugin文件夹下面找到几个文件：分别是：
+	 b、解决办法
+		但具体到本机环境有所不同，具体如下，以下是本机解决方案，如下：
+		org.eclipse.emf.validation.ui_1.7.0.201403111711.jar、
+		org.eclipse.emf.workspace_1.5.1.201306111400.jar、
+		org.eclipse.emf.validation_1.8.0.201403111711.jar
+		org.eclipse.emf.transaction_1.4.0.201306111400.jar；
+		四个插件下载地址：http://download.csdn.net/detail/yixiaoping/8520517
+		把这四个文件拷贝到自己的eclipse的plugin文件夹下面，重启eclipse再次安装activiti插件就可以了。

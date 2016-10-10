@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>switch</title>
+
+</head>
+<style>
+html,body{
+ height:100%;
+ margin:0;
+ padding:0;
+background-color:#F0F3FA;
+}
+</style>
+<script>
+function showframe()
+{
+  if(parent.document.getElementById("conframe").cols == "0,9,*")
+    {
+	  parent.document.getElementById("conframe").cols="200,9,*";
+	  switchimg.src="../../images/icons/switch_left.gif";
+	}
+	
+  else
+	{
+	 parent.document.getElementById("conframe").cols="0,9,*";
+	 switchimg.src="../../images/icons/switch_right.gif";
+	}
+}
+</script>
+<body>
+<table width="11px" border="0" cellspacing="0" cellpadding="0" height="100%">
+  <tr>
+    <td valign="middle" onclick="showframe()" style="cursor:pointer"><img src="../../images/icons/switch_left.gif"  name="switchimg"/></td>
+  </tr>
+</table>
+
+</body>
+</html>

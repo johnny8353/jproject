@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>title</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+</head>
+<body>
+<div id="content">
+  <div id="position">当前位置：常用组件&gt;选择组件&gt;全选/反选</div>
+  <table cellpadding="0" cellspacing="1" class="tb_input">
+      <tr>
+        <td colspan="4" class="note">全选/反选</td>
+      </tr>
+  <tr>
+    <td width="12%" class="td_title">试题类型</td>
+    <td>
+      <label><input id="chkALL" type="checkbox" onClick="CheckAll(this);" />
+      全部</label>
+   <span id="chk" onClick="CheckOne(this);">
+      <label><input id="chk0" type="checkbox"/>
+      单项选择</label>
+     <label><input id="chk1" type="checkbox" />
+      多项选择</label>
+      <label><input id="chk2" type="checkbox" />
+      判断</label>  </span>    </td>
+  </tr>
+    </table>
+
+</div>
+</body>
+</html>

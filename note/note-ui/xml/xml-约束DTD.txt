@@ -1,0 +1,107 @@
+在XML技术里，可以编写一个文档来约束一个XML文档的书写规范，这称之为XML约束。
+
+常用的约束技术XML DTD 和  XML Schema。 	-	http://www.w3school.com.cn/x.asp
+
+XML Schema 也是一种用于定义和描述 XML 文档结构与内容的模式语言，其出现是为了克服 DTD 的局限性
+XML Schema VS DTD：
+	XML Schema 可针对未来的需求进行扩展
+	XML Schema 是 W3C 标准
+	XML Schema符合XML语法结构。 
+	DOM、SAX等XML API很容易解析出XML Schema文档中的内容。 
+	XML Schema对名称空间支持得非常好。 
+	XML Schema比XML DTD支持更多的数据类型，并支持用户自定义新的数据类型。 
+	XML Schema定义约束的能力非常强大，可以对XML实例文档作出细致的语义限制。
+	*XML Schema不能像DTD一样定义实体，比DTD更复杂，但Xml Schema现在已是w3c组织的标准，它正逐步取代DTD。  
+
+	Schema是很强大的，已经在替代DTD约束模式了，被w3c定义为标准了，同时可以看到Android中的xml文件全部按照Schema模式来编写的。
+	struts2采用DTD，spring采用Schema
+
+DTD(Document Type Definition)，全称为文档类型定义。
+	demo.dtd
+		<!ENTITY 版权 "合肥师范学院">
+		
+		<!ENTITY  % 类型 "CDATA">
+		
+		<!ELEMENT 书架 (书+)>
+		<!ELEMENT 书 (书名,作者,价格)>
+		<!ELEMENT 书名 (#PCDATA)>
+		<!ELEMENT 作者 (#PCDATA)>
+		<!ELEMENT 价格 (#PCDATA)>
+		
+		<!ATTLIST 作者
+		姓名 %类型; #IMPLIED
+		年龄 CDATA #IMPLIED
+		联系信息 CDATA #REQUIRED
+		网站服务 CDATA #FIXED "页面作者"
+		个人爱好 CDATA "上网"
+		>
+		
+		<!ATTLIST 书名 书本类型 (科幻|教育|人文) "科幻">
+		
+		<!ATTLIST 价格 编号 ID #REQUIRED>
+	
+	按照这个demo.dtd编写的demo.xml内容:
+		<?xml version="1.0" encoding="UTF-8"?>
+		<!DOCTYPE 书架 SYSTEM "book.dtd">
+		<书架>
+		    <书>
+		    	<书名 书本类型="科幻">Java就业教程</书名>
+		        <作者 个人爱好="上网" 网站服务="页面作者" 联系信息="&版权;">张孝祥</作者>
+		        <价格 编号="id">30.0</价格>
+		    </书>
+		</书架>
+	
+	下面我们就来一一解释：看demo.dtd文件中的内容	
+	<!ELEMENT 书架 (书+)>
+	表示定义一个“书架”的标签，在该标签下面放一本或者是多本“书”标签，（注意空格）
+	具体规则：
+		在元素内容中也可以使用+、*、?等符号表示元素出现的次数：
+		+: 1次或多次 (书+)
+		 ?: 0次或一次 (书?)
+		 *: 0次或多次 (书*)
+	<!ELEMENT 书 (书名,作者,价格)> 
+	表示定义一个 “书” 标签，在该标签下面定义了“书名”，“作者”，“价格”标签，同时这三个标签是必须出现的，而且是必须按照这个顺序来定义的，（注意空格）
+	具体规则：
+		元素内容中可以使用如下方式，描述内容的组成关系
+		1.用逗号分隔，表示内容的出现顺序必须与声明时一致。<!ELEMENT 书(书名,作者,价格)>
+		2.用|分隔，表示任选其一，即多个只能出现一个<!ELEMENT 书(书名|作者|价格)>
+		
+	<!ELEMENT 书名 (#PCDATA)> 	
+		表示定义一个标签“书名”，这个标签体是文本内容，具体的可以对应demo.xml查看用法			
+	
+	<!ATTLIST 作者
+	姓名 %类型; #IMPLIED
+	年龄 CDATA #IMPLIED
+	联系信息 CDATA #REQUIRED
+	网站服务 CDATA #FIXED "页面作者"
+	个人爱好 CDATA "上网"
+	>
+	表示在标签 ”作者“ 中定义了姓名，年龄，联系信息，网站服务，个人爱好属性。
+	具体规则：
+		#REQUIRED：必须设置该属性
+		#IMPLIED：可以设置也可以不设置 
+		 #FIXED：说明该属性的取值固定为一个值，在 XML 文件中不能为该属性设置其它值。但需要为该属性提供这个值 
+		直接使用默认值：在 XML 中可以设置该值也可以不设置该属性值。若没设置则使用默认值。  
+
+	<!ATTLIST 书名 书本类型 (科幻|教育|人文) "科幻">  
+	表示给标签 “书名” 定义了一个 “书本类型” 
+	规则：
+		属性的类型可以是一组取值的列表，在 XML 文件中设置的属性值只能是这个列表中的某个值(枚举)
+
+	<!ENTITY 版权 "合肥师范学院">
+	
+	<!ENTITY  % 类型 "CDATA">
+	定义实体:
+		第一种方式定义的实体是引用实体，定义的内容可以被xml文件使用，如:-使用&符号引用，并且以分号结尾	
+		<作者 个人爱好="上网" 网站服务="页面作者" 联系信息="&版权;">张孝祥</作者>  
+
+		第二种方式定义的实体是参数实体，给dtd文件本身使用的，在xml文件中，如：
+		姓名 %类型; #IMPLIED  
+		
+	最后来说一下，在xml中需要引用dtd文件:	
+		<!DOCTYPE 书架 SYSTEM "book.dtd">  
+	以上说到的内容就是怎么编写dtd约束文档，以及通过dtd约束文档来编写相应的xml文件。
+	
+	**其实struts就是用dtd约束的，可以到struts压缩包中可以看到，	
+		
+		

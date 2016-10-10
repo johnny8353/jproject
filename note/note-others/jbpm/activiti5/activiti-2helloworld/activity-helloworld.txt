@@ -1,0 +1,62 @@
+4：准备环境
+	4.1：activiti5 软件环境
+		1)	JDK1.6或者更高版本
+		2)	支持的数据库有：h2, mysql, oracle, postgres, mssql, db2等。
+		3)	支持activiti5运行的jar包
+		4)	开发环境为Eclipse3.7或者以上版本,myeclipse为8.6版本
+	4.2：相关资源下载
+		1)	JDK可以到sun的官网下载
+		http://www.oracle.com/technetwork/java/javase/downloads/index.html
+		2)	数据库，例如：mysql可以在官网上下载。
+		http://www.mysql.com
+		3)	activiti也可以到Activiti官方网站下载得到。
+		http://activiti.org/download.html
+		4)	 Eclipse3.7或者MyEclipse8.6也可以到相应的网站上获得下载。
+	4.3：安装流程设计器(eclipse插件)
+		4.3.1：安装方式一
+		在有网络的情况下，安装流程设计器步骤如下：
+		1)	打开 Help -> Install New Software. 在如下面板中:
+		配置新装插件的地址和名称
+
+		2)	然后填入下列字段
+		Name: Activiti BPMN 2.0 designer
+		Location: http://activiti.org/designer/update/
+
+		配置新装插件的地址和名称
+
+		3)	然后填入下列字段
+		Name: Activiti BPMN 2.0 designer
+		Location: http://activiti.org/designer/update/
+
+		5)	点击复选框
+		在Detail部分记得选中 "Contact all updates sites.." , 因为它会检查所有当前安装所需要的插件并可以被Eclipse下载.
+
+		6)	安装完以后，点击新建工程new->Other…打开面板，如果看到下图内容：activiti
+
+		说明安装成功了。
+		4.3.2：安装方式二 - 本地安装	activiti-designer-5.15.0.zip
+
+
+	4.4：对流程设计器的使用说明
+		打开菜单Windows->Preferences->Activiti->Save下流程流程图片的生成方式:
+		虽然流程引擎在单独部署bpmn文件时会自动生成图片，但在实际开发过程中，自动生成的图片会导致和BPMN中的坐标有出入，
+		在实际项目中展示流程当前位置图会有问题。所在完成以上配置后，会由我们自己来管理流程图片。
+		在发布流程时把流程规则文件和流程图片一起上传就行了。
+		
+	4.5：准备Activiti5开发环境
+		4.5.1：添加Activiti5的jar包
+		在activiti-5.13->wars目录下是一些示例项目，解压activiti-rest项目，导入activiti-rest目录中WEB-INF\lib下所有包。添加到classpath中。
+		
+		由于我们使用的是Mysql数据库，Mysql数据库的链接驱动Activiti官方包中并没有提供，需要我们自己导入。手动导入mysql-connector-java.jar，
+		添加到classpath下。
+
+	4.5.2：初始化数据库
+	
+		在Activiti中，在创建核心的流程引擎对象时会自动建表。如果程序正常执行，mysql会自动建库，然后创建23张表。
+		//activiti.cfg.xml配置号数据库信息，引擎启动会自动创建表
+		//默认获取 resources = classLoader.getResources("activiti.cfg.xml");
+		ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
+		System.out.println(processEngine);
+
+
+

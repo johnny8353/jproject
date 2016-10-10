@@ -1,0 +1,179 @@
+例子：
+	<!-- 1. 配置事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<!-- 2. 配置事务属性 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- 根据方法名指定事务的属性 -->
+			<tx:method name="purchase" propagation="REQUIRES_NEW"/>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="find*" read-only="true"/>
+			<tx:method name="*"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- 3. 配置事务切入点, 以及把事务切入点和事务属性关联起来 -->
+	<aop:config>
+		<aop:pointcut expression="execution(* com.johnny.spring.tx.xml.service.*.*(..))" 
+			id="txPointCut"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPointCut"/>	
+	</aop:config>
+	
+事务简介
+	-事务管理是企业级应用程序开发中必不可少的技术,  用来确保数据的完整性和一致性. 
+	-事务就是一系列的动作, 它们被当做一个单独的工作单元. 这些动作要么全部完成, 要么全部不起作用
+	-事务的四个关键属性(ACID)
+		原子性(atomicity): 事务是一个原子操作, 由一系列动作组成. 事务的原子性确保动作要么全部完成要么完全不起作用.
+		一致性(consistency): 一旦所有事务动作完成, 事务就被提交. 数据和资源就处于一种满足业务规则的一致性状态中.
+		隔离性(isolation): 可能有许多事务会同时处理相同的数据, 因此每个事物都应该与其他事务隔离开来, 防止数据损坏.
+		持久性(durability): 一旦事务完成, 无论发生什么系统错误, 它的结果都不应该受到影响. 通常情况下, 事务的结果被写到持久化存储器中.
+
+Spring 中的事务管理
+	-作为企业级应用程序框架, Spring 在不同的事务管理 API 之上定义了一个抽象层. 而应用程序开发人员不必了解底层的事务管理 API, 就可以使用 Spring 的事务管理机制.
+	-Spring 既支持编程式事务管理, 也支持声明式的事务管理. 
+		-编程式事务管理: 将事务管理代码嵌入到业务方法中来控制事务的提交和回滚. 在编程式管理事务时, 必须在每个事务操作中包含额外的事务管理代码. 
+		-*声明式事务管理: 大多数情况下比编程式事务管理更好用. 它将事务管理代码从业务方法中分离出来, 以声明的方式来实现事务管理. 
+		事务管理作为一种横切关注点, 可以通过 AOP 方法模块化. Spring 通过 Spring AOP 框架支持声明式事务管理.
+
+	-Spring 从不同的事务管理 API 中抽象了一整套的事务机制. 开发人员不必了解底层的事务 API, 就可以利用这些事务机制. 有了这些事务机制, 事务管理代码就能独立于特定的事务技术了.
+	-Spring 的核心事务管理抽象是 org.spring.transaction.TransactionManager它为事务管理封装了一组独立于技术的方法. 
+	无论使用 Spring 的哪种事务管理策略(编程式或声明式), 事务管理器都是必须的.
+	
+用事务通知声明式地管理事务
+	-事务管理是一种横切关注点
+	-为了在 Spring 2.x 中启用声明式事务管理, 可以通过 tx Schema 中定义的 <tx:advice> 元素声明事务通知, 为此必须事先将这个 Schema 定义添加到 <beans> 根元素中去.
+	-声明了事务通知后, 就需要将它与切入点关联起来. 由于事务通知是在 <aop:config> 元素外部声明的, 所以它无法直接与切入点产生关联. 
+	所以必须在 <aop:config> 元素中声明一个增强器通知与切入点关联起来.
+	-由于 Spring AOP 是基于代理的方法, 所以只能增强公共方法. 因此, 只有公有方法才能通过 Spring AOP 进行事务管理.
+	
+<tx:advice/> 有关的设置
+	- 事务传播设置是 REQUIRED
+	- 隔离级别是 DEFAULT
+	- 事务是 读/写
+	- 事务超时默认是依赖于事务系统的，或者事务超时没有被支持。
+	- 任何 RuntimeException 将触发事务回滚，但是任何 checked Exception 将不触发事务回滚
+	<tx:advice/> 和 <tx:attributes/> 标签里的 <tx:method/> 各种属性设置总结如下：
+	属性		 	是否需要？  	默认值 		描述
+	name		是	 				与事务属性关联的方法名。通配符（*）可以用来指定一批关联到相同的事务属性的方法。 如：'get*'、'handle*'、'on*Event'等等。
+	propagation	不		REQUIRED	事务传播行为
+	isolation	不		DEFAULT		事务隔离级别
+	timeout		不		-1			事务超时的时间（以秒为单位）
+	read-only	不		false		事务是否只读？
+	rollback-for	不	 			将被触发进行回滚的 Exception(s)；以逗号分开。 如：'com.foo.MyBusinessException,ServletException'
+	no-rollback-for	不	 			不 被触发进行回滚的 Exception(s)；以逗号分开。 如：'com.foo.MyBusinessException
+	
+read-only
+	- “只读事务”并不是一个强制选项，它只是一个“暗示”，提示数据库驱动程序和数据库系统，这个事务并不包含更改数据的操作，
+	那么JDBC驱动程序和数据库就有可能根据这种情况对该事务进行一些特定的优化，比方说不安排相应的数据库锁，以减轻事务对数据库的压力，毕竟事务也是要消耗数据库的资源的。
+	- Oracle Read Only 隔离级别只是支持Oracle Server,并不支持jdbc驱动，所以spring虽然设置了connection的readonly属性，但是oracle不支持，不是spring的bug。 
+	- 进行新建修改删除会报错：nested exception is java.sql.SQLException: ORA-01456: may not perform insert/delete/update operation inside a READ ONLY transaction  
+	- 为什么设置为read-obly会提高查询性能呢？
+		1、默认情况下是flush-mode是auto的，hiberante会自动到session里查看缓存对象，观察是否有更改，从而同步到数据库中
+		2、read-only=true就相当于将flush-mode设置为FlushMode.Never，session中的所有对象的修改，任何时候都不会提交数据库（包括ITransaction.Commit()）。
+		因为查询的时候减少了因为药同步更新数据到数据库对系统性能的消耗，所以会提高查询性能。
+	- readOnly表示对应的事务应该被最优化为只读事务，例如在使用Hibernate时避免dirty checking 		
+用 @Transactional 注解声明式地管理事务
+	-除了在带有切入点, 通知和增强器的 Bean 配置文件中声明事务外, Spring 还允许简单地用 @Transactional 注解来标注事务方法. 
+	-为了将方法定义为支持事务处理的, 可以为方法添加 @Transactional 注解. 根据 Spring AOP 基于代理机制, 只能标注公有方法.
+	-**可以在方法或者类级别上添加 @Transactional 注解. 当把这个注解应用到类上时, 这个类中的所有公共方法都会被定义成支持事务处理的. 
+	-在 Bean 配置文件中只需要启用 <tx:annotation-driven> 元素, 并为之指定事务管理器就可以了. 
+	-如果事务处理器的名称是 transactionManager, 就可以在<tx:annotation-driven> 元素中省略 transaction-manager 属性. 这个元素会自动检测该名称的事务处理器.
+	
+事务传播属性
+	当事务方法被另一个事务方法调用时, 必须指定事务应该如何传播. 例如: 方法可能继续在现有事务中运行, 也可能开启一个新事务, 并在自己的事务中运行.
+	事务的传播行为可以由传播属性指定. Spring 定义了 7  种类传播行为.
+	1）REQUIRED
+		默认的，加入当前正要执行的事务不在另外一个事务里，那么就起一个新的事务。
+		比如说，ServiceB.methodB的事务级别定义为PROPAGATION_REQUIRED,那么由于执行ServiceA.methodA的时候，ServiceA.methodA已经起了事务，
+		这时调用ServiceB.methodB，ServiceB.methodB看到自己已经运行在ServiceA.methodA的事务内部，就不再起新的事务。
+		而假 ServiceA.methodA运行的时候发现自己没有在事务中，他就会为自己分配一个事务。
+		这样，在ServiceA.methodA或者在ServiceB.methodB内的任何地方出现异常，事务都会被回滚。
+		即使ServiceB.methodB的事务已经被提交，但是ServiceA.methodA在接下来fail要回滚，ServiceB.methodB也要回滚。
+	2）SUPPORTS
+		如果当前在事务中，即以事务的形式运行，如果当前不再一个事务中，那么就以非事务的形式运行。
+	3）MANDATORY
+		必须在一个事务中运行，如果没有就抛出异常。也就是说，他只能被一个父事务调用。否则，他就要抛出异常。
+	4）REQUIRES_NEW
+		这个就比较绕口了。比如我们设计ServiceA.methodA的事务级别为PROPAGATION_REQUIRED，ServiceB.methodB的事务级别为PROPAGATION_REQUIRES_NEW，
+		那么当执行到ServiceB.methodB的时候，ServiceA.methodA所在的事务就会挂起，ServiceB.methodB会起一个新的事务，等待ServiceB.methodB的事务完成以后，他才继续执行。
+		他与PROPAGATION_REQUIRED 的事务区别在于事务的回滚程度了。因为ServiceB.methodB是新起一个事务，那么就是存在两个不同的事务。
+		如果ServiceB.methodB已经提交，那么ServiceA.methodA失败回滚，ServiceB.methodB是不会回滚的。
+		如果ServiceB.methodB失败回滚，如果他抛出的异常被ServiceA.methodA捕获，ServiceA.methodA事务仍然可能提交。
+	5）NOT_SUPPORTED
+		当前不支持事务，以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。比如ServiceA.methodA的事务级别是PROPAGATION_REQUIRED，
+		而ServiceB.methodB的事务级别是PROPAGATION_NOT_SUPPORTED，那么当执行到ServiceB.methodB时，ServiceA.methodA的事务挂起，而他以非事务的状态运行完，
+		再继续ServiceA.methodA的事务。
+	6）NEVER
+		不能在事务中运行，如果当前存在事务，则抛出异常。假设ServiceA.methodA的事务级别是PROPAGATION_REQUIRED，而ServiceB.methodB的事务级别是PROPAGATION_NEVER ，
+		那么ServiceA.methodA中调用ServiceB.methodB时就要抛出异常了。
+	7）NESTED
+		理解Nested的关键是savepoint。他与PROPAGATION_REQUIRES_NEW的区别是，PROPAGATION_REQUIRES_NEW另起一个事务，将会与他的父事务相互独立，
+		Nested的事务和他的父事务是相依的，他的提交是要等和他的父事务一块提交的。也就是说，如果父事务最后回滚，他也要回滚的。
+		而Nested事务的好处是他有一个savepoint。也就是说ServiceB.methodB失败回滚，那么ServiceA.methodA也会回滚到savepoint点上，
+		ServiceA.methodA可以选择另外一个分支，比如ServiceC.methodC，继续执行，来尝试完成自己的事务。 但是这个事务并没有在EJB标准中定义。
+	
+	新定义 Cashier 接口: 表示客户的结账操作
+	修改数据表信息如下, 目的是用户 Tom 在结账时, 余额只能支付第一本书, 不够支付第二本书：
+	REQUIRED 传播行为
+		-当 bookService 的 purchase() 方法被另一个事务方法 checkout() 调用时, 它默认会在现有的事务内运行. 这个默认的传播行为就是 REQUIRED.
+		 因此在 checkout() 方法的开始和终止边界内只有一个事务. 这个事务只在 checkout() 方法结束的时候被提交, 结果用户一本书都买不了
+		-事务传播属性可以在 @Transactional 注解的 propagation 属性中定义
+	REQUIRES_NEW 传播行为
+		另一种常见的传播行为是 REQUIRES_NEW. 它表示该方法必须启动一个新事务, 并在自己的事务内运行. 如果有事务在运行, 就应该先挂起它.
+		propagation=Propagation.REQUIRES_NEW
+	在 Spring 2.x 事务通知中配置传播属性
+		在 Spring 2.x 事务通知中, 可以像下面这样在 <tx:method> 元素中设定传播事务属性
+
+设置隔离事务属性		
+	并发事务所导致的问题	
+		-当同一个应用程序或者不同应用程序中的多个事务在同一个数据集上并发执行时, 可能会出现许多意外的问题
+		-并发事务所导致的问题可以分为下面三种类型:
+			脏读: 对于两个事物 T1, T2, T1  读取了已经被 T2 更新但 还没有被提交的字段. 之后, 若 T2 回滚, T1读取的内容就是临时且无效的.
+			不可重复读:对于两个事物 T1, T2, T1  读取了一个字段, 然后 T2 更新了该字段. 之后, T1再次读取同一个字段, 值就不同了.
+			幻读:对于两个事物 T1, T2, T1  从一个表中读取了一个字段, 然后 T2 在该表中插入了一些新的行. 之后, 如果 T1 再次读取同一个表, 就会多出几行.
+			
+		从理论上来说, 事务应该彼此完全隔离, 以避免并发事务所导致的问题. 然而, 那样会对性能产生极大的影响, 因为事务必须按顺序运行. 
+		在实际开发中, 为了提升性能, 事务会以较低的隔离级别运行.
+		事务的隔离级别可以通过隔离事务属性指定
+		
+		事务的隔离级别要得到底层数据库引擎的支持, 而不是应用程序或者框架的支持.
+		Oracle 支持的 2 种事务隔离级别：READ_COMMITED , SERIALIZABLE
+		Mysql 支持 4 中事务隔离级别.
+		隔离级别					读数据一致性	脏读	不可重复读	幻读
+		未提交读（Read uncommitted）最低级别，只能保证不读取物理上损坏的数据，事务可以看到其他事务没有被提交的数据（脏数据）	是	是	是
+		已提交读（Read committed）	语句级，事务可以看到其他事务已经提交的数据	否	是	是
+		可重复读（Repeatable read）	事务级，事务中两次查询的结果相同	否	否	是
+		可序列化（Serializable）	最高级别，事务级。顺序执行	否	否	否
+				
+	
+	设置隔离事务属性
+		用 @Transactional 注解声明式地管理事务时可以在 @Transactional 的 isolation 属性中设置隔离级别.
+		在 Spring 2.x 事务通知中, 可以在 <tx:method> 元素中指定隔离级别
+	
+设置回滚事务属性
+	默认情况下只有未检查异常(RuntimeException和Error类型的异常)会导致事务回滚. 而受检查异常不会.
+	事务的回滚规则可以通过 @Transactional 注解的 rollbackFor 和 noRollbackFor 属性来定义. 这两个属性被声明为 Class[] 类型的, 因此可以为这两个属性指定多个异常类.
+		rollbackFor:  遇到时必须进行回滚
+		noRollbackFor: 一组异常类，遇到时必须不回滚
+		
+	在 Spring 2.x 事务通知中, 可以在 <tx:method> 元素中指定回滚规则. 如果有不止一种异常, 用逗号分隔.
+	
+	
+超时和只读属性
+	由于事务可以在行和表上获得锁,  因此长事务会占用资源, 并对整体性能产生影响. 
+	如果一个事物只读取数据但不做修改, 数据库引擎可以对这个事务进行优化.
+	-超时事务属性: 事务在强制回滚之前可以保持多久. 这样可以防止长期运行的事务占用资源.
+	-只读事务属性: 表示这个事务只读取数据但不更新数据, 这样可以帮助数据库引擎优化事务.
+	
+	超时和只读属性可以在 @Transactional 注解中定义.超时属性以秒为单位来计算.
+	在 Spring 2.x 事务通知中, 超时和只读属性可以在 <tx:method> 元素中进行指定.
+
+	
+	
+
+
+	
+		

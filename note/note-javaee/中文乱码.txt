@@ -1,0 +1,58 @@
+关于中文乱码:
+	1). 在 JSP 页面上输入中文, 请求页面后不出现乱码: 保证  contentType="text/html; charset=UTF-8", 
+	    pageEncoding="UTF-8" charset 和 pageEncoding 的编码一致, 且都支持中文. 通常建议取值为UTF-8
+	    
+	        还需保证浏览器的显示的字符编码也和请求的 JSP 页面的编码一致. 
+	        
+	2). 获取中文参数值: 默认参数在传输过程中使用的编码为 ISO-8859-1
+		一：form在前台以post方式提交数据：
+		    浏览器将数据(假设为“中国”）发送给服务器的时候，将数据变成0101的二进制数据（假设为98 99）时必然要查码表，浏览器以哪个码表打开网页，
+		    浏览器就以哪个码表提交数据。数据到达服务器后，数据（98 99）要封装到request中，在servlet中调用Request的getParameter方法返回的是字符串（“中国”），
+		    方法内部拿到数字后要转成字符，一定要查码表，由于request的设计者是外国人，所以默认查的是他们常用的ISO8859-1，这就是请求数据产生乱码的根源。
+			//以post方式提交表单
+			public class RequestDemo extends HttpServlet {
+				public void doGet(HttpServletRequest request, HttpServletResponse response)
+						throws ServletException, IOException {
+					//请求数据的中文乱码问题
+					request.setCharacterEncoding("UTF-8");//客户端网页我们控制为UTF-8
+					String username = request.getParameter("username");
+					//获取数据正常，输出数据时可以查阅不同码表
+					response.setCharacterEncoding("gb2312");//通知服务器发送数据时查阅的码表
+					response.setContentType("text/html;charset=gb2312");//通知浏览器以何种码表打开
+					PrintWriter out = response.getWriter();
+					out.write(username);
+			} 
+	
+		二：form在前台以get方式提交数据：
+		   get方式提交的数据依然是浏览器用什么码表打开就用什么码表发送。不同的是，以get方式提交数据时，request设置编码无效。即使设置了UTF-8还是会去查ISO8859-1。
+		   得到（？ ？），要解决这个问题，需要拿着（？？）反向查ISO8859-1，拿到（98 99）后，再去查正确码表。
+		   
+		   public void doGet(HttpServletRequest request, HttpServletResponse response)
+		           throws ServletException, IOException {
+		        //请求数据的中文乱码问题
+				request.setCharacterEncoding("UTF-8");//以get方式提交数据时，request设置编码无效。即使设置了UTF-8还是会去查ISO8859-1
+				String username = request.getParameter("username");
+				System.out.println(username);
+				byte source [] = username.getBytes("iso8859-1");
+				username = new String (source,"UTF-8");
+				System.out.println(username);
+		       
+			} 
+			
+		三：提交数据中文乱码问题总结：
+			1.如果提交方式为post，想不乱码，只需要设置request对象的编码即可。
+			      注意：客户机数据是以哪种方式提交的，request就应该设成什么编码。
+			2.如果提交方式为get，设置request对象的编码是无效的，想不乱码，只能手工转换。
+			     String data = "???????";//乱码字符串
+			     byte source [] = data.getBytes("iso8859-1");//得到客户机提交的原始数据
+			     data = new String (data.getBytes("iso8859-1"),"UTF-8");//解决乱码
+			     //等同于
+			    data = new String (source,"UTF-8");
+			3.get方式的乱码，还可以通过更改服务器配置的方式实现。更改Tomact的conf目录下的server.xml文件。
+			      3.1 <Connector port="8080" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="8443" URIEncoding="UTF-8" />   
+				  	这种方式并不推荐，因为更改了服务器且并不灵活。
+				  3.2 <Connector port="8989" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="8443" useBodyEncodingForURI="true"/>
+				  	这么设置后，request的setCharacterEncoding设置什么编码，连接器就用什么编码，虽然比上一种更改灵活，但依然会导致我们的应用程序牢牢依赖于服务器，也不被推荐。
+		    
+		四：	最后的最后，提一个小细节：URL地址后面如果跟了中文数据，一定要经过URL编码。表单提交的参数有中文数据，浏览器会自动帮我们编码，但如果是通过链接直接带中文参数，
+			浏览器是不会帮我们编码的，这时想通过上述第二种方式解决中文乱码问题就时灵时不灵了，应该通过URLEncoding.encode(,"UTF-8")先编码。

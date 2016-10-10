@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>方案一(悬浮)</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<link href="../../css/survey.css"  type="text/css" rel="stylesheet"/>
+<script src="../../js/jquery.js"  type="text/javascript"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+
+$(".invest_title_ver").mouseover(
+  function () {
+    $(this).attr("class","invest_title_ver_hover");
+  }
+); 
+$(".invest_title_ver").mouseout(
+  function () {
+    $(this).attr("class","invest_title_ver");
+  }
+);
+
+});
+</script>
+<script type="text/javascript">
+        function ShowOrHideDIV() {
+            $("#investList").toggle("normal");
+        }
+        function ShowDIV() {
+            $("#investList").show("normal");
+        }
+		function HideDIV() {
+            $("#investList").hide("normal");
+        }
+        $(document).ready(function() {
+            $(document).click(function(event) {
+                if (event.target.id == "investList") {
+                    ShowDIV();
+                    event.stopPropagation();
+                } 
+				else if (event.target.id == "clickdiv") {
+                    ShowOrHideDIV();
+                    event.stopPropagation();
+                }
+                else {
+                    HideDIV();
+                }
+            });
+        });
+</script>
+<script type="text/javascript">
+function hideInvest()
+	{
+		document.getElementById("clickdiv").style.display="none";
+	}
+</script>
+
+</head>
+<body>
+<div id="content">
+<div id="position">当前位置：常用组件&gt;用户满意度收集&gt;方案一(悬浮_竖)</div>
+  <table cellspacing="0" cellpadding="0" class="tb_title">
+    <tr>
+      <td class="icon_note">XXXXXXX(这里可以放项目最核心、用户最需要的内容,如"与我有关"、"审批列表"等)</td>
+      <td class="tb_btn"><input name="" type="button" value="新增" class="button"/></td>
+    </tr>
+  </table>
+  <table cellpadding="0" cellspacing="1" class="tb_datalist">
+    <thead>
+      <tr class="tr_title">
+        <td width="15%">流程类别</td>
+        <td width="14%">申请人</td>
+        <td width="19%">申请时间</td>
+        <td width="14%">状态</td>
+        <td width="15%">当前处理人</td>
+        <td width="13%">上一处理人</td>
+        <td width="10%">操作</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>入职管理</td>
+        <td>张和10023456</td>
+        <td>2008-11-15 10:22</td>
+        <td>审批中</td>
+        <td>张帅10023754</td>
+        <td>李将30012456</td>
+        <td><a href="#">修改</a> <a href="#">删除</a></td>
+      </tr>
+      <tr>
+        <td>调动管理</td>
+        <td>李四10023456</td>
+        <td>2008-11-12 16:16</td>
+        <td>审批中</td>
+        <td>张帅10023754</td>
+        <td>李将30012456</td>
+        <td><a href="#">修改</a> <a href="#">删除</a></td>
+      </tr>
+      <tr>
+        <td>离职管理</td>
+        <td>王五60012453</td>
+        <td>2008-10-26 20:33</td>
+        <td>离职中</td>
+        <td>张帅10023754</td>
+        <td>李将30012456</td>
+        <td><a href="#">修改</a> <a href="#">删除</a></td>
+      </tr>
+    </tbody>
+    <tr class="tr_pagenumber">
+      <td colspan="7"> 第1页/共1页&nbsp;&nbsp;共5条记录&nbsp;&nbsp;每页
+        <select name="select" >
+          <option selected>10</option>
+          <option >20</option>
+          <option>20</option>
+          <option>40</option>
+          <option>50</option>
+          <option>全部</option>
+        </select>
+        行 <img src="../../images/icons/firstpage.gif"  title="首页" class="paginate"/> <img src="../../images/icons/prepage.gif"  title="上一页" class="paginate"/>
+        <input type="text" name="textfield" class="page_txt" />
+        <input type="button" name="button" value="Go" class="btn_go" />
+        <img src="../../images/icons/nextpage.gif"  title="下一页" class="paginate"/> <img src="../../images/icons/lastpage.gif"  title="末页" class="paginate"/></td>
+    </tr>
+  </table>
+  <div class="tab_div">
+    <p class="tab_note">常用功能</p>
+  </div>
+  <ul class="funlist" id="tabTable0">
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">我的薪资1</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">我的考核</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">会议纪要</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">通知转正申请人</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">指定转正评估人</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">调动申请</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">转正申请</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">转正统计</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">指定转正评估人</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">调动评估人</a></li>
+  </ul>
+  <ul class="funlist" id="tabTable1" style="display:none">
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">我的薪资2</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">我的考核</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">会议纪要</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">通知转正申请人</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">指定转正评估人</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">调动申请</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">转正申请</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">转正统计</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">指定转正评估人</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">调动评估人</a></li>
+  </ul>
+  <ul class="funlist" id="tabTable2" style="display:none">
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">我的薪资3</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">我的考核</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">会议纪要</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">通知转正申请人</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">指定转正评估人</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">调动申请</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">转正申请</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">转正统计</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">指定转正评估人</a></li>
+    <li><img src="../../images/icons/bullet0.gif"  class="fun_icon"/><a href="#">调动评估人</a></li>
+  </ul>
+  <div class="info_div">如果您有系统业务方面的问题，请联系业务接口人。 </div>
+  <table cellspacing="0" cellpadding="0" class="tb_title">
+    <tr>
+      <td class="icon_note">业务接口人信息</td>
+    </tr>
+  </table>
+  <table cellpadding="0" cellspacing="1" class="tb_datalist">
+    <thead>
+      <tr class="tr_title">
+        <td width="19%">业务接口人</td>
+        <td width="42%">功能模块</td>
+        <td width="14%">联系方式</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>李言10012233(总接口人)</td>
+        <td>负责所有功能</td>
+        <td>0755-26771118</td>
+      </tr>
+      <tr>
+        <td>张三10023456</td>
+        <td>物料清单、工程、车间、成本、合同制造</td>
+        <td>0755-26771210</td>
+      </tr>
+      <tr>
+        <td>李四60054321</td>
+        <td>采购、库存、合同分销</td>
+        <td>0755-26771314</td>
+      </tr>
+      <tr>
+        <td>王五60012453</td>
+        <td>固定资产、应付账款、海外子公司财务</td>
+        <td>0755-26771120</td>
+      </tr>
+    </tbody>
+  </table>
+ <div class="log_down">XXXXXXX(标题、内容可自定义,如"最新信息"、"功能描述"等)</div>
+  <div class="showdiv" style="display:">
+    <hr />
+    <dl>
+      <dt>我的工作：</dt>
+      <dd>实现我的任务、我的邮件、我的短信。</dd>
+    </dl>
+    <dl>
+      <dt>公文管理：</dt>
+      <dd>实现收文、发文、流程、档案、借阅等管理的功能。</dd>
+    </dl>
+    <dl>
+      <dt>计划&amp;任务：</dt>
+      <dd>包括:计划汇报、任务考核两部分功能。</dd>
+    </dl>
+    <dl>
+      <dt>公告&amp;新闻：</dt>
+      <dd>我的信息、分类信息、信息维护。</dd>
+    </dl>
+    <dl>
+      <dt>综合管理：</dt>
+      <dd>实现会议、 办公、设备、用章、用车的管理。</dd>
+    </dl>
+    <ul class="ver_ul_list">
+      <li>实现数据、字典、委托授权、日志、业务配置等各方面的管理</li>
+      <li>各中心办、产品事业部、国内营销事业部 - 郑伟(TEL 0755-26775840) </li>
+      <li>国际营销事业部 - 王保杰 0755-26775803 </li>
+      <li>手机事业部 - 周芳(TEL 0755-26525503) </li>
+      <li>康讯公司 - 李旻(TEL 0755-26770400) </li>
+    </ul>
+  </div>
+</div>
+<div id="invest_div" style="width:372px;">
+  <div class="invest_title_ver" id="clickdiv"><img src="../../images/icons/ver_close.gif"  onmouseover="this.src='../../images/icons/ver_close_hov.gif'" onmouseout="this.src='../../images/icons/ver_close.gif'" onclick="hideInvest()"/></div>
+  <div class="invest_list_ver" style="display:none; width:348px; height:240px; margin-top:-109px; _margin-top:0;" id="investList">
+	<iframe scrolling="no" id="invest" width="348px" height="240px" src="investContent.html"  frameborder="0"></iframe>
+  </div>
+</div>
+</body>
+</html>

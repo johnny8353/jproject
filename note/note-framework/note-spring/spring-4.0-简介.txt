@@ -1,0 +1,49 @@
+Spring4.0 是 Spring 推出的一个重大版本升级，进一步加强了 Sring 作为 Java 领域第一开源平台的地位。Spring4.0 引入了众多 Java 开发者期盼的新特性，
+如泛型依赖注入、SpEL、校验及格式化框架、Rest风格的 WEB 编程模型等。这些新功能实用性强、易用性高，可大幅降低 JavaEE 开发的难度，同时有效提升应用开发的优雅性。
+
+http://projects.spring.io/spring-framework/
+https://github.com/spring-projects/spring-framework/releases
+
+Spring 是一个开源框架.
+Spring 为简化企业级应用开发而生. 使用 Spring 可以使简单的 JavaBean 实现以前只有 EJB 才能实现的功能.
+*Spring 是一个 IOC(DI) 和 AOP 容器框架.
+
+具体描述 Spring:
+	轻量级：Spring 是非侵入性的 - 基于 Spring 开发的应用中的对象可以不依赖于 Spring 的 API
+	依赖注入(DI --- dependency injection、IOC	Inversion of Control)
+	面向切面编程(AOP --- aspect oriented programming)
+	容器: Spring 是一个容器, 因为它包含并且管理应用对象的生命周期
+	框架: Spring 实现了使用简单的组件配置组合成一个复杂的应用. 在 Spring 中可以使用 XML 和 Java 注解组合这些对象
+	一站式：在 IOC 和 AOP 的基础上可以整合各种企业应用的开源框架和优秀的第三方类库 （实际上 Spring 自身也提供了展现层的 SpringMVC 和 持久层的 Spring JDBC）
+	
+安装 SPRING TOOL SUITE	-	http://download.springsource.com/release/TOOLS/update/3.4.0.RELEASE/e4.3/springsource-tool-suite-3.4.0.RELEASE-e4.3.1-updatesite.zip
+	SPRING TOOL SUITE 是一个 Eclipse 插件，利用该插件可以更方便的在 Eclipse 平台上开发基于 Spring 的应用。
+	安装方法说明（springsource-tool-suite-3.4.0.RELEASE-e4.3.1-updatesite.zip）：
+	Help --> Install New Software...
+		Click Add... 
+		In dialog Add Site dialog, click Archive... 
+		Navigate to springsource-tool-suite-3.4.0.RELEASE-e4.3.1-updatesite.zip  and click  Open 
+		Clicking OK in the Add Site dialog will bring you back to the dialog 'Install' 
+		Select the xxx/Spring IDE that has appeared - 不要选择联网更新，否则很慢
+		Click Next  and then Finish 
+		Approve the license 
+		Restart eclipse when that is asked
+
+搭建 Spring 开发环境
+	把以下 jar 包加入到工程的 classpath 下:
+		commons-logging-1.1.1.jar
+		spring-beans-4.0.0.RELEASE.jar
+		spring-context-4.0.0.RELEASE.jar
+		spring-core-4.0.0.RELEASE.jar
+		spring-expression-4.0.0.RELEASE.jar
+	Spring 的配置文件: 一个典型的 Spring 项目需要创建一个或多个 Bean 配置文件, 这些配置文件用于在 Spring IOC 容器里配置 Bean. 
+	Bean 的配置文件可以放在 classpath 下, 也可以放在其它目录下.
+		
+整合多个配置文件
+	Spring 允许通过 <import> 将多个配置文件引入到一个文件中，进行配置文件的集成。这样在启动 Spring 容器时，仅需要指定这个合并好的配置文件就可以。
+	import 元素的 resource 属性支持 Spring 的标准的路径资源
+	<import resource=""/>
+		classpath:		classpath:spring-mvc.xml				从类路径下加载
+		file:			file:/conf/security/spring-shiro.xml
+		http://			http://www.xxx.com/beans.xml
+		ftp://			ftp://www.xxx.com/beans.xml

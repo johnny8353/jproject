@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+	<package name="crud" namespace="/" extends="struts-default">
+	
+		<default-interceptor-ref name="paramsPrepareParamsStack"></default-interceptor-ref>
+		<action name="emp-*" class="com.johnny.struts2.crud.EmployeeAction"
+			method="{1}">
+			<result name="{1}">/crud/emp-{1}.jsp</result>
+			<result name="success" type="redirectAction">emp-list</result>
+		</action>
+
+		<action name="emp-list" class="com.johnny.struts2.crud.EmployeeAction"
+			method="list">
+			<result name="list">/crud/emp-list.jsp</result>
+		</action>
+	</package>
+</struts>

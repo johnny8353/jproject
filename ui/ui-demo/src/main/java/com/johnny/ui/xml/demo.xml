@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<address-list>
+	<card name="yangjm" id="1">
+		<sex>男</sex>
+		<address><![CDATA[中国上海外滩No.01]]>
+		</address>
+		<telephone>13916732212</telephone>
+	</card>
+	<card name="zhangsan" id="2">
+		<sex>女</sex>
+		<address>
+			<item type="家庭地址"><![CDATA[中国.北京.东直门外大街]]>
+			</item>
+			<item type="单位地址"><![CDATA[中国.上海.田林路888号]]>
+			</item>
+		</address>
+		<telephone>010-123123</telephone>
+	</card>
+</address-list>

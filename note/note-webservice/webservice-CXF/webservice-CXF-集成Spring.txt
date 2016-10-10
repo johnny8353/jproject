@@ -1,0 +1,117 @@
+   	 与Spring集成
+	配置web.xml:
+		<listener>
+			<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+		</listener>
+		<!-- 设置Spring容器加载配置文件路径 -->
+		<context-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:spring-cxf-service.xml</param-value>
+	        <param-value>/WEB-INF/cxfdemo-beans.xml</param-value>
+		</context-param>
+		
+		<servlet>
+			<description>Apache CXF Endpoint</description>
+			<display-name>cxf</display-name>
+			<servlet-name>cxf</servlet-name>
+			<servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
+			<load-on-startup>1</load-on-startup>
+		</servlet>
+	
+		<servlet-mapping>
+			<servlet-name>cxf</servlet-name>
+			<!--http://localhost:8081/webservice-cxf-demo/webservice 查看已发布的服务 ,推荐使用services-->
+			<url-pattern>/webservice/*</url-pattern>
+		</servlet-mapping>
+	
+	配置 cxfdemo-beans.xml 
+		<beans xmlns="http://www.springframework.org/schema/beans"
+			xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xsi:schemaLocation="http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd 
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+			<import resource="classpath:META-INF/cxf/cxf.xml" />
+			<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+			<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+		
+			<bean id="helloWS" class="com.johnny.webservice.cxfimp.HelloWSImpl"></bean>
+			
+			<jaxws:endpoint id="hellows" implementor="#helloWS"
+				address="/hellows"></jaxws:endpoint>
+		</beans>
+	配置maven依赖包	-	pom.xml
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-core</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http-jetty</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-ws-security</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-expression</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aspects</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+		</dependency>
+		
+	测试代码
+	public static void main(String[] args) {
+		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("spring-cxf-service.xml");
+		DataTypeWS bean = (DataTypeWS) ctx.getBean("dataTypeWS");
+		System.out.println(bean.getStudentById(2));
+		
+	}
+		
+		

@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>人员选择交互分析</title>
+<link href="../css/main.css"  type="text/css" rel="stylesheet"/>
+<link href="../css/index.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../js/jquery.js" ></script>
+<script type="text/javascript" src="../js/main.js" ></script>
+<!--作者：刘凯华-->
+<!--时间：2009-5-19-->
+</head>
+
+<body>
+<div id="content" class="demo_help">
+
+<!--人员单选-->
+<p class="menu2">1.1 人员单选<a name="1.1"></a></p>
+<p><span class="hidedetail">代码：</span></p>
+<div class="code">
+ <pre>
+ &lt;td class="td_title" width="15%"&gt; 人员选择（自动匹配）&lt;td&gt;
+ &lt;input name="text" type="text" class="txt_200" id="txtAuto" value=""&gt;
+ &lt;img src="../../images/icons/search2.gif" alt="选择人员" style="cursor:pointer" onclick="autoSelect();"&gt;
+ &lt;td&gt;
+ </pre>
+</div>
+
+<!--人员多选-->
+<p class="menu2">1.2 人员多选<a name="1.2"></a></p>
+<p><span class="hidedetail">代码：</span></p>
+<div class="code">
+ <pre>
+  &lt;td class="td_title"&gt; 人员选择（多选） &lt;td &gt;
+  &lt;td&gt;&lt;textarea id="txtMul" rows="3" readonly="readonly" onClick="openwin('mulSelect.html','',700,450);" style="cursor:pointer;width:80%;"&gt; &lt;/textarea&gt;
+  &lt;img src="../../images/icons/search2.gif" style="cursor:pointer" onClick="openwin('mulSelect.html','',700,450);"/&gt; &lt;td&gt;
+  &lt;img src="../../images/icons/icon_del.gif" alt="清除" style="cursor:pointer" onclick="form1.txtMulDept2.value=''"/&gt; 
+ </pre>
+</div>
+</div>
+</body>
+</html>

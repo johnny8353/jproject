@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<properties resource="db.properties"/>
+	
+	<!-- 配置实体类的别名 -->
+	<typeAliases>
+		<!-- <typeAlias type="com.johnny.mybaits.test1.User" alias="_User"/> -->
+		<!-- 批量别名的定义:
+        package:指定包名，mybatis会自动扫描包中的pojo类，自动定义别名，别名就是类名(首字母大写或小写都可以)
+ 		-->
+		<package name="com.johnny.mybaits.bean"/>
+	</typeAliases>
+	<!-- 
+		development : 开发模式
+		work : 工作模式
+	 -->
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${name}" />
+				<property name="password" value="${password}" />
+			</dataSource>
+		</environment>
+	</environments>
+	
+	<mappers>
+		<mapper resource="com/johnny/mybaits/test1/userMapper.xml"/>
+		<mapper resource="com/johnny/mybaits/crud/userMapper.xml"/>
+		<mapper class="com.johnny.mybaits.crud.annotation.UserMapper"/>
+		<mapper resource="com/johnny/mybaits/crud/orderMapper.xml"/>
+		<mapper resource="com/johnny/mybaits/relation/ClassMapper.xml"/>
+		<mapper resource="com/johnny/mybaits/relation/ClassMapper2.xml"/>
+		<mapper resource="com/johnny/mybaits/dynamic/userMapper.xml"/>
+		<mapper resource="com/johnny/mybaits/proc/userMapper.xml"/>
+		<mapper resource="com/johnny/mybaits/cache/userMapper.xml"/>
+	</mappers>
+	
+	
+</configuration>

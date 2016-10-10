@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>title</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<link href="../../js/progressbar/progressbar.css"  type="text/css" rel="stylesheet"/>
+<script src="../../js/jquery.js"  type="text/javascript"></script>
+<script type="text/javascript" src="../../js/jquery.blockUI.js" ></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+<script type="text/javascript" src="../../js/progressbar/progressbar.js" ></script>
+<script type="text/javascript">
+////////////进度条弹出div		
+	$(document).ready(function() { 
+        $('.show_progress').click(function() { 
+            $.blockUI({ message: $('#progress'), css: { width: '350px',height:'147px' } }); 
+			setTimeout($.unblockUI, 11000); 
+        }); 
+        $('#btnCancle').click(function() { 
+            $.unblockUI(); 
+            return false; 
+        });  
+    });
+
+
+</script>
+</head>
+<body>
+<div id="content">
+  <div id="position">当前位置：常用场景&gt;提示信息&gt;进度反馈(等待)</div>
+  <form id="form1" action="" method="post" >
+       <table cellspacing="0" cellpadding="0" class="tb_title">
+    <tr>
+      <td class="icon_note">页面内直接显示（用于页面的加载等）
+</td>
+    </tr>
+  </table>
+  <table cellpadding="0" cellspacing="1" class="tb_datalist">
+    <thead>
+      <tr class="tr_title">
+        <td width="26%">单据号</td>
+        <td width="20%">本币金额</td>
+        <td width="23%">提交人</td>
+        <td width="20%">提交日期</td>
+        <td width="11%">操作</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>HS301-5000020011</td>
+        <td align="right">343.00</td>
+        <td>王伟10023456</td>
+        <td>2009-10-29</td>
+        <td><a href="#" onClick="openwin('loading.html','',700,450);">修改</a></td>
+      </tr>
+    </tbody>
+  </table>
+    
+    
+    
+    
+  
+    
+    <!--进度条弹出div-->
+     <div class="tips_div_progress" id="progress" style="display:none; cursor:default;">
+      正在提交数据，请稍候...
+       <div id="progressbar"></div>
+       <div class="progressOperate">
+      <input type="button" class="button" id="btnCancle" value="取消" style="margin-right:48px"/>
+    </div>
+    </div>
+    <!--进度条弹出div结束-->
+    
+  </form>
+</div>
+</body>
+</html>

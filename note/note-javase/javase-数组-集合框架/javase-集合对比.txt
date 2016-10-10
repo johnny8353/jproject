@@ -1,0 +1,45 @@
+							是否有序		是否允许重复
+Collection					否			是
+List						是			是
+Set			AbstractSet		否			否
+			HashSet			否			否
+			TreeSet			是(二叉)		否
+Map			AbstractMap		否			key必须唯一，value可以重复
+			HashMap			否			key必须唯一，value可以重复
+			TreeMap			是(二叉)		key必须唯一，value可以重复
+			
+ArrayList,LinkedList,Vestor这三个类都实现了java.util.List接口			
+	ArrayList：底层用数组实现的List 
+	特点：查询效率高，增删效率低 （数组特性）轻量级 线程不安全 
+	LinkedList：底层用双向循环链表 实现的List 
+	特点：查询效率低，增删效率高 （链表特性）
+	Vector: 底层用数组实现List接口的另一个类 
+	特点：重量级，占据更多的系统开销 线程安全
+	
+	一、同步性
+	
+	ArrayList,LinkedList是不同步的，而Vestor是的。所以如果要求线程安全的话，可以使用ArrayList或LinkedList，可以节省为同步而耗费开销。
+	但在多线程的情况下，有时候就不得不使用Vector了。当然，也可以通过一些办法包装ArrayList,LinkedList，使他们也达到同步，但效率可能会有所降低。
+	
+	二、数据增长
+	从内部实现机制来讲ArrayList和Vector都是使用Objec的数组形式来存储的。当你向这两种类型中增加元素的时候，如果元素的数目超出了内部数组目前的长度它们都需要扩展内部数组的长度，
+	Vector缺省情况下自动增长原来一倍的数组长度，ArrayList是原来的50%,所以最后你获得的这个集合所占的空间总是比你实际需要的要大。
+	所以如果你要在集合中保存大量的数据那么使用Vector有一些优势，因为你可以通过设置集合的初始化大小来避免不必要的资源开销。
+	
+	三、检索、插入、删除对象的效率
+	复杂度O ： http://www.cnblogs.com/gaochundong/p/complexity_of_algorithms.html	
+	ArrayList和Vector中，从指定的位置（用index）检索一个对象，或在集合的末尾插入、删除一个对象的时间是一样的，可表示为O(1)。
+	但是，如果在集合的其他位置增加或移除元素那么花费的时间会呈线形增长：O(n-i)，其中n代表集合中元素的个数，i代表元素增加或移除元素的索引位置。
+	为什么会这样呢？以为在进行上述操作的时候集合中第i和第i个元素之后的所有元素都要执行(n-i)个对象的位移操作。
+	LinkedList中，在插入、删除集合中任何位置的元素所花费的时间都是一样的—O(1)，但它在索引一个元素的时候比较慢，为O(i),其中i是索引的位置。
+	
+	所以，如果只是查找特定位置的元素或只在集合的末端增加、移除元素，那么使用Vector或ArrayList都可以。如果是对其它指定位置的插入、删除操作，最好选择LinkedList
+	
+总结
+① 如果涉及到堆栈，队列等操作，应该考虑用List。如果要进行大量的随机访问，应使用ArrayList；如果经常进行插入与删除操作，用使用LinkedList。
+② HashMap设计用来快速访问；而TreeMap保持“键”始终处于排序状态，所以没有HashMap快。LinkedHashMap保持元素插入的顺序，但是也通过散列提供了快速访问能力。
+③ Set不接受重复元素。HashSet提供最快的查询速度，而TreeSet保持元素处于排序状态。LinkedHashSet以插入顺序保存元素。
+④ 对哈希表的操作，作为key的对象要正确重写equals和hashCode方法。
+⑤ 尽量返回接口而非实际的类型（针对抽象编程），如返回List而非ArrayList，这样如果以后需要将ArrayList换成LinkedList时，客户端代码不用改变。
+⑥ 程序中不应该使用过时的Vector\\Hashtable\\Stack。
+	

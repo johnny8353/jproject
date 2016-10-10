@@ -1,0 +1,107 @@
+Jackson jar 包：
+- jackson-annotations-2.1.5.jar
+- jackson-core-2.1.5.jar
+- jackson-databind-2.1.5.jar
+
+JSP：
+<script type="text/javascript" src="scripts/jquery-1.9.1.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		$("#testJson").click(function(){
+			var url = this.href;
+			var args = {};
+			$.post(url, args, function(data){
+				for(var i = 0; i < data.length; i++){
+					var id = data[i].id;
+					var lastName = data[i].lastName;
+					
+					alert(id + ": " + lastName);
+				}
+			});
+			return false;
+		});
+	})
+</script>
+
+<a href="testJson" id="testJson">Test Json</a>
+<br><br>
+
+Action：
+@ResponseBody
+@RequestMapping("/testJson")
+public Collection<Employee> testJson(){
+	return employeeDao.getAll();
+}
+
+
+国际化概述
+• 默认情况下，SpringMVC 根据 Accept-Language 参数判断客户端的本地化类型。
+• 当接受到请求时，SpringMVC 会在上下文中查找一个本地化解析器（LocalResolver），找到后使用它获取请求所对应的本地化类型信息。
+• SpringMVC 还允许装配一个动态更改本地化类型的拦截器，这样通过指定一个请求参数就可以控制单个请求的本地化类型。
+
+本地化解析器和本地化拦截器
+• AcceptHeaderLocaleResolver：根据 HTTP 请求头的Accept-Language 参数确定本地化类型，如果没有显式定义本地化解析器， SpringMVC 使用该解析器。
+• CookieLocaleResolver：根据指定的 Cookie 值确定本地化类型
+• SessionLocaleResolver：根据 Session 中特定的属性确定本地化类型
+• LocaleChangeInterceptor：从请求参数中获取本次请求对应的本地化类型。
+
+关于国际化:
+	1. 在页面上能够根据浏览器语言设置的情况对文本(不是内容), 时间, 数值进行本地化处理
+	2. 可以在 bean 中获取国际化资源文件 Locale 对应的消息
+	3. 可以通过超链接切换 Locale, 而不再依赖于浏览器的语言设置情况
+
+	
+<!--  
+	关于国际化:
+	1. 在页面上能够根据浏览器语言设置的情况对文本(不是内容), 时间, 数值进行本地化处理
+	2. 可以在 bean 中获取国际化资源文件 Locale 对应的消息
+	3. 可以通过超链接切换 Locale, 而不再依赖于浏览器的语言设置情况
+	
+	解决:
+	1. 使用 JSTL 的 fmt 标签
+	2. 在 bean 中注入 ResourceBundleMessageSource 的示例, 使用其对应的 getMessage 方法即可
+	3. 配置 LocalResolver 和 LocaleChangeInterceptor
+-->	
+<fmt:message key="i18n.user"></fmt:message>
+<br><br>
+<a href="i18n">I18N PAGE</a>
+	
+<!--  
+<mvc:view-controller path="/i18n" view-name="i18n"/>
+-->
+<mvc:view-controller path="/i18n2" view-name="i18n2"/>
+
+<!-- 配置国际化资源文件 -->
+<bean id="messageSource"
+	class="org.springframework.context.support.ResourceBundleMessageSource">
+	<property name="basename" value="i18n"></property>
+</bean>
+
+Action:可以在 bean 中获取国际化资源文件 Locale 对应的消息
+
+@Autowired
+private ResourceBundleMessageSource messageSource;
+
+@RequestMapping("/i18n")
+public String testI18n(Locale locale){
+	String val = messageSource.getMessage("i18n.user", null, locale);
+	System.out.println(val); 
+	return "i18n";
+}
+示例 解决3
+<!-- 配置 SessionLocalResolver -->
+<bean id="localeResolver"
+	class="org.springframework.web.servlet.i18n.SessionLocaleResolver"></bean>
+
+<mvc:interceptors>
+	<!-- 配置 LocaleChanceInterceptor -->
+	<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"></bean>
+</mvc:interceptors>
+
+JSP:
+<br><br>
+<a href="i18n?locale=zh_CH">中文</a>
+
+<br><br>
+<a href="i18n?locale=en_US">英文</a>
+	

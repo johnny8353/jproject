@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>tree</title>
+<link href="../../js/dtree/dtree.css" type="text/css" rel="stylesheet"/>
+<link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+<script src="../../js/dtree/dtree.js" type="text/javascript"></script>
+</head>
+<body>
+<div class="dtree">
+  <p><a href="javascript: d.openAll();">open all</a> | <a href="javascript: d.closeAll();">close all</a></p>
+  <script type="text/javascript">
+		var d = new dTree('d','../../js/dtree/img/');
+        d.config.target = "mainFrame";
+        d.config.useIcons = true;
+
+		d.add(0,-1,'我的所有文档','mainContent.html');
+		d.add(1,0,'公文包');
+		d.add(2,0,'收藏夹','mainContent.html');
+		d.add(3,0,'办公素材','mainContent.html');
+		d.add(4,0,'收件箱','mainContent.html');
+		d.add(5,1,'XX会议纪要','mainContent.html');
+		d.add(6,1,'XX谈话记录','mainContent.html');
+		d.add(7,1,'XX合同书','mainContent.html');
+		d.add(8,1,'XX报账单','mainContent.html');
+		d.add(9,2,'重要图片','mainContent.html','Pictures I\'ve taken over the years','','','../../js/dtree/img/imgfolder.gif');
+		d.add(10,2,'精彩文章','mainContent.html','Pictures of Gullfoss and Geysir');
+		d.add(11,2,'学习资料','mainContent.html');
+		d.add(12,3,'常用小图标','mainContent.html');
+		d.add(13,3,'PPT模版','mainContent.html');
+		d.add(14,4,'未读消息','mainContent.html');
+		d.add(15,4,'已读消息','mainContent.html');
+		d.add(16,0,'我的回收站','mainContent.html','','','../../js/dtree/img/trash.gif');
+
+		document.write(d);
+	</script>
+</div>
+<div style="margin:15px 0 0 15px"> <a href="#" onclick="window.open('../../js/dtree/api.html','','modal=yes,top=50px,left=150px,width=750px,height=500px,scrollbars=yes,resizable=yes')">dtree使用说明</a> </div>
+</body>
+</html>

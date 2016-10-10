@@ -1,0 +1,51 @@
+在调试或者定位问题的时候通常需要看到传递的具体消息内容，得益于axis2良好的架构设计，首先想到开发一个log模块插到axis的消息处理流中，
+但 事实上axis2已经提供了这个模块，用了一下感觉挺好用，但为性能考虑默认情况下这个模块是没有装载的，下面介绍一下装载配置过程（以tomcat容器 在本机安装为例）。 
+
+1.因为使用了applet进行显示，首先要安装applet 
+将<CATALINA_HOME>/webapps/axis2/WEB-INF/lib/soapmonitor-1.3.jar解压放到<CATALINA_HOME>/webapps/axis2下 
+注意：浏览器需要安装jre1.3以上的插件来支持applet运行 
+	添加jar包
+	<dependency>
+		<groupId>org.apache.axis2</groupId>
+		<artifactId>axis2-soapmonitor-servlet</artifactId>
+		<version>${axis2.version}</version>
+		<type>jar</type>
+		<scope>compile</scope>
+	</dependency>
+
+2.配置servlet，在<CATALINA_HOME>/webapps/axis2/WEB-INF/web.xml中加上以下内容 
+    <servlet> 
+       <servlet-name>SOAPMonitorService</servlet-name> 
+       <display-name>SOAPMonitorService</display-name> 
+       <servlet-class> 
+         org.apache.axis2.soapmonitor.servlet.SOAPMonitorService 
+       </servlet-class> 
+       <init-param> 
+          <param-name>SOAPMonitorPort</param-name> 
+          <param-value>5001</param-value> 
+       </init-param> 
+       <load-on-startup>1</load-on-startup> 
+    </servlet> 
+
+    <servlet-mapping> 
+        <servlet-name>SOAPMonitorService</servlet-name> 
+        <url-pattern>/SOAPMonitor</url-pattern> 
+    </servlet-mapping> 
+
+3.装载soapmonitor模块 
+	冷装载：<CATALINA_HOME>/webapps/axis2/WEB-INF/conf/axis2.xml中插入一行 
+	<module ref="soapmonitor"/>	监控
+	<module ref="logging" /> 日志
+	重启tomcat；
+	或者使用web方式热装载：http://localhost:8080/axis2/axis2-admin登陆后选Engage Module进行操作。热装载在在线运行系统的调试方面很有用。 
+
+4.观察监控信息 
+	连接http://localhost:8080/axis2/SOAPMonitor，就可以用图形界面可视化的监控soap消息了，附图是一个实际监控情况。
+	
+可能的报错：
+	- 您的安全设置已阻止应用程序使用已过期的java
+	- 解决方法：控制面板——JAVA——安全，将级别调至中
+	
+	- axis soapMonitorApplet classNotFoundException
+	- 解决办法：
+	虽然applet并不需要soapmonitor.jar文件中所有的.class文件，但为了方便，直接将解压目录中的org目录复制到安装目录>\webapps\axis2目录中

@@ -1,0 +1,174 @@
+1 Git简介
+	Git是用C语言开发的分布版本控制系统。版本控制系统可以保留一个文件集合的历史记录，并能回滚到另外一个状态（历史记录状态）。
+	对于任何一个文件,在 Git 内都只有三种状态:已提交(committed),已修改 (modified)和已暂存(staged)。
+	已提交(committed) 表示该文件已经被安全地保存在本地数据库中了;
+	已修改(modified) 表示修改了某个文件,但还没有提交保存;
+	已暂存(staged) 表示把已修改的文件放在下次提交时要保存的清单中。
+
+2 Git命令基本格式
+	一般情况下，Git的命令都是git [command] [option] [argument]格式。其中 command指的是某种操作命令，比如config,mv,rm,pull,push等等。
+	而option和 argument指的是操作命令后面的具体参数，比如：
+
+	git config --golobal user.name="hic" 	
+	其中，config指的就是配置命令,接着后面跟上配置的具体参数，其中–global指的是对全局配置生效，后面的user.name就是对用户名进行设置。
+	
+3 配置文件
+	配置文件是从事所有所有工作的基础，在这里配置文件决定了工作时候的用户，邮箱，以及默认编辑器等等常用的配置参数，下面就先说一说配置文件。
+	在Git中，配置文件有三大类，分别放在不同的位置。
+
+	/etc/gitconfig
+	系统中所有用户都普遍适用的配置。git config –system就是用来配置这个文件的。
+	?~/.gitconfig
+	用户目录下的配置文件，该文件只适用于该用户。git config –global就是用来配置这个文件的。
+	~/*/.git/config
+	这是当前项目的配置文件，仅对该项目适用。
+	注意：每一级别的配置，都会覆盖上层的相同配置。	
+	
+	3.1 配置信息
+		用户名设置
+		git config --system user.name "hic"
+		git config --global user.name "hic" git config user.name "hic"
+		
+		电子邮件
+		git config --global user.email "hic@gmail.com"
+		
+		设置文本编辑器，默认为vi，这里设置为emacs
+		git config --global core.editor emacs
+		
+		查看配置信息
+		git config --list
+		
+		如果要查看某个特定的环境变量，只要把它的名字放到最后即可
+		git config user.name
+
+
+1.创建一个新的repository：
+	先在github上创建并写好相关名字，描述。
+	$cd ~/hello-world	//到hello-world目录,本地目录名与repository的名字不一定相同
+	$git init			//初始化
+	$git add .			//把所有文件加入到索引（不想把所有文件加入，可以用gitignore或add 具体文件，见下文)
+	$git commit			//提交到本地仓库，然后会填写更新日志( -m “更新日志”也可，如$git commit -m “my first vesion of ...”)
+	# Make a commit of your file to the local repository
+	git commit -m "Initial commit"
+	# Show the log file
+	git log
+	$git remote add origin git@github.com:WadeLeng/hello-world.git	//增加到remote
+	$git push origin master	//push到github上
+
+	>> $ git remote add origin git@github.com:WadeLeng/hello-world.git
+	错误提示：fatal: remote origin already exists.
+	解决办法：$ git remote rm origin
+	然后在执行：$ git remote add origin git@github.com:WadeLeng/hello-world.git 就不会报错误了
+	
+	>> $ git push origin master
+	错误提示：error:failed to push som refs to
+	解决办法：$ git pull origin master //先把远程服务器github上面的文件拉先来，再push 上去。
+	
+2.更新项目（新加了文件）：
+	$cd ~/hello-world
+	$git add .//这样可以自动判断新加了哪些文件，或者手动加入文件名字
+	$git commit//提交到本地仓库，不加参数会提示，注意:^=Ctrl，按照提示来就好了～～～
+	$git push origin master//不是新创建的，不用再add 到remote上了
+
+3.更新项目（没新加文件，只有删除或者修改文件）：
+	$cd ~/hello-world
+	$git commit -a//记录删除或修改了哪些文件
+	$git push origin master//提交到github
+
+4.忽略一些文件，比如*.o等:
+	$cd ~/hello-world
+	$vim .gitignore//把文件类型加入到.gitignore中，保存
+	然后就可以git add . 能自动过滤这种文件
+
+5.clone代码到本地：
+	$git clone git@github.com:WadeLeng/hello-world.git
+	假如本地已经存在了代码，而仓库里有更新，把更改的合并到本地的项目：
+	$git fetch origin//获取远程更新
+	$git merge origin/master //把更新的内容合并到本地分支
+
+6.撤销
+	$git reset
+
+7.删除
+	$git rm* // 不是用rm
+	
+分支
+	如果事先没有作出任何的更改，一个项目是没有分支的，它只有一条主线，例如：
+	~/test$ git branch 
+	* master
+	这里master就是主干，就是整个开发的流程，它前面的星号表示当前开发的流程。
+	
+	如果在开发过程中，我们突然需要添加某个功能，或者打上某个补丁，可以在 master主干上添加一个分支，比如host，例如:
+	~/test$ git checkout -b host
+	Switched to a new branch 'host'
+	~/test$ git branch
+	* host master
+	这个时候，你可以清楚的看到星号已经在host头上，表示当前已经切换到host上，你可以开发你的补丁，而不会打乱主干的开发。
+	如果你在开发过程中想要回到主干，可以使用checkout命令进行切换。
+	~/test$ git checkout master
+	Switched to branch 'master'
+	此时，你又回到主干了。
+
+合并
+	当某个分支的开发结束后，你会需要将其合并到主干上，从而集中精力进行主干的开发。合并前只需要将指针切换到主干，即master，然后使用merge命令。
+	
+	~/test$ git checkout host 
+	Switched to branch 'host'
+	~/test$ echo "lsdknl" >> file
+	~/test$ git add file
+	~/test$ git commit file -m "add somthing"
+	[host 0dacfd9] add somthing 1 file changed, 1 insertion(+)
+	~/test$ git checkout master 
+	Switched to branch 'master'
+	~/test$ git merge host 
+	Updating 81fde76..0dacfd9 Fast-forward file | 1 + 1 file changed, 1 insertion(+)
+	此时的host分支已经失去作用了，可以将删除。
+	
+	~/test$ git branch -d host 
+	Deleted branch host (was 0dacfd9).
+
+查看当前远程库
+	git remote
+添加远程库
+	git remote add emacs https://github.com/johnny8353/jproject1
+从远程库抓取数据
+	git fetch [remote-name]
+推送数据到远程仓库
+	git push [remote-name] [branch-name]
+查看远程仓库
+	git remote [remote-name]
+远程仓库的删除和重命名
+	git remote rm [remote-name] 
+	git remote rename from-name to-name
+		
+Status, Diff 和 Commit Log
+	下面会向你展示仓库现有的状态以及过往的提交历史
+	
+	# Make some changes in the file
+	echo "This is a new change" > test01
+	echo "and this is another new change" > test02
+	
+	# See the current status of your repository 
+	# (which files are changed / new / deleted)
+	git status
+	# Show the differences between the uncommitted files 
+	# and the last commit in the current branch
+	git diff
+	
+	# Add the changes to the index and commit
+	git add . && git commit -m "More chaanges - typo in the commit message"
+	
+	# Show the history of commits in the current branch
+	git log
+	# This starts a nice graphical view of the changes
+	gitk --all
+
+git fetch：相当于是从远程获取最新版本到本地，不会自动merge
+	git fetch origin master:tmp
+	git diff tmp 
+	git merge tmp
+git pull：相当于是从远程获取最新版本并merge到本地
+	git pull origin master
+	上述命令其实相当于git fetch 和 git merge
+	在实际使用中，git fetch更安全一些
+	因为在merge前，我们可以查看更新情况，然后再决定是否合并

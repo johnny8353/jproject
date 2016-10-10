@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>日期控件</title>
+<link href="../css/main.css"  type="text/css" rel="stylesheet"/>
+<link href="../css/index.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../js/jquery.js" ></script>
+<script type="text/javascript" src="../js/main.js" ></script>
+<!--作者：刘凯华-->
+<!--时间：2009-5-19-->
+</head>
+
+<body>
+<div id="content" class="demo_help">
+
+<!--日期控件-->
+<br/>
+<p><span class="showdetail">1.1 日期控件文本框交互</span></p>
+<div style="display:none;magin-left:5px;">
+<table cellpadding="0" cellspacing="1" class="tb_datalist">
+ <thead>
+<tr class="tr_title">
+<td>规则编号</td>
+<td>交互行为</td>
+<td>交互规范</td>
+</tr>
+</thead>
+ <tbody>
+ <tr>
+ <td>【规则1-1-1】</td>
+ <td>文本输入框操作说明</td>
+ <td>
+<p>1、日期的文本输入框，支持键盘直接录入；</p>
+<p>2、点击文本输入框和图标都弹出日期选择面板；</p>
+<p>3、初始默认状态下展示当前日期信息；（需考虑场景）</p>
+<p>4、自动对非法的日期格式予以纠正,防止用户输入错误;</p>
+<p>5、支持左右方向键；</p>
+<p>6、按enter键进行校验,如格式范围正确则跳转到下一个控件,不正确则提示并返回焦点到校验位置；</p>
+</td>
+ </tr>
+  <tr>
+  <td>【规则1-1-2】</td>
+ <td>文本框单击交互</td>
+ <td>
+<p>1. 当日期图标的位置在文本框外时：</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;a) 点击日期图标弹出日期显示面板，位置为文本框的正下方；</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;b) 点击日期选择文本框获得焦点，可手工输入日期；</p><br/>
+<p>2、当日期图标的位置在文本框内时：</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;a) 点击日期选择文本框内任意位置获得焦点，可手工输入日期，同时弹出日期显示面板，位置为文本框的正下方；</p>
+</td>
+ </tr>
+ <tr>
+ <td>【规则1-1-3】</td>
+ <td>文本框关联交互</td>
+ <td>
+ <p>1、当关联的日期文本框为空时，日期显示面板的日期默认为系统现在时；</p>
+<p>2、当关联的日期文本框有日期，且完整时，日期显示面板的日期默认为关联的日期文本框的时间；</p>
+<p>3、当关联的日期文本框有日期，但不完整时，日期显示面板的日期和相关日期对应，没有的则默认为系统现在时；</p>
+</td>
+ </tr>
+ <tr>
+ <td>【规则1-1-4】</td>
+ <td>文本框信息校验</td>
+ <td>
+<p>1、当用户输入不完整、格式不正确或错误的字段焦点离开文本框，弹出提示：“不合法的日期格式或者日期超过限定范围，需要撤销吗？”</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;a) 点击【确定】按钮，清空已输入的字段；</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;b) 点击【取消】按钮，错误文字变红，焦点仍集中到文本框中；</p>
+</td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<br />
+<br />
+
+
+<p><span class="showdetail">1.2 日期显示面板交互</span></p>
+<div style="display:none;">
+<table cellpadding="0" cellspacing="1" class="tb_datalist">
+ <thead>
+<tr class="tr_title">
+<td>规则编号</td>
+<td>交互行为</td>
+<td>交互规范</td>
+</tr>
+</thead>
+ <tbody>
+ <tr>
+ <td>【规则1-2-1】</td>
+ <td>日期显示面板说明</td>
+ <td>
+<p>1、弹出位置不可移动；</p>
+<p>2、默认高亮显示当天时间；</p>
+<p>3、日期面板中的天数处，支持上下左右箭头选择移动；</p>
+<p><img src="../images/date_9.jpg"  /></p>
+ </td>
+ </tr>
+  <tr>
+  <td>【规则1-2-2】</td>
+ <td>月份/年份/日期显示</td>
+ <td>
+<p><strong>月份显示:</strong></p>
+<p>1、默认为当前月，单击月份文字出现12个月份选择；</p>
+<p>2、单击月份链接文字出现月份下拉选择框，手工输入月份；</p>
+<p>3、单击左右月份箭头图标可切换月份；</p>
+<p>4、可通过左右上下键选择月份；</p>
+<p><img src="../images/date_10.jpg"  /></p><br />
+<p><strong>年份显示:</strong></p>
+<p>1、默认为当前年度，单击年份文字出现年份选择，范围是1900-2099；</p>
+<p>2、单击年度链接文字出现年度下拉选择框，可手工输入年份；</p>
+<p>3、可通过左右上下键选择选择年份；</p>
+<p>4、单击左右年度箭头图标可切换年度；</p>
+<p><img src="../images/date_11.jpg"  /></p><br />
+<p><strong>日期显示:</strong></p>
+<p>1、日期显示说明：</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;a) 支持鼠标的单击确定日期；</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;b) 支持左右上下方向键的顺序筛选，可通过左右方向键实现跨月份的翻选；</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;c) 支持ENTER键选中日期；</p><br/>
+<p>2、日期选中标识：</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;a) 灰兰色的为当先选择日期；</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;b) 红色的选中标识为当前日期（今天）（如下图所示）；</p>
+<p><img src="../images/date_12.jpg"  /></p><br/>
+<p>3、鼠标在日期面板中的移动：</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;a) 鼠标滑过的日期，有状态显示；</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;b) 月份显示，年份显示等没有状态的变化，仅支持鼠标的单击；</p>
+<br />
+</td>
+ </tr>
+ <tr>
+ <td>【规则1-2-3】</td>
+ <td>关闭日期显示面板的交互方式</td>
+ <td>
+<p>1. 确定，取消按钮方式：</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;a) 点击确定按钮，则保存当前选择日期结果，日期显示面板的关闭；</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;b) 日期文本框展示为选择结果，点击确定按钮，则不保存当前选择日期结果，日期显示面板的关闭，同时日期文本框数据不改变；</p><br/>
+<p>2、日期显示框内的单击：</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;a) 单击日期显示框内任一具体日期，日期显示面板的关闭，同时日期文本框展示为选择结果；</p><br/>
+<p>3、文本框的单击：</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;a) 单击文本框，显示日期面板，再次单击文本框外任意地方则关闭日期面板，同时不保存当前选择结果；</p>
+</td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<br />
+
+</div>
+</body>
+</html>

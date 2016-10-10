@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>新增图书信息</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script src="../../js/jquery.js"  type="text/javascript"></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+<script type="text/javascript" src="../../js/datePicker/WdatePicker.js" ></script>
+<script type="text/javascript" src="../../js/resizable/jquery.dimensions.js" ></script>
+<script type="text/javascript" src="../../js/resizable/ui.mouse.js" ></script>
+<script type="text/javascript" src="../../js/resizable/ui.resizable.js" ></script>
+<script type="text/javascript">
+$(window).bind("load",function(){
+	$('#transparentTextarea').resizable({ transparent: true, handles: 'all', minHeight: 50, minWidth: 150 });
+});
+</script>
+</head>
+<body>
+<div id="content">
+  <form id="form1">
+    <table cellpadding="0" cellspacing="1" class="tb_input">
+      <tr>
+        <td colspan="4" class="note">图书信息</td>
+      </tr>
+      <tr>
+        <td class="td_title">资源编号</td>
+        <td colspan="3">&nbsp;</td>
+      </tr>
+      <tr>
+        <td class="td_title" width="12%">图书名称<span class="must">*</span></td>
+        <td width="38%"><input type="text" name="txt22" class="txt_120"/></td>
+        <td width="12%" class="td_title">图书数量<span class="must">*</span></td>
+        <td><input type="text" name="txt2" class="txt_120"/></td>
+      </tr>
+      <tr>
+        <td class="td_title">图书类型<span class="must">*</span></td>
+        <td><input type="text" name="txt222" class="txt_120"/></td>
+        <td class="td_title">作者<span class="must">*</span></td>
+        <td><input type="text" name="txt224" class="txt_120"/></td>
+      </tr>
+      <tr>
+        <td class="td_title">所属图书室<span class="must">*</span></td>
+        <td><select name="select" style="width:125px">
+          <option selected="selected">请选择 </option>
+          <option>CDMA图书室</option>
+          <option>总部图书室</option>
+          <option>西研图书室</option>
+                </select>
+        </td>
+        <td class="td_title">所属书架</td>
+        <td><input type="text" name="txt225" class="txt_120"/></td>
+      </tr>
+      <tr>
+        <td class="td_title">地点</td>
+        <td><input type="text" name="txt223" class="txt_120 disonly" readonly="readonly"/></td>
+        <td class="td_title">所属地区</td>
+        <td><input type="text" name="txt2232" class="txt_120 disonly" readonly="readonly"/></td>
+      </tr>
+      <tr>
+        <td class="td_title">管理员</td>
+        <td><input type="text" name="txtNo22" class="txt_120 disonly" readonly="readonly"/></td>
+        <td class="td_title">采购日期</td>
+        <td><input id="dateStart" type="text" class="txt_120"/>
+		<img src="../../js/datePicker/skin/datePicker.gif"  align="absmiddle" style="cursor:pointer" onClick="WdatePicker({el:'dateStart'})" /> </td>
+      </tr>
+      <tr>
+        <td class="td_title">附带光盘<span class="must">*</span></td>
+        <td><label>
+          <input type="radio" name="radiobutton"/>
+          是 </label>
+          <label>
+          <input name="radiobutton" type="radio" checked="checked"/>
+          否</label></td>
+        <td class="td_title">对外单位开放</td>
+        <td><label>
+          <input type="radio" name="radiobutton1" checked="checked"/>
+是 </label>
+          <label>
+          <input type="radio" name="radiobutton1"/>
+否</label></td>
+      </tr>
+      <tr>
+        <td class="td_title" width="12%">备注</td>
+        <td colspan="3" width="88%"><textarea id='transparentTextarea' style='margin: 0px; padding: 0px; height:80px; width:90%;' class="example" onfocus="this.value=''" ></textarea>
+        </td>
+      </tr>
+    </table>
+    <div class="tab_operate">
+      <label>
+      <input name="" type="checkbox" value="" id="conAdd"/>
+      连续添加</label>
+      <input type="submit" class="button" id="btnSave" value="提交" onclick="checkadd();"/>
+      <input type="button" class="button" id="btnCancle" value="取消" onclick="window.close();"/>
+    </div>
+  </form>
+</div>
+</body>
+</html>

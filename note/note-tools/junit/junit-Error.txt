@@ -1,0 +1,4 @@
+	JUnit-4.11使用报java.lang.NoClassDefFoundError: org/hamcrest/SelfDescribing错误
+		最好的解决方法是：
+		(1)换成junit-4.8.jar
+		（2）junit-4.11.jar + hamcrest-core-1.3.jar

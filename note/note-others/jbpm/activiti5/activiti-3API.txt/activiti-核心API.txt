@@ -1,0 +1,55 @@
+核心API
+	5.1：ProcessEngine
+		说明：
+		1)	在Activiti中最核心的类，其他的类都是由他而来。
+		2)	产生方式：	
+		在前面看到了两种创建ProcessEngine（流程引擎）的方式，而这里要简化很多，
+		调用ProcessEngines的getDefaultProceeEngine方法时会自动加载classpath下名为activiti.cfg.xml文件。
+		3)	可以产生RepositoryService
+			RepositoryService repositoryService = processEngine.getRepositoryService();
+		4)	可以产生RuntimeService
+			RuntimeService runtimeService = processEngine.getRuntimeService();
+		5)	可以产生TaskService
+			TaskService taskService = processEngine.getTaskService();
+		各个Service的作用：
+			RepositoryService	管理流程定义
+			RuntimeService		执行管理，包括启动、推进、删除流程实例等操作
+			TaskService			任务管理
+			HistoryService		历史管理(执行完的数据的管理)
+			IdentityService		组织机构管理
+			FormService			一个可选服务，任务表单管理
+			ManagerService	
+		
+	5.2：RepositoryService
+		是Activiti的仓库服务类。所谓的仓库指流程定义文档的两个文件：bpmn文件和流程图片。
+		1)	产生方式
+			RepositoryService repositoryService = processEngine.getRepositoryService();
+		2)	可以产生DeploymentBuilder，用来定义流程部署的相关参数
+			Deployment deployment = processEngine.getRepositoryService()//与流程定义和部署对象相关的Service
+						.createDeployment();//创建一个部署对象
+		3)	删除流程定义
+	 
+	5.3：RuntimeService
+		是activiti的流程执行服务类。可以从这个服务类中获取很多关于流程执行相关的信息。
+	5.4：TaskService
+		是activiti的任务服务类。可以从这个类中获取任务的信息。
+	5.5：HistoryService
+		是activiti的查询历史信息的类。在一个流程执行完成后，这个对象为我们提供查询历史信息。
+	5.6：ProcessDefinition
+		流程定义类。可以从这里获得资源文件等。
+	5.7：ProcessInstance
+		代表流程定义的执行实例。如范冰冰请了一天的假，她就必须发出一个流程实例的申请。一个流程实例包括了所有的运行节点。我们可以利用这个对象来了解当前流程实例的进度等信息。
+		流程实例就表示一个流程从开始到结束的最大的流程分支，即一个流程中流程实例只有一个。
+	5.8：Execution
+		Activiti用这个对象去描述流程执行的每一个节点。在没有并发的情况下，Execution就是同ProcessInstance。流程按照流程定义的规则执行一次的过程，就可以表示执行对象Execution。
+		如图为ProcessInstance的源代码：
+	 		public interface ProcessInstance extends Execution
+		从源代码中可以看出ProcessInstance就是Execution。但在现实意义上有所区别：
+		 
+		在单线流程中，如上图的贷款流程，ProcessInstance与Execution是一致的。
+			 
+		这个例子有一个特点：wire money(汇钱)和archive(存档)是并发执行的。	这个时候，总线路代表ProcessInstance，而分线路中每个活动代表Execution。
+		
+		总结：
+		* 一个流程中，执行对象可以存在多个，但是流程实例只能有一个。
+		* 当流程按照规则只执行一次的时候，那么流程实例就是执行对象。

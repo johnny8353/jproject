@@ -1,0 +1,142 @@
+使用 Filter 作为控制器的 MVC
+	使用 Filter 作为控制器的好处
+	使用一个过滤器来作为控制器, 可以方便地在应用程序里对所有资源(包括静态资源)进行控制访问. 
+	
+Servlet VS Filter
+	Servlet 能做的 Filter 是否都可以完成 ? 嗯。
+	Filter 能做的 Servlet 都可以完成吗 ? 拦截资源却不是 Servlet 所擅长的! Filter 中有一个 FilterChain，这个 API 在 Servlet 中没有！
+
+
+1. VS 自实现:
+	1). 搭建 Struts2 的开发环境
+	2). 不需要显式的定义 Filter, 而使用的是 struts2 的配置文件. 
+	3). details.jsp 比先前变得简单了.
+		${requestScope.product.productName} -> ${productName}
+	4). 步骤:
+		I.  由 product-input.action 转到 /WEB-INF/pages/input.jsp
+			在 struts2 中配置一个 action
+			<action name="product-input">
+				<result>/WEB-INF/pages/input.jsp</result>
+			</action>
+			
+		II. 由 input.jsp 页面的 action: product-save.action 到 Product's save, 再到  /WEB-INF/pages/details.jsp
+		
+			<action name="product-save" class="com.johnny.struts2.helloworld.Product"
+				method="save">
+				<result name="details">/WEB-INF/pages/details.jsp</result>	
+			</action>
+			在 Prodcut 中定义一个 save 方法, 且返回值为 details
+
+Action 类: 能够处理 Struts2 请求的类. 
+	> 属性的名字必须遵守与 JavaBeans 属性名相同的命名规则. 
+	    属性的类型可以是任意类型. 从字符串到非字符串(基本数据库类型)之间的数据转换可以自动发生
+	> 必须有一个不带参的构造器: 通过反射创建实例 
+	> 至少有一个供 struts 在执行这个 action 时调用的方法
+	> 同一个 Action 类可以包含多个 action 方法. 
+	> Struts2 会为每一个 HTTP 请求创建一个新的 Action 实例, 即 Action 不是单例的, 是线程安全的. 
+	
+在 Action 中访问 WEB 资源:
+	1). 什么是 WEB 资源 ?
+		HttpServletRequest, HttpSession, ServletContext 等原生的 Servlet API。 
+	2). 为什么访问 WEB 资源?
+		B\S 的应用的 Controller 中必然需要访问 WEB 资源: 向域对象中读写属性, 读写 Cookie, 获取 realPath ....
+	3). 如何访问 ?
+		I. 和 Servlet API 解耦的方式: 只能访问有限的 Servlet API 对象, 且只能访问其有限的方法(读取请求参数, 读写域对象的属性, 使 session 失效...). 
+			> 使用 ActionContext
+			> 实现 XxxAware 接口
+			> 选用的建议: 若一个 Action 类中有多个 action 方法, 且多个方法都需要使用域对象的 Map 或 parameters, 则建议使用Aware 接口的方式
+			> session 对应的 Map 实际上是 SessionMap 类型的! 强转后若调用其 invalidate() 方法, 可以使其 session 失效!
+		
+		II. 和 Servlet API 耦合的方式: 可以访问更多的 Servlet API 对象, 且可以调用其原生的方法.  
+			> 使用 ServletActionContext
+			> 实现 ServletXxxAware 接口.
+
+			
+3. 关于 Struts2 请求的扩展名问题
+	1). org.apache.struts2 包下的 default.properties 中配置了 Struts2 应用个的一些常量
+	2). struts.action.extension 定义了当前 Struts2 应用可以接受的请求的扩展名.
+	3). 可以在 struts.xml 文件中以常量配置的方式修改 default.properties 所配置的常量.
+	<constant name="struts.action.extension" value="action,do,"></constant>
+	
+4. ActionSupport
+	1). ActionSupport 是默认的 Action 类: 若某个 action 节点没有配置 class 属性, 则 ActionSupport 即为
+	待执行的 Action 类. 而 execute 方法即为要默认执行的 action 方法
+	
+	<action name="testActionSupport">
+		<result>/testActionSupport.jsp</result>
+	</action>
+	
+	等同于
+	
+	<action name="testActionSupport"
+		class="com.opensymphony.xwork2.ActionSupport"
+		method="execute">
+		<result>/testActionSupport.jsp</result>
+	</action>
+	2). 在手工完成字段验证, 显示错误消息, 国际化等情况下, 推荐继承 ActionSupport. 
+
+5. result:	-	struts-action.xml
+	1). result 是 action 节点的子节点
+	2). result 代表 action 方法执行后, 可能去的一个目的地
+	3). 一个 action 节点可以配置多个 result 子节点. 
+	4). result 的 name 属性值对应着 action 方法可能有的一个返回值. 
+		<result name="index">/index.jsp</result>
+	5). result 一共有 2 个属性, 还有一个是 type: 表示结果的响应类型
+	6). result 的 type 属性值在 struts-default 包的 result-types 节点的 name 属性中定义.
+	         常用的有 
+	    > dispatcher(默认的): 转发. 同 Servlet 中的转发. 
+	    > redirect: 重定向
+	    > redirectAction: 重定向到一个 Action
+	    	注意: 通过 redirect 的响应类型也可以便捷的实现 redirectAction 的功能!
+	    	
+	    <result name="index" type="redirectAction">
+			<param name="actionName">testAction</param>
+			<param name="namespace">/johnny</param>
+		</result>
+		
+		OR
+		
+		<result name="index" type="redirect">/johnny/testAction.do</result>
+	    	
+	    > chain: 转发到一个 Action
+	    	注意: 不能通过 type=dispatcher 的方式转发到一个 Action
+	         只能是:
+	    <result name="test" type="chain">
+			<param name="actionName">testAction</param>
+			<param name="namespace">/johnny</param>
+		</result>
+		不能是:
+		<result name="test">/johnny/testAction.do</result>
+
+		<result-types>
+            <result-type name="chain" class="com.opensymphony.xwork2.ActionChainResult"/>
+            <result-type name="dispatcher" class="org.apache.struts2.dispatcher.ServletDispatcherResult" default="true"/>
+            <result-type name="freemarker" class="org.apache.struts2.views.freemarker.FreemarkerResult"/>
+            <result-type name="httpheader" class="org.apache.struts2.dispatcher.HttpHeaderResult"/>
+            <result-type name="redirect" class="org.apache.struts2.dispatcher.ServletRedirectResult"/>
+            <result-type name="redirectAction" class="org.apache.struts2.dispatcher.ServletActionRedirectResult"/>
+            <result-type name="stream" class="org.apache.struts2.dispatcher.StreamResult"/>
+            <result-type name="velocity" class="org.apache.struts2.dispatcher.VelocityResult"/>
+            <result-type name="xslt" class="org.apache.struts2.views.xslt.XSLTResult"/>
+            <result-type name="plainText" class="org.apache.struts2.dispatcher.PlainTextResult" />
+        </result-types>
+通配符映射
+一个 Web 应用可能有成百上千个 action 声明. 可以利用 struts 提供的通配符映射机制把多个彼此相似的映射关系简化为一个映射关系
+通配符映射规则
+	-若找到多个匹配, 没有通配符的那个将胜出
+	-若指定的动作不存在, Struts 将会尝试把这个 URI 与任何一个包含着通配符 * 的动作名及进行匹配	
+	-被通配符匹配到的 URI 字符串的子串可以用 {1}, {2} 来引用. {1} 匹配第一个子串, {2} 匹配第二个子串…
+	-{0} 匹配整个 URI
+	-若 Struts 找到的带有通配符的匹配不止一个, 则按先后顺序进行匹配
+	-* 可以匹配零个或多个字符, 但不包括 / 字符. 如果想把 / 字符包括在内, 需要使用 **. 如果需要对某个字符进行转义, 需要使用 \.
+	<action name="emp-*"
+		class="com.johnny.struts.valuestack.app.Employee"
+		method="{1}">
+		<result name="{1}">/emp-{1}.jsp</result>	
+	</action>
+	
+动态方法调用
+	URI:  
+	/struts-app2/Product.action: Struts 调用 Product 类的 execute
+	/struts-app2/Product!save.action: Struts 调用 Product 类的 save() 方法
+	默认情况下, Struts 的动态方法调用处于禁用状态 ;不推荐，暴露方法

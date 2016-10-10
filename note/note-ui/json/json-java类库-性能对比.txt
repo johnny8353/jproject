@@ -1,0 +1,56 @@
+Jackson、JSON-lib、Gson性能对比		-	具体使用com.johnny.ui.json
+
+在挑选JSON类库时，发现除了一般常用的JSON-lib外，还有一款号称性能最快的JSON处理器Jackson，于是用上了刚学会的JMeter，对这两个类库进行了简单的性能对比。
+
+Jackson：http://jackson.codehaus.org/
+JSON-lib：http://json-lib.sourceforge.net/
+Gson：http://code.google.com/p/google-gson/
+
+测试环境：
+1、工作电脑：Intel双核E8400 共6GHz，内存4GB，WinXP
+2、JSON-lib用最新的JDK15，GSON版本是最新的v1.4，Jackson也是最新的v1.5.5，JDK-v1.6.0_20，JMeter-v2.4
+3、测试时不开启任何无关进程，每完成一项测试后关闭JMeter整理内存后，再进行下一项测试，每项测试运行3次，取平均值
+4、JSON转Java Bean意为将JSON格式转换成Java类，这个类内包括Map、List、Date、Integer/Long/Double、String等类型的属性，Java Bean转Json则同理。
+另外，两者互转，每次转换的数据都是随机生成
+
+测试结果：
+	* 吞吐量的值越大越好，总耗时的值越小越好
+	
+	JSON转Bean，5个线程并发，约200字节对象，1千万次转换：
+			Jackson		JSON-lib	Gson
+	TPS		64113.7		8067.4		13952.8
+	总耗时(秒)	155			1238		700
+	 
+	
+	Bean转JSON，5个线程并发，约200字节对象，1千万次转换：
+			Jackson	JSON-lib	Gson
+	TPS		54802	15093.2		17308.2
+	总耗时(秒)	181		661			560
+	 
+	
+	JSON转Bean，5个线程并发，约2K对象，1千万次转换：
+			Jackson	JSON-lib	Gson
+	TPS		37314	2406.9		3657.50
+	总耗时(秒)	267		4120		2720
+	 
+	
+	Bean转JSON，5个线程并发，约2K对象，1千万次转换：
+			Jackson	JSON-lib	Gson
+	TPS		30922.2	4274.8		4977.00
+	总耗时(秒)	322		2320		2000
+
+测试总结：
+	1、显而易见，无论是哪种形式的转换，Jackson > Gson > Json-lib。
+	     Jackson的处理能力甚至高出Json-lib有10倍左右
+	
+	2、JSON-lib似乎已经停止更新，最新的版本也是基于JDK15，而Jackson的社区则较为活跃；
+	3、在测试性能的同时，又以人肉方式对这三个类库转换的正确性 进行了检查 ，三者均达100%正确 ；
+	4、JSON-lib在转换诸如Date类型时较为累赘，如以下是两者的转换结果：
+		JSON-lib：
+		{"brithday":{"date":17,"day":2,"hours":9,"minutes":24,"month":7,"seconds":26,"time":1282008266398,"timezoneOffset":-480,"year":110}}
+		Jackson：
+		{"brithday":1282008123101}
+	5、JSON-lib依赖commons系列的包及ezmorph包共5个，而Jackson除自身的以外只依赖于commons-logging
+	6、Jackson提供完整基于节点的Tree Model，以及完整的OJM数据绑定功能。
+
+

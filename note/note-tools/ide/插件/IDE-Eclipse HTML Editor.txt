@@ -1,0 +1,21 @@
+Eclipse HTML Editor
+	编辑一些页面文件，例如JSP，HTML,JS等，直接用内置的文本编辑器基本比较疯狂，自己选了一个顺手的编辑器，Eclipse HTML Editor！
+	
+		Eclipse HTML编辑器插件主要提供以下功能：
+		- HTML/JSP/XML/CSS/DTD/JavaScript语法高亮
+		- HTML/JSP预览
+		- JSP/XML验证
+		- HTML标签，基于DTD的XML，以及JSP标签的内容输入补全
+		- HTML/JSP/XML创建向导
+	
+	安装此插件需要有GEF支持，如果没有安装GEF，则Palette视图无法查看。
+	首先下载htmleditor所依赖的图形化编辑框架文件GEF，下载地址
+		http://www.eclipse.org/gef/downloads/index.php ，此处下载最新版GEF-ALL-3.8.1.zip.
+	接着下载htmleditor插件，地址在
+		http://sourceforge.jp/projects/amateras/releases/#16537
+	下载最新版本：tk.eclipse.plugin.htmleditor_2.2.0.jar
+	在D:\eclipse\dropins下新建文件夹GEF-ALL-3.8.1，将下载的GEF-ALL-3.8.1下的features和plugins文件夹解压到新建的文件夹里，再把下载的
+	tk.eclipse.plugin.htmleditor_2.2.0.jar文件放到 D:\eclipse\dropins 下，重启eclipse就可以了！
+	
+	附：CSS样式表等的打开方式可能默认不是Eclipse HTML Editor，只需要在菜单栏里的Windows-Preferences-General-Editors-Files Associations里，
+	找到相应的扩展名，在下面选择对应的编辑器，右边点Default就好了。

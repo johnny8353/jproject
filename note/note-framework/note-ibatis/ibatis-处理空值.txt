@@ -1,0 +1,164 @@
+前天遇到一个问题 异常显示如下： 
+引用
+Exception in thread "main" org.springframework.jdbc.UncategorizedSQLException: Error setting null for parameter #6 
+with JdbcType OTHER . Try setting a different JdbcType for this parameter or a different jdbcTypeForNull configuration property. 
+Cause: java.sql.SQLException: 无效的列类型: 1111 
+; uncategorized SQLException for SQL []; SQL state [99999]; error code [17004]; 无效的列类型: 1111; nested exception
+ is java.sql.SQLException: 无效的列类型: 1111 
+
+
+对应的sqlmap如下： 
+<insert id="insertCustomerLog" parameterType="map">  
+      insert into customer_log  
+      (  
+      ID,  
+      CUSTOMER_SERVICE_USER_NAME,  
+      user_name,  
+      CONTENT,  
+      LOG_FIRST_TYPE,  
+      STATUS,  
+      LINKED_ID,  
+      FEE,  
+      ACCOUNT_FIRST_TYPE,  
+      ACCOUNT_SECOND_TYPE,  
+      ACCOUNT_THIRD_TYPE,  
+      LOG_SECOND_TYPE,  
+      LOG_IP,  
+      MEMO  
+      )  
+      values  
+      (  
+             seq_customer_log.nextval ,  
+            #{customerServiceUserName} ,  
+            #{username},  
+            #{content},  
+            #{logFirstType},  
+            #{status},  
+            #{linkedId},  
+            #{fee},  
+            #{accountFirstType},  
+            #{accountSecondType},  
+            #{accountThirdType},  
+            #{logSecondType},  
+            #{logIp},  
+            #{memo}  
+      )  
+  </insert>  
+
+
+查询了一下 一些资料说是： 
+引用
+MyBatis 插入空值时，需要指定JdbcType 
+mybatis insert空值报空值异常，但是在pl/sql不会提示错误，主要原因是mybatis无法进行转换， 
+
+所以将xml改为： 
+Xml代码  收藏代码
+<insert id="insertCustomerLog1" parameterType="com.diyicai.customer.domain.CustomerLog">  
+        insert into customer_log  
+               (  
+               ID,  
+               CUSTOMER_SERVICE_USER_NAME,  
+               user_name ,  
+               CONTENT,  
+               LOG_FIRST_TYPE,  
+               STATUS,  
+               LINKED_ID,  
+               FEE,  
+               ACCOUNT_FIRST_TYPE,  
+               ACCOUNT_SECOND_TYPE,  
+               ACCOUNT_THIRD_TYPE,  
+               LOG_SECOND_TYPE,  
+               LOG_IP,  
+               MEMO  
+               )  
+               values  
+               (  
+               seq_customer_log.nextval ,  
+               #{customerServiceUserName,jdbcType=VARCHAR} ,  
+               #{username,jdbcType=VARCHAR},  
+               #{content,jdbcType=VARCHAR},  
+               #{logFirstType,jdbcType=NUMERIC},  
+               #{status,jdbcType=NUMERIC},  
+               #{linkedId,jdbcType=VARCHAR},  
+               #{fee,jdbcType=NUMERIC},  
+               #{accountFirstType,jdbcType=NUMERIC},  
+               #{accountSecondType,jdbcType=NUMERIC},  
+               #{accountThirdType,jdbcType=NUMERIC},  
+               #{logSecondType,jdbcType=NUMERIC},  
+               #{logIp,jdbcType=VARCHAR},  
+               #{memo,jdbcType=VARCHAR}  
+               )  
+    </insert>  
+
+这个时候 运行正常。 
+
+我不甘心 想试试 ibatis2 是否也有同样的问题 
+xml如下： 
+<insert id="BasicUserInfoDaoImpl.testMap" parameterClass="java.util.HashMap">  
+                insert into customer_log  
+                (  
+                ID,  
+                CUSTOMER_SERVICE_USER_NAME,  
+                user_name,  
+                CONTENT,  
+                LOG_FIRST_TYPE,  
+                STATUS,  
+                LINKED_ID,  
+                FEE,  
+                ACCOUNT_FIRST_TYPE,  
+                ACCOUNT_SECOND_TYPE,  
+                ACCOUNT_THIRD_TYPE,  
+                LOG_SECOND_TYPE,  
+                LOG_IP,  
+                MEMO  
+                )  
+                values  
+                (  
+                     seq_customer_log.nextval ,  
+                      #customerServiceUserName# ,  
+                      #username#,  
+                      #content#,  
+                      #logFirstType#,  
+                      #status#,  
+                      #linkedId#,  
+                      #fee#,  
+                      #accountFirstType#,  
+                      #accountSecondType#,  
+                      #accountThirdType#,  
+                      #logSecondType#,  
+                      #logIp#,  
+                      #memo#  
+                )  
+    </insert>  
+
+这个时候 发现 ibatis2 可以正常的执行 数据库可以正常的插入数据 。 
+错误日志是在：org.apache.ibatis.type.BaseTypeHandler这个类的第17行打出的。根据异常上面的代码 
+Java代码  收藏代码
+if (parameter == null) {  
+  if (jdbcType == null) {  
+  try {  
+  ps.setNull(i, JdbcType.OTHER.TYPE_CODE);  
+  } catch (SQLException e) {  
+  throw new TypeException("Error setting null parameter. Most JDBC drivers require that the JdbcType must be specified for all nullable parameters. Cause: " + e, e);  
+  }  
+  } else {  
+  ps.setNull(i, jdbcType.TYPE_CODE);  
+  }  
+  } else {  
+  setNonNullParameter(ps, i, parameter, jdbcType);  
+  }  
+
+可以看出，是因为你传入的参数的字段为null对象无法获取对应的jdbcType类型，而报的错误。 
+你只要在insert语句中insert的对象加上jdbcType就可以了，修改如下： 
+#{menuTitle,jdbcType=VARCHAR} 
+这样就可以解决以上错误了。 
+看来需要真正的了解mybatis 和ibatis 呀。 
+希望遇到同样问题的朋友一起交流。 
+
+晚上看到了http://wksandy.iteye.com/blog/1443133 感谢 感谢 WKsandy ，他的文字写得很好 
+
+
+引用
+还有在向oracle插入数据时，mybatis3报Error setting null parameter.
+ Most JDBC drivers require that the JdbcType must be specified for all nullable parameters，是由于参数出现了null值,
+ 对于Mybatis,如果进行操作的时候,没有指定jdbcType类型的参数,mybatis默认jdbcType.OTHER导致,给参数加上jdbcType可解决(注意大小写) 

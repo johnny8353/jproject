@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UIT用户界面规范模板</title>
+<style>
+	.right_scroll{
+		overflow-x:hidden;/*解决FF横向滚动条问题*/
+		overflow-y:yes;
+	}
+</style>
+</head>
+	<frameset id="topFrameSet" rows="69,*" border="0" framespacing="0" frameborder="0">
+	
+		<frame name="topframe" src="frameTop.html" scrolling="No" noresize="noresize" id="topFrame"/>
+			 
+	  	<frameset id="mainFrameSet" cols="142,1,*" border="0" framespacing="0" frameborder="0">
+		    <frameset id="leftFrameSet" rows="22,*,0" frameborder="no" border="0" framespacing="1">
+		    	<frame name="lefttop" noresize="noresize" border="0" src="frameLeftTop.html" scrolling="no" 
+		    		style="border-right:1px solid #6c9ede;"/>
+		    	<frame name="leftmenu" src="leftMenuCUS.html" frameborder="0" scrolling="no" noresize="noresize" border="0" target="right" 
+		    		style="border-right:1px solid #6c9ede;" id="leftmenu"/>
+		    	<frame name="leftdn" noresize="noresize" border="0" src="frameleftdown.html" frameborder="0"/>
+			</frameset>
+			
+			<frame name="midline" src="midLine.html" scrolling="No" noresize="noresize" id="midline"/>
+				
+			<frameset id="rightframeset" border="0" framespacing="0" rows="24,*" frameborder="0">
+		       <frame name="rightup" src="frameShowPos.html" noresize="noresize" frameborder="0" scrolling="no"/>
+		       <frame name="right" id="right" src="../application/default.html" frameborder="0" scrolling="yes" class="right_scroll"/>
+			</frameset>
+	 	</frameset>
+	 	
+	</frameset>
+	
+	<noframes></noframes>
+</html>

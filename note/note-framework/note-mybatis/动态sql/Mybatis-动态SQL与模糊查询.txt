@@ -1,0 +1,184 @@
+动态SQL与模糊查询
+	7.1. 提出需求: 
+	实现多条件查询用户(姓名模糊匹配, 年龄在指定的最小值到最大值之间)
+	7.2. 准备数据表和数据:
+	create table d_user(  
+		id int primary key auto_increment,  
+		name varchar(10),
+		age int(3)
+	); 
+	
+	insert into d_user(name,age) values('Tom',12);  
+	insert into d_user(name,age) values('Bob',13);  
+	insert into d_user(name,age) values('Jack',18);
+	7.3. ConditionUser(查询条件实体类)
+	private String name;
+	private int minAge;
+	private int maxAge;
+	
+	7.4. User(表实体类)
+	private int id;
+	private String name;
+	private int age;
+	
+	7.5. userMapper.xml(映射文件)
+	<?xml version="1.0" encoding="UTF-8" ?> 
+	<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.johnny.day03_mybatis.test6.userMapper">
+	<select id="getUser" parameterType="com.johnny.day03_mybatis.test6.ConditionUser" resultType="com.johnny.day03_mybatis.test6.User">
+				select * from d_user where age>=#{minAge} and age&lt;=#{maxAge}
+			<if test='name!="%null%"'>and name like #{name}</if>
+		</select>
+	</mapper>
+	
+	7.6. UserTest(测试)
+	public class UserTest {
+	
+		public static void main(String[] args) throws IOException {
+			
+			Reader reader = Resources.getResourceAsReader("conf.xml");
+			
+			SqlSessionFactory sessionFactory = new SqlSessionFactoryBuilder().build(reader);
+			
+			SqlSession sqlSession = sessionFactory.openSession();
+			
+			String statement = "com.johnny.day03_mybatis.test6.userMapper.getUser";
+			
+			List<User> list = sqlSession.selectList(statement, new ConditionUser("%a%", 1, 12));
+			
+			System.out.println(list);
+		}
+	}
+
+模糊查询
+	1. sql中字符串拼接
+	   SELECT * FROM tableName WHERE name LIKE CONCAT(CONCAT('%', #{text}), '%');
+	2. 使用 ${...} 代替 #{...} （不能防止sql注入 #{}---> 可以防止sql注入的问题）
+	   SELECT * FROM tableName WHERE name LIKE '%${text}%'; 
+	3. 程序中拼接
+	   Java
+	   // or String searchText = "%" + text + "%";
+	   String searchText = new StringBuilder("%").append(text).append("%").toString();
+	   parameterMap.put("text", searchText);
+	   SqlMap.xml
+	
+	   SELECT * FROM tableName WHERE name LIKE #{text};
+	   
+<![CDATA[ ]]>
+	<![CDATA[ ]]> 标记避免Sql中与xml规范相冲突的字符对xml映射文件的合法性造成影响
+	如：<![CDATA[price_from >= #{price_from}]]>
+
+MyBatis中可用的动态SQL标签
+	if
+ 	choose(when,otherwise)
+ 	trim(where,set)
+ 	foreach
+
+	choose, when, otherwise
+		<select id=”findActiveBlogLike”
+			parameterType=”Blog” resultType=”Blog”>
+			SELECT * FROM BLOG WHERE state = ''
+			<choose>
+				<when test=”title != null”>
+					AND title like #{title}
+				</when>
+				<when test=”author != null and author.name != null”>
+					AND title like #{author.name}
+				</when>
+				<otherwise>
+					AND featured = 1
+				</otherwise>
+			</choose>
+		</select>
+	trim, where, set
+		<select id=”findActiveBlogLike”
+			parameterType=”Blog” resultType=”Blog”>
+			SELECT * FROM BLOG
+			<where>
+				<if test=”state != null”>
+				state = #{state}
+				</if>
+				<if test=”title != null”>
+				AND title like #{title}
+				</if>
+				<if test=”author != null and author.name != null”>
+				AND title like #{author.name}
+				</if>
+			</where>
+		</select>
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+		</trim>
+		
+		<update id="updateAuthorIfNecessary"
+				parameterType="domain.blog.Author">
+			update Author
+			<set>
+			<if test="username != null">username=#{username},</if>
+			<if test="password != null">password=#{password},</if>
+			<if test="email != null">email=#{email},</if>
+			<if test="bio != null">bio=#{bio}</if>
+			</set>
+			where id=#{id}
+		</update>
+		这里， set 元素会动态前置 SET 关键字，而且也会消除任意无关的逗号，那也许在应用条件之后来跟踪定义的值。
+		<trim prefix="SET" suffixOverrides=",">
+		</trim>
+	foreach	
+		另外一个动态 SQL通用的必要操作是迭代一个集合，通常是构建在IN条件中的。比如：
+		<select id="selectPostIn" resultType="domain.blog.Post">
+			SELECT *
+			FROM POST P
+			WHERE ID in
+			<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</select>
+		foreach 元素是非常强大的，它允许你指定一个集合，声明集合项和索引变量，它们可
+		以用在元素体内。它也允许你指定开放和关闭的字符串，在迭代之间放置分隔符。这个元素
+		是很智能的，它不会偶然地附加多余的分隔符。
+		注意：你可以传递一个 List 实例或者数组作为参数对象传给 MyBatis。当你这么做的时
+		候， MyBatis 会自动将它包装在一个 Map 中，用名称作为键。 List 实例将会以“ list”
+		作为键，而数组实例将会以“ array”作为键。
+		这个部分是对关于 XML 配置文件和 XML 映射文件的而讨论的。下一部分将详细讨论
+		Java API，所以你可以得到你已经创建的最有效的映射
+
+MyBatis 通过包含的jdbcType类型
+	BIT         FLOAT      CHAR           TIMESTAMP       OTHER       UNDEFINED
+	TINYINT     REAL       VARCHAR        BINARY          BLOB        NVARCHAR
+	SMALLINT    DOUBLE     LONGVARCHAR    VARBINARY       CLOB        NCHAR
+	INTEGER     NUMERIC    DATE           LONGVARBINARY   BOOLEAN     NCLOB
+	BIGINT      DECIMAL    TIME           NULL            CURSOR
+	<result property="FLD_CLOB" column="FLD_CLOB"  javaType="string" jdbcType="CLOB"/>
+	<result property="FLD_TIMESTAMP" column="FLD_TIMESTAMP"  javaType="java.sql.Timestamp" jdbcType="TIMESTAMP"/>
+	
+	Mybatis中javaType和jdbcType对应关系
+		JDBC Type			Java Type
+		CHAR				String
+		VARCHAR				String
+		LONGVARCHAR			String
+		NUMERIC				java.math.BigDecimal
+		DECIMAL				java.math.BigDecimal
+		BIT					boolean
+		BOOLEAN				boolean
+		TINYINT				byte
+		SMALLINT			short
+		INTEGER				int
+		BIGINT				long
+		REAL				float
+		FLOAT				double
+		DOUBLE				double
+		BINARY				byte[]
+		VARBINARY			byte[]
+		LONGVARBINARY		byte[]
+		DATE				java.sql.Date
+		TIME				java.sql.Time
+		TIMESTAMP			java.sql.Timestamp
+		CLOB				Clob
+		BLOB				Blob
+		ARRAY				Array
+		DISTINCT			mapping of underlying type
+		STRUCT				Struct
+		REF	                Ref
+		DATALINK			java.net.URL[color=red][/color]
+			

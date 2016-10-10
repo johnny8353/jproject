@@ -1,0 +1,228 @@
+jQuery.validate 中文 API
+名称					返回类型		描述
+validate(options)	Validator	验证所选的 FORM。
+valid()				Boolean		检查是否验证通过。
+rules()				Options		返回元素的验证规则。
+rules("add",rules)	Options		增加验证规则。
+rules("remove",rules)	Options	删除验证规则。
+removeAttrs(attributes)	Options	删除特殊属性并且返回它们。
+自定义选择器
+:blank				Validator	没有值的筛选器。
+:filled				Array <Element>	有值的筛选器。
+:unchecked			Array <Element>	没选择的元素的筛选器。
+实用工具
+jQuery.format(template,argument,argumentN...)	String	用参数代替模板中的 {n}。
+
+
+Validator
+	validate 方法返回一个 Validator 对象。Validator 对象有很多方法可以用来引发校验程序或者改变 form 的内容，下面列出几个常用的方法。
+	名称	返回类型	描述
+	form()	Boolean	验证 form 返回成功还是失败。
+	element(element)	Boolean	验证单个元素是成功还是失败。
+	resetForm()	undefined	把前面验证的 FORM 恢复到验证前原来的状态。
+	showErrors(errors)	undefined	显示特定的错误信息。
+	
+	Validator 函数
+	setDefaults(defaults)	undefined	改变默认的设置。
+	addMethod(name,method,message)	undefined	添加一个新的验证方法。必须包括一个独一无二的名字，一个 JAVASCRIPT 的方法和一个默认的信息。
+	addClassRules(name,rules)	undefined	增加组合验证类型，在一个类里面用多种验证方法时比较有用。
+	addClassRules(rules)	undefined	增加组合验证类型，在一个类里面用多种验证方法时比较有用。这个是同时加多个验证方法。
+内置验证方式
+	名称	返回类型	描述
+	required()	Boolean	必填验证元素。
+	required(dependency-expression)	Boolean	必填元素依赖于表达式的结果。
+	required(dependency-callback)	Boolean	必填元素依赖于回调函数的结果。
+	remote(url)	Boolean	请求远程校验。url 通常是一个远程调用方法。
+	minlength(length)	Boolean	设置最小长度。
+	maxlength(length)	Boolean	设置最大长度。
+	rangelength(range)	Boolean	设置一个长度范围 [min,max]。
+	min(value)	Boolean	设置最小值。
+	max(value)	Boolean	设置最大值。
+	email()	Boolean	验证电子邮箱格式。
+	range(range)	Boolean	设置值的范围。
+	url()	Boolean	验证 URL 格式。
+	date()	Boolean	验证日期格式（类似 30/30/2008 的格式，不验证日期准确性只验证格式）。
+	dateISO()	Boolean	验证 ISO 类型的日期格式。
+	dateDE()	Boolean	验证德式的日期格式（29.04.1994 或 1.1.2006）。
+	number()	Boolean	验证十进制数字（包括小数的）。
+	digits()	Boolean	验证整数。
+	creditcard()	Boolean	验证信用卡号。
+	accept(extension)	Boolean	验证相同后缀名的字符串。
+	equalTo(other)	Boolean	验证两个输入框的内容是否相同。
+	phoneUS()	Boolean	验证美式的电话号码。
+validate ()的可选项
+	描述	代码
+	debug：进行调试模式（表单不提交）。	
+	$(".selector").validate
+	({
+		debug:true
+	})
+	把调试设置为默认。	
+	$.validator.setDefaults({
+		debug:true
+	})
+	submitHandler：通过验证后运行的函数，里面要加上表单提交的函数，否则表单不会提交。	
+	$(".selector").validate({
+		submitHandler:function(form) {
+			$(form).ajaxSubmit();
+		}
+	})
+	ignore：对某些元素不进行验证。	
+	$("#myform").validate({
+		ignore:".ignore"
+	})
+	rules：自定义规则，key:value 的形式，key 是要验证的元素，value 可以是字符串或对象。	
+	$(".selector").validate({
+		rules:{
+			name:"required",
+			email:{
+				required:true,
+				email:true
+			}
+		}
+	})
+	messages：自定义的提示信息，key:value 的形式，key 是要验证的元素，value 可以是字符串或函数。	
+	$(".selector").validate({
+		rules:{
+			name:"required",
+			email:{
+				required:true,
+				email:true
+			}
+		},
+		messages:{
+			name:"Name不能为空",
+			email:{       
+				required:"E-mail不能为空",
+				email:"E-mail地址不正确"
+			}
+		}
+	})
+	groups：对一组元素的验证，用一个错误提示，用 errorPlacement 控制把出错信息放在哪里。	
+	$("#myform").validate({
+		groups:{
+			username:"fname 
+			lname"
+		},
+		errorPlacement:function(error,element) {
+			if (element.attr("name") == "fname" || element.attr("name") == "lname")   
+				error.insertAfter("#lastname");
+			else    
+				error.insertAfter(element);
+		},
+	   debug:true
+	})
+	Onubmit：类型 Boolean，默认 true，指定是否提交时验证。	
+	$(".selector").validate({  
+		onsubmit:false
+	})
+	onfocusout：类型 Boolean，默认 true，指定是否在获取焦点时验证。	
+	$(".selector").validate({   
+		onfocusout:false
+	})
+	onkeyup：类型 Boolean，默认 true，指定是否在敲击键盘时验证。	
+	$(".selector").validate({
+	   onkeyup:false
+	})
+	onclick：类型 Boolean，默认 true，指定是否在鼠标点击时验证（一般验证 checkbox、radiobox）。	
+	$(".selector").validate({
+	   onclick:false
+	})
+	focusInvalid：类型 Boolean，默认 true。提交表单后，未通过验证的表单（第一个或提交之前获得焦点的未通过验证的表单）会获得焦点。	
+	$(".selector").validate({
+	   focusInvalid:false
+	})
+	focusCleanup：类型 Boolean，默认 false。当未通过验证的元素获得焦点时，移除错误提示（避免和 focusInvalid 一起使用）。	
+	$(".selector").validate({
+	   focusCleanup:true
+	})
+	errorClass：类型 String，默认 "error"。指定错误提示的 css 类名，可以自定义错误提示的样式。	
+	$(".selector").validate({ 
+		errorClass:"invalid"
+	})
+	errorElement：类型 String，默认 "label"。指定使用什么标签标记错误。	
+	$(".selector").validate
+	   errorElement:"em"
+	})
+	wrapper：类型 String，指定使用什么标签再把上边的 errorELement 包起来。	
+	$(".selector").validate({
+	   wrapper:"li"
+	})
+	errorLabelContainer：类型 Selector，把错误信息统一放在一个容器里面。	
+	$("#myform").validate({   
+		errorLabelContainer:"#messageBox",
+		wrapper:"li",
+		submitHandler:function() { 
+			alert("Submitted!") 
+		}
+	})
+	showErrors：跟一个函数，可以显示总共有多少个未通过验证的元素。	
+	$(".selector").validate({  
+		showErrors:function(errorMap,errorList) {
+	        $("#summary").html("Your form contains " + this.numberOfInvalids() + " errors,see details below.");
+			this.defaultShowErrors();
+		}
+	})
+	errorPlacement：跟一个函数，可以自定义错误放到哪里。	
+	$("#myform").validate({  
+		errorPlacement:function(error,element) {  
+			error.appendTo(element.parent("td").next("td"));
+	   },
+	   debug:true
+	})
+	success：要验证的元素通过验证后的动作，如果跟一个字符串，会当作一个 css 类，也可跟一个函数。	
+	$("#myform").validate({        
+		success:"valid",
+	        submitHandler:function() { 
+				alert("Submitted!") 
+			}
+	})
+	highlight：可以给未通过验证的元素加效果、闪烁等。	
+	
+addMethod(name,method,message)方法
+	参数 name 是添加的方法的名字。
+	参数 method 是一个函数，接收三个参数 (value,element,param) 。
+	value 是元素的值，element 是元素本身，param 是参数。
+	我们可以用 addMethod 来添加除内置的 Validation 方法之外的验证方法。比如有一个字段，只能输一个字母，范围是 a-f，写法如下：
+	$.validator.addMethod("af",function(value,element,params){  
+		if(value.length>1){
+			return false;
+		}
+	    if(value>=params[0] && value<=params[1]){
+			return true;
+		}else{
+			return false;
+		}
+	},"必须是一个字母,且a-f");
+	如果有个表单字段的 id="username"，则在 rules 中写：
+	username:{
+	   af:["a","f"]
+	}
+	addMethod 的第一个参数，是添加的验证方法的名字，这时是 af。
+	addMethod 的第三个参数，是自定义的错误提示，这里的提示为:"必须是一个字母,且a-f"。
+	addMethod 的第二个参数，是一个函数，这个比较重要，决定了用这个验证方法时的写法。
+	如果只有一个参数，直接写，比如 af:"a"，那么 a 就是这个唯一的参数，如果多个参数，则写在 [] 里，用逗号分开。
+meta String 方式
+	$("#myform").validate({
+	
+	   meta:"validate",
+	
+	   submitHandler:function() { 
+	alert("Submitted!") }
+	
+	})
+	<script type="text/javascript" 
+	src="js/jquery.metadata.js"></script>
+	
+	<script type="text/javascript" 
+	src="js/jquery.validate.js"></script>
+	
+	<form id="myform">
+	
+	  <input type="text" 
+	name="email" class="{validate:{ required:true,email:true }}" />
+	
+	  <input type="submit" 
+	value="Submit" />
+	
+	</form>

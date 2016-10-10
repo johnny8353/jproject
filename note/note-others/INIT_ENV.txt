@@ -1,0 +1,23 @@
+
+
+Eclipse HTML Editor
+
+FireFox插件：
+	- firebug	 
+	- RESTClient 
+	- SOA Client 
+	
+Eclipse插件下载：
+	Eclipse axis2插件下载
+	- axis2-eclipse-codegen-plugin-1.6.2.zip
+	- axis2-eclipse-service-plugin-1.6.2.zip
+	- htmleditor 
+		链接:http://amateras.sourceforge.jp/cgi-bin/fswiki_en/wiki.cgi?page=EclipseHTMLEditor
+	- Spket
+	- propedit
+	
+	
+批量下载别人网站的资源
+	- Teleport		-	http://www.tenmax.com/Teleport_Ultra_Installer.exe
+		tppabs="h[^"]*" 去除多余标记
+		[/][/*]tpa=h[^"]*/

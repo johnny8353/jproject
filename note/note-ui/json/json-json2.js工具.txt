@@ -1,0 +1,126 @@
+json2.js主要功能是做什么的？
+
+json2.js提供了json的序列化和反序列化方法，可以将一个json对象转换成json字符串，也可以将一个json字符串转换成一个json对象。
+json2.js在浏览器不支持json.parse的内置方法时，最有效。json2.js会创建一个内部的全局变量，提供json对象与字符串之间的转换。
+由于eval已经不提倡使用了，并存在一定的危险，建议使用内置parse json的方法，或者直接使用json2.js。
+
+json2.js的源码地址：
+https://github.com/douglascrockford/JSON-js
+
+使用方法很简单：
+
+1、引用json2.js：
+<script type="text/javascript" src="json2.js"></script>
+2、调用方法：
+<script>
+//直接声明json数据结构
+var myJSONObject = {"bindings": [
+        {"ircEvent": "PRIVMSG", "method": "newURI", "regex": "^http://.*"},
+        {"ircEvent": "PRIVMSG", "method": "deleteURI", "regex": "^delete.*"},
+        {"ircEvent": "PRIVMSG", "method": "randomURI", "regex": "^random.*"}
+    ]
+};
+//声明字符串,可对比一下json文本与我们正常文本的区别
+var normalstring='[{persons:[{name:"jordan",sex:"m",age:"40"}, {name:"bryant",sex:"m",age:"28"}, {name:"McGrady",sex:"m",age:"27"} ]}]';
+var jsontext='[{"persons":[{"name":"jordan","sex":"m","age":"40"}, {"name":"bryant","sex":"m","age":"28"}, {"name":"McGrady","sex":"m","age":"27"} ]}]';
+
+//调用eval函数转换为json对象，
+var myE = eval(normalstring);
+document.writeln(myE '<br><br>');
+
+//将json对象转换为字符串
+var text = JSON.stringify(myE);
+
+//对比转换后的json文本与声明的文本区别
+document.writeln('转换后的json文本：' text '<br><br>声明的json格式文本' jsontext '<br><br>声明的普通格式文本' normalstring '<br><br>');
+  
+//当安全比较重要的时候使用JSON解析就好一些。JSON解析只会识别JSON文本并且它更安全,下面调用json的parse函数对文本数据转换生成json数据结构
+var myData = JSON.parse(jsontext);
+document.writeln(myData '<br><br>');
+  
+//下面是对json对象的增删查改操作
+  
+//声明json对象
+var jsonObj2={persons:[{name:"jordan",sex:"m",age:"40"}, {name:"bryant",sex:"m",age:"28"}, {name:"McGrady",sex:"m",age:"27"} ]};
+var persons=jsonObj2.persons;
+var str="";
+var person={name:"yaoMing",sex:"m",age:"26"};
+  
+//以下为json对象的操作，去掉注释可以查看操作结果
+//jsonObj2.persons.push(person);//数组最后加一条记录
+//jsonObj2.persons.pop();//删除最后一项
+//jsonObj2.persons.shift();//删除第一项
+jsonObj2.persons.unshift(person);//数组最前面加一条记录 只要适合Javascript的方法都是可以用在JSON对象的数组中的！所以还有另外的方法splice( )进行crud操作！ //删除
+//jsonObj2.persons.splice(0,2);//开始位置,删除个数
+ 
+//替换不删除
+var self={name:"tom",sex:"m",age:"24"};
+var brother={name:"Mike",sex:"m",age:"29"};
+jsonObj2.persons.splice(1,0,self,brother,self);//开始位置,删除个数,插入对象
+  
+//替换并删除 
+//jsonObj2.persons.splice(0,1,self,brother);//开始位置,删除个数,插入对象
+
+for(var i=0;i<persons.length;i )
+{
+	var cur_person=persons[i];
+	str =cur_person.name "'sex is " cur_person.sex " and age is " cur_person.age "<br><br>"; 
+}
+  
+document.writeln(str);
+  
+//转换为json文本
+var myjsonobj =  JSON.stringify(jsonObj2);
+document.writeln(myjsonobj);
+</script>
+ 3、增强功能：
+
+比如说，我们的数据非常复杂，还有类似头像，昵称，个人签名之类的信息。
+可是我保存在本地，只需要用户名，和性别，肿么破呢？
+也许你会说 so easy, 遍历数据重新提取下即可。
+例如：
+文本运行
+var data = [
+    {name: "王尼玛", sex:1, age: 30},
+    {name: "王尼美", sex:0, age: 20},
+    {name: "王大锤", sex:1, age: 30}
+];
+for (var i=0, new_data=[]; i<data.length; i++) {
+    new_data.push({
+        name: data[i].name,
+        sex:  data[i].sex
+    });
+}
+var str_json = JSON.stringify(new_data);
+console.log(str_json);
+确实分分钟搞定。
+
+其实我们只需要用 stringify 第二个参数即可简单处理这种问题。
+
+文本运行
+var data = [
+    {name: "王尼玛", sex:1, age: 30},
+    {name: "王尼美", sex:0, age: 20},
+    {name: "王大锤", sex:1, age: 30}
+];
+var str_json = JSON.stringify(data, ["name", "sex"]);
+console.log(str_json);
+第二个参数只要传入需要的keys数组，就非常轻松的就完成这种处理了。
+
+当然如果我们要更纠结的处理，比如要把 1,0 修改为男女，那么第二个参数可以用回调函数来处理。
+
+文本运行
+console.log(str_json);
+var data = [
+    {name: "王尼玛", sex:1, age: 30},
+    {name: "王尼美", sex:0, age: 20},
+    {name: "王大锤", sex:1, age: 30}
+];
+var str_json = JSON.stringify(data, function (k, v) {
+    if (k === "sex") {
+        return ["女", "男"][v];
+    }
+    return v;
+});
+console.log(str_json);
+第二个参数如此强悍，为我们省去了不少麻烦。

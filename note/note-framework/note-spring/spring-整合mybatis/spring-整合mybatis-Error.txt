@@ -1,0 +1,21 @@
+    
+spring+mybatis 数据源读取不到配置文件的值 
+	java.lang.IllegalStateException: Could not load JDBC driver class [${jdbc_driverClassName}]）经过查询相关资料最后解决，解决如下：
+	<!-- 配置Mybatis的文件 ，mapperLocations配置**Mapper.xml文件位置，configLocation配置mybatis-config文件位置-->  
+    <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
+        <property name="dataSource" ref="dataSource" />  
+        <property name="mapperLocations" value="classpath*:com/wzl/mapper/*.xml"/>    
+        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml" />  
+    </bean>  
+    <!-- 自动扫描了所有的XxxxMapper.xml对应的mapper接口文件，这样就不用一个一个手动配置Mpper的映射了，只要Mapper接口类和Mapper映射文件对应起来就可以了。 -->  
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
+        <property name="basePackage" value="com.wzl.dao" />
+		<!--<property name="sqlSessionFactory" ref="sqlSessionFactory"/> 导致报错-->
+        <property name="sqlSessionFactoryBeanName" value="sessionFactory" />
+    </bean>  
+
+
+	说明：使用sqlSessionFactoryBeanName(原来使用sqlSessionFactory)注入，不会立即初始化sqlSessionFactory, 所以不会引发提前初始化问题，
+	同时还应注意在配置org.mybatis.spring.SqlSessionFactoryBean
+	这个Bean时，id不能为sqlSessionFactory，如果为这样的话会导致MapperScannerConigurer在bean定义加载时，
+	加载PropertyPlaceholderConfigurer还没来得及替换定义中的变量

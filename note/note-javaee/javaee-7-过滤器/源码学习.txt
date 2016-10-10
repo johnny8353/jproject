@@ -1,0 +1,249 @@
+分析代码，理解实现原理
+
+	1.在Servlet容器启动的时候就进行装载Filter类，加载web.xml的filter的配置信息
+		代码：filterDefs 是一个HashMap<String, FilterDef>，存放着定义的filter信息，遍历filterDefs，实例化 ApplicationFilterConfig
+		对象，存放在 filterConfigs
+	2.容器创建好Filter对象实例后，调用init()方法,按照web.xml中的定义顺序执行。接着被Web容器保存进应用级的集合容器中去了等待着，用户访问资源。
+		其实在实例化 ApplicationFilterConfig 的时候就进行了init的操作，init方法只执行一次
+	3.当用户访问的资源正好被Filter的url-pattern拦截时，容器会取出Filter类调用doFilter方法，下次或多次访问被拦截的资源时，
+	Web容器会直接取出指定Filter对象实例调用doFilter方法(Filter对象常驻留Web容器了)。
+		
+		
+	4.当应用服务被停止或重新装载了，则按照web.xml中的定义顺序执行每个filter的destroy方法，Filter对象销毁。
+
+在Servlet容器启动的时候就进行装载Filter类，加载web.xml的filter的配置信息
+
+	定义两个Filter，按先后顺序	helloFilter、secondFilter
+
+	启动tomcat时候在helloFilter的init 打断点：
+	Daemon Thread [localhost-startStop-1] (Suspended (breakpoint at line 17 in HelloFilter))	
+		owns: HashMap<K,V>  (id=41)	
+		owns: StandardContext  (id=42)	
+		HelloFilter.init(FilterConfig) line: 17					
+		ApplicationFilterConfig.initFilter() line: 279	
+			filter.init(this);
+		ApplicationFilterConfig.getFilter() line: 260	
+			-- 根据获取的到定义信息实例化一个filter，赋值给this.filter，并执行一次执行initFilter 
+			-- 第二次进入由于this.filter不为空，直接返回，所以initFilter只执行了一次。
+			if (this.filter != null)
+				return (this.filter);
+			String filterClass = filterDef.getFilterClass();
+			this.filter = (Filter) getInstanceManager().newInstance(filterClass);
+			initFilter();
+		ApplicationFilterConfig.<init>(Context, FilterDef) line: 105	
+			在 ApplicationFilterConfig 的构造函数根据构造参数给Context和FilterDef赋值，该类两个非常重要的成员变量
+			ApplicationFilterConfig(Context context, FilterDef filterDef){
+				this.context = context;
+				this.filterDef = filterDef;
+				// Allocate a new filter instance if necessary
+				if (filterDef.getFilter() == null) {
+					getFilter();
+				} else {
+					this.filter = filterDef.getFilter();
+					getInstanceManager().newInstance(filter);
+					initFilter();
+				}
+			}
+		StandardContext.filterStart() line: 4939	
+			filterDefs	是一个HashMap<String, FilterDef>，存放着定义的filter信息
+				{Tomcat WebSocket (JSR356) Filter=FilterDef[filterName=Tomcat WebSocket (JSR356) Filter,filterClass=org.apache.tomcat.websocket.server.WsFilter],
+				helloFilter=FilterDef[filterName=helloFilter, filterClass=com.johnny.javaweb.filter.HelloFilter], 
+				secondFilter=FilterDef[filterName=secondFilter, filterClass=com.johnny.javaweb.filter.SecondFilter]}	
+			按照上面的顺序，遍历filterDefs，实例化一个 ApplicationFilterConfig 对象，把对象放在 filterConfigs 里
+			filterMaps	存放这映射的数据org.apache.catalina.core.StandardContext$ContextFilterMaps@14914ab
+				[FilterMap[filterName=helloFilter, urlPattern=/filter/test.jsp], FilterMap[filterName=secondFilter, 
+				urlPattern=/filter/test.jsp], FilterMap[filterName=UserNameFilter, urlPattern=/hello.jsp], 
+				FilterMap[filterName=PasswordFilter, urlPattern=/hello.jsp], FilterMap[filterName=Tomcat WebSocket (JSR356) Filter, 
+				urlPattern=/*]]
+
+			public boolean filterStart() {
+				// Instantiate and record a FilterConfig for each defined filter
+				boolean ok = true;
+				synchronized (filterConfigs) {
+					filterConfigs.clear();
+					for (Entry<String, FilterDef> entry : filterDefs.entrySet()) {
+						String name = entry.getKey();
+						if (getLogger().isDebugEnabled())
+							getLogger().debug(" Starting filter '" + name + "'");
+						ApplicationFilterConfig filterConfig = null;
+						try {
+							filterConfig =
+								new ApplicationFilterConfig(this, entry.getValue());
+							filterConfigs.put(name, filterConfig);
+						} catch (Throwable t) {
+							t = ExceptionUtils.unwrapInvocationTargetException(t);
+							ExceptionUtils.handleThrowable(t);
+							getLogger().error
+								(sm.getString("standardContext.filterStart", name), t);
+							ok = false;
+						}
+					}
+				}
+				return (ok);
+			}
+		StandardContext.startInternal() line: 5633	
+			在该方法中启动了很多东西，包括listenerStart()-filterStart()-loadOnStartup(findChildren()) 按顺序
+			关闭的顺序相反，可以查看stopInternal方法
+		StandardContext(LifecycleBase).start() line: 147	
+		StandardHost(ContainerBase).addChildInternal(Container) line: 899	
+		StandardHost(ContainerBase).addChild(Container) line: 875	
+		StandardHost.addChild(Container) line: 652	
+		HostConfig.deployDescriptor(ContextName, File) line: 679
+			声明一个context：StandardContext - StandardEngine[Catalina].StandardHost[localhost].StandardContext[/johnny]
+			并为context的属性赋值，
+			context = (Context) digester.parse(fis);//？？不知道如何给context赋值，比如前面的filterDefs
+			host.addChild(context);
+		HostConfig$DeployDescriptor.run() line: 1966	
+			descriptor：D:\workspace\eclipsewk\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\conf\Catalina\localhost\johnny.xml
+			config.deployDescriptor(cn, descriptor);
+		Executors$RunnableAdapter<T>.call() line: 471	
+		FutureTask<V>.run() line: 262	
+		ThreadPoolExecutor.runWorker(ThreadPoolExecutor$Worker) line: 1145	
+		ThreadPoolExecutor$Worker.run() line: 615	
+		Thread.run() line: 745	
+
+	SecondFilter 的init断点：与前面类似，ApplicationFilterConfig 对象 把 存放在filterConfigs
+	Daemon Thread [localhost-startStop-1] (Suspended (breakpoint at line 16 in SecondFilter))	
+		owns: HashMap<K,V>  (id=41)	
+		owns: StandardContext  (id=42)	
+		SecondFilter.init(FilterConfig) line: 16	
+		ApplicationFilterConfig.initFilter() line: 279	
+		ApplicationFilterConfig.getFilter() line: 260	
+		ApplicationFilterConfig.<init>(Context, FilterDef) line: 105	
+		StandardContext.filterStart() line: 4939	
+		StandardContext.startInternal() line: 5633	
+		StandardContext(LifecycleBase).start() line: 147	
+		StandardHost(ContainerBase).addChildInternal(Container) line: 899	
+		StandardHost(ContainerBase).addChild(Container) line: 875	
+		StandardHost.addChild(Container) line: 652	
+		HostConfig.deployDescriptor(ContextName, File) line: 679	
+		HostConfig$DeployDescriptor.run() line: 1966	
+		Executors$RunnableAdapter<T>.call() line: 471 [local variables unavailable]	
+		FutureTask<V>.run() line: 262	
+		ThreadPoolExecutor.runWorker(ThreadPoolExecutor$Worker) line: 1145	
+		ThreadPoolExecutor$Worker.run() line: 615	
+		Thread.run() line: 745	
+
+doFilter的处理：
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response,
+			FilterChain chain) throws IOException, ServletException {
+		System.out.println("1. Before HelloFilter's chain.doFilter ..."); //1
+		
+		chain.doFilter(request, response);
+		
+		System.out.println("2. After HelloFilter's chain.doFilter ..."); //2
+	}
+	
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response,
+			FilterChain chain) throws IOException, ServletException {
+		System.out.println("3. Before SecondFilter's chain.doFilter ..."); //3
+		
+		//放行
+		chain.doFilter(request, response);
+		
+		System.out.println("4. After SecondFilter's chain.doFilter ..."); //4
+	}
+
+	断点在HelloFilter的 chain.doFilter ：
+		Daemon Thread [http-bio-8090-exec-3] (Suspended (breakpoint at line 23 in HelloFilter))	
+			owns: SocketWrapper<E>  (id=1225)	
+			HelloFilter.doFilter(ServletRequest, ServletResponse, FilterChain) line: 23	
+			ApplicationFilterChain.internalDoFilter(ServletRequest, ServletResponse) line: 241	
+				该方法中的filters 已经是 满足拦截条件的filter，
+				pos变量递增,当执行了第一个HelloFilter.doFilter，会再次进入该方法，pos加1，执行下一个filter的doFilter方法
+				如果pos大于filters的数量，代表执行完，开始执行 servlet.service(request, response); 执行目标方法
+				ApplicationFilterConfig filterConfig = filters[pos++];
+				filter = filterConfig.getFilter();
+				filter.doFilter(request, response, this);
+			ApplicationFilterChain.doFilter(ServletRequest, ServletResponse) line: 208	
+			StandardWrapperValve.invoke(Request, Response) line: 218
+				在factory.createFilterChain 中过滤 满足条件的filter
+				ApplicationFilterChain filterChain = factory.createFilterChain(request, wrapper, servlet);				
+				filterChain.doFilter(request.getRequest(), response.getResponse());\
+				factory.createFilterChain:
+					FilterMap filterMaps[] = context.findFilterMaps();
+					// Add the relevant path-mapped filters to this filter chain
+					for (int i = 0; i < filterMaps.length; i++) {
+						if (!matchDispatcher(filterMaps[i] ,dispatcher)) {
+							continue;
+						}
+						if (!matchFiltersURL(filterMaps[i], requestPath))
+							continue;
+						ApplicationFilterConfig filterConfig = (ApplicationFilterConfig)
+							context.findFilterConfig(filterMaps[i].getFilterName());
+						if (filterConfig == null) {
+							// FIXME - log configuration problem
+							continue;
+						}
+						boolean isCometFilter = false;
+						if (comet) {
+							try {
+								isCometFilter = filterConfig.getFilter() instanceof CometFilter;
+							} catch (Exception e) {
+								// Note: The try catch is there because getFilter has a lot of 
+								// declared exceptions. However, the filter is allocated much
+								// earlier
+								Throwable t = ExceptionUtils.unwrapInvocationTargetException(e);
+								ExceptionUtils.handleThrowable(t);
+							}
+							if (isCometFilter) {
+								filterChain.addFilter(filterConfig);
+							}
+						} else {
+							filterChain.addFilter(filterConfig);
+						}
+					}
+
+					// Add filters that match on servlet name second
+					for (int i = 0; i < filterMaps.length; i++) {
+						if (!matchDispatcher(filterMaps[i] ,dispatcher)) {
+							continue;
+						}
+						if (!matchFiltersServlet(filterMaps[i], servletName))
+							continue;
+						ApplicationFilterConfig filterConfig = (ApplicationFilterConfig)
+							context.findFilterConfig(filterMaps[i].getFilterName());
+						if (filterConfig == null) {
+							// FIXME - log configuration problem
+							continue;
+						}
+						boolean isCometFilter = false;
+						if (comet) {
+							try {
+								isCometFilter = filterConfig.getFilter() instanceof CometFilter;
+							} catch (Exception e) {
+								// Note: The try catch is there because getFilter has a lot of 
+								// declared exceptions. However, the filter is allocated much
+								// earlier
+							}
+							if (isCometFilter) {
+								filterChain.addFilter(filterConfig);
+							}
+						} else {
+							filterChain.addFilter(filterConfig);
+						}
+					}
+
+					// Return the completed filter chain
+					return (filterChain);
+			StandardContextValve.invoke(Request, Response) line: 122	
+			NonLoginAuthenticator(AuthenticatorBase).invoke(Request, Response) line: 505	
+			StandardHostValve.invoke(Request, Response) line: 169	
+			ErrorReportValve.invoke(Request, Response) line: 103	
+			AccessLogValve.invoke(Request, Response) line: 956	
+			StandardEngineValve.invoke(Request, Response) line: 116	
+			CoyoteAdapter.service(Request, Response) line: 442	
+			Http11Processor(AbstractHttp11Processor<S>).process(SocketWrapper<S>) line: 1082	
+			Http11Protocol$Http11ConnectionHandler(AbstractProtocol$AbstractConnectionHandler<S,P>).process(SocketWrapper<S>, SocketStatus) line: 623	
+			JIoEndpoint$SocketProcessor.run() line: 316	
+			ThreadPoolExecutor(ThreadPoolExecutor).runWorker(ThreadPoolExecutor$Worker) line: 1145	
+			ThreadPoolExecutor$Worker.run() line: 615	
+			TaskThread$WrappingRunnable.run() line: 61	
+			TaskThread(Thread).run() line: 745 [local variables unavailable]	
+
+		chain.doFilter(request, response); 执行过程
+		doFilter()方法类似于Servlet接口的service()方法。当客户端请求目标资源的时候，容器就会调用与这个目标资源相关联的过滤器的doFilter()方法。其中参数 request, response 为 web 容器或 Filter 链的上一个 Filter 传递过来的请求和相应对象；参数 chain 为代表当前 Filter 链的对象，在特定的操作完成后，可以在当前 Filter 对象的 doFilter 方法内部需要调用 FilterChain 对象的 chain.doFilter(request,response)方法才能把请求交付给 Filter 链中的下一个 Filter或者目标 Servlet 程序去处理，也可以直接向客户端返回响应信息，或者利用RequestDispatcher的forward()和include()方法，以及HttpServletResponse的sendRedirect()方法将请求转向到其他资源。这个方法的请求和响应参数的类型是ServletRequest和ServletResponse，也就是说，过滤器的使用并不依赖于具体的协议。
+		
+		

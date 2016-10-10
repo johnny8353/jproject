@@ -1,0 +1,95 @@
+存储过程在小公司用的不多，但是如果业务比较复杂或者性能要求比较苛刻的时候存储过程就派上用场了，ibatis的前期的一些版本貌似不支持存储过程因此我选择了mybatis来做实验。
+
+1.无输入和输出参数的存储过程
+	我写了一个比较简单的，需要注意的是Oracle无参存储过程不能写括号
+	CREATE OR REPLACE Procedure cascadeoperation
+	As
+	Begin
+	 Delete From teacher Where id=1;
+	 Update studentdetail Set address='宁波市海曙区' Where studentid=10;
+	End;
+
+	这里执行了2个操作，可能用过mybatis的人会迷惑执行的时候到底使用update标签呢还是delete标签，其实都行，我也试过select标签也是OK的，下面是部分的配置文件
+	<delete id="cascadeOperation" statementType="CALLABLE" >
+	   {call cascadeoperation}
+	</delete>
+2.带有输入和输出参数的存储过程
+	CREATE OR REPLACE Procedure queryTeacher(fid In Integer,Type In Varchar,Name Out Varchar)
+	As
+	Begin
+		If Type='1' then
+			Select Name Into Name From student Where id=fid;
+		Else if Type='2' Then
+			Select Name Into Name From teacher Where id=fid;
+		Else 
+			Name:='错误';
+		End If;
+	End;
+
+	下面顺便把我在命令行窗口执行的存储过程语句贴出来
+	Declare
+	Name  Varchar2(50);
+	Begin
+	queryteacher(3,'2',Name);
+	DBMS_OUTPUT.put_line(Name);
+	End;
+	/
+
+	执行过类似语句的时候可能看不到任何的输出，不要着急只需在命令行使用set serveroutput on;
+
+	看到结果了吧，下面使用mybatis来执行这个存储过程，下面是映射文件的写法
+
+	<select id="queryTeacher" statementType="CALLABLE" parameterType="java.util.Map">
+	   {call queryTeacher(#{fid,mode=IN,jdbcType=INTEGER},#{type,mode=IN,jdbcType=VARCHAR},#{name,mode=OUT,jdbcType=VARCHAR})}
+	</select>
+
+	那怎么取得返回的内容呢，其实只要存储过程执行后map里就有值了，java代码大致如下
+	Map<String,Object> mm=new HashMap<String,Object>();
+	mm.put("fid", 3);
+	mm.put("type", 2);
+	m.queryTeacher(mm);
+	System.out.println(mm.get("name"));
+3.返回游标的存储过程
+
+	还有一种存储过程，它可以返回一个游标就类似一个集合这种
+	CREATE OR REPLACE Procedure getTeacher(cur_arg out Sys_Refcursor)
+	As
+	begin
+	    open cur_arg for Select * From teacher;
+	End;
+	
+	这种情况，在mybatis里就稍微有些不同了，此时jdbcType就是CURSOR，javaType则是ResultSet了，这里还可以把结果转成resultMap了，如下所示
+	
+	<resultMap id="resultMap3" type="org.lxh.module.usefunction.info.Teacher">
+		<result property="address" column="address"/>
+		<result property="name" column="name"/>
+		<result property="id" column="id"/>
+	   </resultMap>
+	
+	
+	<select id="getAllTeacherInfo" statementType="CALLABLE" parameterType="java.util.Map" >
+	   {call GETTEACHER(#{result,jdbcType=CURSOR,mode=OUT,javaType=ResultSet, resultMap=resultMap3})}
+	</select>
+	
+	
+	
+	这里的话Java代码就稍微复杂一些
+	Map<String, Object> map = new HashMap<String, Object>();
+	m.getAllTeacher(map);
+	Set<Map.Entry<String, Object>> set = map.entrySet();
+	for (Iterator<Map.Entry<String, Object>> it = set.iterator(); it
+			.hasNext();) {
+		Map.Entry<String, Object> entry = (Map.Entry<String, Object>) it
+				.next();
+		// System.out.println(entry.getKey() + "--->" +
+		// (Teacher)entry.getValue());
+		List<Teacher> t = (List<Teacher>) entry.getValue();
+		Iterator<Teacher> itera = t.iterator();
+		while (itera.hasNext()) {
+			Teacher tt = itera.next();
+			System.out.println(tt.getName() + "," + tt.getAddress());
+		}
+	
+	}
+	
+	

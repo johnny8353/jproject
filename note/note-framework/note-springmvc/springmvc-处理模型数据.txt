@@ -1,0 +1,121 @@
+处理模型数据
+	Spring MVC 提供了以下几种途径输出模型数据：
+	– ModelAndView: 处理方法返回值类型为 ModelAndView时, 方法体即可通过该对象添加模型数据
+	– Map 及 Model: 入参为org.springframework.ui.Model、org.springframework.ui.ModelMap 或 java.uti.Map 时，处理方法返回时，Map中的数据会自动添加到模型中。
+	– @SessionAttributes: 将模型中的某个属性暂存到HttpSession 中，以便多个请求之间可以共享这个属性
+	– @ModelAttribute: 方法入参标注该注解后, 入参的对象就会放到数据模型中
+ModelAndView
+	• 控制器处理方法的返回值如果为 ModelAndView, 则其既包含视图信息，也包含模型数据信息。
+	• 添加模型数据:
+	– MoelAndView addObject(String attributeName, ObjectattributeValue)
+	– ModelAndView addAllObject(Map<String, ?> modelMap)
+	• 设置视图:
+	– void setView(View view)
+	– void setViewName(String viewName)
+	示例
+	/**
+	 * 目标方法的返回值可以是 ModelAndView 类型。 
+	 * 其中可以包含视图和模型信息
+	 * SpringMVC 会把 ModelAndView 的 model 中数据放入到 request 域对象中. 
+	 * @return
+	 */
+	@RequestMapping("/testModelAndView")
+	public ModelAndView testModelAndView(){
+		String viewName = SUCCESS;
+		ModelAndView modelAndView = new ModelAndView(viewName);
+		
+		//添加模型数据到 ModelAndView 中.
+		modelAndView.addObject("time", new Date());
+		
+		return modelAndView;
+	}
+	
+	<a href="springmvc/testModelAndView">Test ModelAndView</a>
+	<br><br>
+	
+	time: ${requestScope.time }
+	<br><br>
+Map 及 Model
+	Spring MVC 在内部使用了一个org.springframework.ui.Model 接口存储模型数据
+	• 具体步骤
+	– Spring MVC 在调用方法前会创建一个隐含的模型对象作为模型数据的存储容器。
+	– 如果方法的入参为 Map 或 Model 类型，Spring MVC 会将隐含模型的引用传递给这些入参。在方法体内，开发者可以通过这个入参对象访问到模型中的所有数据，也可以向模型中添加新的属性数据
+	示例
+	/**
+	 * 目标方法可以添加 Map 类型(实际上也可以是 Model 类型或 ModelMap 类型)的参数. 
+	 * @param map
+	 * @return
+	 */
+	@RequestMapping("/testMap")
+	public String testMap(Map<String, Object> map){
+		System.out.println(map.getClass().getName()); 
+		map.put("names", Arrays.asList("Tom", "Jerry", "Mike"));
+		return SUCCESS;
+	}
+	
+	<a href="springmvc/testMap">Test Map</a>
+	<br><br>
+	
+	names: ${requestScope.names } 
+	<br><br>
+
+SessionAttributes 注解
+	若希望在多个请求之间共用某个模型属性数据，则可以在控制器类上标注一个 @SessionAttributes, Spring MVC将在模型中对应的属性暂存到 HttpSession 中。
+	• @SessionAttributes 除了可以通过属性名指定需要放到会话中的属性外，还可以通过模型属性的对象类型指定哪些模型属性需要放到会话中
+	– @SessionAttributes(types=User.class) 会将隐含模型中所有类型为 User.class 的属性添加到会话中。
+	– @SessionAttributes(value={“user1”, “user2”})
+	– @SessionAttributes(types={User.class, Dept.class})
+	– @SessionAttributes(value={“user1”, “user2”},types={Dept.class})
+	示例
+	@SessionAttributes(value={"user"}, types={String.class})
+	@RequestMapping("/springmvc")
+	@Controller
+	public class SpringMVCTest {
+		/**
+		 * @SessionAttributes 除了可以通过属性名指定需要放到会话中的属性外(实际上使用的是 value 属性值),
+		 * 还可以通过模型属性的对象类型指定哪些模型属性需要放到会话中(实际上使用的是 types 属性值)
+		 * 
+		 * 注意: 该注解只能放在类的上面. 而不能修饰放方法. 
+		 */
+		@RequestMapping("/testSessionAttributes")
+		public String testSessionAttributes(Map<String, Object> map){
+			User user = new User("Tom", "123456", "tom@johnny.com", 15);
+			map.put("user", user);
+			map.put("school", "johnny");
+			return SUCCESS;
+		}
+	}
+	
+	<a href="springmvc/testSessionAttributes">Test SessionAttributes</a>
+	<br><br>
+	
+	request user: ${requestScope.user }
+	<br><br>
+	
+	session user: ${sessionScope.user }
+	<br><br>
+	
+	request school: ${requestScope.school }
+	<br><br>
+	
+	session school: ${sessionScope.school }
+	<br><br>
+!ModelAttribute注解
+	• 在方法定义上使用 @ModelAttribute 注解：Spring MVC在调用目标处理方法前，会先逐个调用在方法级上标注了@ModelAttribute 的方法。
+	• 在方法的入参前使用 @ModelAttribute 注解：
+	– 可以从隐含对象中获取隐含的模型数据中获取对象，再将请求参数绑定到对象中，再传入入参
+	– 将方法入参对象添加到模型中
+	使用场景
+	对于一个对象的更新，存在某些字段不进行更新的情景，如果直接使用表单传过来的数据进行更新，会覆盖掉原有字段的值。SpringMVC提供了一种做法，Spring MVC在调用目标处理方法前，会先逐个调用在方法级上标注了@ModelAttribute 的方法。
+	使用ModelAttribute注解从数据库读取一个对象来代替new一个新的对象。
+
+
+SessionAttributes注解引发的异常
+	抛出异常原因：
+	若implicitModel中不存在key对应的对象,则检查当前的Handler是否使用@SessionAttributes注解修饰,若使用了该注解,且@SessionAttributes注解的value属性值中包含了key,则会从HttpSession中来获取key所对应的value值,若存在则直接传入到目标方法的入参中.若不存在则将抛出异常.
+	
+	解决办法：
+	1.	@SessionAttributes注解的value属性值中包含了key，必须使HttpSession中存在对应key的值，使用ModelAttribute。
+	2.	@SessionAttributes注解的value属性值中不包含了key，使类的SessionAttributes的value和目标方法POJO的key值不一样。一般我们设置@SessionAttributes的时候都会设置包含了key，所以导致报错。
+	a)	public String testModelAttribute(@ModelAttribute("mnxyz") User user)
+	b)	@SessionAttributes(value={"myuser"}, types={String.class})

@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>导出Excel</title>
+<link href="../../css/main.css"  type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="../../js/jquery.js" ></script>
+<script type="text/javascript" src="../../js/main.js" ></script>
+</head>
+<body>
+<div id="content">
+  <table cellspacing="0" cellpadding="0" class="tb_title">
+    <tr>
+      <td class="icon_note">请选择要导出的信息</td>
+      <td class="tb_btn">&nbsp;</td>
+    </tr>
+  </table>
+  <table cellpadding="0" cellspacing="1" class="tb_datalist">
+    <thead>
+      <tr class="tr_title">
+        <td width="15%"><input type="checkbox" checked="checked"/></td>
+        <td width="85%">标题</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="checkbox" checked="checked"/></td>
+        <td>序号</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" checked="checked"/></td>
+        <td>资源编号</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" checked="checked"/></td>
+        <td>图书名称</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" checked="checked"/></td>
+        <td>作者</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" checked="checked"/></td>
+        <td>数量(册)</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" checked="checked"/></td>
+        <td>图书室</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" checked="checked"/></td>
+        <td>书架</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" checked="checked"/></td>
+        <td>所属地区</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="tab_operate">
+      <input type="button" class="button" id="btnSave" value="导出Excel" onclick="window.close()"/>
+      <input type="button" class="button" id="btnSave" value="取消" onclick="window.close()"/>
+    </div>
+</div>
+</body>
+</html>

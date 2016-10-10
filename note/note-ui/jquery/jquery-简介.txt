@@ -1,0 +1,462 @@
+
+一>>		jQuery HTML
+jQuery 获取
+	获得内容 - text()、html() 以及 val()
+	三个简单实用的用于 DOM 操作的 jQuery 方法：
+	    text() - 设置或返回所选元素的文本内容
+	    html() - 设置或返回所选元素的内容（包括 HTML 标记）
+	    val() - 设置或返回表单字段的值
+		
+	  $("#test1").text("Hello world!");
+	  $("#test2").html("<b>Hello world!</b>");
+	  $("#test3").val("Dolly Duck");
+	
+	text()、html() 以及 val() 的回调函数
+	上面的三个 jQuery 方法：text()、html() 以及 val()，同样拥有回调函数。
+	回调函数由两个参数：被选元素列表中当前元素的下标，以及原始（旧的）值。然后以函数新值返回您希望使用的字符串。
+	$("#btn1").click(function(){
+		$("#test1").text(function(i,origText){
+	    	return "Old text: " + origText + " New text: Hello world!(index: " + i + ")";
+		});
+	});
+	
+	获取表单值
+		val() 可以直接获取 select 的被选择的值. 
+		$("#single").val();
+		$("#multiple").val();
+	
+		//val 不能直接获取 checkbox 被选择的值
+		//若直接获取, 只能得到第一个被选择的值. 
+		//因为 $(":checkbox[name='c']:checked") 得到的是一个数组. 而使用 val() 方法只能获取数组元素的第一个值
+		//若希望打印被选择的所有制, 需要使用 each 遍历. 
+		//$(":checkbox[name='c']:checked").val();
+		$(":checkbox[name='c']:checked").each(function(){
+			alert(this.value);
+		});
+	
+		//而 raido 被选择的只有一个, 所以可以直接使用 val() 方法. 
+		$(":radio[name='r']:checked").val();
+		
+	为表单赋值
+		$("#single").val("选择3号");
+		$("#multiple").val(["选择2号", "选择4号"]);	
+		$(":checkbox[name='c']").val(["check2", "check4"]);
+		//即便是为一组 radio 赋值, val 参数中也应该使用数组. 使用一个值不起作用。 
+		$(":radio[name='r']").val(["radio2"]);
+		
+jQuery 属性设置
+	属性获取/设置：jQuery attr() 方法用于获取属性值。
+	$("#w3s").attr("href");
+	$("#w3s").attr("href","http://www.w3school.com.cn/jquery");
+	attr() 方法也允许您同时设置多个属性。
+	 $("#w3s").attr({
+	    "href" : "http://www.w3school.com.cn/jquery",
+	    "title" : "W3School jQuery Tutorial"
+	  });
+	  
+	jQuery 方法 attr()，也提供回调函数。
+	回调函数由两个参数：被选元素列表中当前元素的下标，以及原始（旧的）值。然后以函数新值返回您希望使用的字符串。
+	$("#w3s").attr("href", function(i,origValue){
+		return origValue + "/jquery";
+	});
+	
+jQuery 添加
+	添加新内容的四个 jQuery 方法：
+	    append()	- 在被选元素的结尾插入内容
+	    prepend()	- 在被选元素的开头插入内容
+	    after()		- 在被选元素之后插入内容
+	    before()	- 在被选元素之前插入内容
+jQuery 删除
+	如需删除元素和内容，一般可使用以下两个 jQuery 方法：
+	    remove() - 删除被选元素（及其子元素）	可以使用可选参数来过滤对同胞元素的搜索。
+	    empty() - 从被选元素中删除子元素
+	    
+	jQuery remove() 方法也可接受一个参数，允许您对被删元素进行过滤。
+	该参数可以是任何 jQuery 选择器的语法。
+	下面的例子删除 class="italic" 的所有 <p> 元素：	
+	$("p").remove(".italic");
+jQuery CSS 类
+	jQuery 操作 CSS
+	    addClass() - 向被选元素添加一个或多个类
+	    removeClass() - 从被选元素删除一个或多个类
+	    toggleClass() - 对被选元素进行添加/删除类的切换操作
+	    css() - 设置或返回样式属性
+	    	$("p").css("background-color");
+	    	$("p").css("background-color","yellow");
+	    	$("p").css({"background-color":"yellow","font-size":"200%"});
+jQuery 尺寸
+	jQuery 尺寸 方法
+	    width()			-	width() 方法设置或返回元素的宽度（不包括内边距、边框或外边距）。
+	    height()		-	height() 方法设置或返回元素的高度（不包括内边距、边框或外边距）。
+	    innerWidth()	-	innerWidth() 方法返回元素的宽度（包括内边距）。
+	    innerHeight()	-	innerHeight() 方法返回元素的高度（包括内边距）。
+	    outerWidth()	-	outerWidth() 方法返回元素的宽度（包括内边距和边框）。
+	    outerHeight()	-	outerHeight() 方法返回元素的高度（包括内边距和边框）。
+
+
+二>>		jQuery 遍历
+jQuery 遍历
+	什么是遍历？
+		jQuery 遍历，意为“移动”，用于根据其相对于其他元素的关系来“查找”（或选取）HTML 元素。
+		以某项选择开始，并沿着这个选择移动，直到抵达您期望的元素为止。
+		
+		下图展示了一个家族树。通过 jQuery 遍历，您能够从被选（当前的）元素开始，轻松地在家族树中向上移动（祖先），向下移动（子孙），水平移动（同胞）。
+		这种移动被称为对 DOM 进行遍历。
+		提示：祖先是父、祖父、曾祖父等等。后代是子、孙、曾孙等等。同胞拥有相同的父。
+	遍历 DOM
+		jQuery 提供了多种遍历 DOM 的方法。
+		遍历方法中最大的种类是树遍历（tree-traversal）。
+jQuery 祖先
+	向上遍历 DOM 树
+	    parent()	-	parent() 方法返回被选元素的直接父元素。该方法只会向上一级对 DOM 树进行遍历。
+	    parents()	-	parents() 方法返回被选元素的所有祖先元素，它一路向上直到文档的根元素 (<html>)。可以使用可选参数来过滤对同胞元素的搜索。
+	    	$("span").parents("ul");	-	所有 <span> 元素的所有祖先，并且它是 <ul> 元素：
+	    parentsUntil()	-	parentsUntil() 方法返回介于两个给定元素之间的所有祖先元素。
+			$("span").parentsUntil("div");	-	介于 <span> 与 <div> 元素之间的所有祖先元素：
+jQuery 后代
+	向下遍历 DOM 树	
+	    children()	-	children() 方法返回被选元素的所有直接子元素。该方法只会向下一级对 DOM 树进行遍历。
+	    	$("div").children("p.1");	-	返回类名为 "1" 的所有 <p> 元素，并且它们是 <div> 的直接子元素：
+	    find()		-	find() 方法返回被选元素的后代元素，一路向下直到最后一个后代。
+	    	$("div").find("*");			-	返回 <div> 的所有后代：
+jQuery 同胞
+	在 DOM 树中水平遍历
+	    siblings()	-	siblings() 方法返回被选元素的所有同胞元素。可以使用可选参数来过滤对同胞元素的搜索。
+	    next()		-	next() 方法返回被选元素的下一个同胞元素。该方法只返回一个元素。
+	    nextAll()	-	nextAll() 方法返回被选元素的所有跟随的同胞元素。
+	    nextUntil()	-	nextUntil() 方法返回介于两个给定参数之间的所有跟随的同胞元素。
+	    prev(), prevAll() 以及 prevUntil() 方法的工作方式与上面的方法类似，只不过方向相反而已：
+	    它们返回的是前面的同胞元素（在 DOM 树中沿着同胞元素向后遍历，而不是向前）。
+	    prev()
+	    prevAll()
+	    prevUntil()
+jQuery 过滤
+	缩写搜索元素的范围
+		三个最基本的过滤方法是：first(), last() 和 eq()，它们允许您基于其在一组元素中的位置来选择一个特定的元素。
+		其他过滤方法，比如 filter() 和 not() 允许您选取匹配或不匹配某项指定标准的元素。
+		first()		-	first() 方法返回被选元素的首个元素。
+		last()		-	last() 方法返回被选元素的最后一个元素。
+		eq()		-	eq() 方法返回被选元素中带有指定索引号的元素。
+		filter()	-	filter() 方法允许您规定一个标准。不匹配这个标准的元素会被从集合中删除，匹配的元素会被返回。
+		not()		-	not() 方法返回不匹配标准的所有元素。not() 方法与 filter() 相反。
+
+	
+三>>		jQuery 效果
+jQuery 隐藏/显示
+	可以使用 hide() 和 show() 方法来隐藏和显示 HTML 元素：
+		$(selector).hide(speed,callback);
+		$(selector).show(speed,callback);
+	可以使用 toggle() 方法来切换 hide() 和 show() 方法。
+		$(selector).toggle(speed,callback);
+		显示被隐藏的元素，并隐藏已显示的元素：
+		
+	可选的 speed 参数规定隐藏/显示的速度，可以取以下值："slow"、"fast" 或毫秒。
+	可选的 callback 参数是隐藏或显示完成后所执行的函数名称。
+jQuery 淡入淡出
+	jQuery Fading 方法
+	    fadeIn()	-	jQuery fadeIn() 用于淡入已隐藏的元素。
+	    	$(selector).fadeIn(speed,callback);
+	    fadeOut()	-	jQuery fadeOut() 方法用于淡出可见元素。
+	    fadeToggle()-	jQuery fadeToggle() 方法可以在 fadeIn() 与 fadeOut() 方法之间进行切换。
+	    fadeTo()	-	jQuery fadeTo() 方法允许渐变为给定的不透明度（值介于 0 与 1 之间）。
+	    	$(selector).fadeTo(speed,opacity,callback);
+	    	-	fadeTo() 必需的 opacity 参数将淡入淡出效果设置为给定的不透明度（值介于 0 与 1 之间）。
+jQuery 滑动
+	jQuery 滑动方法
+	    slideDown()		-	jQuery slideDown() 方法用于向下滑动元素。
+	    	$(selector).slideDown(speed,callback);
+	    slideUp()		-	jQuery slideUp() 方法用于向上滑动元素。
+	    slideToggle()	-	jQuery slideToggle() 方法可以在 slideDown() 与 slideUp() 方法之间进行切换。
+jQuery 动画
+	jQuery 动画 - animate() 方法
+		$(selector).animate({params},speed,callback);
+			必需的 params 参数定义形成动画的 CSS 属性。
+			可选的 speed 参数规定效果的时长。它可以取以下值："slow"、"fast" 或毫秒。
+			可选的 callback 参数是动画完成后所执行的函数名称。
+			$("div").animate({left:'250px'});
+		操作多个属性
+			$("div").animate({
+			    left:'250px',
+			    opacity:'0.5',
+			    height:'150px',
+			    width:'150px'
+			  });	--	操作多个属性
+			  几乎可以用 animate() 方法来操作所有 CSS 属性吗.不过，需要记住一件重要的事情：当使用 animate() 时，必须使用 Camel 标记法书写所有的属性名，
+			  比如，必须使用 paddingLeft 而不是 padding-left，使用 marginRight 而不是 margin-right，等等。
+		使用相对值
+			$("div").animate({
+			    left:'250px',
+			    height:'+=150px',
+			    width:'+=150px'
+			  });	--	使用相对值
+		使用预定义的值
+			$("div").animate({
+			    height:'toggle'
+			  });	--	使用预定义的值	可以把属性的动画值设置为 "show"、"hide" 或 "toggle"：
+		使用队列功能
+			动画的队列功能意味着如果您在彼此之后编写多个 animate() 调用，jQuery 会创建包含这些方法调用的“内部”队列。然后逐一运行这些 animate 调用。
+		    var div=$("div");
+		    div.animate({height:'300px',opacity:'0.4'},"slow");
+		    div.animate({width:'300px',opacity:'0.8'},"slow");
+		    div.animate({height:'100px',opacity:'0.4'},"slow");
+		    div.animate({width:'100px',opacity:'0.8'},"slow");
+			var div=$("div");
+			div.animate({left:'100px'},"slow");
+			div.animate({fontSize:'3em'},"slow");
+jQuery stop()
+	stop() 方法用于在动画或效果完成前对它们进行停止。
+		$(selector).stop(stopAll,goToEnd);
+			可选的 stopAll 参数规定是否应该清除动画队列。默认是 false，即仅停止活动的动画，允许任何排入队列的动画向后执行。
+			可选的 goToEnd 参数规定是否立即完成当前动画。默认是 false。
+			因此，默认地，stop() 会清除在被选元素上指定的当前动画。
+jQuery Callback
+	Callback 函数在当前动画 100% 完成之后执行。
+		$(selector).hide(speed,callback)
+			由于 JavaScript 语句（指令）是逐一执行的 - 按照次序，动画之后的语句可能会产生错误或页面冲突，因为动画还没有完成。
+			为了避免这个情况，您可以以参数的形式添加 Callback 函数。
+jQuery Chaining
+	通过 jQuery，您可以把动作/方法链接起来。
+	Chaining 允许我们在一条语句中允许多个 jQuery 方法（在相同的元素上）。
+	jQuery 方法链接
+		$("#p1").css("color","red").slideUp(2000).slideDown(2000);
+		浏览器就不必多次查找相同的元素。如需链接一个动作，您只需简单地把该动作追加到之前的动作上。
+		*可以按照希望的格式来写，包含折行和缩进。jQuery 会抛掉多余的空格，并按照一行长代码来执行上面的代码行
+	
+四>>		noConflict() 方法
+	jQuery 和其他 JavaScript 框架
+	正如您已经了解到的，jQuery 使用 $ 符号作为 jQuery 的简写。
+	如果其他 JavaScript 框架也使用 $ 符号作为简写怎么办？
+	1.可以通过全名替代简写的方式来使用 jQuery：
+	$.noConflict();
+	jQuery(document).ready(function(){
+	  jQuery("button").click(function(){
+	    jQuery("p").text("jQuery 仍在运行！");
+	  });
+	});
+	2.noConflict() 可返回对 jQuery 的引用，您可以把它存入变量
+	var jq = $.noConflict();
+	jq(document).ready(function(){
+	  jq("button").click(function(){
+	    jq("p").text("jQuery 仍在运行！");
+	  });
+	});
+	3. $ 符号作为变量传递给 ready 方法
+	$.noConflict();
+	jQuery(document).ready(function($){
+	  $("button").click(function(){
+	    $("p").text("jQuery 仍在运行！");
+	  });
+	});
+
+五>>		jQuery 和 DOM 对象
+	//1. 由 jQuery 对象转为 DOM 对象
+	//1). 获取一个 jQuery 对象
+	var $btn = $("button");
+
+	//2). jQuery 对象是一个数组. 
+	alert($btn.length);
+
+	//3). 可以通过数组的下标转为 DOM 对象
+	alert($btn[1].firstChild.nodeValue);
+	
+	//2. 由 DOM 对象转为 jQuery 对象
+	//1). 选取一个 DOM 对象
+	var btn = document.getElementById("btn1");
+	
+	//2). 把 DOM 对象转为一个 jQuery 对象: 使用 $() 进行包装
+	alert("--" + $(btn).text());
+
+六>>		jquery事件
+	事件方法会触发匹配元素的事件，或将函数绑定到所有匹配元素的某个事件。
+	$("button#demo").click();	-	如何手动触发事件
+	上面的例子将触发 id="demo" 的 button 元素的 click 事件。
+	$("button#demo").click(function(){$("img").hide()})
+	
+	bind() 方法	->	unbind
+		bind() 方法为被选元素添加一个或多个事件处理程序，并规定事件发生时运行的函数。
+		$(selector).bind(event,data,function)
+			event	-	必需。规定添加到元素的一个或多个事件。由空格分隔多个事件。必须是有效的事件。
+			替代语法	-	$(selector).bind({event:function, event:function, ...})
+		$("button").bind("click",function(){
+		  $("p").slideToggle();
+		});
+	delegate() 方法	->	undelegate
+		delegate() 方法为指定的元素（属于被选元素的子元素）添加一个或多个事件处理程序，并规定当这些事件发生时运行的函数。
+		使用 delegate() 方法的事件处理程序适用于当前或未来的元素（比如由脚本创建的新元素）。
+		$(selector).delegate(childSelector,event,data,function)
+			childSelector	-	 	必需。规定要附加事件处理程序的一个或多个子元素。
+		$("div").delegate("button","click",function(){
+		  $("p").slideToggle();
+		});
+		**使用 delegate() 方法可以向尚未创建的元素添加事件处理程序。bind只能对已经存在的元素绑定事件。
+	live() 方法	->	die
+		live() 方法为被选元素附加一个或多个事件处理程序，并规定当这些事件发生时运行的函数。
+		通过 live() 方法附加的事件处理程序适用于匹配选择器的当前及未来的元素（比如由脚本创建的新元素）。
+		$(selector).live(event,data,function)
+		$("button").live("click",function(){
+		  $("p").slideToggle();
+		});
+	die() 方法
+		die() 方法移除所有通过 live() 方法向指定元素添加的一个或多个事件处理程序。
+		$(selector).die(event,function)
+	error() 方法
+		当元素遇到错误（没有正确载入）时，发生 error 事件。
+		error() 方法触发 error 事件，或规定当发生 error 事件时运行的函数。
+		$(selector).error()	-	触发 error 事件
+		$("img").error(function(){
+		   $("img").replaceWith("<p><b>图片未加载！</b></p>");
+		});
+		$("button").click(function(){
+		   $("img").error();
+		});
+	preventDefault() 方法
+		event.preventDefault()	-	preventDefault() 方法阻止元素发生默认的行为（例如，当点击提交按钮时阻止对表单的提交）。
+		$("a").click(function(event){
+		  event.preventDefault();
+		});
+	target 属性
+		event.target	-	target 属性规定哪个 DOM 元素触发了该事件。如P DIV
+		$("p, button, h1, h2").click(function(event){
+		  $("div").html("Triggered by a " + event.target.nodeName + " element.");
+		});
+	toggle() 方法
+		toggle() 方法用于绑定两个或多个事件处理器函数，以响应被选元素的轮流的 click 事件。
+		$(selector).toggle(function1(),function2(),functionN(),...)	-	向 Toggle 事件绑定两个或更多函数
+		$(selector).toggle(speed,callback)	-	切换 Hide() 和 Show()
+		$(selector).toggle(switch)			-	规定是否只显示或只隐藏所有匹配的元素。switch布尔值
+		  $("button").toggle(function(){
+		    $("body").css("background-color","green");},
+		    function(){
+		    $("body").css("background-color","red");},
+		    function(){
+		    $("body").css("background-color","yellow");}
+		  );
+	trigger() 方法
+		trigger() 方法触发被选元素的指定事件类型。
+		$(selector).trigger(event,[param1,param2,...])
+		触发事件
+			$("input").trigger("select");	-	$("input").select();
+			$("input").select(function(){
+			   $("input").after("文本被选中！");
+			});
+		使用 Event 对象来触发事件
+		$(selector).trigger(eventObj)
+			var e = jQuery.Event("select");
+			$("input").trigger(e);
+	triggerHandler() 方法
+		与 trigger() 方法相比的不同之处
+		    1*它不会引起事件（比如表单提交）的默认行为
+		    2.trigger() 会操作 jQuery 对象匹配的所有元素，而 .triggerHandler() 只影响第一个匹配元素。
+		    3由 .triggerHandler() 创建的事件不会在 DOM 树中冒泡；如果目标元素不直接处理它们，则不会发生任何事情。
+		    4该方法的返回的是事件处理函数的返回值，而不是具有可链性的 jQuery 对象。此外，如果没有处理程序被触发，
+		    	则这个方法返回 undefined。
+		$("input").triggerHandler("select");
+		
+七>>		jQuery 文档操作方法
+	元素外前后操作
+		after()		->		insertAfter()
+		before()	->		insertBefore()
+	元素内前后操作
+		append()	->		appendTo()
+		prepend()	->		prependTo()
+	wrap() 方法
+		wrap() 方法把每个被选元素放置在指定的 HTML 内容或元素中。
+		$(selector).wrap(wrapper)
+			wrapper可能的值:
+			    HTML 代码 - 比如 ("<div></div>")
+			    新元素 - 比如 (document.createElement("div"))
+			     已存在的元素 - 比如 ($(".div1"))
+				已存在的元素不会被移动，只会被复制，并包裹被选元素。
+		$("p").wrap("<div></div>");	->	$("p").unwrap();
+		$("p").wrap(document.createElement("div"));
+	wrapAll() 方法
+		wrapAll() 在指定的 HTML 内容或元素中放置所有被选的元素。
+		$("p").wrapAll("<div></div>");	-	用一个 div 包裹所有段落
+	wrapInner() 方法
+		wrapInner() 方法使用指定的 HTML 内容或元素，来包裹每个被选元素中的所有内容 (inner HTML)。
+		$(selector).wrapInner(wrapper)
+		$("p").wrapInner("<b></b>");	-	在每个 p 元素的内容上包围 b 元素：
+		
+八>>		jQuery 遍历函数
+	each() 方法
+		each() 方法规定为每个匹配元素规定运行的函数。返回 false 可用于及早停止循环。
+		$(selector).each(function(index,element))
+		    index - 选择器的 index 位置
+		    element - 当前的元素（也可使用 "this" 选择器）
+		$("li").each(function(){
+			alert($(this).text())
+		});
+	find() 方法
+		find() 方法获得当前元素集合中每个元素的后代，通过选择器、jQuery 对象或元素来筛选。
+		.find(selector)
+		如果给定一个表示 DOM 元素集合的 jQuery 对象，.find() 方法允许我们在 DOM 树中搜索这些元素的后代，并用匹配元素来构造一个新的 jQuery 对象。
+		.find() 与 .children() 方法类似，不同的是后者仅沿着 DOM 树向下遍历单一层级。
+		$('li.item-ii').find('li');	->	$('li', 'li.item-ii')
+	map() 方法
+		map() 把每个元素通过函数传递到当前匹配集合中，生成包含返回值的新的 jQuery 对象。
+		.map(callback(index,domElement))
+		由于返回值是 jQuery 封装的数组，使用 get() 来处理返回的对象以得到基础的数组。
+		.map() 方法对于获得或设置元素集的值特别有用。
+		获得复选框 ID 组成的逗号分隔的列表
+			$(':checkbox').map(function() {
+			  return this.id;
+			}).get().join(',');
+		构建表单中所有值的列表
+			$("p").append( $("input").map(function(){
+			  return $(this).val();
+			}).get().join(", ") );
+	 add() 方法
+	 	add() 方法将元素添加到匹配元素的集合中。
+ 		.add(selector)
+ 		.add(elements)
+ 		.add(html)
+ 		.add(jQueryObject)
+ 		.add(selector, context)
+ 		找到所有 div 并添加边框。然后将所有段落添加到该 jQuery 对象，并把它们的背景设置为黄色：
+ 			$("div").css("border", "2px solid red").add("p").css("background", "yellow");
+ 			
+ 九>>		jQuery 数据操作函数
+ 	data() 方法
+ 		data() 方法向被选元素附加数据，或者从被选元素获取数据。
+ 		$(selector).data(name)			-	从被选元素中返回附加的数据。
+ 		$(selector).data(name,value)	-	向被选元素附加数据。
+ 		$(selector).data(object)		-	使用带有名称/值对的对象向被选元素添加数据。
+ 		testObj=new Object();
+ 		
+		testObj.greetingMorn="Good Morning!";
+		testObj.greetingEve="Good Evening!";
+		$("#btn1").click(function(){
+		  $("div").data(testObj);
+		});
+		$("#btn2").click(function(){
+		  alert($("div").data("greetingEve"));
+		});
+		
+		$("div").removeData("greeting");
+	
+十>>		jQuery DOM 元素方法
+	get() 方法
+		get() 方法获得由选择器指定的 DOM 元素。
+		$(selector).get(index)
+		index	可选。规定获取哪个匹配元素（通过 index 编号）。没有index返回数组
+		x=$("p").get(0);
+		$("div").text(x.nodeName + ": " + x.innerHTML);
+	index() 方法
+		index() 方法返回指定元素相对于其他指定元素的 index 位置。这些元素可通过 jQuery 选择器或 DOM 元素来指定。
+		如果未找到元素，index() 将返回 -1。
+		$(selector).index()	-	获得第一个匹配元素相对于其同胞元素的 index 位置。
+		$(selector).index(element)	-	元素的 index，相对于选择器
+	size() 方法	-	length
+		size() 方法返回被 jQuery 选择器匹配的元素的数量。
+	toArray() 方法
+		toArray() 方法以数组的形式返回 jQuery 选择器匹配的元素。
+		$(selector).toArray()	-	$(selector).get()
+		
+		x=$("li").toArray()
+		for (i=0;i<x.length;i++)
+		{
+		    alert(x[i].innerHTML);
+		}
+		
+
+	

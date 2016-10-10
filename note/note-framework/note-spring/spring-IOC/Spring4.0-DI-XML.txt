@@ -1,0 +1,418 @@
+Spring4.0 是 Spring 推出的一个重大版本升级，进一步加强了 Sring 作为 Java 领域第一开源平台的地位。Spring4.0 引入了众多 Java 开发者期盼的新特性，
+如泛型依赖注入、SpEL、校验及格式化框架、Rest风格的 WEB 编程模型等。这些新功能实用性强、易用性高，可大幅降低 JavaEE 开发的难度，同时有效提升应用开发的优雅性。
+
+Spring 是一个开源框架.
+Spring 为简化企业级应用开发而生. 使用 Spring 可以使简单的 JavaBean 实现以前只有 EJB 才能实现的功能.
+*Spring 是一个 IOC(DI) 和 AOP 容器框架.
+
+具体描述 Spring:
+	轻量级：Spring 是非侵入性的 - 基于 Spring 开发的应用中的对象可以不依赖于 Spring 的 API
+	依赖注入(DI --- dependency injection、IOC	Inversion of Control)
+	面向切面编程(AOP --- aspect oriented programming)
+	容器: Spring 是一个容器, 因为它包含并且管理应用对象的生命周期
+	框架: Spring 实现了使用简单的组件配置组合成一个复杂的应用. 在 Spring 中可以使用 XML 和 Java 注解组合这些对象
+	一站式：在 IOC 和 AOP 的基础上可以整合各种企业应用的开源框架和优秀的第三方类库 （实际上 Spring 自身也提供了展现层的 SpringMVC 和 持久层的 Spring JDBC）
+
+搭建 Spring 开发环境
+	把以下 jar 包加入到工程的 classpath 下:
+		commons-logging-1.1.1.jar
+		spring-beans-4.0.0.RELEASE.jar
+		spring-context-4.0.0.RELEASE.jar
+		spring-core-4.0.0.RELEASE.jar
+		spring-expression-4.0.0.RELEASE.jar
+	Spring 的配置文件: 一个典型的 Spring 项目需要创建一个或多个 Bean 配置文件, 这些配置文件用于在 Spring IOC 容器里配置 Bean. 
+	Bean 的配置文件可以放在 classpath 下, 也可以放在其它目录下.
+	
+目录：
+	IOC & DI 概述
+	配置 bean
+		配置形式：基于 XML 文件的方式；基于注解的方式
+		Bean 的配置方式：通过全类名（反射）、通过工厂方法（静态工厂方法 & 实例工厂方法）、FactoryBean
+		IOC 容器 BeanFactory & ApplicationContext 概述
+		依赖注入的方式：属性注入；构造器注入
+		注入属性值细节
+		自动转配
+		bean 之间的关系：继承；依赖
+		bean 的作用域：singleton；prototype；WEB 环境作用域
+		使用外部属性文件
+		spEL 
+		IOC 容器中 Bean 的生命周期
+		Spring 4.x 新特性：泛型依赖注入
+
+	
+IOC & DI 概述
+	- IOC(Inversion of Control)：其思想是反转资源获取的方向. 传统的资源查找方式要求组件向容器发起请求查找资源. 作为回应, 容器适时的返回资源. 
+	而应用了 IOC 之后, 则是容器主动地将资源推送给它所管理的组件, 组件所要做的仅是选择一种合适的方式来接受资源. 这种行为也被称为查找的被动形式
+		IOC 前生 --- 分离接口与实现
+		IOC 前生 --- 采用工厂设计模式
+		IOC --- 采用反转控制
+	- DI(Dependency Injection) — IOC 的另一种表述方式：即组件以一些预先定义好的方式(例如: setter 方法)接受来自如容器的资源注入. 相对于 IOC 而言，这种表述更直接
+
+配置 bean
+	配置形式：基于 XML 文件的方式；基于注解的方式
+		基于注解的方式（基于注解配置 Bean；基于注解来装配 Bean 的属性）
+							
+	Bean 的配置方式：通过全类名（反射）、通过工厂方法（静态工厂方法 & 实例工厂方法）、FactoryBean	
+		通过全类名（反射）
+			<bean id = "helloWorld" class="com.johnny.spring.beans.helloworld.HelloWorld">
+				<property name="user" value="johnny"></property>
+			</bean>
+			id：Bean 的名称。
+			在 IOC 容器中必须是唯一的
+			若 id 没有指定，Spring 自动将权限定性类名作为 Bean 的名字
+			id 可以指定多个名字，名字之间可用逗号、分号、或空格分隔
+		通过工厂方法（静态工厂方法 & 实例工厂方法）
+			通过调用静态工厂方法创建 Bean
+				-调用静态工厂方法创建 Bean是将对象创建的过程封装到静态方法中. 当客户端需要对象时, 只需要简单地调用静态方法, 而不同关心创建对象的细节.
+				-要声明通过静态方法创建的 Bean, 需要在 Bean 的 class 属性里指定拥有该工厂的方法的类, 同时在 factory-method 属性里指定工厂方法的名称. 
+				最后, 使用 <constrctor-arg> 元素为该方法传递方法参数.
+					<!-- 通过工厂方法的方式来配置 bean -->
+					<!-- 1. 通过静态工厂方法: 一个类中有一个静态方法, 可以返回一个类的实例(了解) -->
+					<!-- 在 class 中指定静态工厂方法的全类名, 在 factory-method 中指定静态工厂方法的方法名 -->
+					<bean id="dateFormat" class="java.text.DateFormat" factory-method="getDateInstance">
+						<!-- 可以通过 constructor-arg 子节点为静态工厂方法指定参数 -->
+						<constructor-arg value="2"></constructor-arg>
+					</bean>
+			通过调用实例工厂方法创建 Bean
+				实例工厂方法: 将对象的创建过程封装到另外一个对象实例的方法里. 当客户端需要请求对象时, 只需要简单的调用该实例方法而不需要关心对象的创建细节.
+				要声明通过实例工厂方法创建的 Bean
+					在 bean 的 factory-bean 属性里指定拥有该工厂方法的 Bean
+					在 factory-method 属性里指定该工厂方法的名称
+					使用 construtor-arg 元素为工厂方法传递方法参数
+					<!-- 2. 实例工厂方法: 先需要创建工厂对象, 再调用工厂的非静态方法返回实例(了解) -->
+					<!-- ①. 创建工厂对应的 bean -->
+					<bean id="simpleDateFormat" class="java.text.SimpleDateFormat">
+						<constructor-arg value="yyyy-MM-dd hh:mm:ss"></constructor-arg>
+					</bean>
+					
+					<!-- ②. 有实例工厂方法来创建 bean 实例 -->
+					<!-- factory-bean 指向工厂 bean, factory-method 指定工厂方法(了解) -->
+					<bean id="datetime" factory-bean="simpleDateFormat" factory-method="parse">
+						<!-- 通过 constructor-arg 执行调用工厂方法需要传入的参数 -->
+						<constructor-arg value="1990-12-12 12:12:12"></constructor-arg>
+					</bean>
+		实现 FactoryBean 接口在 Spring IOC 容器中配置 Bean
+			Spring 中有两种类型的 Bean, 一种是普通Bean, 另一种是工厂Bean, 即FactoryBean. 
+			工厂 Bean 跟普通Bean不同, 其返回的对象不是指定类的一个实例, 其返回的是该工厂 Bean 的 getObject 方法所返回的对象 
+			- 例子：
+				<!-- 配置通过 FactroyBean 的方式来创建 bean 的实例(了解) -->
+				<bean id="car3" class="com.johnny.spring.beans.factory.CarFactoryBean">
+					<constructor-arg name="brand" value="bmw"></constructor-arg>
+				</bean>
+					
+	IOC 容器 BeanFactory & ApplicationContext 概述	- 	-	applicationContext.xml
+		在 Spring IOC 容器读取 Bean 配置创建 Bean 实例之前, 必须对它进行实例化. 只有在容器实例化后, 才可以从 IOC 容器里获取 Bean 实例并使用.
+		Spring 提供了两种类型的 IOC 容器实现. 
+			-BeanFactory: IOC 容器的基本实现.
+			-ApplicationContext: 提供了更多的高级特性. 是 BeanFactory 的子接口.
+				ApplicationContext
+					-ApplicationContext 的主要实现类：
+						-ClassPathXmlApplicationContext：从 类路径下加载配置文件
+						-FileSystemXmlApplicationContext: 从文件系统中加载配置文件
+					-ConfigurableApplicationContext 扩展于 ApplicationContext，新增加两个主要方法：refresh() 和 close()，
+					 让 ApplicationContext 具有启动、刷新和关闭上下文的能力
+					-ApplicationContext 在初始化上下文时就实例化所有单例的 Bean。
+					-WebApplicationContext 是专门为 WEB 应用而准备的，它允许从相对于 WEB 根目录的路径中完成初始化工作
+				从 IOC 容器中获取 Bean
+					调用 ApplicationContext 的 getBean() 方法
+						-通过id
+						-通过类的class
+			-BeanFactory 是 Spring 框架的基础设施，面向 Spring 本身；ApplicationContext 面向使用 Spring 框架的开发者，
+			几乎所有的应用场合都直接使用 ApplicationContext 而非底层的 BeanFactory
+			-无论使用何种方式, 配置文件是相同的.
+			实例：
+				//1. 创建 Spring 的 IOC 容器 , 加载 配置文件，创建配置文件下的bean，包括对property赋值
+				ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+				
+				//2. 从 IOC 容器中获取 bean 的实例
+				HelloWorld helloWorld = (HelloWorld) ctx.getBean("helloWorld");
+				//根据类型来获取 bean 的实例: 要求在  IOC 容器中只有一个与之类型匹配的 bean, 若有多个则会抛出异常. 
+				//一般情况下, 该方法可用, 因为一般情况下, 在一个 IOC 容器中一个类型对应的 bean 也只有一个. 
+				//		通过类的class,不需要强转
+				//		HelloWorld helloWorld1 = ctx.getBean(HelloWorld.class);
+				//3. 使用 bean
+				helloWorld.hello();
+		
+	依赖注入的方式：属性注入；构造器注入
+		Spring 支持 3 种依赖注入的方式
+			-属性注入
+				-属性注入即通过 setter 方法注入Bean 的属性值或依赖的对象
+				-属性注入使用 <property> 元素, 使用 name 属性指定 Bean 的属性名称，value 属性或 <value> 子节点指定属性值 
+				-属性注入是实际应用中最常用的注入方式
+				- 例子：
+					<!-- 导入外部的资源文件 -->
+					<context:property-placeholder location="classpath:jdbc.properties"/>
+					
+					<!-- 配置数据源 -->
+					<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+						<property name="user" value="${jdbc.user}"></property>
+						<property name="password" value="${jdbc.password}"></property>
+						<property name="driverClass" value="${jdbc.driverClass}"></property>
+						<property name="jdbcUrl" value="${jdbc.jdbcUrl}"></property>
+					</bean>
+			-构造器注入
+				-通过构造方法注入Bean 的属性值或依赖的对象，它保证了 Bean 实例在实例化后就可以使用。
+				-构造器注入在 <constructor-arg> 元素里声明属性, <constructor-arg> 中没有 name 属性
+					-按索引匹配入参
+					-按类型匹配入参：
+				- 例子：
+					<!-- 默认情况下 bean 是单例的! -->
+					<!-- 但有的时候, bean 就不能使单例的. 例如: Struts2 的 Action 就不是单例的! 可以通过 scope 属性来指定 bean 的作用域 -->
+					<!--  
+						prototype: 原型的. 每次调用 getBean 方法都会返回一个新的 bean. 且在第一次调用 getBean 方法时才创建实例
+						singleton: 单例的. 每次调用 getBean 方法都会返回同一个 bean. 且在 IOC 容器初始化时即创建 bean 的实例. 默认值 
+					-->
+					<bean id="car" class="com.johnny.spring.beans.helloworld.Car" scope="prototype">
+						<constructor-arg value="KUGA" index="1"></constructor-arg>
+						<constructor-arg value="ChangAnFord" index="0"></constructor-arg>
+						<constructor-arg value="250000" type="float"></constructor-arg>
+					</bean>
+			-工厂方法注入（很少使用，不推荐）
+		
+	注入属性值细节
+		字面值
+			-字面值：可用字符串表示的值，可以通过 <value> 元素标签或 value 属性进行注入。
+			-基本数据类型及其封装类、String 等类型都可以采取字面值注入的方式
+			-若字面值中包含特殊字符，可以使用 <![CDATA[]]> 把字面值包裹起来。
+		引用其它 Bean			
+			-组成应用程序的 Bean 经常需要相互协作以完成应用程序的功能. 要使 Bean 能够相互访问, 就必须在 Bean 配置文件中指定对 Bean 的引用
+			-在 Bean 的配置文件中, 可以通过 <ref> 元素或 ref  属性为 Bean 的属性或构造器参数指定对 Bean 的引用. 
+			-也可以在属性或构造器里包含 Bean 的声明, 这样的 Bean 称为内部 Bean
+				-当 Bean 实例仅仅给一个特定的属性使用时, 可以将其声明为内部 Bean. 内部 Bean 声明直接包含在 <property> 或 <constructor-arg> 元素里, 
+				不需要设置任何 id 或 name 属性.
+				-内部 Bean 不能使用在任何其他地方
+		注入参数详解：null 值和级联属性
+			-可以使用专用的 <null/> 元素标签为 Bean 的字符串或其它对象类型的属性注入 null 值
+			-和 Struts、Hibernate 等框架一样，Spring 支持级联属性的配置。
+		集合属性
+			-在 Spring中可以通过一组内置的 xml 标签(例如: <list>, <set> 或 <map>) 来配置集合属性.
+			-配置 java.util.List 类型的属性, 需要指定 <list>  标签, 在标签里包含一些元素. 这些标签可以通过 <value> 指定简单的常量值,
+			 通过 <ref> 指定对其他 Bean 的引用. 通过<bean> 指定内置 Bean 定义. 通过 <null/> 指定空元素. 甚至可以内嵌其他集合.
+			-数组的定义和 List 一样, 都使用 <list>
+			-配置 java.util.Set 需要使用 <set> 标签, 定义元素的方法与 List 一样.
+			-Java.util.Map 通过 <map> 标签定义, <map> 标签里可以使用多个 <entry> 作为子标签. 每个条目包含一个键和一个值. 
+			-必须在 <key> 标签里定义键
+			-因为键和值的类型没有限制, 所以可以自由地为它们指定 <value>, <ref>, <bean> 或 <null> 元素. 
+			-可以将 Map 的键和值作为 <entry> 的属性定义: 简单常量使用 key 和 value 来定义; Bean 引用通过 key-ref 和 value-ref 属性定义
+			-使用 <props> 定义 java.util.Properties, 该标签使用多个 <prop> 作为子标签. 每个 <prop> 标签必须定义 key 属性. 
+		使用 utility scheme 定义集合
+			-使用基本的集合标签定义集合时, 不能将集合作为独立的 Bean 定义, 导致其他 Bean 无法引用该集合, 所以无法在不同 Bean 之间共享集合.
+			-可以使用 util schema 里的集合标签定义独立的集合 Bean. 需要注意的是, 必须在 <beans> 根元素里添加 util schema 定义
+		使用 p 命名空间
+			-为了简化 XML 文件的配置，越来越多的 XML 文件采用属性而非子元素配置信息。
+			-Spring 从 2.5 版本开始引入了一个新的 p 命名空间，可以通过 <bean> 元素属性的方式配置 Bean 的属性。
+			-使用 p 命名空间后，基于 XML 的配置方式将进一步简化
+			<bean id="person6" abstract="true" p:age="10" p:name="johnny"/>
+		
+		- 例子：
+			<bean id="car" class="com.johnny.spring.beans.helloworld.Car">
+				<constructor-arg value="KUGA" index="1"></constructor-arg>
+				<constructor-arg value="ChangAnFord" index="0"></constructor-arg>
+				<constructor-arg value="250000" type="float"></constructor-arg>
+			</bean>
+		
+			<bean id="car2" class="com.johnny.spring.beans.helloworld.Car">
+				<constructor-arg>
+					<value>ChangAnMazda</value>
+				</constructor-arg>
+				<!-- 若字面值中包含特殊字符, 则可以使用 DCDATA 来进行赋值. (了解) -->
+				<constructor-arg>
+					<value><![CDATA[<ATARZA>]]></value>
+				</constructor-arg>
+				<constructor-arg value="180" type="int"></constructor-arg>
+			</bean>
+			
+			<bean id="personList" class="com.johnny.spring.beans.helloworld.PersonList">
+				<property name="userName" value="Johnny" />
+				<property name="cars">
+					<list>
+						<ref bean="car" />
+						<ref bean="car2" />
+					</list>
+				</property>
+			</bean>
+		
+			<bean id="personMap" class="com.johnny.spring.beans.helloworld.PersonMap">
+				<property name="name" value="Johnny" />
+				<property name="cars">
+					<map>
+						<entry key="AA" value-ref="car"></entry>
+						<entry key="BB" value-ref="car2"></entry>
+					</map>
+				</property>
+			</bean>
+			
+			<!-- 配置Properties属性值 -->
+			<bean id ="dataSource" class="com.johnny.spring.beans.helloworld.DataSource">
+				<property name="properties">
+					<props>
+						<prop key="username">root</prop>
+						<prop key="password">123456</prop>
+						<prop key="jdbcUrl">jdbc:mysql///test</prop>
+					</props>
+				</property>
+			</bean>
+			
+			<!-- 声明集合类型的 bean ,需要导入util命名空间-->
+			<util:list id="cars">
+				<ref bean="car"/>
+				<ref bean="car2"/>
+			</util:list>
+			
+			<bean id="personList2" class="com.johnny.spring.beans.helloworld.PersonList">
+				<property name="userName" value="Johnny" />
+				<property name="cars" ref="cars"/>
+			</bean>
+			
+	自动转配	-	beans-autowire.xml
+		XML 配置里的 Bean 自动装配
+			-Spring IOC 容器可以自动装配 Bean. 需要做的仅仅是在 <bean> 的 autowire 属性里指定自动装配的模式
+			-byType(根据类型自动装配): 若 IOC 容器中有多个与目标 Bean 类型一致的 Bean. 在这种情况下, Spring 将无法判定哪个 Bean 最合适该属性, 所以不能执行自动装配.
+			-byName(根据名称自动装配): 必须将目标 Bean 的名称和属性名设置的完全相同.
+			-constructor(通过构造器自动装配): 当 Bean 中存在多个构造器时, 此种自动装配方式将会很复杂. 不推荐使用
+		XML 配置里的 Bean 自动装配的缺点
+			-在 Bean 配置文件里设置 autowire 属性进行自动装配将会装配 Bean 的所有属性. 然而, 若只希望装配个别属性时, autowire 属性就不够灵活了. 
+			- autowire 属性要么根据类型自动装配, 要么根据名称自动装配, 不能两者兼而有之.
+			- *一般情况下，在实际的项目中很少使用自动装配功能，因为和自动装配功能所带来的好处比起来，明确清晰的配置文档更有说服力一些
+		- 例子：
+			<!-- 自动装配: 只声明 bean, 而把 bean 之间的关系交给 IOC 容器来完成 -->
+			<!--  
+				byType: 根据类型进行自动装配. 但要求 IOC 容器中只有一个类型对应的 bean, 若有多个则无法完成自动装配.
+				byName: 若属性名和某一个 bean 的 id 名一致, 即可完成自动装配. 若没有 id 一致的, 则无法完成自动装配
+			-->
+			<!-- 在使用 XML 配置时, 自动转配用的不多. 但在基于 注解 的配置时, 自动装配使用的较多.  -->
+			<bean id="dao" class="com.johnny.spring.beans.autowire.Dao">
+				<property name="dataSource" value="C3P0"></property>				
+			</bean>
+			<bean id="service" class="com.johnny.spring.beans.autowire.Service" autowire="byName"></bean>
+			
+			<bean id="action" class="com.johnny.spring.beans.autowire.Action" autowire="byType"></bean>
+			
+	bean 之间的关系：继承；依赖		-	applicationContext.xml
+		继承 Bean 配置
+			-Spring 允许继承 bean 的配置, 被继承的 bean 称为父 bean. 继承这个父 Bean 的 Bean 称为子 Bean
+			-子 Bean 从父 Bean 中继承配置, 包括 Bean 的属性配置
+			-子 Bean 也可以覆盖从父 Bean 继承过来的配置
+			-父 Bean 可以作为配置模板, 也可以作为 Bean 实例. 若只想把父 Bean 作为模板, 可以设置 <bean> 的abstract 属性为 true, 这样 Spring 将不会实例化这个 Bean
+			-并不是 <bean> 元素里的所有属性都会被继承. 比如: autowire, abstract 等.
+			-也可以忽略父 Bean 的 class 属性, 让子 Bean 指定自己的类, 而共享相同的属性配置. 但此时 abstract 必须设为 true
+		依赖 Bean 配置
+			-Spring 允许用户通过 depends-on 属性设定 Bean 前置依赖的Bean，前置依赖的 Bean 会在本 Bean 实例化之前创建好
+			-如果前置依赖于多个 Bean，则可以通过逗号，空格或的方式配置 Bean 的名称
+			
+	bean 的作用域：singleton；prototype；WEB 环境作用域
+		-在 Spring 中, 可以在 <bean> 元素的 scope 属性里设置 Bean 的作用域. 
+		-默认情况下, Spring 只为每个在 IOC 容器里声明的 Bean 创建唯一一个实例, 整个 IOC 容器范围内都能共享该实例：
+		所有后续的 getBean() 调用和 Bean 引用都将返回这个唯一的 Bean 实例.该作用域被称为 singleton, 它是所有 Bean 的默认作用域.
+		Bean作用域：
+			prototype: 原型的. 每次调用 getBean 方法都会返回一个新的 bean. 且在第一次调用 getBean 方法时才创建实例
+			singleton: 单例的. 每次调用 getBean 方法都会返回同一个 bean. 且在 IOC 容器初始化时即创建 bean 的实例. 默认值 
+			request:每次HTTP请求都会创建一个新的bean，该作用于仅限于WebApplicationContext环境
+			session：同一个Http Session共享一个bean，不同HTTP Session使用不同的Bean。该作用于仅限于WebApplicationContext环境
+			
+			
+	使用外部属性文件
+		-在配置文件里配置 Bean 时, 有时需要在 Bean 的配置里混入系统部署的细节信息(例如: 文件路径, 数据源配置信息等). 而这些部署细节实际上需要和 Bean 配置相分离
+		-Spring 提供了一个 PropertyPlaceholderConfigurer 的 BeanFactory 后置处理器, 这个处理器允许用户将 Bean 配置的部分内容外移到属性文件中.
+		 可以在 Bean 配置文件里使用形式为 ${var} 的变量, PropertyPlaceholderConfigurer 从属性文件里加载属性, 并使用这些属性来替换变量.
+		-Spring 还允许在属性文件中使用 ${propName}，以实现属性之间的相互引用。
+		注册 PropertyPlaceholderConfigurer 
+		Spring 2.0:
+			<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+				<property name="location" value="classpath:jdbc.properties"></property>
+			</bean>
+		Spring 2.5 之后: 可通过 <context:property-placeholder> 元素简化:
+			<beans> 中添加 context Schema 定义
+			在配置文件中加入如下配置: 
+			<context:property-placeholder location="classpath:jdbc.properties"/>		
+	spEL 
+		Spring 表达式语言（简称SpEL）：是一个支持运行时查询和操作对象图的强大的表达式语言。
+			语法类似于 EL：SpEL 使用 #{…} 作为定界符，所有在大框号中的字符都将被认为是 SpEL
+			*SpEL 为 bean 的属性进行动态赋值提供了便利
+			通过 SpEL 可以实现：
+				通过 bean 的 id 对 bean 进行引用
+				调用方法以及引用对象中的属性
+				计算表达式的值
+				正则表达式的匹配
+		
+		SpEL：字面量
+			字面量的表示：
+			整数：<property name="count" value="#{5}"/>
+			小数：<property name="frequency" value="#{89.7}"/>
+			科学计数法：<property name="capacity" value="#{1e4}"/>
+			String可以使用单引号或者双引号作为字符串的定界符号：<property name=“name” value="#{'Chuck'}"/> 或 <property name='name' value='#{"Chuck"}'/>
+			Boolean：<property name="enabled" value="#{false}"/>
+	
+		SpEL：引用 Bean、属性和方法
+			-引用其他对象：
+				<property name="cars" value="#{cars}"/>
+			-引用其他对象的属性
+				<!-- 测试 SpEL: 可以为属性进行动态的赋值(了解) -->
+				<bean id="girl" class="com.johnny.spring.beans.helloworld.User">
+					<property name="userName" value="周迅"></property>
+				</bean>
+				
+				<bean id="boy" class="com.johnny.spring.beans.helloworld.User" init-method="init" destroy-method="destroy">
+					<property name="userName" value="高胜远"></property>
+					<property name="wifeName" value="#{girl.userName}"></property>
+				</bean>
+			-调用其他方法，还可以链式操作
+				<property name="name" value="#{cars.toString()}"/>
+				<property name="name" value="#{cars.toString().toUpperCase()}"/>
+			-调用静态方法或静态属性：通过 T() 调用一个类的静态方法，它将返回一个 Class Object，然后再调用相应的方法或属性： 
+				<property name="name" value="#{T(java.lang.Math).PI}"/>
+			
+		SpEL支持的运算符号
+			算数运算符：+, -, *, /, %, ^：
+				<property name="amount" value="#{T(java.lang.Math).PI*cicle.radio^2}"/>
+			加号还可以用作字符串连接：
+				<constructor-arg value="#{performer.firstname+' '+performer.lastname}"/>
+			比较运算符： <, >, ==, <=, >=, lt, gt, eq, le, ge
+				<property name="equal" value="#{couter.total == 100}"/>
+			逻辑运算符号： and, or, not, |
+				<property name="equal" value="#{couter.total == 100 and shap.dd gt 100}"/>
+			if-else 运算符：?: (ternary), ?: (Elvis)
+				<constructor-arg value="#{car.amount >3000?'':''} />
+			if-else 的变体
+			正则表达式：matches
+			
+	IOC 容器中 Bean 的生命周期
+		Spring IOC 容器可以管理 Bean 的生命周期, Spring 允许在 Bean 生命周期的特定点执行定制的任务. 
+		Spring IOC 容器对 Bean 的生命周期进行管理的过程:
+			1.通过构造器或工厂方法创建 Bean 实例
+			2.为 Bean 的属性设置值和对其他 Bean 的引用
+			3.调用 Bean 的初始化方法
+			4.Bean 可以使用了
+			5.当容器关闭时, 调用 Bean 的销毁方法
+		在 Bean 的声明里设置 init-method 和 destroy-method 属性, 为 Bean 指定初始化和销毁方法.
+		
+		创建 Bean 后置处理器	-	MyBeanPostProcessor
+			-Bean 后置处理器允许在调用初始化方法前后对 Bean 进行额外的处理.
+			-Bean 后置处理器对 IOC 容器里的所有 Bean 实例逐一处理, 而非单一实例. 其典型应用是: 检查 Bean 属性的正确性或根据特定的标准更改 Bean 的属性.
+			-对Bean 后置处理器而言, 需要实现BeanPostProcessor接口. 在初始化方法被调用前后, Spring 将把每个 Bean 实例分别传递给上述接口的以下两个方法:
+				postProcessBeforeInitialization(Object bean, String beanName)
+				postProcessAfterInitialization(Object bean, String beanName)
+		Spring IOC 容器对 Bean 的生命周期进行管理的过程:
+			- 通过构造器或工厂方法创建 Bean 实例
+			- 为 Bean 的属性设置值和对其他 Bean 的引用
+			- 将 Bean 实例传递给 Bean 后置处理器的 postProcessBeforeInitialization 方法
+			- 调用 Bean 的初始化方法
+			- 将 Bean 实例传递给 Bean 后置处理器的 postProcessAfterInitialization方法
+			- Bean 可以使用了
+			- 当容器关闭时, 调用 Bean 的销毁方法
+		- 例子：
+		<bean id="car" class="com.johnny.spring.beans.cycle.Car" init-method="init" destroy-method="destory">
+			<property name="model" value="bmw"></property>
+		</bean>	
+			
+	Spring 4.x 新特性：泛型依赖注入
+		Spring 4.x 中可以为子类注入子类对应的泛型类型的成员变量的引用	
+		
+整合多个配置文件
+	Spring 允许通过 <import> 将多个配置文件引入到一个文件中，进行配置文件的集成。这样在启动 Spring 容器时，仅需要指定这个合并好的配置文件就可以。
+	import 元素的 resource 属性支持 Spring 的标准的路径资源
+	<import resource=""/>
+		classpath:		classpath:spring-mvc.xml				从类路径下加载
+		file:			file:/conf/security/spring-shiro.xml
+		http://			http://www.xxx.com/beans.xml
+		ftp://			ftp://www.xxx.com/beans.xml
