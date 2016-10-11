@@ -1,0 +1,248 @@
+AWR 是 Oracle  10g 版本 推出的新特性， 全称叫Automatic Workload Repository-自动负载信息库, AWR 是通过对比两次快照(snapshot)收集到的统计信息，
+来生成报表数据，生成的报表包括多个部分
+
+WORKLOAD REPOSITORY report for
+	WORKLOAD REPOSITORY report for
+	DB Name		DB Id		Instance	Inst num	Startup Time	Release	RAC
+	SCRMPROD	2893839649	scrmprod2	2			09-10月-16 20:10	11.2.0.4.0	YES
+	
+	Host Name	Platform	CPUs	Cores	Sockets	Memory (GB)
+	scrmproddb02	Linux x86 64-bit	32	16	2	31.23
+	
+				Snap Id	Snap Time			Sessions	Cursors/Session	Instances
+	Begin Snap:	1099	10-10月-16 15:00:08	138			5.9				2
+	End Snap:	1100	10-10月-16 16:00:12	165			6.2				2
+	Elapsed:	 		60.05 (mins)	 	 	 
+	DB Time:	 		26.11 (mins)	 	 
+	
+	DB Time不包括Oracle后台进程消耗的时间。
+	**如果DB Time远远小于Elapsed时间，说明数据库比较空闲。 db time越小越好
+	db time= cpu time + wait time（不包含空闲等待） （非后台进程）说白了就是db time就是记录的服务器花在数据库运算(非后台进程)和等待(非空闲等待)上的时间
+	DB time = cpu time + all of nonidle wait event time
+	在79分钟里（其间收集了3次快照数据），数据库耗时11分钟，RDA数据中显示系统有8个逻辑CPU（4个物理CPU），平均每个CPU耗时1.4分钟，CPU利用率只有大约2%（1.4/79）。说明系统压力非常小。
+	
+	
+	列出下面这两个来做解释：
+	Report A:
+		Snap Id Snap Time Sessions Curs/Sess
+		--------- ------------------- -------- ---------
+		Begin Snap: 4610 24-Jul-08 22:00:54 68 19.1
+		End Snap: 4612 24-Jul-08 23:00:25 17 1.7
+		Elapsed: 59.51 (mins)
+		DB Time: 466.37 (mins)
+	
+	Report B:
+		Snap Id Snap Time Sessions Curs/Sess
+		--------- ------------------- -------- ---------
+		Begin Snap: 3098 13-Nov-07 21:00:37 39 13.6
+		End Snap: 3102 13-Nov-07 22:00:15 40 16.4
+		Elapsed: 59.63 (mins)
+		DB Time: 19.49 (mins)
+	服务器是AIX的系统，4个双核cpu,共8个核:
+	/sbin> bindprocessor -q
+	The available processors are: 0 1 2 3 4 5 6 7
+	先说Report A,在snapshot间隔中，总共约60分钟，cpu就共有60*8=480分钟，DB time为466.37分钟，则：
+	cpu花费了466.37分钟在处理Oralce非空闲等待和运算上(比方逻辑读)
+	也就是说cpu有 466.37/480*100% 花费在处理Oracle的操作上，这还不包括后台进程
+	看Report B，总共约60分钟，cpu有 19.49/480*100% 花费在处理Oracle的操作上
+	很显然，2中服务器的平均负载很低。
+	从awr report的Elapsed time和DB Time就能大概了解db的负载。
+	
+	可是对于批量系统，数据库的工作负载总是集中在一段时间内。如果快照周期不在这一段时间内，或者快照周期跨度太长而包含了大量的数据库空闲时间，所得出的分析结果是没有意义的。
+	这也说明选择分析时间段很关键，要选择能够代表性能问题的时间段。
+	
+	
+Load Profile
+				Per Second		Per Transaction		Per Exec	Per Call
+	DB Time(s):	0.4	0.3	0.01	0.00
+	DB CPU(s):	0.2	0.2	0.01	0.00
+	Redo size (bytes):	8,176.5	6,311.6	 	 
+	Logical read (blocks):	40,067.5	30,928.6	 	 
+	Block changes:	39.0	30.1	 	 
+	Physical read (blocks):	4,896.3	3,779.5	 	 
+	Physical write (blocks):	20.1	15.5	 	 
+	Read IO requests:	234.0	180.6	 	 
+	Write IO requests:	2.4	1.9	 	 
+	Read IO (MB):	38.3	29.5	 	 
+	Write IO (MB):	0.2	0.1	 	 
+	Global Cache blocks received:	3.9	3.0	 	 
+	Global Cache blocks served:	10.7	8.2	 	 
+	User calls:	106.3	82.1	 	 
+	Parses (SQL):	22.9	17.7	 	 
+	Hard parses (SQL):	0.4	0.3	 	 
+	SQL Work Area (MB):	2.4	1.9	 	 
+	Logons:	0.2	0.2	 	 
+	Executes (SQL):	30.5	23.5	 	 
+	Rollbacks:	0.0	0.0	 	 
+	Transactions:	1.3	 	 	 
+	显示数据库负载概况，将之与基线数据比较才具有更多的意义，如果每秒或每事务的负载变化不大，说明应用运行比较稳定。单个的报告数据只说明应用的负载情况，
+	绝大多数据并没有一个所谓“正确”的值，然而Logons大于每秒1~2个、Hard parses大于每秒100、全部parses超过每秒300表明可能有争用问题。
+	
+	Redo size：每秒产生的日志大小(单位字节)，可标志数据变更频率, 数据库任务的繁重与否。
+	*Logical reads：每秒/每事务逻辑读的块数.平决每秒产生的逻辑读的block数。Logical Reads= Consistent Gets + DB Block Gets 
+	Block changes：每秒/每事务修改的块数
+	*Physical reads：每秒/每事务物理读的块数
+	Physical writes：每秒/每事务物理写的块数
+	User calls：每秒/每事务用户call次数
+	Parses：SQL解析的次数.每秒解析次数，包括fast parse，soft parse和hard parse三种数量的综合。 软解析每秒超过300次意味着你的"应用程序"效率不高，
+			调整session_cursor_cache。在这里，fast parse指的是直接在PGA中命中的情况（设置了session_cached_cursors=n）；
+			soft parse是指在shared pool中命中的情形；hard parse则是指都不命中的情况。
+	*Hard parses：其中硬解析的次数，硬解析太多，说明SQL重用率不高。每秒产生的硬解析次数, 每秒超过100次，就可能说明你绑定使用的不好，也可能是共享池设置不合理。
+				这时候可以启用参数cursor_sharing=similar|force，该参数默认值为exact。但该参数设置为similar时，存在bug，可能导致执行计划的不优。
+	Sorts：每秒/每事务的排序次数
+	Logons：每秒/每事务登录的次数
+	Executes：每秒/每事务SQL执行次数
+	*Transactions：每秒事务数.每秒产生的事务数，反映数据库任务繁重与否。
+	Blocks changed per Read：表示逻辑读用于修改数据块的比例.在每一次逻辑读中更改的块的百分比。
+	Recursive Call：递归调用占所有操作的比率.递归调用的百分比，如果有很多PL/SQL，那么这个值就会比较高。
+	Rollback per transaction：每事务的回滚率.看回滚率是不是很高，因为回滚很耗资源 ,如果回滚率过高,可能说明你的数据库经历了太多的无效操作 ,
+								过多的回滚可能还会带来Undo Block的竞争 该参数计算公式如下: 
+	Round(User rollbacks / (user commits + user rollbacks) ,4)* 100% 。
+	Rows per Sort：每次排序的行数
+	
+	注:
+	Oracle的硬解析和软解析 
+	　　提到软解析(soft prase)和硬解析(hard prase)，就不能不说一下Oracle对sql的处理过程。当你发出一条sql语句交付Oracle，在执行和获取结果前，Oracle对此sql将进行几个步骤的处理过程：
+	　　1、语法检查(syntax check)
+	　　检查此sql的拼写是否语法。
+	　　2、语义检查(semantic check)
+	　　诸如检查sql语句中的访问对象是否存在及该用户是否具备相应的权限。
+	　　3、对sql语句进行解析(prase)
+	　　利用内部算法对sql进行解析，生成解析树(parse tree)及执行计划(execution plan)。
+	　　4、执行sql，返回结果(execute and return)
+	　　其中，软、硬解析就发生在第三个过程里。
+	　　Oracle利用内部的hash算法来取得该sql的hash值，然后在library cache里查找是否存在该hash值；
+	　　假设存在，则将此sql与cache中的进行比较；
+	　　假设“相同”，就将利用已有的解析树与执行计划，而省略了优化器的相关工作。这也就是软解析的过程。
+	　　诚然，如果上面的2个假设中任有一个不成立，那么优化器都将进行创建解析树、生成执行计划的动作。这个过程就叫硬解析。
+	　　创建解析树、生成执行计划对于sql的执行来说是开销昂贵的动作，所以，应当极力避免硬解析，尽量使用软解析。
+
+Instance Efficiency Percentages (Target 100%)
+	Buffer Nowait %:	100.00	Redo NoWait %:	99.99
+	Buffer Hit %:	99.44		In-memory Sort %:	99.99
+	Library Hit %:	97.98		Soft Parse %:	98.43
+	Execute to Parse %:	24.91	Latch Hit %:	100.00
+	Parse CPU to Parse Elapsd %:	96.86	% Non-Parse CPU:	93.23
+	
+	本节包含了Oracle关键指标的内存命中率及其它数据库实例操作的效率。其中Buffer Hit Ratio 也称Cache Hit Ratio，Library Hit ratio也称Library Cache Hit ratio。同Load Profile一节相同，这一节也没有所谓“正确”的值，而只能根据应用的特点判断是否合适。在一个使用直接读执行大型并行查询的DSS环境，20%的Buffer Hit Ratio是可以接受的，而这个值对于一个OLTP系统是完全不能接受的。根据Oracle的经验，对于OLTPT系统，Buffer Hit Ratio理想应该在90%以上。
+	*- Buffer Nowait表示在内存获得数据的未等待比例。在缓冲区中获取Buffer的未等待比率。Buffer Nowait的这个值一般需要大于99%。否则可能存在争用，可以在后面的等待事件中进一步确认。
+	- buffer hit表示进程从内存中找到数据块的比率，监视这个值是否发生重大变化比这个值本身更重要。对于一般的OLTP系统，如果此值低于80%，应该给数据库分配更多的内存。
+		数据块在数据缓冲区中的命中率，通常应在95%以上。否则，小于95%，需要调整重要的参数，小于90%可能是要加db_cache_size。
+		一个高的命中率，不一定代表这个系统的性能是最优的，比如大量的非选择性的索引被频繁访问，就会造成命中率很高的假相（大量的db file sequential read），但是一个比较低的命中率，
+		一般就会对这个系统的性能产生影响，需要调整。命中率的突变，往往是一个不好的信息。如果命中率突然增大，可以检查top buffer get SQL，查看导致大量逻辑读的语句和索引，
+		如果命中率突然减小，可以检查top physical reads SQL，检查产生大量物理读的语句，主要是那些没有使用索引或者索引被删除的。
+	*- Redo NoWait表示在LOG缓冲区获得BUFFER的未等待比例。如果太低（可参考90%阀值），考虑增加LOG BUFFER。当redo buffer达到1M时，
+		就需要写到redo log文件，所以一般当redo buffer设置超过1M，不太可能存在等待buffer空间分配的情况。当前，一般设置为2M的redo buffer，对于内存总量来说，应该不是一个太大的值。
+	- library hit表示Oracle从Library Cache中检索到一个解析过的SQL或PL/SQL语句的比率，当应用程序调用SQL或存储过程时，
+		Oracle检查Library Cache确定是否存在解析过的版本，如果存在，Oracle立即执行语句；如果不存在，Oracle解析此语句，并在Library Cache中为它分配共享SQL区。
+		低的library hit ratio会导致过多的解析，增加CPU消耗，降低性能。如果library hit ratio低于90%，可能需要调大shared pool区。
+		STATEMENT在共享区的命中率，通常应该保持在95%以上，否则需要要考虑：加大共享池；使用绑定变量；修改cursor_sharing等参数。
+	- Latch Hit：Latch是一种保护内存结构的锁，可以认为是SERVER进程获取访问内存数据结构的许可。要确保Latch Hit>99%，否则意味着Shared Pool latch争用，
+		可能由于未共享的SQL，或者Library Cache太小，可使用绑定变更或调大Shared Pool解决。要确保>99%，否则存在严重的性能问题。
+		当该值出现问题的时候，我们可以借助后面的等待时间和latch分析来查找解决问题。
+	- Parse CPU to Parse Elapsd：解析实际运行时间/(解析实际运行时间+解析中等待资源时间)，越高越好。
+		计算公式为：Parse CPU to Parse Elapsd %= 100*(parse time cpu / parse time elapsed)。
+		即：解析实际运行时间/(解析实际运行时间+解析中等待资源时间)。如果该比率为100%，意味着CPU等待时间为0，没有任何等待。
+	- Non-Parse CPU ：SQL实际运行时间/(SQL实际运行时间+SQL解析时间)，太低表示解析消耗时间过多。
+		计算公式为：% Non-Parse CPU =round(100*1-PARSE_CPU/TOT_CPU),2)。如果这个值比较小，表示解析消耗的CPU时间过多。
+		与PARSE_CPU相比，如果TOT_CPU很高，这个比值将接近100%，这是很好的，说明计算机执行的大部分工作是执行查询的工作，而不是分析查询的工作。
+	- Execute to Parse：是语句执行与分析的比例，如果要SQL重用率高，则这个比例会很高。该值越高表示一次解析后被重复执行的次数越多。
+		计算公式为：Execute to Parse =100 * (1 - Parses/Executions)。本例中，差不多每execution 5次需要一次parse。
+		所以如果系统Parses > Executions，就可能出现该比率小于0的情况。该值<0通常说明shared pool设置或者语句效率存在问题，造成反复解析，
+		reparse可能较严重,或者是可能同snapshot有关，通常说明数据库性能存在问题。
+	- In-memory Sort：在内存中排序的比率，如果过低说明有大量的排序在临时表空间中进行。考虑调大PGA(10g)。如果低于95%，
+		可以通过适当调大初始化参数PGA_AGGREGATE_TARGET或者SORT_AREA_SIZE来解决，注意这两个参数设置作用的范围时不同的，
+		SORT_AREA_SIZE是针对每个session设置的，PGA_AGGREGATE_TARGET则时针对所有的sesion的。
+	*- Soft Parse：软解析的百分比（softs/softs+hards），近似当作sql在共享区的命中率，太低则需要调整应用使用绑定变量。
+		sql在共享区的命中率，小于<95%,需要考虑绑定，如果低于80%，那么就可以认为sql基本没有被重用
+		
+Top 10 Foreground Events by Total Wait Time
+	Event	Waits	Total Wait Time (sec)	Wait Avg(ms)	% DB time	Wait Class
+	DB CPU	 	812.2	 	51.9	 
+	db file sequential read	707,754	384.7	1	24.6	User I/O
+	direct path read	120,526	245.4	2	15.7	User I/O
+	gc cr disk read	346,766	142.4	0	9.1	Cluster
+	log file sync	4,466	5.1	1	.3	Commit
+	gc current block 2-way	5,981	3.3	1	.2	Cluster
+	reliable message	3,556	3.1	1	.2	Other
+	gc cr block 2-way	4,889	2.7	1	.2	Cluster
+	enq: IV - contention	2,467	2	1	.1	Other
+	direct path write temp	867	1.5	2	.1	User I/O
+		
+	
+Wait Classes by Total Wait Time
+	Wait Class	Waits	Total Wait Time (sec)	Avg Wait (ms)	% DB time	Avg Active Sessions
+	DB CPU	 	812	 	51.9	0.2
+	User I/O	834,519	637	1	40.7	0.2
+	Cluster	363,189	152	0	9.7	0.0
+	Other	207,218	33	0	2.1	0.0
+	System I/O	34,654	24	1	1.5	0.0
+	Commit	4,468	5	1	.3	0.0
+	Concurrency	52,942	3	0	.2	0.0
+	Network	413,619	2	0	.1	0.0
+	Application	1,180	1	1	.1	0.0
+	Configuration	9	0	49	.0	0.0
+	
+Host CPU
+	CPUs	Cores	Sockets	Load Average Begin	Load Average End	%User	%System	%WIO	%Idle
+	32	16	2	1.46	1.41	1.4	0.4	0.4	98.2
+	从主机层面来看，CPU空闲只有98.2，表明目前cpu基本空闲---满负荷运转了
+	
+Instance CPU
+	%Total CPU	%Busy CPU	%DB time waiting for CPU (Resource Manager)
+	0.8	47.0	0.0
+	从数据库占用CPU资源来看，数据库只消耗了主机cpu资源的0.8,CPU空闲只有98.2，1%由非oracle应用程序消耗了 --说明大量的cpu资源是由非oracle应用程序消耗了
+	
+IO Profile
+	Read+Write Per Second	Read per Second	Write Per Second
+	Total Requests:	246.1	238.7	7.4
+	Database Requests:	236.4	234.0	2.4
+	Optimized Requests:	0.0	0.0	0.0
+	Redo Requests:	4.3	0.0	4.3
+	Total (MB):	38.5	38.3	0.2
+	Database (MB):	38.4	38.3	0.2
+	Optimized Total (MB):	0.0	0.0	0.0
+	Redo (MB):	0.0	0.0	0.0
+	Database (blocks):	4,916.4	4,896.3	20.1
+	Via Buffer Cache (blocks):	199.0	196.5	2.5
+	Direct (blocks):	4,717.4	4,699.8	17.6
+	
+Memory Statistics
+	Begin	End
+	Host Mem (MB):	31,984.6	31,984.6
+	SGA use (MB):	18,432.0	18,432.0
+	PGA use (MB):	1,018.8	967.1
+	% Host Mem used for SGA+PGA:	60.81	60.65
+	
+Cache Sizes
+	Begin	End		
+	Buffer Cache:	14,144M	14,144M	Std Block Size:	8K
+	Shared Pool Size:	2,826M	2,816M	Log Buffer:	44,588K
+	
+	
+Shared Pool Statistics
+	Begin	End
+	Memory Usage %:	57.33	60.64
+	% SQL with executions>1:	79.72	81.74
+	% Memory for SQL w/exec>1:	78.98	82.83
+
+
+Buffer Cache 占用6G
+共享池占用1G
+每秒Redo Size约0.4M，每分钟约24M，默认redolog30M，一般控制约几分钟切换一次比较合适。
+逻辑读（次数*块数）：图中为446948*8k=约每秒3G数据。通过select value from v$system_parameter where name='db_block_size‘可以得到每块的大小，默认为8k。
+物理读： 14303*8k=约111M/s，占用IO,一般的IO通常就是几十M，上百M， 特高级（SSD、云存储）可以达到几百M，几G
+硬解析最好少于20/s，不过都是Siebel自己优化的，所以非全开发系统不必考虑，
+
+时间都去哪儿了？
+	DBA最关注的内容
+	db File Sequential read: 从数据文件连续的读事件，以上可以看到由于Waits为等待，
+	DB CPU: CPU的等待
+	Response Time = Service Time(CPU used by this session) + Wait Time
+	
+	通常在没有问题的数据量AWR上，DB CPU排第一位，且超越其它。
+	IO问题解决：
+		1、通过优化SQL从而减少读取数据。
+		2、通过优化存储达到高性能读要求。
+		3、通过提高内存、缓存数据达到减少磁盘的读。
+	

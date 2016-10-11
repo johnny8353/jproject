@@ -1,0 +1,91 @@
+导致系统的性能问题有很多，比如内存、cpu占用率过高，网络延迟、系统存储io瓶颈、还有程序方面的代码逻辑、性能低下的sql语句等等，这里主要从awr的角度说明如何通过awr的报告来定位问题。
+
+WORKLOAD REPOSITORY report for
+	WORKLOAD REPOSITORY report for
+	DB Name		DB Id		Instance	Inst num	Startup Time	Release	RAC
+	SCRMPROD	2893839649	scrmprod2	2			09-10月-16 20:10	11.2.0.4.0	YES
+	
+	Host Name	Platform	CPUs	Cores	Sockets	Memory (GB)
+	scrmproddb02	Linux x86 64-bit	32	16	2	31.23
+	
+				Snap Id	Snap Time			Sessions	Cursors/Session	Instances
+	Begin Snap:	1099	10-10月-16 15:00:08	138			5.9				2
+	End Snap:	1100	10-10月-16 16:00:12	165			6.2				2
+	Elapsed:	 		60.05 (mins)	 	 	 
+	DB Time:	 		26.11 (mins)	 	 
+关键项说明：
+DB TIME：代表了此统计期间的数据库负载，是所有前台session花费在database调用上的总和时间（包括CPU时间、IO Time、和其他一系列非空闲等待时间）。
+果 DB Time 接近于 Elapsed Time*cpu 数,表明数据库比较忙,cpu 负载也许比较大。这时很有可能是因为资源争用导致等待事件的结果,可以去 top 5 等待事件分析原因
+
+Load Profile
+	Per Second	Per Transaction	Per Exec	Per Call
+	DB Time(s):	0.4	0.3	0.01	0.00
+	DB CPU(s):	0.2	0.2	0.01	0.00
+	Redo size (bytes):	8,176.5	6,311.6	 	 
+	Logical read (blocks):	40,067.5	30,928.6	 	 
+	Block changes:	39.0	30.1	 	 
+	Physical read (blocks):	4,896.3	3,779.5	 	 
+	Physical write (blocks):	20.1	15.5	 	 
+	Read IO requests:	234.0	180.6	 	 
+	Write IO requests:	2.4	1.9	 	 
+	Read IO (MB):	38.3	29.5	 	 
+	Write IO (MB):	0.2	0.1	 	 
+	Global Cache blocks received:	3.9	3.0	 	 
+	Global Cache blocks served:	10.7	8.2	 	 
+	User calls:	106.3	82.1	 	 
+	Parses (SQL):	22.9	17.7	 	 
+	Hard parses (SQL):	0.4	0.3	 	 
+	SQL Work Area (MB):	2.4	1.9	 	 
+	Logons:	0.2	0.2	 	 
+	Executes (SQL):	30.5	23.5	 	 
+	Rollbacks:	0.0	0.0	 	 
+	Transactions:	1.3	 	 
+	
+	Redosize:每秒产生的日志大小(单位字节)，可标志数据变更频率,大的redosize往往对lgwr写日志，和arch归档造成I/O压力，也有可能造成logbuffer堵塞从而产生相关的等待事件。
+		很繁忙的系统中日志生成量可能达到几百k，甚至几M。在Top 5 Timed Events中未发现log方面的等待事件，说明redo生成的频率属于正常范围。
+
+	Logical reads: 从内存中读取数据的次数（次数*块数），每秒钟逻辑读数据量：105,600.68＊8k＝825m
+	Physical reads:当从内存中未都到数据时则从硬盘上读取数据，每秒物理读数据量：27,716.84 ＊8k＝216m
+	Physical reads / Logical reads=27,716.84/105,600.68=26%,有26%的逻辑读导致了物理io。因此此处的物理io可能是系统的性能瓶颈（具体需在后面的 top 5中进行分析）。
+	
+Shared Pool Statistics
+
+					Begin	End
+	Memory Usage %:	57.33	60.64
+	% SQL with executions>1:	79.72	81.74
+	% Memory for SQL w/exec>1:	78.98	82.83
+		
+	SQL with executions：代表了sql重复执行的比例，本报告中是54%，是比较低的，说明存在sql硬编码的情况，同时上面的Execute to Parse也只有4.55%，也说明了sql解析的重用率低。
+	内存利用率为57.33%左右，属于正常情况。	
+	
+重点关注
+	Top 5 Timed Events
+	SQL ordered by Elapsed Time		按花费时间排序
+	Segment Statistics
+		Segments by Logical Reads		按对象统计逻辑读排序
+		Segments by Physical Reads		按对象统计物理读排序
+		
+	
+问题总结及解决方式
+	本报告期，系统的cpu、内存表现正常，造成系统性能问题的主要原因为物理读过多，产生io等待；同时由于相关业务表存在频繁的并发访问现象（逻辑读较多）且性能较差而导致了数据块竞争问题。
+	逻辑读是消耗cpu的，而物理读是消耗io的，这也说明了系统的大部分时间都消耗在io等待上，所以cpu相对空闲。	
+	
+	优化方案主要包括应用层的优化和oracle数据库的优化：
+
+  一、应用层的优化目标主要在于降低对数据库的访问频率、合理有效使用索引（合理有效使用索引，需通过对sql语句的执行计划进行分析和调优）：
+	
+	T_***LOG可能存在较频繁的插入数据操作，可采用以下方式减少对数据库的提交操作：
+	将此表的单条insert的操作改为批量入库提交的方式（比例100条记录入库一次）。
+	
+	T_***_TMP可能存在读写混合的场景，需根据业务分析是否有优化的空间。
+	T_***NCE、T_***CE、T_A***T，关于此表的相关访问应该是最需要优化的了，需优化的sql语句为（比如索引是否合理）：
+	
+二、oracle优化
+
+    1、合理设置DB_FILE_MULTIBLOCK_READ_COUNT，此参数控制在多数据块读时一次读入数据块的次数。适当增加这个参数大小，能够提高多数据块操作（如全表扫描）的IO效率。
+	2、可以考虑对以上热点表重建索引、分区表等方式来降低该数据段上的IO负荷，将历史数据进行分离（比如根据业务情况将2015年之前的数据转移到另外的备份库中）。
+	3、因Buffer Hit只有73%，可根据Buffer Pool Advisory调整buffer pool大小为：16g。
+	4、将频繁并发访问的表或数据移到另一数据块或者进行更大范围的分布(可以增大pctfree值 ，扩大数据分布，减少竞争)。
+	5、属于index block的表（如T_***SED、T_***_TMP），应该考虑重建索引、分割索引或使用反向键索引。
+	关于反向键索引需根据sql语句查询特点进行有选择使用（如果在where中对索引列进行了范围搜索，则会导致该索引无效会进行全表扫描，反向键索引只对<>\＝有效）。    
+		

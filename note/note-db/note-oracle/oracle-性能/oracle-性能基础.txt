@@ -1,0 +1,89 @@
+AWR（Automatic Workload Repository）
+	存放在Sysaux表空间上的一堆历史性能数据，是Oracle调优的最关键特性，有15年历史。默认保留7天（11g默认8天）数据。
+	exec dbms_workload_repository.create_snapshot();--手动执行
+	exec dbms_workload_repository.modify_snapshot_settings(interval=>60, retention=>8*24*60);
+	
+	CPUs: 逻辑CPU，与物理CPU不一定相等。
+	（sockets:cpu个数、Cores：物理CPU核数、CPUs:逻辑CPU核数）
+	DB Time： 所有前台session的花在数据库上的时间的总和。
+	CPU时间+IO时间+非空闲等待时间+CPU队列时间
+	DB time不代表响应快慢，只代表系统的整体的负载。
+	AAS（Average Active Session）=DB Time/Elapsed Time
+	<1 负载很轻
+	>1&&<5 负载一般
+	>100 负载较重
+	>1000 估计直接hang了
+
+
+如何找出有问题的sql？
+	V$SQLAREA、V$SQL、V$SQLTEXT、V$SQL_PLAN：
+	
+	V$SQLAREA:存储sql的累计执行次数、逻辑读、物理读等统计信息，可以看做是v$SQL与V$SQLTEXT联合的一个
+	聚合信息，忽略了执行计划的差异。
+	V$SQL： 存储的是具体的SQL和执行计划相关信息
+	V$SQLTEXT: 存储完整的SQL
+	V$SQL_PLAN: 代表了具体的SQL的执行计划，
+	
+	如下查询找出读取磁盘最多的SQL， rds_exec_ratio为每次执行读取的磁盘次数。则可以找出占用IO最多的SQL
+	
+	SELECT B.USERNAME USERNAME,
+	       A.DISK_READS*8/1024/1024 READS,
+	       A.EXECUTIONS EXEC,
+	       A.DISK_READS / decode(a.executions, 0, 1, a.executions) rds_exec_ratio,
+	       a.sql_text statement,
+	       a.sql_fulltext fullsql
+	  from v$sqlarea a, dba_users b
+	 where a.parsing_user_id = b.user_id
+	   and a.disk_reads > 100000
+	 order by a.disk_reads desc;
+ 
+ 如下SQL可以查询出占用内存最多的SQL
+  	SELECT B.USERNAME USERNAME,
+         A.buffer_gets*8/1024/1024 READS,
+         A.EXECUTIONS EXEC,
+         A.buffer_gets*8/1024/1024 / decode(a.executions, 0, 1, a.executions) rds_exec_ratio,
+         a.sql_text statement,
+         a.sql_fulltext fullsql
+    from v$sqlarea a, dba_users b
+   where a.parsing_user_id = b.user_id
+     and a.buffer_gets > 100000
+   order by a.buffer_gets desc;
+   
+	--按平均每次 占用排序
+ 	SELECT B.USERNAME USERNAME,
+         A.buffer_gets*8/1024/1024 READS,
+         A.EXECUTIONS EXEC,
+         A.buffer_gets*8/1024/1024 / decode(a.executions, 0, 1, a.executions) rds_exec_ratio,
+         a.sql_text statement,
+         a.sql_fulltext fullsql
+    from v$sqlarea a, dba_users b
+   where a.parsing_user_id = b.user_id
+     and a.buffer_gets > 100000
+   order by A.buffer_gets*8/1024/1024 / decode(a.executions, 0, 1, a.executions) desc;
+   
+	 
+通过DB time可以横向对比最近7天的数据库负载情况
+	WITH sysstat AS
+	 (select sn.begin_interval_time begin_interval_time,
+	         sn.end_interval_time end_interval_time,
+	         ss.stat_name stat_name,
+	         ss.value e_value,
+	         lag(ss.value, 1) over(order by ss.snap_id) b_value
+	    from dba_hist_sysstat ss, dba_hist_snapshot sn
+	   where trunc(sn.begin_interval_time) >= sysdate - 7
+	     and ss.snap_id = sn.snap_id
+	     and ss.dbid = sn.dbid
+	     and ss.instance_number = sn.instance_number
+	     and ss.dbid = (select dbid from v$database)
+	     and ss.instance_number = (select instance_number from v$instance)
+	     and ss.stat_name = 'DB time')
+	select to_char (BEGIN_INTERVAL_TIME, 'mm-dd hh24:mi') || to_char (END_INTERVAL_TIME, ' hh24:mi') date_time, stat_name, round((e_value - nvl(b_value, 0)) / (extract(day
+	  from(end_interval_time - begin_interval_time)) * 24 * 60 * 60 + extract(hour
+	  from(end_interval_time - begin_interval_time)) * 60 * 60 + extract(minute
+	  from(end_interval_time - begin_interval_time)) * 60 + extract(second
+	  from(end_interval_time - begin_interval_time))), 0) per_sec
+	  from sysstat
+	 where(e_value - nvl(b_value, 0)) > 0 and nvl(b_value, 0) > 0
+		
+	导出数据，生成折线图
+	
