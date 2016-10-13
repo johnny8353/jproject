@@ -1,0 +1,3 @@
+PowerDesigner去掉黑色网格线
+	去掉网格的方法如下：点击工具栏上的Tools—Display Preferences菜单项，在弹出的Display Preferences界面去掉“show page delimiter”选项，即可。 
+	或者 你也可以右键Display Preferences，在Display Preferences界面把show page delimiter勾选去掉即可。

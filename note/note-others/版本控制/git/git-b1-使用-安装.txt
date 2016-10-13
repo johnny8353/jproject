@@ -34,8 +34,8 @@
 		为 git 设置 HTTP/HTTPS 代理的详细方法，可以在 StackOverFlow 上找到。对于大多数天朝非 VPN 用户而言，常用的科学上网方法大多是使用某门，某风，以及 SS. 
 		他们的共同特点是需要安装一个客户端，在本地的某个端口监听流量，通过服务器转发该端口的数据包。在这种情况下，设置代理的方式会变得极为简单。假设客户端监听的端口号是3456，
 		只需在控制台中输入如下指令即可：
-		git config --global http.proxy http://localhost: 3456
-		git config --global https.proxy https://localhost: 3456
+		git config --global http.proxy http://proxy.zte.com.cn:80
+		git config --global https.proxy https://localhost:3456
 		对 git 有一定了解的读者会知道，git 的全局配置文件存放在用户的主目录下。对于 Windows 7 以上的系统，就是 C:\Users\USERNAME\.gitconfig . 使用文本编辑器打开，
 		就可以看到刚刚写入的设置了。
 		

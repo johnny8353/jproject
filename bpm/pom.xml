@@ -13,6 +13,7 @@
     <modules>
         <module>jbpm4-demo</module>
         <module>activiti5-demo</module>
+        <module>activiti5-demo2</module>
         <module>activiti5-ui-demo</module>
     </modules>
 	

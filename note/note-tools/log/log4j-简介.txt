@@ -26,7 +26,20 @@
 		1、可以不需要配置文件 
 		2、自动判断有没有Log4j包,有则自动使用之 
 		3、最悲观的情况下也总能保证提供一个日志实现(SimpleLog) 
-
+	import org.apache.log4j.Logger;
+	
+	public class Log4jTest {
+	   public static Logger logger1 = Logger.getLogger(Log4jTest.class);
+	   public static void main(String[] args) {
+	       //logger1
+	       logger1.trace("我是logger1，trace");
+	       logger1.debug("我是logger1，debug");
+	       logger1.info("我是logger1，info");
+	       logger1.warn("我是logger1，warn");
+	       logger1.error("我是logger1，error");
+	       logger1.fatal("我是logger1，fatal");
+	   }
+	}
 例子 1：
 	<?xml version="1.0" encoding="UTF-8" ?>   
 	<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">   

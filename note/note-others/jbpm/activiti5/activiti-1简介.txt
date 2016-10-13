@@ -107,3 +107,18 @@ Activiti介绍
 3.5：logging.properties（日志处理）
 	日志的配置文件，Activiti操作数据库的时候，整合的日志文件
 		
+activiti-administrator 
+	自带的用户管理系统，维护用户和组，需要配置数据连接参数，在activiti-administrator\WEB-INF\applicationContext.xml中，并加入JDBC驱动包。
+activiti-cycle
+	PVM活动检测的，由activiti-rest提供服务，不需配置。
+activiti-explorer
+	可以查看用户任务和启动流程，由activiti-rest提供服务，不需配置。
+activiti-kickstart
+	简单的点对点流程定义维护工具，需要配置数据连接，把activiti.cfg.xml文件放在classes下，并加入驱动包。
+activiti-modeler
+	在线编辑和维护流程定义的工具，最后以文件夹方式部署，需要配置activiti-modeler\WEB-INF\classes\configuration.properties文件。
+activiti-probe
+	PVM的观测服务，由activiti-rest提供服务，不需配置，可以查看deployment、processdefinition、processinstance、database。
+activiti-rest
+	其他几个应用的服务提供者，需要配置数据连接，把activiti.cfg.xml文件放在classes下，并加入驱动包。
+		

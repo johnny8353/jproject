@@ -14,3 +14,5 @@
 		org.eclipse.emf.transaction_1.4.0.201306111400.jar；
 		四个插件下载地址：http://download.csdn.net/detail/yixiaoping/8520517
 		把这四个文件拷贝到自己的eclipse的plugin文件夹下面，重启eclipse再次安装activiti插件就可以了。
+
+》org.activiti.engine.ActivitiException: Can't find scripting engine for 'groovy'

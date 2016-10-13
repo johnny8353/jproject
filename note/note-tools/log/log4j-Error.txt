@@ -25,3 +25,12 @@
 		log4j.appender.R2.Encoding=UTF-8
 		#-----------------------------------指定日志文件名与路径
 		log4j.appender.R2.File=app.log
+		
+	2> 配置log4j.properties 没有效果
+	可能是引入的jar包 里面已经有log4j.xml，就不用再去读取log4j.properties了，所以推荐使用log4j.xml
+	源代码如下：LogManager.java
+	if(configurationOptionStr == null) {	
+		url = Loader.getResource(DEFAULT_XML_CONFIGURATION_FILE);
+	if(url == null) {
+	  	url = Loader.getResource(DEFAULT_CONFIGURATION_FILE);
+	}
