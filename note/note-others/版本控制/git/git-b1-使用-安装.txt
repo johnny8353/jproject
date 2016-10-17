@@ -41,7 +41,7 @@
 		
 		[user]
 			name = johnny8353
-			email = hfq_1991@qq.com
+			email = 598791747@qq.com
 		[http]
 			proxy = http://proxy.zte.com.cn:80
 		

@@ -33,7 +33,7 @@ public class SayHelloToLeaveTest {
 		System.out.println("spend ---- " + (end - begin));
 	}
 
-	/** 部署流程定义  repositoryService.deploy()
+	/** 部署流程定义  repositoryService.deploy() 
 		1.starting SchemaOperationsProcessEngineBuild 查询版本
 			==>  Preparing: select * from ACT_GE_PROPERTY where NAME_ = ? 
 			==> Parameters: schema.version(String)
