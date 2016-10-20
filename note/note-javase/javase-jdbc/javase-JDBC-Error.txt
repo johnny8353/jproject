@@ -1,16 +1,26 @@
 	
-	1>JAVA连接MySQL，在URL指定字符集 ,否则中文会乱码
+	1>JAVA连接MySQL，乱码解决
 	
-	xml:
-		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/act_test3?useUnicode=true&amp;characterEncoding=UTF-8" />
-	java:
-		String url = "jdbc:mysql://localhost:3306/act_test3?useUnicode=true&characterEncoding=UTF-8";
-		
-	大概是由xml文件中的编码规则决定要这么变换。
-	在xml文件中有以下几类字符要进行转义替换：
-		&gt;	>	大于号
-		&amp;	&	和
-		&apos;	'	单引号
-		&quot;	"	双引号
+	- 在URL指定字符集 ,否则中文会乱码
+		xml:
+			<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/act_test3?useUnicode=true&amp;characterEncoding=UTF-8" />
+		java:
+			String url = "jdbc:mysql://localhost:3306/act_test3?useUnicode=true&characterEncoding=UTF-8";
+			
+		大概是由xml文件中的编码规则决定要这么变换。
+		在xml文件中有以下几类字符要进行转义替换：
+			&gt;	>	大于号
+			&amp;	&	和
+			&apos;	'	单引号
+			&quot;	"	双引号
+			
+	- mysql服务器的编码
+		SHOW VARIABLES LIKE "%char%";
+		如果为latin1，修改为utf8 
+		window 	:my.ini
+			default-character-set=utf8 
+			character-set-server=utf8 
+		linux	:MySQL主配置文件为my.cnf，一般目录为/etc/mysql
+			
 			
 	

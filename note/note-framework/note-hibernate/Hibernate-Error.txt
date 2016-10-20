@@ -1,0 +1,33 @@
+》**org.hibernate.HibernateException: No Session found for current thread
+	
+	SessionFactory的getCurrentSession并不能保证在没有当前Session的情况下会自动创建一个新的，这取决于CurrentSessionContext的实现，
+	SessionFactory将调用CurrentSessionContext的currentSession()方法来获得Session。
+
+	然而，产生以上异常的原因在于Spring提供了自己的CurrentSessionContext实现，如果我们不打算使用Spring，而是自己直接从hibernate.cfg.xml创建SessionFactory，
+	并且为在hibernate.cfg.xml中设置current_session_context_class为thread，也即使用了ThreadLocalSessionContext，
+	那么我们在调用getCurrentSession()时，如果当前线程没有Session存在，则会创建一个绑定到当前线程。	
+	
+	Solution：	- 单独使用hibernate
+	在 hibernate 的配置文件中，也可以增加这样的配置来避免这个错误:	
+	<property name="current_session_context_class">thread</property>
+	
+	在单独使用hibernate时，总是会加上这项配置，但spring与hibernate结合时，千万不能加上这句话，我猜测出错原因是事务管理器中的session和当前拿到的session不是同一个session，
+	事务管理器中拿到的session开启了事务，但当前得到的session并没有开启事务，导致出错
+		Exception in thread "main" org.hibernate.HibernateException: save is not valid without active transaction
+		<prop key="hibernate.current_session_context_class">thread</prop>  
+		
+	Solution:	- spring 与 hibernate集成
+		at org.springframework.orm.hibernate4.SpringSessionContext.currentSession(SpringSessionContext.java:106)
+		在Spring中，如果我们在没有配置TransactionManager,并且没有事先调用SessionFactory.openSession()的情况直接调用getCurrentSession()，
+		那么程序将抛出“No Session found for current thread”异常。
+		如果配置了TranactionManager并且通过@Transactional或者声明的方式配置的事务边界，那么Spring会在开始事务之前通过AOP的方式为当前线程创建Session，
+		此时调用getCurrentSession()将得到正确结果。
+		
+		getCurrentSession 调用的service需要添加事物，可以使声明式或者注解
+		
+>	question:
+	org.hibernate.MappingException: Unknown entity: com.johnny.monitor.access.vo.SystemGroupVO
+	at org.hibernate.internal.SessionFactoryImpl.getEntityPersister(SessionFactoryImpl.java:1146)
+	Solution:
+	1.配置实体类时为@Entity导包时 错误的导入了 import org.hibernate.annotations.Entity 应该更改为import javax.persistence.Entity; 
+	2.另外有些报org.hibernate.MappingException: Unknown entity,可能是没有在cfg文件中加入 *.hbm.xml造成的

@@ -1,0 +1,13 @@
+> 	Question:
+	java.lang.NoClassDefFoundError: org/codehaus/groovy/control/CompilationFailedException
+	solution:
+	Change the languge to java in JRXML (ex:- language="java") or add groovy*.jar to your project’s classpath.	
+
+>	Question:
+	Could not load the following font : 
+	pdfFontName   : STSong-Light
+	pdfEncoding   : UniGB-UCS2-H
+	isPdfEmbedded : true
+
+	solution:
+	绕了一圈后我决定深入代码去分析问题的原因，很快我就发现原来是jasperreports在调用itext.jar(另外一个开源项目)创建字体的时候出现了问题，查阅了itext的使用，原来它在使用亚洲字体的时候还有其他两个包iTextAsian.jar, 并且把它们关联到项目中，问题就解决了！

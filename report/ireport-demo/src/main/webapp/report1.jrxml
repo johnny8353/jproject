@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="myreport" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="11d0bf43-8cf6-4702-b4e1-5721d0bbd313">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[SELECT
+  `ID_`,
+  `REV_`,
+  `FIRST_`,
+  `LAST_`,
+  `EMAIL_`,
+  `PWD_`,
+  `PICTURE_ID_`
+FROM `activiti`.`act_id_user`
+LIMIT 0, 1000;]]>
+	</queryString>
+	<field name="ID_" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="REV_" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="FIRST_" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="LAST_" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="EMAIL_" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PWD_" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PICTURE_ID_" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch">
+			<staticText>
+				<reportElement x="250" y="29" width="100" height="20" uuid="ab84185a-86b5-4c0c-bd1c-fcd212c6ad29"/>
+				<textElement>
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[用户列表]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="22" splitType="Stretch">
+			<staticText>
+				<reportElement x="9" y="2" width="100" height="20" uuid="d0286aee-3976-4a71-a26a-d76c869213f0"/>
+				<text><![CDATA[编号]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="109" y="2" width="100" height="20" uuid="22ca7944-616b-4436-97dc-83b8633dbe8d"/>
+				<text><![CDATA[版本]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="219" y="2" width="100" height="20" uuid="7ec2fe89-4b84-4089-bfcc-21873557f408"/>
+				<text><![CDATA[名]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="315" y="2" width="100" height="20" uuid="27611d93-9da1-40a3-b2b8-4d7371086da5"/>
+				<text><![CDATA[姓氏]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="409" y="0" width="100" height="20" uuid="62e46de2-4a6a-42d0-9d16-9f9d7a4a09a6"/>
+				<text><![CDATA[邮件地址]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="22" splitType="Stretch">
+			<textField>
+				<reportElement x="9" y="2" width="100" height="20" uuid="2cc64afa-549f-4771-968e-cc92058a4d77"/>
+				<textFieldExpression><![CDATA[$F{ID_}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="109" y="2" width="100" height="20" uuid="cc1c3497-3413-4e6d-8982-9f841dba310f"/>
+				<textFieldExpression><![CDATA[$F{REV_}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="209" y="2" width="100" height="20" uuid="2d5a6e76-355a-498a-9724-411506aaae23"/>
+				<textFieldExpression><![CDATA[$F{FIRST_}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="309" y="2" width="100" height="20" uuid="1f27abeb-9c31-4f35-badf-834d76b796f3"/>
+				<textFieldExpression><![CDATA[$F{LAST_}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="409" y="2" width="100" height="20" uuid="46cee910-7786-4f3e-86f3-f12e73ad1595"/>
+				<textFieldExpression><![CDATA[$F{EMAIL_}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

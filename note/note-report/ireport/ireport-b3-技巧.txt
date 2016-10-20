@@ -1,0 +1,44 @@
+5.1. 在 WEB 中显示数据不分页显示
+	设置报表属性 Ignore pagination 项为选中状态。
+5.2. 没有数据时仍然显示标题
+	默认的情况下，如果没有数据，系统不显示报表的标题、表头等信息。如果需要显示，则把报表的“When No Data Type”项属性值设置成：All Sections, No Detail。
+5.3. 数字型字段值到字符的转换
+	String.valueOf($F{year})
+	
+	
+	
+如何学习
+	git下载https://github.com/Jaspersoft/jasperreports/releases 源码，进行学习
+	
+	alterdesign 该例子演示了报表编译后，在报表展现的时候如何动态的控制其中的元素比如让某一个矩形变色或其他
+	antcompile 演示如何让 ant 来编译
+	chart 演示了如何在报表中添加图像，JasperReport是用Scriptlet的方式往报表中添加图像，而Scriptlet是调用也是开源的jfreechart的Api来生成图形，去jfreechart看一下，该工具能的图形生成能力也很强
+	datasource 演示了如何在报表中使用各种数据源，能够使用beanarray beancollection，也可以用自定义的数据源，只要继承了JRDataSource的两个接口，这个能给用户提供非常大的灵活性，报表的数据不用局限于一 条Sql语句，也可以使用存储过程，对生成报表中的数据也可以排序，二次检索，等等
+	fonts 各种字体的演示
+	horizontal 演示了水平分栏的报表，演示报表中分了三栏，其中还用到了textFieldExpression，就像if语句的效果来选择输出的内容
+	hyperlink 演示了各种样式的链接
+	images 演示了如何在报表中加入图像以及图像的显示方式
+	jasper 演示了分组分栏的报表，演示中用了2次group
+	jcharts 演示了调用另一个开源的API jcharts来往报表中加入分析图形，原理同上chart，如果jfreechart都还不能满足你分析图形的要求，那到jcharts里找找看吧，说不定有
+	landscape 演示横向的报表
+	nopagebreak 演示比如在IE中不分页的方式打印出报表的内
+	容，通过这个演示也可以了解报表输出如何配置参数
+	noreport 演示了如何直接通过java程序生成JasperPrint对象来输出
+	noxmldesign 演示了如何直接通过java程序生成
+	JasperDesign 对象来动态的生成报表，根据这个例子，用户可以作出自定义选列的报表,当然比较麻烦， 而且肯定自己要补充他的API库（JasperReport真是强大啊，呵呵)
+	pdfencrypt 演示了pdf的输出方式，可以给pdf文件加密码，其实就是pdf输出方式的参数配置，具体有那些参数可配置，去看看API吧
+	printservice演示了如何直接打印报表
+	query 演示了如何让查询的sql动态起来，比如你可以通过一个Jsp页面传报表的sql的where条件，order条件，甚至整个sql语句
+	rotation 演示了文字纵向显示的报表
+	scriptlet演示了如何继承JRDefaultScriptlet，并加入自己的处理语句，这个功能可是很强大的哦，看看这些接口
+		beforeReportInit() afterReportInit() beforePageInit()
+		afterPageInit() beforeColumnInit() afterColumnInit()
+		beforeGroupInit(String groupName)
+		afterGroupInit(String groupName)
+		看看这些名字就知道你能完成那些功能，比如显示一列数据后，马上跟上该列数据的分析图形，当然你也可以加上自己的方法并在报表中调用
+	shapes 演示了JasperReport中自带的图形，及能配置的参数,当然你也能继承或者覆写JasperReport中的Api生成你要的图形，
+	stretch 演示了如何处理报表中数据拉伸以及带来周围的线及框的拉伸，你能了解到虽然黑框式表格不是JasperReport中缺省的展现方式，但在JasperReport中不难实现
+	subreport 演示了子报表，还告诉你一个报表中可以有n个子报表，子报表中还可以嵌套子报表
+	tableofcontents 演示了如何生成一个有目录的，复杂的报表
+	unicode 演示了各种 字符编码
+	webapp 演示了如何把报表放到一个JavaWeb项目中，可以用Jsp Servlet，applet，

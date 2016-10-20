@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2016-10-19 17:09:39 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.johnny.monitor.access.vo.SystemGroupVO" table="JT_SYSTEM_GROUP">
+        <id name="rowId" type="java.lang.Long" access="field">
+            <column name="ROW_ID" />
+            <generator class="native" />
+        </id>
+        <property name="sysType" type="java.lang.String" access="field">
+            <column name="SYS_TYPE" />
+        </property>
+        <property name="sysCode" type="java.lang.String" access="field">
+            <column name="SYS_CODE" />
+        </property>
+        <property name="sysName" type="java.lang.String" access="field">
+            <column name="SYS_NAME" />
+        </property>
+        <property name="className" type="java.lang.String" access="field">
+            <column name="CLASS_NAME" />
+        </property>
+        <property name="devMailto" type="java.lang.String" access="field">
+            <column name="DEV_MAILTO" />
+        </property>
+        <property name="testMailto" type="java.lang.String" access="field">
+            <column name="TEST_MAILTO" />
+        </property>
+        <property name="recMailto" type="java.lang.String" access="field">
+            <column name="REC_MAILTO" />
+        </property>
+        <property name="prodMailto" type="java.lang.String" access="field">
+            <column name="PRO_DMAILTO" />
+        </property>
+        <property name="urlParam" type="java.lang.String" access="field">
+            <column name="URL_PARAM" />
+        </property>
+        <property name="orderBy" type="int" access="field">
+            <column name="ORDER_BY" />
+        </property>
+        <property name="enableFlag" type="java.lang.String" access="field">
+            <column name="ENABLE_FLAG" />
+        </property>
+    </class>
+</hibernate-mapping>

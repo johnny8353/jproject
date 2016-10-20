@@ -25,6 +25,7 @@
 		<module>ui</module>
 		<module>webservice</module>
 		<module>bpm</module>
+		<module>report</module>
 	</modules>
 
 	<properties>

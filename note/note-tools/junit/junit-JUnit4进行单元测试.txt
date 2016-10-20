@@ -114,3 +114,5 @@ JUnit的各种断言
 		message是个可选的消息，假如提供，将会在发生错误时报告这个消息。 
 		该断言会使测试立即失败，通常用在测试不能达到的分支上（如异常）。 
 	 	
+	 按字母顺序执行
+	 @FixMethodOrder(MethodSorters.NAME_ASCENDING)

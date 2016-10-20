@@ -1,0 +1,218 @@
+报表的结构
+	一个报表的结构大致是几个部分：Title、PageHeader、ColumnHeader、Detail、ColumnFooter、PageFooter、Summary。
+	- Title：每个报表一般会有一个名字，比如×××销售报表，title 就是搁置这个名称的最好地方了，当然你也可以根据需要搁置在合适的地方。Title 只在第一页出现。
+	- PageHeader：报表的一些公共要素，比如页码、创建时间、创建人等信息放置在这里是比较好的选择。
+	- ColumnHeader：放置列的名称，不是列数据。
+	- Detial：放置需要循环输出的数据，比如销售记录数据。此处会按照数据的条数循环显示。
+	- ColumnFooter：放置列级别的统计值或是列的说明。
+	- PageFooter：放置页级别的统计值或是页的说明。
+	- Summary：需要对几页（报表可能有多个页）的统计值。比如50 个销售记录共占用了3 页，那么放置这些统计记录的统计值地方就是Summary。Summary 只在最后一页出现。
+
+报表元素
+	我们所说的元素主要是一些图形对象，比如text，rectangle等。在iReport中没有段落，表格或分页的概念，在JasperReports中最基本的对象主要有七个：
+		-Line
+		-Rectangle
+		-Ellipse
+		-Static text
+		-Text field
+		-Image
+		-Subreport
+		-Crosstab
+		-Chart
+		
+	通过以上这些组件的组合我们可以做出各种各样复杂的报表样式。iReport提供两种特殊的图形对象：chart和barcode。
+	每一种类型的对象都有一些通用的属性，如高度、宽度、位置、所在的band等。除此之外还有一些针对不同元素的特殊属性。
+	每一个元素都必须在一个band内部，如果一个元素跨了一个以上的band，那么在编译的时候将会抛出元素位置错误的异常。
+	要添加一个元素到报表中，我们可以从主工具栏中选择相应的工具，然后添加到报表区域中即可。
+	
+	属性窗口由若干个标签页构成，“Common”标签里包含每一个组件都具有的通用属性，其它的标签页是针对不同元素的属性设置。在下面的章节中，我们将对每一个对象的使用做详细的介绍。
+
+变量、参数及字段
+	在 使 用 iReport 的 过 程 中 会 碰 到 很 多 与 变 量 （ Variables ）、参数（Parameters）、字段（Fields）这些有关的内容，下面介绍这些对象的使用和
+	意义：
+	- 	变量（Variables）：由报表系统内部产生，不需要从外界传入的动态数据，如报表的打印时间等，可以通过定义一个变量来实现。调用方法：$V{variableName}。
+		定义方法如下：从“窗口”菜单中打开“Report Inspector”窗口，鼠标右键点击“Varibles”，选择“添加”项，然后在属性窗口中设置此变量的各个属性值。
+		以下是 JasperReport 的内置变量：
+		参数名 				说明
+		$V{PAGE_NUMBER} 	代表当前页数（可以是页码也可以是页数，通过TextField 的计算时间的不同值来设置）。
+		$V{PAGE_COUNT} 		当前页面中记录的数目。
+		$V{COLUMN_NUMBER} 	列号码。
+		$V{COLUMN_COUNT} 	当前列中记录的数目（是当前页里行的序号，在新页上会重置为1）。
+		$V{REPORT_COUNT} 	当前文档中数据源记录数目。	
+		<group name>_COUNT	在<group name>里的记录总数
+		
+		
+	- 	参数（Parameters）：应用程序动态传给报表的参数，如希望报表动态执行某个SQL 查询条件。
+		定义方法如下：从“窗口”菜单中打开“ReportInspector”窗口，鼠标右键点击“Parameters”，选择“添加”项。
+		
+		例如动态定义SQL 查询条件年份：
+		
+		(1) 先定义变量：year
+		(2) 设置查询SQL 如下(设置方法参看“设置查询SQL”一节)：
+		select * from data where report_year = $P{year}
+		(3) 应用程序传参数给报表，方法参见“输出PDF 的JSP 程序”一节中给参数parameters 设置值的方法。
+		参数的引用方式有两种，一种是$P{}，另一种是$P!{}，前者可以出现在任意的表达式位置，而后者则只能出现在SQL 脚本里，用来替换查询语句，用以按照不同的需求替换查询语句。
+		
+		同时，在脚本里，也有些许区别：前者只能替换语句的部分字段，如SELECT * FROM bugs where name=$P{Name} order byproname, modulename，
+		而对于$P!{}，则可以直接在SQL 脚本框里输入$P!{SQL}。
+		
+		以下是 JasperReport 的内置参数：
+		参数名 							数据类型 			说明
+		$P{REPORT_PARAMETERS_MAP}		java.util.Map 		这个参数总是指向一个 java.util.Map对象，该对象保存了用户调用报表装填过程时传递给报表引擎的用户定的参数。
+		$P{REPORT_CONNECTION}			java.sql.Connection	这个参数指向一个java.sql.Connection 对象，报表引擎用来通过 JDBC 来执行 SQL 查询。
+		$P{REPORT_DATA_SOURCE}			net.sf.jasperreports.engine.JRDataSource	可以由应用程序提供动态的数据源。
+		$P{REPORT_SCRIPTLET}			net.sf.jasperreports.engine.JRAbstractScriptlet	这个内置的参数指向一个net.sf.jasper.engine.JRAbstracStriptlet实例， 该实默认是一个net.sf.jasper.engine.JRDefaultScriptlet对象。可以通过报表属性 Scriptletclass 项设置自己的Scriptlet。
+				
+	- 	字段（Fields）：是数据源抽取出来的，如果数据源是数据库，则此处就是表字段名称。引用方法：$F{ filedName }。在“设置查询SQL”一节中有获得字段的方法，请参考。
+	
+图形报表
+	注意事项
+		重复显示多个图形
+			在设计报表时，如果发现显示图形时，出现重复现象，则是图形组件放置的位置不正确。
+			应该把图形组件放到 Column Footer 区域中，如果放在Detail 区域中则出现重复显示多个图形问题。	
+			
+	饼图(Pie)
+		把组件面板中的Chart 组件拖拽到报表的Column Footer 区域中，并选择饼图。鼠标左键点击图形组件选中，然后再点击鼠标右键，选择弹出的菜单的“Chart Data”选项，然后选择Details 选项卡。		
+		
+		有 3 项必须填写表达式：
+		- Key expression：键表达式。如果是从数据库取，则可写成表字段，可通过右侧的按钮选择Field 字段。	$F{MONTH}
+		- Value expression：值表达式。可通过右侧的按钮选择Field 字段。	$F{MONEY_NUMBER}
+		- Label expression：标签表达式，图形区域的文本注释。	$F{MONTH}+"月"
+		其它一些设置说明：
+		- Max number of slices to show：最多显示的切片数，如果切片数多于此数，则多于此数的其它切片值的合计放置在Other 切片中。
+		- Min slice percentace(可能写错了，估计是percentage)：最小切片所占的百分数值，如果切片的百分数小于此值，则不在显示。饼图的预览效果：
+	
+	3D 饼图(3D Pie)
+		3D 饼图的用法和平面饼图的用法一样，只要在使用图形组件时，选择3D饼图即可。
+		
+	柱状图(Bar)
+		把组件面板中的Chart 组件拖拽到报表的Column Footer 区域中，并选择柱状图。同样打开“Chart Data”界面的“Details”选项卡。	
+		点击“Add”按钮，添加分类序列。
+		各输入项的说明：
+			Series expression：序列名称表达式，也就是二级分类表达式，如果是从数据库取，则可写成表字段，可通过右侧的按钮选择Field 字段。
+			Category expression：分类名称表达式，也就是一级分类表达式，可通过右侧的按钮选择Field 字段。
+			Value expression：值表达式，可通过右侧的按钮选择Field 字段。
+			Label expression：标签表达式，可通过右侧的按钮选择Field 字段。
+
+	3D 柱状图(3D Bar)
+		使用方法和平面柱状图一样。
+	
+	堆栈柱状图(Stacked Bar)
+		堆栈柱状图的参数设置项和柱状图一样。只是选择图形组件时，选择堆栈柱状图(Stacked Bar)图形组件即可。
+		堆栈柱状图中 Series expression 分类(二级分类)，会已堆的形式现在一个柱上。
+		例如下图，Category(一级分类)是月份，Series 分类(二级分类)是水果种类。	
+		
+	曲线图(Line)
+		曲线图的参数设置项和柱状图一样。只是选择图形组件时，选择曲线图形组件(Line)即可。	
+
+	面积图(Area)
+		面积图的参数设置项和柱状图一样。只是选择图形组件时，选择面积图形组件(Area)即可。
+		
+	仪表盘(Meter)
+		仪表盘的数据只需要一个值，而不是数组。
+		仪表的设置在属性设置面板中设置，常用到的属性如下：
+		Data Range Low Expression：设置数值区间的最低值。例如：new Integer(0)
+		Data Range High Expression：设置数值区间的最高值。例如：new Integer(100)
+		Meter Intervals：设置切片区域。如下图设置了3 个切片：Low、Middle、High。切片需要设置颜色，最低值，最高值。	
+		切片名称 最低值 最高值
+		Low 	0 30
+		Middle 	30 60
+		High 	60 100
+		
+		经过以上设置后，再设置仪表的数据值。选中图形，右键选择 Chart Data项。此处设置的值为“new Integer(65)”。
+		
+	温度计(Thermometer)
+		温度计和仪表盘的设置类似，但不同的是仪表盘可以设置多个切片区域，而温度计只有固定的三个切片区域，分别是Low、Medium、High。切片的设置如下
+		
+		经过以上设置后，再设置温度计的数据值。选中图形，右键选择Chart Data项。此处设置的值为“new Integer(53)”。
+		
+		Mask 属性：在显示的数值前加的前缀，也就是上图中的圆形区域内显示的数值。Mask 属性值可以是数字，也可以是字符。
+			如果是数字的话，后几位是0 的话，0 都去掉。下图中Mask 属性分别是：华氏度，250。
+		
+	气泡图(Bubble)
+		设置气泡图的Chart Data，设置的值有4 项：
+		Series expression：分类名称，可是固定值，也可是表字段。
+		X value expression：X 轴值对应的表字段。
+		Y value expression：Y 轴值对应的表字段。
+		Z value expression。气泡大小值对应的表字段。
+
+报表导出	
+	PDF 格式导出
+		PDF 中文问题
+			使用 PDF 格式导出数据时，需要用到iText-2.1.0.jar 包，如果输出的PDF中有中文，则需要iTextAsian.jar 包。
+			另外需要给输出中文的对象设置以下几个属性值：
+			Pdf Font name：STSong-Light
+			Pdf Embedded：选中
+			Pdf Encoding：UniGB-UCS2-H (Chinese Simplified)
+			
+		设置方法，鼠标左键点击文本显示对象，选中，然后在属性中找到 Pdf Encoding 等项，把其值改为上面说明的值。
+			
+	输出 PDF 的JSP 程序
+		以下是一个完整的输出 PDF 的JSP 程序：		
+		
+		<%@ page contentType="text/html;charset=GB2312"%>
+		<%@ page import="net.sf.jasperreports.engine.*"%>
+		<%@ page import="java.util.*"%>
+		<%@ page import="java.io.*"%>
+		<%@ page import="java.sql.*"%>
+		<%
+			String ctxpath = request.getContextPath();
+		
+			// 创建数据库连接Connection对象
+			Class.forName("com.mysql.jdbc.Driver");
+			String url = "jdbc:mysql:///activiti";
+			String user = "root";
+			String password = "1230";
+			Connection conn = DriverManager.getConnection(url, user, password);
+			// 报表编译之后生成的.jasper文件的存放位置
+			File reportFile = new File(this.getServletContext().getRealPath(
+					"/report1.jasper"));
+			// 设置参数
+			Map parameters = new HashMap();
+			parameters.put("year", "2009");
+			try {
+				byte[] bytes = JasperRunManager.runReportToPdf(
+						reportFile.getPath(), parameters, conn);
+				response.setContentType("application/pdf");
+				response.setContentLength(bytes.length);
+				ServletOutputStream outStream = response.getOutputStream();
+				outStream.write(bytes, 0, bytes.length);
+				outStream.flush();
+				outStream.close();
+				out.clear();
+				out = pageContext.pushBody();
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			} finally {
+				try {
+					conn.close();
+				} catch (Exception ex) {
+					System.out.println(ex.getMessage());
+				}
+			}
+		%>
+		
+调用 JAVA 代码	
+	报表中可调用我们自己编写的 JAVA 程序输出数据。步骤如下：
+	(1) 使用任意工具编写 MyScriptLet.java 程序，并编译：
+	package com.test;
+	public class MyScriptLet extends
+	it.businesslogic.ireport.IReportScriptlet {
+		public String getResult() {
+			return "Hello my first ScriptLet example.";
+		}
+	}	
+	注意：IReportScriptlet 类在iReport.jar 包中。编译时需要引用此类。
+	
+	(2) 引用 iReport.jar 和MyScriptLet.class 到iReport 环境中
+	选择菜单“工具”->“选项”，再选择“Classpath”选项卡。然后使用“Add JAR”和“Add Folder” 分别把 iReport.jar 和MyScriptLet.class 添加到iReport环境中。
+	本例子中的MyScriptLet.class 完全目录：D:\proj\JasperSample\WebRoot\WEB-INF\classes\com\test\MyScriptLet.class
+	
+	(3) 设置报表属性 Scriptlet class 项鼠标左键点击报表边缘的空白处，然后到属性面板中找到 Scriptlet class 项，
+		并把值设置成： com.test.MyScriptLet ， 注意不能写成：com.test.MyScriptLet.class，或写成：MyScriptLet。
+		
+	(4) 使用 MyScriptLet 类从组件面板中拖拽一个“Text Field”组件到报表中，并把值设置成：
+		((com.test.MyScriptLet)$P{REPORT_SCRIPTLET}).getResult()
+		注意把MyScriptLet 类的包名写全，应写成“com.test.MyScriptLet”，如果写成“MyScriptLet”，则编译时报错。
+		
+	(5) 编译运行显示效果：	

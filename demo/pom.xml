@@ -7,11 +7,11 @@
 		<artifactId>johnny-parent</artifactId>
 		<version>2.3.4</version>
 	</parent>
-    <artifactId>jdbc</artifactId>
+    <artifactId>demo</artifactId>
     <packaging>pom</packaging>
-    <name>jdbc</name>
+    <name>demo</name>
     <modules>
-        <module>jdbc-demo</module>
+        <module>mto-demo</module>
     </modules>
 	
 	<dependencies>

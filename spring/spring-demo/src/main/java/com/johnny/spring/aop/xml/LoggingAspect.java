@@ -30,7 +30,7 @@ public class LoggingAspect {
 		System.out.println("The method " + methodName + " occurs excetion:" + e);
 	}
 	
-	@Around("execution(public int com.johnny.spring.aop.ArithmeticCalculator.*(..))")
+//	@Around("execution(public int com.johnny.spring.aop.ArithmeticCalculator.*(..))")
 	public Object aroundMethod(ProceedingJoinPoint pjd){
 		
 		Object result = null;

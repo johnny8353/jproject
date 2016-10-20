@@ -1,0 +1,113 @@
+iReport 安装
+	iReport 安装非常简单，只要解压缩iReport-5.6.0.zip 包后，点击运行\iReport-5.6.0\bin\ireport.exe 程序即可。
+	运行需要Java 虚拟机，如果没有安装Java 虚拟机，则必须先安装好Java 虚拟机，并把Java 的bin 目录路径设置到Path 环境变量中，然后才能运行iReport。
+	
+JasperReport 安装
+	解压 jasperreports-3.5.2-project.zip 包，然后把需要的jar 包拷贝到项目中即可。
+	Jar 包有两个部分，一个是JasperReport 本身的jar 包，另一个部分是JasperReport 依赖的第三方组件包。
+	\jasperreports-3.5.2\dist\目录下是JasperReport 本身的jar 包，包括：
+		jasperreports-3.5.2.jar
+		jasperreports-3.5.2-applet.jar
+		jasperreports-3.5.2-javaflow.jar
+	
+	\jasperreports-3.5.2\lib\目录下的jar 包是JasperReport 依赖的第三方组件包。此目录下的jar 包比较多。
+	这些jar 包中以“commons-”开头的都是必须要的，其他都是可选的，用到哪些功能，把对应的jar 引入即可。
+	“commons-”包有：
+		commons-logging-api-1.0.2.jar
+		commons-logging-1.0.2.jar
+		commons-pool-1.3.jar
+		commons-vfs-1.0.jar
+		commons-beanutils-1.7.jar
+		commons-codec-1.3.jar
+		commons-collections-2.1.jar
+		commons-dbcp-1.2.1.jar
+		commons-digester-1.7.jar
+		commons-httpclient-3.1.jar
+		commons-javaflow-20060411.jar
+		commons-math-1.0.jar
+	假如用到 JFreeChart 图形功能，则需要：
+		jfreechart-1.0.13-swt.jar
+		jfreechart-1.0.13.jar
+		jfreechart-1.0.13-experimental.jar
+		jcommon-1.0.0.jar	
+		
+常用工具
+	区域 1：Report Inspector 区域，报表用到的字段、参数、变量、ScriptLet 都在这里。如果没有此窗口，可在“窗口”菜单中打开。
+	区域 2：报表设计区域，画报表的样式。
+	区域 3：组件面板，报表中用到的各种组件。如果没有此窗口，可在“窗口”菜单中打开。
+	区域 4：属性设置区域，报表、报表区域、报表组件等对象属性值的设置区域。如果没有此窗口，可在“窗口”菜单中打开。
+
+在组件面板中有两个常用控件：Static Text 和 Text Field。Static Text 输入字符串文本。Text Field 输入表达式，表达式有标签表达式和Java 语句。
+TextField 控件中输入的必须是表达式，如果直接输入字符串则出错，如果需要输入字符串，则使用Java 字符串语句：String.valueOf("字符串表达式")。
+
+iReport 入门
+	设置数据源
+		点击图中红色框圈住的按钮设置数据源：
+		如果是连接数据库，一般使用“Database JDBC connection”，然后根据提示设置
+		JDBC 参数即可。保存之前可点击测试按钮测试一下是否连接成功。
+		
+	新建空报表
+		选择菜单：File -> New -> Empty report
+	
+	设置查询 SQL
+		点击报表中的红色框圈住的按钮，打开设置数据查询SQL 语句的界面。
+		
+		然后点击“Read Fields”按钮，系统把查询的字段列举在红色框位置处，然后点击“OK”按钮。
+	
+	设计报表
+		从右侧组件面板中拖拽一个“Static text”组件到报表中的“Title”处。并把“Static text”改成“用户列表”。
+	
+		点击左侧的“Report Inspector”按钮打开Report Inspector 面板：
+		
+		把 Report Inspector 面板中Fields 中的字段都拖拽到报表中的“Detail 1”区域中，排列好顺序，对齐，调低“Detail 1”区域的高度。在属性设置区域中把报表名
+		称由默认的“report name”修改成“myreport”，此名称在程序调用时需要用到。
+		
+		点击编译按钮，编译后系统会生成一个后缀为“.jasper”的文件，后面我们将用到这个文件，编译完后在点击预览Preview 按钮：
+	
+	至此一个简单的报表便已经制作好。如果想知道如何在WEB 中运行查看此报表
+	请参看JasperReport 入门一节。
+
+JasperReport 入门
+- 在 WEB 中显示报表
+	首先需要搭建 WEB 环境，请参看JasperReport 安装一节。在WEB 服务根目
+	录下建立reportRun.jsp 程序。把报表编译时生成的后缀为“.jasper”的文件拷
+	贝到WEB 服务根目录下。reportRun.jsp 程序如下：
+
+	<%@ page contentType="text/html;charset=GB2312"%>
+	<%@ page import="net.sf.jasperreports.engine.*"%>
+	<%@ page import="java.util.*"%>
+	<%@ page import="java.io.*"%>
+	<%@ page import="java.sql.*"%>
+	<%
+		String ctxpath = request.getContextPath();
+
+		// 创建数据库连接Connection对象
+		Class.forName("com.mysql.jdbc.Driver");
+		String url = "jdbc:mysql:///activiti";
+		String user = "root";
+		String password = "1230";
+		Connection conn = DriverManager.getConnection(url, user, password);
+		// 报表编译之后生成的.jasper文件的存放位置
+		File reportFile = new File(this.getServletContext().getRealPath(
+				"/report1.jasper"));
+		// 设置参数
+		Map parameters = new HashMap();
+		try {
+			// 执行报表程序
+			JasperRunManager.runReportToHtmlFile(reportFile.getPath(),
+					parameters, conn);
+			response.sendRedirect(ctxpath + "/myreport.html"); // 此处的myreport是报表的名称
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		} finally {
+			try {
+				conn.close();
+			} catch (Exception ex) {
+				System.out.println(ex.getMessage());
+			}
+		}
+	%>
+	执行 WEB 程序，WEB 中显示效果如下：
+	
+
+	

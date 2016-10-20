@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2016-10-19 17:09:39 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.johnny.monitor.access.vo.SystemInfoVO" table="JT_SYSTEM_INFO">
+        <id name="rowId" type="java.lang.Long" access="field">
+            <column name="ROW_ID" />
+            <generator class="native" />
+        </id>
+        <property name="groupId" type="java.lang.Long" access="field">
+            <column name="GROUP_ID" />
+        </property>
+        <property name="enviromentType" type="java.lang.String" access="field">
+            <column name="ENVIROMENT_TYPE" />
+        </property>
+        <property name="enviromentName" type="java.lang.String" access="field">
+            <column name="ENVIROMENT_NAME" />
+        </property>
+        <property name="ipAddr" type="java.lang.String" access="field">
+            <column name="IP_ADDR" />
+        </property>
+        <property name="userName" type="java.lang.String" access="field">
+            <column name="USERNAME" />
+        </property>
+        <property name="passWord" type="java.lang.String" access="field">
+            <column name="PASSWORD" />
+        </property>
+        <property name="orderby" type="int" access="field">
+            <column name="ORDERBY" />
+        </property>
+        <property name="enableFlag" type="java.lang.String" access="field">
+            <column name="ENABLE_FLAG" />
+        </property>
+    </class>
+</hibernate-mapping>

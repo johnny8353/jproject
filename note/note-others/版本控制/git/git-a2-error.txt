@@ -30,9 +30,7 @@
 		commit 422bc088a7d6c5429f1d0760d008d86c505f4abe  
 		Author: zhyq0826 <zhyq0826@gmail.com>  
 		Date:   Tue Sep 4 18:19:23 2012 +0800  
-		  
-		    删除最近搜索数目限制  
-		  
+		删除最近搜索数目限制  
 		commit 8da0fd772c3acabd6e21e85287bdcfcfe8e74c85  
 		Merge: 461ac36 0283074  
 		Author: zhyq0826 <zhyq0826@gmail.com>  
@@ -52,3 +50,21 @@
 	    HEAD 最近一个提交
 	    HEAD^ 上一次
 	    <commit_id>  每次commit的SHA1值. 可以用git log 看到,也可以在页面上commit标签页里找到
+	1>    
+		假设你有3个commit如下：
+		commit 3
+		commit 2
+		commit 1
+		其中最后一次提交commit 3是错误的，那么可以执行：
+		
+		git reset --hard HEAD~1
+		你会发现，HEAD is now at commit 2。
+		
+		然后再使用git push --force将本次变更强行推送至服务器。这样在服务器上的最后一次错误提交也彻底消失了。
+		值得注意的是，这类操作比较比较危险，例如：在你的commit 3之后别人又提交了新的commit 4，那在你强制推送之后，那位仁兄的commit 4也跟着一起消失了。
+	2>	
+		可以用git revert #sha
+		这个命令把#sha版本的改动回退并commit
+		然后再执行git push就行
+		
+		不用删除远程分支 比较优雅

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2016-10-19 17:09:39 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.johnny.monitor.access.vo.SystemMonitorInstanceVO" table="JT_SYSTEM_MONITOR_INSTANCE">
+        <id name="rowId" type="java.lang.Long" access="field">
+            <column name="ROW_ID" />
+            <generator class="native" />
+        </id>
+        <property name="groupId" type="java.lang.Long" access="field">
+            <column name="GROUP_ID" />
+        </property>
+        <property name="batchNum" type="java.lang.String" access="field">
+            <column name="BATCH_NUM" />
+        </property>
+        <property name="systemId" type="java.lang.Long" access="field">
+            <column name="SYSTEM_ID" />
+        </property>
+        <property name="result" type="java.lang.String" access="field">
+            <column name="RESULT" />
+        </property>
+        <property name="resultMessage" type="text" access="field">
+            <column name="RESULT_MESSAGE" />
+        </property>
+        <property name="createDate" type="timestamp" access="field">
+            <column name="CREATE_DATE" />
+        </property>
+        <property name="lastUpdDate" type="timestamp" access="field">
+            <column name="LAST_UPD_DATE" />
+        </property>
+    </class>
+</hibernate-mapping>
