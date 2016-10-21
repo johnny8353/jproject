@@ -8,12 +8,15 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.servlet.ServletConfig;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.johnny.common.util.DateUtil;
+import com.johnny.common.util.ReadFromFile;
 import com.johnny.common.util.StringUtil;
 import com.johnny.monitor.access.vo.SystemGroupVO;
 import com.johnny.monitor.access.vo.SystemInfoVO;
@@ -22,6 +25,7 @@ import com.johnny.monitor.business.service.MonitorService;
 import com.johnny.monitor.business.service.SystemGroupService;
 import com.johnny.monitor.business.service.SystemMonitorInstanceService;
 import com.johnny.monitor.common.data.SysDataDictionary;
+import com.johnny.monitor.common.util.ZMailUtil;
 import com.johnny.monitor.model.SystemBO;
 import com.johnny.monitor.model.SystemListBO;
 
@@ -55,7 +59,7 @@ public class SystemMonitorThread {
 		try {
 			// 初始化数据
 			initData();
-			MonitorSystem("");
+			monitorSystem("");
 			// if (method.equalsIgnoreCase("MonitorSystem")) {// 10分钟一次
 			// // 获取监控结果
 			// MonitorSystem("");
@@ -113,7 +117,7 @@ public class SystemMonitorThread {
 		exec.shutdown();
 	}
 
-	public synchronized void MonitorSystem(String frequency) {
+	public synchronized void monitorSystem(String frequency) {
 		String batchNum = DateUtil.getNowDateTimeStr();
 		try {
 			if (monitorListBO == null) {
@@ -142,6 +146,7 @@ public class SystemMonitorThread {
 						envName = groupVO.getSysName() + "_"
 								+ systemInfoVO.getEnviromentName() + "_"
 								+ systemInfoVO.getIpAddr();
+						
 						ExecuteControl();
 						String messageString = StringUtil
 								.retBlankIfNull(monitor.getsMessage());
@@ -167,10 +172,20 @@ public class SystemMonitorThread {
 					systemMonitorInstanceService.save(entity);
 				}
 			}
+			//报表生产
+			String fileFullPath = "";
+			emailNotify(batchNum,fileFullPath);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void emailNotify(String batchNum,String fileFullPath){
+		String fNameStr = ReadFromFile.readFileByLines(fileFullPath);
+		
+		String result = ZMailUtil.invokeDPGSendTestMail("6092002318@zte.com.cn","服务器监控结果",fNameStr);
+		log.info("sendmail finished-----result:"+result);
 	}
 
 	/**

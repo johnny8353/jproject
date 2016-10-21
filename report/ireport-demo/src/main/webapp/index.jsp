@@ -30,6 +30,13 @@
 	<h3>
 		<a href="JRExportServlet?type=html&fileName=UserReport.html">html文件</a>
 	</h3>
+	<h3>
+		<a href="JRMonitorServlet?type=html&fileName=UserReport.html">JRMonitorServlet html文件</a><br />
+		<a href="JRMonitorServlet?type=word&fileName=UserReport.doc">JRMonitorServlet word文件</a><br />
+		<a href="JRMonitorServlet?type=excel&fileName=UserReport.xls">JRMonitorServlet excel文件</a><br />
+		<a href="JRMonitorServlet?type=pdf&fileName=UserReport.pdf">JRMonitorServlet pdf文件</a><br />
+		<a href="JRMonitorServlet?type=pdfview&fileName=UserReport.pdf">JRMonitorServlet pdfview文件</a><br />
+	</h3>
 	<br>
 	<h3>
 		<a href="JRHTMLServlet">Servlet中生成HTML</a>&nbsp;&nbsp;&nbsp; <a

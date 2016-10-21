@@ -84,6 +84,7 @@ public class JasperExportUtils {
 				+ fileName);
 		ServletOutputStream ouputStream = response.getOutputStream();
 		JRXlsExporter exporter = new JRXlsExporter();
+		jasperPrint.setProperty("net.sf.jasperreports.export.xls.ignore.graphics", "true");
 		exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
 		exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, ouputStream);
 		exporter.setParameter(
@@ -93,6 +94,8 @@ public class JasperExportUtils {
 				Boolean.FALSE);
 		exporter.setParameter(JRXlsExporterParameter.IS_WHITE_PAGE_BACKGROUND,
 				Boolean.FALSE);
+		exporter.setParameter(JRXlsExporterParameter.CHARACTER_ENCODING, "UTF-8");
+		exporter.setParameter(JRXlsExporterParameter.IS_DETECT_CELL_TYPE, Boolean.TRUE);
 		exporter.exportReport();
 		ouputStream.flush();
 		ouputStream.close();
@@ -133,11 +136,22 @@ public class JasperExportUtils {
 		ouputStream.flush();
 		ouputStream.close();
 	}
-
+	/**
+	 * 导出html johnnyHuang
+	 */
+	public static void exportHtml(JasperPrint jasperPrint,
+			HttpServletRequest request, HttpServletResponse response)
+			throws IOException, JRException {
+		String ctxpath = request.getContextPath();
+		String filename = "/html/monitorReport_"+(String) request.getAttribute("htmlFile")+".html";
+		String destFileName = request.getServletContext().getRealPath(filename);
+		JasperExportManager.exportReportToHtmlFile(jasperPrint, destFileName );
+		response.sendRedirect(ctxpath + filename); // 此处的myreport是报表的名称
+	}
 	/**
 	 * 导出html
 	 */
-	public static void exportHtml(JasperPrint jasperPrint,
+	public static void exportHtml2(JasperPrint jasperPrint,
 			HttpServletRequest request, HttpServletResponse response)
 			throws IOException, JRException {
 		response.setContentType("text/html");
@@ -149,6 +163,9 @@ public class JasperExportUtils {
 		exporter.setParameter(JRExporterParameter.CHARACTER_ENCODING, JASPER_EXPORT_ENCODE);
 		exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, ouputStream);
 		exporter.exportReport();
+		exporter.setParameter(
+	              JRHtmlExporterParameter.IMAGES_URI,
+	              "html/image?image=");
 		ouputStream.flush();
 		ouputStream.close();
 	}

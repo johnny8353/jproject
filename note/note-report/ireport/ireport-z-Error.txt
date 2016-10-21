@@ -11,3 +11,22 @@
 
 	solution:
 	绕了一圈后我决定深入代码去分析问题的原因，很快我就发现原来是jasperreports在调用itext.jar(另外一个开源项目)创建字体的时候出现了问题，查阅了itext的使用，原来它在使用亚洲字体的时候还有其他两个包iTextAsian.jar, 并且把它们关联到项目中，问题就解决了！
+	
+>	Error filling print... Error incrementing crosstab dataset
+	jasperreport中设计crosstab要把crosstab放在summary中不然会报错 
+	
+>	Font 'STSong-Light' with 'UniGB-UCS2-H' is not recognized.
+	问题可以确定了，就是上面itext-asian和itext的版本不对应，改为：
+	<dependency>
+	    <groupId>com.itextpdf</groupId>
+	    <artifactId>itextpdf</artifactId>
+	    <version>5.4.3</version>
+	</dependency>
+	再次运行，ok了。
+	
+>	导出为Excel 报错，文件大小为空
+	net.sf.jasperreports.engine.JRException: The cell cannot be added
+	解决：
+	jasperPrint.setProperty("net.sf.jasperreports.export.xls.ignore.graphics", "true");
+
+	

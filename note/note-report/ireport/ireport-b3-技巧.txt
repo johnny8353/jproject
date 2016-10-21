@@ -5,7 +5,8 @@
 5.3. 数字型字段值到字符的转换
 	String.valueOf($F{year})
 	
-	
+ireport textField加边框
+	textField点右键，选择“Padding and Borders”，设定边框	
 	
 如何学习
 	git下载https://github.com/Jaspersoft/jasperreports/releases 源码，进行学习

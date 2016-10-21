@@ -15,6 +15,5 @@ public class Start {
 		String webroot = System.getProperty("user.dir");
 		String path = "";
 		JettyStartDirectory.start(webroot, path);
-		
 	}
 }

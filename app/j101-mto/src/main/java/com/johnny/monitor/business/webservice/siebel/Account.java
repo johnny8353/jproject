@@ -5,7 +5,7 @@
  * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
  */
 
-package com.siebel.www.xml.Account_EMR;
+package com.johnny.monitor.business.webservice.siebel;
 
 public class Account  implements java.io.Serializable {
     private java.lang.String accountId;
@@ -34,11 +34,11 @@ public class Account  implements java.io.Serializable {
 
     private java.lang.String modId;
 
-    private com.siebel.www.xml.Account_EMR.RelatedContact[] listOfRelatedContact;
+    private com.johnny.monitor.business.webservice.siebel.RelatedContact[] listOfRelatedContact;
 
-    private com.siebel.www.xml.Account_EMR.RelatedOpportunity[] listOfRelatedOpportunity;
+    private com.johnny.monitor.business.webservice.siebel.RelatedOpportunity[] listOfRelatedOpportunity;
 
-    private com.siebel.www.xml.Account_EMR.RelatedServiceRequest[] listOfRelatedServiceRequest;
+    private com.johnny.monitor.business.webservice.siebel.RelatedServiceRequest[] listOfRelatedServiceRequest;
 
     private java.lang.String operation;  // attribute
 
@@ -59,9 +59,9 @@ public class Account  implements java.io.Serializable {
            java.lang.String parentAccountName,
            java.lang.String primaryOrganization,
            java.lang.String modId,
-           com.siebel.www.xml.Account_EMR.RelatedContact[] listOfRelatedContact,
-           com.siebel.www.xml.Account_EMR.RelatedOpportunity[] listOfRelatedOpportunity,
-           com.siebel.www.xml.Account_EMR.RelatedServiceRequest[] listOfRelatedServiceRequest,
+           com.johnny.monitor.business.webservice.siebel.RelatedContact[] listOfRelatedContact,
+           com.johnny.monitor.business.webservice.siebel.RelatedOpportunity[] listOfRelatedOpportunity,
+           com.johnny.monitor.business.webservice.siebel.RelatedServiceRequest[] listOfRelatedServiceRequest,
            java.lang.String operation) {
            this.accountId = accountId;
            this.accountStatus = accountStatus;
@@ -348,7 +348,7 @@ public class Account  implements java.io.Serializable {
      * 
      * @return listOfRelatedContact
      */
-    public com.siebel.www.xml.Account_EMR.RelatedContact[] getListOfRelatedContact() {
+    public com.johnny.monitor.business.webservice.siebel.RelatedContact[] getListOfRelatedContact() {
         return listOfRelatedContact;
     }
 
@@ -358,7 +358,7 @@ public class Account  implements java.io.Serializable {
      * 
      * @param listOfRelatedContact
      */
-    public void setListOfRelatedContact(com.siebel.www.xml.Account_EMR.RelatedContact[] listOfRelatedContact) {
+    public void setListOfRelatedContact(com.johnny.monitor.business.webservice.siebel.RelatedContact[] listOfRelatedContact) {
         this.listOfRelatedContact = listOfRelatedContact;
     }
 
@@ -368,7 +368,7 @@ public class Account  implements java.io.Serializable {
      * 
      * @return listOfRelatedOpportunity
      */
-    public com.siebel.www.xml.Account_EMR.RelatedOpportunity[] getListOfRelatedOpportunity() {
+    public com.johnny.monitor.business.webservice.siebel.RelatedOpportunity[] getListOfRelatedOpportunity() {
         return listOfRelatedOpportunity;
     }
 
@@ -378,7 +378,7 @@ public class Account  implements java.io.Serializable {
      * 
      * @param listOfRelatedOpportunity
      */
-    public void setListOfRelatedOpportunity(com.siebel.www.xml.Account_EMR.RelatedOpportunity[] listOfRelatedOpportunity) {
+    public void setListOfRelatedOpportunity(com.johnny.monitor.business.webservice.siebel.RelatedOpportunity[] listOfRelatedOpportunity) {
         this.listOfRelatedOpportunity = listOfRelatedOpportunity;
     }
 
@@ -388,7 +388,7 @@ public class Account  implements java.io.Serializable {
      * 
      * @return listOfRelatedServiceRequest
      */
-    public com.siebel.www.xml.Account_EMR.RelatedServiceRequest[] getListOfRelatedServiceRequest() {
+    public com.johnny.monitor.business.webservice.siebel.RelatedServiceRequest[] getListOfRelatedServiceRequest() {
         return listOfRelatedServiceRequest;
     }
 
@@ -398,7 +398,7 @@ public class Account  implements java.io.Serializable {
      * 
      * @param listOfRelatedServiceRequest
      */
-    public void setListOfRelatedServiceRequest(com.siebel.www.xml.Account_EMR.RelatedServiceRequest[] listOfRelatedServiceRequest) {
+    public void setListOfRelatedServiceRequest(com.johnny.monitor.business.webservice.siebel.RelatedServiceRequest[] listOfRelatedServiceRequest) {
         this.listOfRelatedServiceRequest = listOfRelatedServiceRequest;
     }
 

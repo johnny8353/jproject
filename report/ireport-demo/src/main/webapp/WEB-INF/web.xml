@@ -12,6 +12,14 @@
 		<servlet-name>JRExportServlet</servlet-name>
 		<url-pattern>/JRExportServlet</url-pattern>
 	</servlet-mapping>
+	<servlet>
+		<servlet-name>JRMonitorServlet</servlet-name>
+		<servlet-class>com.johnny.ireport.servlet.JRMonitorServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JRMonitorServlet</servlet-name>
+		<url-pattern>/JRMonitorServlet</url-pattern>
+	</servlet-mapping>
 
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>

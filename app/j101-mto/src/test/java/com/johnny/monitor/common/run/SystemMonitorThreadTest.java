@@ -32,7 +32,12 @@ public class SystemMonitorThreadTest {
 	@Test
 	public void test() {
 		SystemMonitorThread systemMonitorThread = (SystemMonitorThread) ctx.getBean("systemMonitorThread");
-		systemMonitorThread.MonitorSystem("");
+		systemMonitorThread.monitorSystem("");
+	}
+	@Test
+	public void testEmailNotify() {
+		SystemMonitorThread systemMonitorThread = (SystemMonitorThread) ctx.getBean("systemMonitorThread");
+		systemMonitorThread.emailNotify("","D:\\GIT\\johnnymaven\\report\\ireport-demo\\src\\main\\webapp\\html\\monitorReport_201610294213226188.html");
 	}
 
 }
