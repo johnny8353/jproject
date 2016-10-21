@@ -1,0 +1,27 @@
+-- sql打印执行时间 Created on 2016/10/21 by ADMINISTRATOR 
+declare
+  -- Local variables here
+  i        integer;
+  v_start  varchar2(200);
+  v_end    varchar2(200);
+  duration varchar2(200);
+  vformat  varchar2(200) := 'yyyy-mm-dd hh24:mi:ss.ff';
+  dformat  varchar2(200) := 'yyyy-mm-dd hh24:mi:ss.ff';
+begin
+  -- Test statements here
+  select to_char(systimestamp, vformat) into v_start from dual;
+  for p in 1 .. 1000 loop
+    select count(1)
+      into i
+      from all_jobs t
+     where t.WHAT like '%est_job_main_pkg.ECC_EST_MAIN_P%';
+  end loop;
+  select to_char(systimestamp, vformat) into v_end from dual;
+  select to_char((to_timestamp(v_end, vformat) -
+                 (to_timestamp(v_start, vformat))))
+    into duration
+    from dual;
+  dbms_output.put_line('' || '开始时间_' || v_start || '，结束时间_' || v_end);
+  dbms_output.put_line('花费时间_' || duration);
+
+end;
