@@ -9,7 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.johnny.common.service.HibernateBaseServiceImpl;
+import com.johnny.common.business.service.HibernateBaseServiceImpl;
 import com.johnny.monitor.access.dao.SystemGroupDao;
 import com.johnny.monitor.access.dao.SystemInfoDao;
 import com.johnny.monitor.access.vo.SystemGroupVO;

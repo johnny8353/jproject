@@ -1,4 +1,4 @@
-package com.johnny.common.dao;
+package com.johnny.common.access.dao;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
@@ -330,7 +330,15 @@ public class HibernateBaseDaoImpl<T> extends HibernateSessionDao implements
 		Iterator iterator = parameterMap.keySet().iterator(); iterator
 				.hasNext();) {
 			String key = (String) iterator.next();
-			query.setParameter(key, parameterMap.get(key));
+			Object obj = parameterMap.get(key);
+			//这里考虑传入的参数是什么类型，不同类型使用的方法不同
+			if(obj instanceof Collection<?>){
+				query.setParameterList(key, (Collection<?>)obj);
+			}else if(obj instanceof Object[]){
+				query.setParameterList(key, (Object[])obj);
+			}else{
+				query.setParameter(key, parameterMap.get(key));
+			}
 		}
 		return query;
 	}

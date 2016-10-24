@@ -12,6 +12,16 @@
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
-	
-	
+
+	<servlet>
+		<servlet-name>TaskStartupServlet</servlet-name>
+		<servlet-class>com.johnny.task.common.run.StartupServlet</servlet-class>
+		<init-param>
+			<param-name>suspend</param-name>
+			<!-- 线程是否挂起，true:挂起，即线程不执行；false:不挂起，即按既定的时间周期执行线程 -->
+			<param-value>false</param-value>
+		</init-param>
+		<load-on-startup>5</load-on-startup>
+	</servlet>
+
 </web-app>

@@ -1,0 +1,19 @@
+Group
+	一 个group有下面几个属性需要我们去定义：
+		Group name:为这个group指定一个名称，group创建完成后会产生两个新的band : header和footer band，这两个band的名称采用group的名称来定义。
+		Start on a new column:如果此选项勾选，那么分组只会在报表中的新的column产生，也就是说在一页中报表分组在一个column里只会做一次。
+		Start on a new page:与上面的选项类似，如果该选项勾选，那么分组只会在每一页做一次，也就是说每一页最多只会有一个分组数据。
+		Reset page number:该选项允许在一个新组开始的时候重设页号。
+		Print header on each page:如果该选项勾选，那么如果当前页没能显示完组里的所有数据时，到一页显示该数据时会把该组的header打印出来，否则将不会打印。
+		Min height to start new page:该选项用来设置当前报表中页面所余下的高度的最小值分组的最小值，默认值是0，如果我们设置为100，表示如果当前页面余下的高度小于100就不再继续显示分组的数据，而是在下一页显示分组的数据。
+		Group expression : 分组时采用的表达式规则，如上图中我们在定义dept这个group时我们在Group Expression里输入了$F{DEPT_ID}，表示将该组按员工的DEPT_ID字段进行分组显示。
+		Group header band height:新产生的header band的高度。
+		Group footer band height:新产生的footer band的高度。
+		
+	在jasperreport里group的数量是没有限制的，一个group可以有一个父group同时也可以有若干个子group。通过group定义列表，我们可以通过”move up”和”move down”来设置group的顺序。
+	
+	Groups和records的排序
+		我们可以在设置查询的地方选择设置选项来使ireport自动对依据字段进行排序，我们也可以在创建一个group时要对分组的字段做好正确的排序工作。
+		比如在sql中我们可以添加“order by ”来对要分组的字段进行排序。
+
+

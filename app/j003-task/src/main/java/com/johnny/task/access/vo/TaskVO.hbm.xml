@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2016-10-24 15:26:39 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.johnny.task.access.vo.TaskVO" table="JT_TASK">
+        <id name="rowId" type="java.lang.Long">
+            <column name="ROW_ID" />
+            <generator class="native" />
+        </id>
+        <property name="createDate" type="timestamp" >
+            <column name="CREATE_DATE" />
+        </property>
+        <property name="createdBy" type="java.lang.String">
+            <column name="CREATED_BY" />
+        </property>
+        <property name="lastUpdDate" type="timestamp" >
+            <column name="LAST_UPD_DATE" />
+        </property>
+        <property name="lastUpdBy" type="java.lang.String">
+            <column name="LAST_UPD_BY" />
+        </property>
+        <property name="modificationNum" type="java.lang.Long">
+            <column name="MODIFICATION_NUM" />
+        </property>
+        <property name="conflictId" type="java.lang.String">
+            <column name="CONFLICT_ID" />
+        </property>
+        <property name="actlEndDt" type="timestamp" >
+            <column name="ACTL_END_DT" />
+        </property>
+        <property name="actlStartDt" type="timestamp" >
+            <column name="ACTL_START_DT" />
+        </property>
+        <property name="dbLastUpd" type="timestamp" >
+            <column name="DB_LAST_UPD" />
+        </property>
+        <property name="expirationDt" type="timestamp" >
+            <column name="EXPIRATION_DT" />
+        </property>
+        <property name="schedStartDt" type="timestamp" >
+            <column name="SCHED_START_DT" />
+        </property>
+        <property name="submitDate" type="timestamp" >
+            <column name="SUBMIT_DATE" />
+        </property>
+        <property name="className" type="java.lang.String">
+            <column name="CLASS_NAME" />
+        </property>
+        <property name="completionCd" type="java.lang.String">
+            <column name="COMPLETION_CD" />
+        </property>
+        <property name="completionText" type="java.lang.String">
+            <column name="COMPLETION_TEXT" />
+        </property>
+        <property name="dbLastUpdSrc" type="java.lang.String">
+            <column name="DB_LAST_UPD_SRC" />
+        </property>
+        <property name="descText" type="java.lang.String">
+            <column name="DESC_TEXT" />
+        </property>
+        <property name="execSrvrName" type="java.lang.String">
+            <column name="EXEC_SRVR_NAME" />
+        </property>
+        <property name="method" type="java.lang.String">
+            <column name="METHOD" />
+        </property>
+        <property name="tmodel" type="java.lang.String">
+            <column name="TMODEL" />
+        </property>
+        <property name="rptFlag" type="java.lang.String">
+            <column name="RPT_FLAG" />
+        </property>
+        <property name="rptInterval" type="java.lang.String">
+            <column name="RPT_INTERVAL" />
+        </property>
+        <property name="rptUom" type="java.lang.String">
+            <column name="RPT_UOM" />
+        </property>
+        <property name="status" type="java.lang.String">
+            <column name="STATUS" />
+        </property>
+        <property name="taskPid" type="java.lang.String">
+            <column name="TASK_PID" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -26,6 +26,7 @@
 		<module>webservice</module>
 		<module>bpm</module>
 		<module>report</module>
+		<module>app</module>
 	</modules>
 
 	<properties>

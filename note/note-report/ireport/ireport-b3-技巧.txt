@@ -8,6 +8,41 @@
 ireport textField加边框
 	textField点右键，选择“Padding and Borders”，设定边框	
 	
+ireport 下 sql 不支持中文
+	jdbc:mysql://localhost/mto?useUnicode=true&characterEncoding=UTF-8
+	
+隔行变色
+	利用iReport + JasperReport 生成PDF列表隔行变色，只需设置设计工具属性，具体步骤如下：
+	1、组件面板 拖拽一个“Recntangle” 到需要显示变色的区域
+	2、点击该“Recntangle”，在设计工具右侧属性栏目里对该Recntangle进行颜色RGB值设定
+	3、在属性栏Print When Expression 里设置“$V{COLUMN_COUNT}.intValue() % 2 != 0”条件即可。
+	注：$V{COLUMN_COUNT}.intValue() % 2 != 0表示列表奇数行变色，偶数行不变色。
+	
+JasperReport中的超链接和锚 
+	有时我们想在报表中为某个关键字添加超链接或锚,使鼠标点击该关键字时跳转页面.针对这一小功能,jasperreports 也提供了支持,在ireport中操作很简单.
+	不是所有的元素都支持超链接,目前我所知道支持超链接的常用元素有,动态文本框元素(Text Field),位图元素(Image),图表元素(Chart tool).
+	这三种元素设置超链接的方法都是一样,所以只介绍动态文本框如何设置超链接.
+ 
+	如何在ireport中插入超链接?
+	由于静态文本框不支持超链接,所以只能通过动态文本框为静态文字设置超链接,操作方法如下所述:
+	1.在工具栏中选中 Text Field 按钮,回到 Detail 区域,绘制一个Text Field (与绘制矩形方法一样),然后在该Text Field 上点右键,选 Edit Expresion,
+	在弹出的窗口中输入表达式 "超链接",然后再点 apply 按钮.(注意: "超链接"要包含双引号)
+	2.打开该 Text Field 的属性框,选 Hyperlink 选项卡,将 Hyperlink target 改为 blank,Hyperlink Type 改为 Reference,
+	在Hyperlink Reference Expression框中输入"http://blog.sina.com.cn/hy0704",再点关闭.(注意: "http://blog.sina.com.cn/hy0704" 要包含双引号)
+	此时一个超链接已设置好,导出pdf,html文件看看,点击"超链接"即可弹出网页.
+	 
+	如何在ireport中插入锚?
+	其实锚是超链接的一种特殊形式,因此支持超链接的元素都支持锚,不支持超链接的元素都不支持锚,锚的设置也很简单,只要你知道使用html的<a>设置锚,那么ireport也是差不多的.
+	设置锚,也需要两步操作
+	1.设置锚对象
+	在 Title 区域绘制一个动态文本框,输入表达式 “2007年终财务报表”,再打开它的Hyperlink 选项卡,在 Anchor Name Expression 框中输入 “title”,点关闭.
+	此时已定义了一个锚对象.它的锚名字是 title.
+	2.链接锚对象
+	在 Detail区域绘制一个动态文本框,输入表达式 “返回顶部”,再打开它的 Hyperlink 选项卡,将Hyperlink target改为 self,
+	Hyperlink Type 改为 LocalAnchor,在Hyperlink Anchor Expression框中输入 “title”,点关闭.
+	一个锚链接已设置完毕,导出pdf,html看看,当然,如果你的报表内容不多,那么锚起不到任何作用.
+ 
+	
 如何学习
 	git下载https://github.com/Jaspersoft/jasperreports/releases 源码，进行学习
 	

@@ -1,9 +1,9 @@
 package com.johnny.ireport.servlet;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,15 +23,12 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.base.JRBaseReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.export.HtmlResourceHandler;
 import net.sf.jasperreports.engine.export.JRHtmlExporter;
 import net.sf.jasperreports.engine.export.JRHtmlExporterParameter;
-import net.sf.jasperreports.engine.export.JRHtmlReportConfiguration;
 import net.sf.jasperreports.engine.export.JRRtfExporter;
 import net.sf.jasperreports.engine.export.JRXlsExporter;
 import net.sf.jasperreports.engine.export.JRXlsExporterParameter;
 import net.sf.jasperreports.engine.util.JRLoader;
-import net.sf.jasperreports.view.save.JRHtmlSaveContributor;
 
 public class JasperExportUtils {
 	public static final String PRINT_TYPE = "print";
@@ -145,6 +142,10 @@ public class JasperExportUtils {
 		String ctxpath = request.getContextPath();
 		String filename = "/html/monitorReport_"+(String) request.getAttribute("htmlFile")+".html";
 		String destFileName = request.getServletContext().getRealPath(filename);
+		File dest = new File(destFileName);
+		if(dest.exists()){
+			dest.delete();
+		}
 		JasperExportManager.exportReportToHtmlFile(jasperPrint, destFileName );
 		response.sendRedirect(ctxpath + filename); // 此处的myreport是报表的名称
 	}

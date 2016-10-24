@@ -33,7 +33,7 @@ public class JRMonitorServlet  extends HttpServlet {
 			throws ServletException, IOException {
 		Connection conn = null;
 		// 创建数据库连接Connection对象
-		String url = "jdbc:mysql:///activiti";
+		String url = "jdbc:mysql:///mto?useUnicode=true&characterEncoding=UTF-8";
 		String user = "root";
 		String password = "1230";
 		try {
@@ -48,10 +48,10 @@ public class JRMonitorServlet  extends HttpServlet {
 				"/jasper/monitorReport.jasper"));
 
 		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("year", "2009");
-		parameters.put("unit_mc", "武汉XX科技有限公司");
+		parameters.put("P_BATCH_NUM", "201610294211917016");
+		parameters.put("isShowImage", "true");
 		String type = request.getParameter("type");
-		request.setAttribute("htmlFile", "201610294213226188");
+		request.setAttribute("htmlFile", "201610294211917016");
 		
 		System.out.println(type);
 		JasperPrint jasperPrint;

@@ -1,4 +1,4 @@
-package com.johnny.common.dao;
+package com.johnny.common.access.dao;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

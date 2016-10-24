@@ -31,3 +31,32 @@
 	Solution:
 	1.配置实体类时为@Entity导包时 错误的导入了 import org.hibernate.annotations.Entity 应该更改为import javax.persistence.Entity; 
 	2.另外有些报org.hibernate.MappingException: Unknown entity,可能是没有在cfg文件中加入 *.hbm.xml造成的
+	
+>	[Hibernate框架]Hql语句in中带参数的写法发生异常：ljava.lang.Integer cannot be cast to java.lang.Integer
+	String hql = "FROM Login login WHERE login.id in(:ids)";
+	Map<String,Object> map = new HashMap<String,Object>();
+	Integer[] ids = new Integer[]{1,2,3};
+	map.put("ids",ids);
+	List<Login> lstLogin = (List<Login>)xxxDao.findByHql(hql,map,0,0);
+	
+	也就是说hibernate把ids这个参数当做一个Integer对象了而不是一个集合。
+	原来对hibernate中setParameter这个方法还不熟悉:Query接口提供了多种传递参数的方法，可以是传单独参数，也可以传集合，如下图
+	也就是说，前面使用数组集合的话则必须调用setParameterList方法。
+	那么改一下Dao层的setParameter方法即可达到通用了：
+	private Query setParameter(Query query, Map<String, Object> map) {
+		if (map != null) {
+			Set<String> keySet = map.keySet();
+			for (String string : keySet) {
+				Object obj = map.get(string);
+				//这里考虑传入的参数是什么类型，不同类型使用的方法不同
+				if(obj instanceof Collection<?>){
+					query.setParameterList(string, (Collection<?>)obj);
+				}else if(obj instanceof Object[]){
+					query.setParameterList(string, (Object[])obj);
+				}else{
+					query.setParameter(string, obj);
+				}
+			}
+		}
+		return query;
+	}

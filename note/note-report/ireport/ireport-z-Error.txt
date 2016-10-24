@@ -1,3 +1,9 @@
+>	经常出现数据不显示以及其导致的图形报表不显示
+	在sqlyog是可以查到数据，单ireport查不到数据
+	或者说在ireport可以查到数据库，但是在java代码却查不到数据
+	
+	导致的原因很有可能是因为查询条件包含中文，需要考虑中文的问题，在jdbc url添加utf-8编码
+
 > 	Question:
 	java.lang.NoClassDefFoundError: org/codehaus/groovy/control/CompilationFailedException
 	solution:
@@ -24,9 +30,17 @@
 	</dependency>
 	再次运行，ok了。
 	
+>	JRRuntimeException: Could not load the following font : 
+		pdfFontName   : STSong-Light
+		pdfEncoding   : UniGB-UCS2-H
+		isPdfEmbedded : true
+	
 >	导出为Excel 报错，文件大小为空
 	net.sf.jasperreports.engine.JRException: The cell cannot be added
 	解决：
 	jasperPrint.setProperty("net.sf.jasperreports.export.xls.ignore.graphics", "true");
 
-	
+>	java.lang.IllegalArgumentException: Null 'dataset' argument.
+
+Thanks for the report. I just committed a fix to Subversion for inclusion in the 1.0.13 release (the findRangeBounds() 
+method is missing a null dataset check --- see the same method in StackedBarRenderer and note the difference).

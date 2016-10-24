@@ -1,0 +1,21 @@
+	
+使用：
+	安装mysql_win64.msi
+	安装的时候 服务器 默认字符集选择utf8
+	安装的时候 设置服务器 root的密码
+	
+中文乱码	
+	SHOW VARIABLES LIKE 'character_set_%'
+	
+	将网站编码设为 utf-8,这样可以兼容世界上所有字符。
+　　	如果网站已经运作了好久,已有很多旧数据,不能再更改简体中文的设定,那么建议将页面的编码设为 GBK, GBK与GB2312的区别就在于:GBK能比GB2312显示更多的字符,要显示简体码的繁体字,就只能用GBK。
+	1.编辑/etc/my.cnf　,在[mysql]段加入default_character_set=utf8;
+		windows my.ini: 具体看mysql服务启动的配置文件
+		"C:\xampp\mysql\bin\mysqld.exe" --defaults-file="C:\xampp\mysql\bin\my.ini" MySQL
+			把默认的latin1 修改为 utf8 ,然后重启服务器
+			[mysqld]
+			character-set-server=utf8
+			[mysql]
+			default-character-set=utf8
+	2.在编写Connection URL时，加上?useUnicode=true&characterEncoding=utf-8参;
+	3.在网页代码中加上一个"set names utf8"或者"set names gbk"的指令，告诉MySQL连线内容都要使用utf8或者gbk;

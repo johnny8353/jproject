@@ -6,6 +6,13 @@ Eclipse Juno (4.2)
 
 打包jar	-	eclipse-jee-kepler-SR1-win32\eclipse
 
+启动选择工作空间
+	比如你写一个eclipse_workplace.bat文件其中写上"eclipse.exe -data c:\workplace"。你一执行这个脚本，eclipse就按照
+	c:\workplace为工作路径了 
+	你也可以写一个eclipse_workplace2.bat文件其中写上"eclipse.exe -data $1"。之后你在控制台输入eclipse_workplace2.bat
+	
+
+
 设置eclipse中的${user} 
 	打开eclipse目录下的eclipse.ini文件，添加上一行ASNI编码
 	-Duser.name=JohnnyHuang 黄福强

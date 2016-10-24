@@ -67,7 +67,9 @@
 	<!-- 3. 配置事务切点, 并把切点和事务属性关联起来 -->
 	<aop:config>
 		<aop:pointcut
-			expression="execution(* com.johnny.monitor.business.service.*.*(..))||execution(* com.johnny.common.service.*.*(..))"
+			expression="execution(* com.johnny.monitor.business.service.*.*(..))
+			||execution(* com.johnny.common.business.service.*.*(..))
+			||execution(* com.johnny.task.business.service.*.*(..))"
 			id="txPointcut" />
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut" />
 	</aop:config>

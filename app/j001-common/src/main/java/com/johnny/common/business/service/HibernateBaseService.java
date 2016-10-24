@@ -1,4 +1,4 @@
-package com.johnny.common.service;
+package com.johnny.common.business.service;
 
 
 import java.io.Serializable;
@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.johnny.common.dao.HibernateBaseDao;
-import com.johnny.common.dao.HibernateHandler;
-import com.johnny.common.dao.Pagination;
+import com.johnny.common.access.dao.HibernateBaseDao;
+import com.johnny.common.access.dao.HibernateHandler;
+import com.johnny.common.access.dao.Pagination;
 
 public interface HibernateBaseService<T>{
 

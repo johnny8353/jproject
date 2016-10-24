@@ -15,7 +15,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.johnny.basic.TestCaseBase;
 import com.johnny.basic.TestCaseSeq;
-import com.johnny.common.dao.Pagination;
+import com.johnny.common.access.dao.Pagination;
 import com.johnny.monitor.access.vo.SystemGroupVO;
 import com.johnny.monitor.model.SystemListBO;
 

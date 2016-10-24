@@ -219,11 +219,11 @@ public abstract class DateUtil {
 		return dateToString(new Date(), completeMMMDateFormat);
 	}
 	/**
-	 * 
+	 * yyyy-MM-dd HH:mm:ss.SSS
 	 * @return
 	 */
 	public static String getNowDateTimeStr() {
-		return dateToString(new Date(), "YYYYMMDDHHmmssSSS");
+		return dateToString(new Date(), "yyyyMMddHHmmssSSS");
 	}
 	public static String dateToStringMMM(Date date) {
 		return dateToString(date, completeMMMDateFormat);
