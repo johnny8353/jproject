@@ -1,0 +1,923 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="monitorReport" language="groovy" pageWidth="842" pageHeight="1190" whenNoDataType="AllSectionsNoDetail" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="1" bottomMargin="1" isIgnorePagination="true" uuid="d2389e73-3b12-48a9-8ac6-e468bb97d270">
+	<property name="ireport.zoom" value="0.6830134553650707"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.callouts" value="##Fri Oct 21 15:54:35 CST 2016"/>
+	<style name="Crosstab Data Text" hAlign="Center"/>
+	<style name="result_style">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{RESULT}.equals( "错误" )]]></conditionExpression>
+			<style mode="Opaque" forecolor="#FF0033" backcolor="#FFFFFF" fill="Solid" fontName="SansSerif" fontSize="10" isBold="true"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{RESULT}.equals( "暂不监控" )]]></conditionExpression>
+			<style mode="Opaque" forecolor="#00FF33">
+				<pen lineColor="#000000"/>
+			</style>
+		</conditionalStyle>
+	</style>
+	<subDataset name="AllMonitorDS_week" uuid="5b5077d8-717c-4f35-878a-73f7b0aa5711">
+		<queryString>
+			<![CDATA[SELECT
+  ins.`ROW_ID` instance_id,
+  ins.`GROUP_ID`,
+  g.`SYS_TYPE`,
+  g.`SYS_CODE`,
+  g.`SYS_NAME`,
+  ins.`SYSTEM_ID`,
+  info.`ENVIROMENT_NAME`,
+  info.`ENVIROMENT_TYPE`,
+  info.`IP_ADDR`,
+  ins.`RESULT`,
+  ins.`RESULT_MESSAGE`,
+  ins.`CREATE_DATE`,
+  ins.`LAST_UPD_DATE`,
+  ins.`BATCH_NUM`
+FROM `mto`.`jt_system_monitor_instance` ins
+LEFT JOIN mto.`jt_system_group` g ON g.`ROW_ID` = ins.`GROUP_ID`
+LEFT JOIN mto.`jt_system_info` info ON info.`ROW_ID` = ins.`SYSTEM_ID`
+WHERE  ins.`CREATE_DATE`> DATE_ADD(NOW(), INTERVAL -7 DAY)
+ORDER BY g.`SYS_CODE` DESC,ins.`ROW_ID` ASC;]]>
+		</queryString>
+		<field name="instance_id" class="java.lang.Long"/>
+		<field name="GROUP_ID" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="SYS_TYPE" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="SYS_CODE" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="SYS_NAME" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="SYSTEM_ID" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="ENVIROMENT_NAME" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="ENVIROMENT_TYPE" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="IP_ADDR" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="RESULT" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="RESULT_MESSAGE" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="CREATE_DATE" class="java.sql.Timestamp">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="LAST_UPD_DATE" class="java.sql.Timestamp">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="BATCH_NUM" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+	</subDataset>
+	<subDataset name="systemRateDS_week" uuid="5afe7474-aa3b-4dfa-b7f1-a7bd712d977f">
+		<queryString>
+			<![CDATA[SELECT
+  g.`SYS_CODE`,COUNT(1) cnt,ROUND(
+  COUNT(1) /
+  (SELECT
+    COUNT(1)
+  FROM
+    `mto`.`jt_system_monitor_instance` ins
+  WHERE ins.`CREATE_DATE` > DATE_ADD(NOW(), INTERVAL - 7 DAY)
+    AND ins.`RESULT` = "错误")*100,2) num
+FROM
+  `mto`.`jt_system_monitor_instance` ins
+  LEFT JOIN mto.`jt_system_group` g
+    ON g.`ROW_ID` = ins.`GROUP_ID`
+WHERE ins.`CREATE_DATE` > DATE_ADD(NOW(), INTERVAL - 7 DAY)
+  AND ins.`RESULT` = "错误"
+GROUP BY g.`SYS_CODE`]]>
+		</queryString>
+		<field name="SYS_CODE" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="cnt" class="java.lang.Long"/>
+		<field name="num" class="java.math.BigDecimal"/>
+	</subDataset>
+	<subDataset name="barDS" uuid="47c4488b-1997-4658-9ee0-b77f86217f4c">
+		<queryString>
+			<![CDATA[SELECT
+  g.`SYS_CODE`,info.`ENVIROMENT_TYPE`,COUNT(1) num
+FROM `mto`.`jt_system_monitor_instance` ins
+LEFT JOIN mto.`jt_system_group` g ON g.`ROW_ID` = ins.`GROUP_ID`
+LEFT JOIN mto.`jt_system_info` info ON info.`ROW_ID` = ins.`SYSTEM_ID`
+WHERE ins.`CREATE_DATE`> DATE_ADD(NOW(), INTERVAL -7 DAY)
+and ins.`RESULT` = "错误"
+GROUP BY g.`SYS_CODE`,info.`ENVIROMENT_TYPE`;
+
+]]>
+		</queryString>
+		<field name="SYS_CODE" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="ENVIROMENT_TYPE" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="num" class="java.lang.Long"/>
+	</subDataset>
+	<subDataset name="systemRateDS_Month" uuid="8b863148-672c-4e69-b50d-91cd79f52036">
+		<queryString>
+			<![CDATA[SELECT
+  g.`SYS_CODE`,COUNT(1) cnt,ROUND(
+  COUNT(1) /
+  (SELECT
+    COUNT(1)
+  FROM
+    `mto`.`jt_system_monitor_instance` ins
+  WHERE ins.`CREATE_DATE` > DATE_ADD(NOW(), INTERVAL - 30 DAY)
+    AND ins.`RESULT` = "错误")*100,2) num
+FROM
+  `mto`.`jt_system_monitor_instance` ins
+  LEFT JOIN mto.`jt_system_group` g
+    ON g.`ROW_ID` = ins.`GROUP_ID`
+WHERE ins.`CREATE_DATE` > DATE_ADD(NOW(), INTERVAL - 30 DAY)
+  AND ins.`RESULT` = "错误"
+GROUP BY g.`SYS_CODE`]]>
+		</queryString>
+		<field name="SYS_CODE" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="cnt" class="java.lang.Long"/>
+		<field name="num" class="java.math.BigDecimal"/>
+	</subDataset>
+	<subDataset name="systemRateDS_Season" uuid="39132aff-c359-4411-9272-f3274d9cac42">
+		<queryString>
+			<![CDATA[SELECT
+  g.`SYS_CODE`,COUNT(1) cnt,ROUND(
+  COUNT(1) /
+  (SELECT
+    COUNT(1)
+  FROM
+    `mto`.`jt_system_monitor_instance` ins
+  WHERE ins.`CREATE_DATE` > DATE_ADD(NOW(), INTERVAL - 90 DAY)
+    AND ins.`RESULT` = "错误")*100,2) num
+FROM
+  `mto`.`jt_system_monitor_instance` ins
+  LEFT JOIN mto.`jt_system_group` g
+    ON g.`ROW_ID` = ins.`GROUP_ID`
+WHERE ins.`CREATE_DATE` > DATE_ADD(NOW(), INTERVAL - 90 DAY)
+  AND ins.`RESULT` = "错误"
+GROUP BY g.`SYS_CODE`]]>
+		</queryString>
+		<field name="SYS_CODE" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="cnt" class="java.lang.Long"/>
+		<field name="num" class="java.math.BigDecimal"/>
+	</subDataset>
+	<parameter name="P_BATCH_NUM" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+  ins.`ROW_ID` instance_id,
+  ins.`GROUP_ID`,
+  g.`SYS_TYPE`,
+  g.`SYS_CODE`,
+  g.`SYS_NAME`,
+  ins.`SYSTEM_ID`,
+  info.`ENVIROMENT_NAME`,
+  info.`ENVIROMENT_TYPE`,
+  info.`IP_ADDR`,
+  ins.`RESULT`,
+  ins.`RESULT_MESSAGE`,
+  ins.`CREATE_DATE`,
+  ins.`LAST_UPD_DATE`,
+  ins.`BATCH_NUM`
+FROM `mto`.`jt_system_monitor_instance` ins
+LEFT JOIN mto.`jt_system_group` g ON g.`ROW_ID` = ins.`GROUP_ID`
+LEFT JOIN mto.`jt_system_info` info ON info.`ROW_ID` = ins.`SYSTEM_ID`
+WHERE ins.`BATCH_NUM` = $P{P_BATCH_NUM}
+ORDER BY g.`SYS_CODE` DESC,ins.`ROW_ID` ASC;]]>
+	</queryString>
+	<field name="instance_id" class="java.lang.Long"/>
+	<field name="GROUP_ID" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="SYS_TYPE" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="SYS_CODE" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="SYS_NAME" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="SYSTEM_ID" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ENVIROMENT_NAME" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ENVIROMENT_TYPE" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="IP_ADDR" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="RESULT" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="RESULT_MESSAGE" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="CREATE_DATE" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="LAST_UPD_DATE" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="BATCH_NUM" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<group name="systemCodeGroup">
+		<groupExpression><![CDATA[$F{SYS_CODE}]]></groupExpression>
+		<groupHeader>
+			<band height="31">
+				<textField isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="0" y="4" width="802" height="25" forecolor="#FFFFFF" backcolor="#009999" uuid="c47c83b7-7e88-4351-9ac0-f0f9f147ba93"/>
+					<box topPadding="1" leftPadding="3" bottomPadding="0" rightPadding="0">
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="13" isBold="true" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{SYS_CODE}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<group name="systemGroup">
+		<groupExpression><![CDATA[$F{SYS_NAME}]]></groupExpression>
+		<groupHeader>
+			<band height="40">
+				<textField isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="0" y="0" width="802" height="20" backcolor="#00CCCC" uuid="02dbe38c-ef61-4ee9-bcf9-8351047f88ec"/>
+					<box topPadding="1" leftPadding="3" bottomPadding="0" rightPadding="0">
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="12" isBold="true" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{SYS_NAME}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Opaque" x="0" y="20" width="150" height="20" backcolor="#CCFFFF" uuid="f58ee52a-37d8-46d6-9490-bac11498610e"/>
+					<box topPadding="3" leftPadding="3" bottomPadding="3" rightPadding="3">
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement>
+						<font isBold="true" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[环境信息]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="150" y="20" width="333" height="20" backcolor="#CCFFFF" uuid="ad929bb6-20a3-4791-899d-e0dafc59706d"/>
+					<box topPadding="3" leftPadding="3" bottomPadding="3" rightPadding="3">
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement>
+						<font isBold="true" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[IP地址]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="483" y="20" width="319" height="20" backcolor="#CCFFFF" uuid="7ce9f06d-aaf1-4cea-a478-aec666259aa3"/>
+					<box topPadding="3" leftPadding="3" bottomPadding="3" rightPadding="3">
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement>
+						<font isBold="true" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[监控结果]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="49" splitType="Stretch">
+			<staticText>
+				<reportElement x="338" y="0" width="165" height="29" uuid="c8fe5ef5-0a06-4a27-8da6-ac03ae0a1e57"/>
+				<textElement>
+					<font size="16" isBold="true" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[服务器监控结果]]></text>
+			</staticText>
+			<textField pattern="yyyy/MM/dd HH.mm.ss">
+				<reportElement x="0" y="0" width="189" height="20" uuid="c9fabd67-b014-45ee-baee-d7722057f5a4"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="435" y="29" width="86" height="20" uuid="c2864164-6c90-46eb-9b97-8e62f1f3fc13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[BatchNumber：]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="521" y="29" width="151" height="20" uuid="89002148-2c33-4544-a0f6-1db702b8beaf"/>
+				<textElement verticalAlignment="Middle">
+					<font isItalic="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{P_BATCH_NUM}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="718" y="0" width="84" height="20" uuid="f74ee9a0-f1e7-4ae0-a97b-dc379b2a10cc"/>
+				<textElement>
+					<font size="9" isBold="true" isItalic="true" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[by JohnnyHuang]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="20" splitType="Prevent">
+			<printWhenExpression><![CDATA[$V{COLUMN_COUNT}.intValue() % 2 != 0]]></printWhenExpression>
+			<textField>
+				<reportElement mode="Opaque" x="0" y="0" width="150" height="20" backcolor="#FFFFFF" uuid="e454dfec-37ce-4efe-977d-6470ed78ea22"/>
+				<box topPadding="3" leftPadding="3" bottomPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ENVIROMENT_NAME}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="150" y="0" width="335" height="20" backcolor="#FFFFFF" uuid="bcfd007a-9766-4861-98e4-de37ee0714bd"/>
+				<box topPadding="3" leftPadding="3" bottomPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{IP_ADDR}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="result_style" mode="Opaque" x="485" y="0" width="317" height="20" backcolor="#FFFFFF" uuid="91e27847-32cb-4ac9-a617-e392f28e6eee"/>
+				<box topPadding="3" leftPadding="3" bottomPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{RESULT}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="20" splitType="Prevent">
+			<printWhenExpression><![CDATA[$V{COLUMN_COUNT}.intValue() % 2 == 0]]></printWhenExpression>
+			<textField>
+				<reportElement mode="Opaque" x="0" y="0" width="150" height="20" backcolor="#FFFFCC" uuid="fad0d4c2-881f-4a12-9680-702bdc0888a3"/>
+				<box topPadding="3" leftPadding="3" bottomPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ENVIROMENT_NAME}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="150" y="0" width="335" height="20" backcolor="#FFFFCC" uuid="79679555-34e2-4296-96da-a457816e473c"/>
+				<box topPadding="3" leftPadding="3" bottomPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{IP_ADDR}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="result_style" mode="Opaque" x="485" y="0" width="317" height="20" backcolor="#FFFFCC" uuid="f7955de2-742d-431c-abe5-4ecc79a87435"/>
+				<box topPadding="3" leftPadding="3" bottomPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{RESULT}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="1188" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="11" width="802" height="29" forecolor="#FFFFFF" backcolor="#009999" uuid="cf9aac26-5a1e-4745-b74c-b3c65b3fea78"/>
+				<box>
+					<pen lineWidth="1.0" lineColor="#000000"/>
+					<topPen lineWidth="1.0" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[系统故障比例统计报表]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="46" width="263" height="20" forecolor="#000000" backcolor="#CCFFFF" uuid="6fca08bf-2f25-46eb-a231-058bc7d8aa02"/>
+				<box topPadding="1" leftPadding="0">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[系统故障比例统计报表-周]]></text>
+			</staticText>
+			<pie3DChart>
+				<chart>
+					<reportElement x="0" y="66" width="263" height="181" uuid="78097b60-7a7b-48cc-a76d-abf715d26879"/>
+					<box>
+						<pen lineWidth="0.75"/>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<pieDataset>
+					<dataset>
+						<datasetRun subDataset="systemRateDS_week" uuid="eebac6d5-31bc-40c9-b118-6ef0dc7ad9fb"/>
+					</dataset>
+					<keyExpression><![CDATA[$F{SYS_CODE}]]></keyExpression>
+					<valueExpression><![CDATA[$F{num}]]></valueExpression>
+					<labelExpression><![CDATA[$F{num}+"%"]]></labelExpression>
+					<sectionHyperlink>
+						<hyperlinkTooltipExpression><![CDATA[$F{cnt}+"次"]]></hyperlinkTooltipExpression>
+					</sectionHyperlink>
+				</pieDataset>
+				<pie3DPlot>
+					<plot/>
+					<itemLabel/>
+				</pie3DPlot>
+			</pie3DChart>
+			<staticText>
+				<reportElement mode="Opaque" x="-1" y="562" width="802" height="31" forecolor="#FFFFFF" backcolor="#009999" uuid="fcecaed8-c281-49eb-8d22-98fb85dbde8d"/>
+				<box>
+					<pen lineWidth="1.0" lineColor="#000000"/>
+					<topPen lineWidth="1.0" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[故障次数统计报表-周]]></text>
+			</staticText>
+			<stackedBar3DChart>
+				<chart>
+					<reportElement x="0" y="291" width="802" height="237" uuid="d562e999-eaef-45b2-90a7-26bff82c3134"/>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<categoryDataset>
+					<dataset>
+						<datasetRun subDataset="barDS" uuid="04b18027-dece-44b8-9d81-d76047e47157"/>
+					</dataset>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{ENVIROMENT_TYPE}]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{SYS_CODE}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{num}]]></valueExpression>
+						<labelExpression><![CDATA[$F{num}+"次"]]></labelExpression>
+						<itemHyperlink>
+							<hyperlinkTooltipExpression><![CDATA[$F{num}+"次"]]></hyperlinkTooltipExpression>
+						</itemHyperlink>
+					</categorySeries>
+				</categoryDataset>
+				<bar3DPlot>
+					<plot/>
+					<itemLabel/>
+					<categoryAxisFormat>
+						<axisFormat/>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat/>
+					</valueAxisFormat>
+				</bar3DPlot>
+			</stackedBar3DChart>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="260" width="802" height="31" forecolor="#FFFFFF" backcolor="#009999" uuid="69f9a519-e1f1-4d97-abcf-622aea613b3b"/>
+				<box>
+					<pen lineWidth="1.0" lineColor="#000000"/>
+					<topPen lineWidth="1.0" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[系统故障次数统计报表-周]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="269" y="46" width="263" height="20" forecolor="#000000" backcolor="#CCFFFF" uuid="ef5e82b8-feca-4aa6-96b9-ba2e3cd84700"/>
+				<box topPadding="1" leftPadding="0">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[系统故障比例统计报表-月]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="538" y="46" width="263" height="20" forecolor="#000000" backcolor="#CCFFFF" uuid="8db451ef-f4b1-46b9-afdd-1fbd59a7d2d2"/>
+				<box topPadding="1" leftPadding="0">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[系统故障比例统计报表-季]]></text>
+			</staticText>
+			<pie3DChart>
+				<chart>
+					<reportElement x="269" y="66" width="263" height="181" uuid="6a741651-cb44-4446-9b23-af26e2fd51fd"/>
+					<box>
+						<pen lineWidth="0.75"/>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<pieDataset>
+					<dataset>
+						<datasetRun subDataset="systemRateDS_Month" uuid="521761af-f7ff-4f9b-9531-22d382d297cd"/>
+					</dataset>
+					<keyExpression><![CDATA[$F{SYS_CODE}]]></keyExpression>
+					<valueExpression><![CDATA[$F{num}]]></valueExpression>
+					<labelExpression><![CDATA[$F{num}+"%"]]></labelExpression>
+					<sectionHyperlink>
+						<hyperlinkTooltipExpression><![CDATA[$F{cnt}+"次"]]></hyperlinkTooltipExpression>
+					</sectionHyperlink>
+				</pieDataset>
+				<pie3DPlot>
+					<plot/>
+					<itemLabel/>
+				</pie3DPlot>
+			</pie3DChart>
+			<pie3DChart>
+				<chart>
+					<reportElement x="539" y="66" width="263" height="181" uuid="f7c0300c-5f57-4908-acc1-3f8899748693"/>
+					<box>
+						<pen lineWidth="0.75"/>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<pieDataset>
+					<dataset>
+						<datasetRun subDataset="systemRateDS_Season" uuid="4042f17e-39ff-4533-976b-0cdad745acdb"/>
+					</dataset>
+					<keyExpression><![CDATA[$F{SYS_CODE}]]></keyExpression>
+					<valueExpression><![CDATA[$F{num}]]></valueExpression>
+					<labelExpression><![CDATA[$F{num}+"%"]]></labelExpression>
+					<sectionHyperlink>
+						<hyperlinkTooltipExpression><![CDATA[$F{cnt}+"次"]]></hyperlinkTooltipExpression>
+					</sectionHyperlink>
+				</pieDataset>
+				<pie3DPlot>
+					<plot/>
+					<itemLabel/>
+				</pie3DPlot>
+			</pie3DChart>
+			<elementGroup/>
+			<crosstab>
+				<reportElement x="0" y="593" width="802" height="266" uuid="ed639089-33d0-4933-8257-c38ac98b888d"/>
+				<crosstabDataset>
+					<dataset>
+						<incrementWhenExpression><![CDATA[$F{RESULT}.toString()=="错误"]]></incrementWhenExpression>
+						<datasetRun subDataset="AllMonitorDS_week" uuid="5c611e0c-0eba-4633-8851-73f895920d00">
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+					</dataset>
+				</crosstabDataset>
+				<rowGroup name="ENVIROMENT_TYPE" width="70" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{ENVIROMENT_TYPE}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="70" height="25" uuid="514d718c-56c6-4f80-b0f9-056ec8bd85ec"/>
+								<textElement verticalAlignment="Middle"/>
+								<textFieldExpression><![CDATA[$V{ENVIROMENT_TYPE}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents backcolor="#005FB3" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+							</box>
+							<staticText>
+								<reportElement x="0" y="0" width="140" height="25" forecolor="#FFFFFF" uuid="7523d516-e355-4b53-8c6a-8d49538af3f0"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<text><![CDATA[总计]]></text>
+							</staticText>
+						</cellContents>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<rowGroup name="ENVIROMENT_NAME" width="70" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{ENVIROMENT_NAME}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="70" height="25" uuid="2e1145d6-3331-4ca0-a658-14efc4f347d4"/>
+								<textElement verticalAlignment="Middle"/>
+								<textFieldExpression><![CDATA[$V{ENVIROMENT_NAME}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+							</box>
+							<staticText>
+								<reportElement x="0" y="0" width="70" height="25" uuid="1252227c-6a36-4726-bbab-01ccd2a9a683"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<text><![CDATA[总计]]></text>
+							</staticText>
+						</cellContents>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<columnGroup name="SYS_CODE" height="30" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{SYS_CODE}]]></bucketExpression>
+					</bucket>
+					<crosstabColumnHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="30" uuid="3e2ff6b3-1f79-4923-8a9a-5b02d015b9e8"/>
+								<textElement verticalAlignment="Middle"/>
+								<textFieldExpression><![CDATA[$V{SYS_CODE}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabColumnHeader>
+					<crosstabTotalColumnHeader>
+						<cellContents backcolor="#005FB3" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+							</box>
+							<staticText>
+								<reportElement x="0" y="0" width="50" height="60" forecolor="#FFFFFF" uuid="259630a8-d1e8-43bb-9396-c3c0d2587289"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<text><![CDATA[总计]]></text>
+							</staticText>
+						</cellContents>
+					</crosstabTotalColumnHeader>
+				</columnGroup>
+				<columnGroup name="SYS_NAME" height="30" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{SYS_NAME}]]></bucketExpression>
+					</bucket>
+					<crosstabColumnHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="30" uuid="12db07da-c4a4-4893-b968-56275b9eda7a"/>
+								<textElement verticalAlignment="Middle"/>
+								<textFieldExpression><![CDATA[$V{SYS_NAME}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabColumnHeader>
+					<crosstabTotalColumnHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+							</box>
+							<staticText>
+								<reportElement x="0" y="0" width="50" height="30" uuid="2654303f-a56b-42bc-8dc2-5486d6acc331"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<text><![CDATA[总计]]></text>
+							</staticText>
+						</cellContents>
+					</crosstabTotalColumnHeader>
+				</columnGroup>
+				<measure name="instance_idMeasure" class="java.lang.Integer" calculation="Count">
+					<measureExpression><![CDATA[$F{instance_id}]]></measureExpression>
+				</measure>
+				<crosstabCell width="50" height="25">
+					<cellContents>
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" uuid="548de0a7-b117-4092-a56e-f19dcc5ba568"/>
+							<textElement verticalAlignment="Middle"/>
+							<textFieldExpression><![CDATA[$V{instance_idMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="25" rowTotalGroup="ENVIROMENT_TYPE">
+					<cellContents backcolor="#005FB3" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" forecolor="#FFFFFF" uuid="a3344158-6917-42b8-a543-0f179b411347"/>
+							<textElement verticalAlignment="Middle"/>
+							<textFieldExpression><![CDATA[$V{instance_idMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="50" columnTotalGroup="SYS_CODE">
+					<cellContents backcolor="#005FB3" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" forecolor="#FFFFFF" uuid="41064a32-8b54-4223-92ef-e5e4a8e3e92b"/>
+							<textElement verticalAlignment="Middle"/>
+							<textFieldExpression><![CDATA[$V{instance_idMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="25" rowTotalGroup="ENVIROMENT_TYPE" columnTotalGroup="SYS_CODE">
+					<cellContents backcolor="#005FB3" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" forecolor="#FFFFFF" uuid="9a6e3b5a-3bed-4caf-99d5-d8898bef6a15"/>
+							<textElement verticalAlignment="Middle"/>
+							<textFieldExpression><![CDATA[$V{instance_idMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="50" columnTotalGroup="SYS_NAME">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" uuid="280e9328-30d3-4b70-99e1-6549ac8993be"/>
+							<textElement verticalAlignment="Middle"/>
+							<textFieldExpression><![CDATA[$V{instance_idMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="25" rowTotalGroup="ENVIROMENT_TYPE" columnTotalGroup="SYS_NAME">
+					<cellContents backcolor="#005FB3" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" forecolor="#FFFFFF" uuid="183fcb4b-6c76-4710-a0a0-ef3cdccc11ac"/>
+							<textElement verticalAlignment="Middle"/>
+							<textFieldExpression><![CDATA[$V{instance_idMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="25" rowTotalGroup="ENVIROMENT_NAME">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" uuid="7ef2e05e-c2bd-4174-bd15-596343247d3a"/>
+							<textElement verticalAlignment="Middle"/>
+							<textFieldExpression><![CDATA[$V{instance_idMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="25" rowTotalGroup="ENVIROMENT_NAME" columnTotalGroup="SYS_CODE">
+					<cellContents backcolor="#005FB3" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" forecolor="#FFFFFF" uuid="ea4f7e1d-7746-4670-b54c-90f49eab865d"/>
+							<textElement verticalAlignment="Middle"/>
+							<textFieldExpression><![CDATA[$V{instance_idMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="25" rowTotalGroup="ENVIROMENT_NAME" columnTotalGroup="SYS_NAME">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" uuid="8a432082-0a23-4fc2-9064-5b27d56963c2"/>
+							<textElement verticalAlignment="Middle"/>
+							<textFieldExpression><![CDATA[$V{instance_idMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+			</crosstab>
+		</band>
+	</summary>
+</jasperReport>
