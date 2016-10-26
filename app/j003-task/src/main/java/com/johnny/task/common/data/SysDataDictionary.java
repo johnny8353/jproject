@@ -17,4 +17,9 @@ public class SysDataDictionary {
 	public static final String THREAD_STATUS_PENDING="挂起";
 	public static final String THREAD_STATUS_CANCEL="取消";
 	
+	public static final String THREAD_UOM_SECOND="S";
+	public static final String THREAD_UOM_MINUTE="M";
+	public static final String THREAD_UOM_HOUR="H";
+	
+	
 }

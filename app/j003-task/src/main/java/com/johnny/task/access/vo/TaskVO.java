@@ -21,7 +21,6 @@ public class TaskVO extends BaseVO{
     private String rptInterval;
     private String rptUom;
     private String status;
-    private String taskPid;
 	public Date getActlEndDt() {
 		return actlEndDt;
 	}
@@ -118,18 +117,19 @@ public class TaskVO extends BaseVO{
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	public String getTaskPid() {
-		return taskPid;
-	}
-	public void setTaskPid(String taskPid) {
-		this.taskPid = taskPid;
-	}
 	@Override
 	public String toString() {
-		return "TaskVO [className=" + className + ", descText=" + descText
-				+ ", method=" + method + ", rptFlag=" + rptFlag
-				+ ", rptInterval=" + rptInterval + ", rptUom=" + rptUom
-				+ ", status=" + status + "]";
+		return "TaskVO [actlEndDt=" + actlEndDt + ", actlStartDt="
+				+ actlStartDt + ", expirationDt=" + expirationDt
+				+ ", schedStartDt=" + schedStartDt + ", submitDate="
+				+ submitDate + ", className=" + className + ", completionCd="
+				+ completionCd + ", completionText=" + completionText
+				+ ", descText=" + descText + ", execSrvrName=" + execSrvrName
+				+ ", method=" + method + ", tmodel=" + tmodel + ", rptFlag="
+				+ rptFlag + ", rptInterval=" + rptInterval + ", rptUom="
+				+ rptUom + ", status=" + status + ", getCreateDate()="
+				+ getCreateDate() + ", getRowId()=" + getRowId()
+				+ ", getParRowId()=" + getParRowId() + "]";
 	}
 
 }

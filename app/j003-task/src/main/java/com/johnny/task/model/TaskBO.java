@@ -2,16 +2,14 @@ package com.johnny.task.model;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.johnny.task.access.vo.TaskVO;
 import com.johnny.task.common.run.BaseTask;
 
 public class TaskBO  implements Serializable{
-	private TaskVO threadVO;
+	private static final long serialVersionUID = 1L;
 //  //线程调度基础类，所有线程调度任务继承该基础类进行业务扩展
-	private BaseTask thread = null;
+	private BaseTask baseTask = null;
 	
 	public String getColumnNameByField(String field){
 		Map<String, String> maps = new HashMap<String, String>();
@@ -43,22 +41,14 @@ public class TaskBO  implements Serializable{
 		maps.put("taskPid","TASK_PID");
 		return maps.get(field);
 	}
-    public BaseTask getThread() {
-		return thread;
+
+	public BaseTask getBaseTask() {
+		return baseTask;
 	}
 
-	public void setThread(BaseTask thread) {
-		this.thread = thread;
+	public void setBaseTask(BaseTask baseTask) {
+		this.baseTask = baseTask;
 	}
-
-	public TaskVO getThreadVO() {
-		return threadVO;
-	}
-
-	public void setThreadVO(TaskVO threadVO) {
-		this.threadVO = threadVO;
-	}
-
-
+	
 	
 } 

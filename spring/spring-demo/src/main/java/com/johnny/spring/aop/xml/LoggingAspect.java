@@ -31,6 +31,12 @@ public class LoggingAspect {
 	}
 	
 //	@Around("execution(public int com.johnny.spring.aop.ArithmeticCalculator.*(..))")
+//	com.sun.proxy.$Proxy3
+//	-->validate:[1, 2]
+//	The method add begins with [1, 2]
+//	The method add ends with 3
+//	The method add ends
+//	result:3
 	public Object aroundMethod(ProceedingJoinPoint pjd){
 		
 		Object result = null;

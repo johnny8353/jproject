@@ -1,0 +1,94 @@
+在一个表的数据超过过2000万条或占用2G空间时，建议建立分区表。
+分区索引和全局索引：
+	**分区索引就是在所有每个区上单独创建索引，它能自动维护，在drop或truncate某个分区时不影响该索引的其他分区索引的使用，也就是索引不会失效，维护起来比较方便，但是在查询性能稍微有点影响。
+	create index idx_ta_c2 on ta(c2) local (partition p1,partition p2,partition p3,partition p4);
+	 或者 create index idx_ta_c2 on ta(c2) local ;	
+	 
+	另外在create unique index idx_ta_c2 on ta(c2) local ;系统会报ORA-14039错误，这是因为ta表的分区列是c1，
+	oracle不支持在分区表上创建PK主键时主键列不包含分区列，创建另外的约束(unique)也不可以。
+	
+	全局索引就是在全表上创建索引，它可以创建自己的分区，可以和分区表的分区不一样，也就是它是独立的索引。在drop或truncate某个分区时需要创建索引alter index idx_xx rebuild，
+	也可以alter table table_name drop partition partition_name update global indexes;实现，但是要花很长时间在重建索引上。
+	可以通过查询user_indexes、user_part_indexes和user_ind_partitions视图来查看索引是否有效。
+	
+	 create index idx_ta_c3 on ta(c3);
+	 
+	 或者把全局索引分成多个区(注意和分区表的分区不一样)：
+	create index idx_ta_c4 on ta(c4) global partition by range(c4)
+	(partition ip1 values less than(10000),partition ip2 values less than(20000),partition ip3 values less than(maxvalue));
+	 
+	注意索引上的引导列要和range后列一致，否则会有ORA-14038错误。oracle会对主键自动创建全局索引如果想在主键的列上创建分区索引，除非主键包括分区键，还有就是主键建在两个或以上列上。
+	
+	**在频繁删除表的分区且数据更新比较频繁时为了维护方便避免使用全局索引。
+	 
+	 --分区索引的概要统计信息，可以得知每个表上有哪些分区索引，分区索引的类型(local/global)
+	select index_name,
+	       locality,
+	       p.table_name,
+	       p.owner,
+	       p.partitioning_type,
+	       p.partition_count,
+	       p.def_tablespace_name
+	  from dba_part_indexes p
+	 where table_name like '%CON_ATTRIBUTE%'
+	 
+	 Dba_ind_partitions  每个分区索引的分区级统计信息
+	Dba_indexes/dba_part_indexes 可以得到每个表上有哪些非分区索引
+
+局部索引local index 
+	1.  局部索引一定是分区索引，分区键等同于表的分区键，分区数等同于表的分区说，一句话，局部索引的分区机制和表的分区机制一样。 
+	2.  如果局部索引的索引列以分区键开头，则称为前缀局部索引。 
+	3.  如果局部索引的列不是以分区键开头，或者不包含分区键列，则称为非前缀索引。 
+	4.  前缀和非前缀索引都可以支持索引分区消除，前提是查询的条件中包含索引分区键。 
+	5.  局部索引只支持分区内的唯一性，无法支持表上的唯一性，因此如果要用局部索引去给表做唯一性约束，则约束中必须要包括分区键列。 
+	6.  局部分区索引是对单个分区的，每个分区索引只指向一个表分区，全局索引则不然，一个分区索引能指向n个表分区，同时，一个表分区，也可能指向n个索引分区， 
+	对分区表中的某个分区做truncate或者move，shrink等，可能会影响到n个全局索引分区，正因为这点，局部分区索引具有更高的可用性。 
+	7.  位图索引只能为局部分区索引。 
+	8.  局部索引多应用于数据仓库环境中。
+全局索引global index 
+	1.  全局索引的分区键和分区数和表的分区键和分区数可能都不相同，表和全局索引的分区机制不一样。 
+	2.  全局索引可以分区，也可以是不分区索引，全局索引必须是前缀索引，即全局索引的索引列必须是以索引分区键作为其前几列。 
+	3.  全局分区索引的索引条目可能指向若干个分区，因此，对于全局分区索引，即使只动，截断一个分区中的数据，都需要rebulid若干个分区甚 至是整个索引。 
+	4.  全局索引多应用于oltp系统中。 
+	5.  全局分区索引只按范围或者散列hash分区，hash分区是10g以后才支持。 
+	6.  oracle9i以后对分区表做move或者truncate的时可以用update global indexes语句来同步更新全局分区索引，用消耗一定资源来换取高度的可用性。 
+	7.  表用a列作分区，索引用b做局部分区索引，若where条件中用b来查询，那么oracle会扫描所有的表和索引的分区，成本会比分区更高，此时可以考虑用b做全局分区索引
+
+
+分区索引实例
+	--1、建分区表
+	CREATE TABLE P_TAB(
+	C1 INT,
+	C2 VARCHAR2(16),
+	C3 VARCHAR2(64),
+	C4 INT ,
+	CONSTRAINT PK_PT PRIMARY KEY (C1)
+	)
+	PARTITION BY RANGE(C1)(
+	PARTITION P1 VALUES LESS THAN (10000000),
+	PARTITION P2 VALUES LESS THAN (20000000),
+	PARTITION P3 VALUES LESS THAN (30000000),
+	PARTITION P4 VALUES LESS THAN (MAXVALUE)
+	);
+	--2、建全局分区索引
+	CREATE INDEX IDX_PT_C4 ON P_TAB(C4) GLOBAL PARTITION BY RANGE(C4)
+	(
+	PARTITION IP1 VALUES LESS THAN(10000),
+	PARTITION IP2 VALUES LESS THAN(20000),
+	PARTITION IP3 VALUES LESS THAN(MAXVALUE)
+	);
+	--3、建本地分区索引
+	CREATE INDEX IDX_PT_C2 ON P_TAB(C2) LOCAL (PARTITION P1,PARTITION P2,PARTITION P3,PARTITION P4);
+	--4、建全局分区索引(与分区表分区规则相同的列上)
+	CREATE INDEX IDX_PT_C1
+	ON P_TAB(C1)
+	GLOBAL PARTITION BY RANGE (C1)
+	(
+	PARTITION IP01 VALUES LESS THAN (10000000),
+	PARTITION IP02 VALUES LESS THAN (20000000),
+	PARTITION IP03 VALUES LESS THAN (30000000),
+	PARTITION IP04 VALUES LESS THAN (MAXVALUE)
+	);
+	--5、分区索引数据字典查看
+	SELECT * FROM USER_IND_PARTITIONS;
+	SELECT * FROM USER_PART_INDEXES;

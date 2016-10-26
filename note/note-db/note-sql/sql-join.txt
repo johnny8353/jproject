@@ -1,0 +1,62 @@
+SQL INNER JOIN 关键字
+	INNER JOIN 关键字在表中存在至少一个匹配时返回行。
+	SQL INNER JOIN 语法
+	SELECT column_name(s)
+	FROM table1
+	INNER JOIN table2
+	ON table1.column_name=table2.column_name;
+	或：
+	SELECT column_name(s)
+	FROM table1
+	JOIN table2
+	ON table1.column_name=table2.column_name;
+	注释：INNER JOIN 与 JOIN 是相同的。
+	
+	注释：INNER JOIN 关键字在表中存在至少一个匹配时返回行。如果 "Customers" 表中的行在 "Orders" 中没有匹配，则不会列出这些行。
+	
+SQL LEFT JOIN 关键字
+	LEFT JOIN 关键字从左表（table1）返回所有的行，即使右表（table2）中没有匹配。如果右表中没有匹配，则结果为 NULL。
+	SQL LEFT JOIN 语法
+	SELECT column_name(s)
+	FROM table1
+	LEFT JOIN table2
+	ON table1.column_name=table2.column_name;
+	或：
+	SELECT column_name(s)
+	FROM table1
+	LEFT OUTER JOIN table2
+	ON table1.column_name=table2.column_name;
+	注释：在某些数据库中，LEFT JOIN 称为 LEFT OUTER JOIN。
+	
+	注释：LEFT JOIN 关键字从左表（Customers）返回所有的行，即使右表（Orders）中没有匹配
+	
+SQL RIGHT JOIN 关键字
+	RIGHT JOIN 关键字从右表（table2）返回所有的行，即使左表（table1）中没有匹配。如果左表中没有匹配，则结果为 NULL。
+	SQL RIGHT JOIN 语法
+	SELECT column_name(s)
+	FROM table1
+	RIGHT JOIN table2
+	ON table1.column_name=table2.column_name;
+	或：
+	SELECT column_name(s)
+	FROM table1
+	RIGHT OUTER JOIN table2
+	ON table1.column_name=table2.column_name;
+	注释：在某些数据库中，RIGHT JOIN 称为 RIGHT OUTER JOIN。
+	
+	注释：RIGHT JOIN 关键字从右表（Employees）返回所有的行，即使左表（Orders）中没有匹配。
+	
+SQL FULL OUTER JOIN 关键字
+	SQL FULL OUTER JOIN 关键字
+	FULL OUTER JOIN 关键字只要左表（table1）和右表（table2）其中一个表中存在匹配，则返回行.
+	FULL OUTER JOIN 关键字结合了 LEFT JOIN 和 RIGHT JOIN 的结果。
+	SQL FULL OUTER JOIN 语法
+	SELECT column_name(s)
+	FROM table1
+	FULL OUTER JOIN table2
+	ON table1.column_name=table2.column_name;
+	
+	注释：FULL OUTER JOIN 关键字返回左表（Customers）和右表（Orders）中所有的行。
+	如果 "Customers" 表中的行在 "Orders" 中没有匹配或者 "Orders" 表中的行在 "Customers" 表中没有匹配，也会列出这些行。
+	
+	

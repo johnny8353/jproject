@@ -1,6 +1,15 @@
 package com.johnny.monitor.common.run;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -8,13 +17,18 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.servlet.ServletConfig;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.util.JRLoader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.johnny.common.util.ContextUtil;
 import com.johnny.common.util.DateUtil;
 import com.johnny.common.util.ReadFromFile;
 import com.johnny.common.util.StringUtil;
@@ -25,16 +39,21 @@ import com.johnny.monitor.business.service.MonitorService;
 import com.johnny.monitor.business.service.SystemGroupService;
 import com.johnny.monitor.business.service.SystemMonitorInstanceService;
 import com.johnny.monitor.common.data.SysDataDictionary;
+import com.johnny.monitor.common.util.JasperExportUtils;
+import com.johnny.monitor.common.util.WebUtil;
 import com.johnny.monitor.common.util.ZMailUtil;
 import com.johnny.monitor.model.SystemBO;
 import com.johnny.monitor.model.SystemListBO;
+import com.johnny.task.access.vo.TaskVO;
+import com.johnny.task.common.run.BaseTask;
+import com.johnny.task.common.run.BaseTaskImpl;
 
 /**
  * 类 编 号： 类 名 称：SystemMonitorThread.java 内容摘要：监控 系统 是否可用 完成日期：2016-3-25
  * 编码作者：JohnnyHuang 黄福强
  */
-@Component
-public class SystemMonitorThread {
+@Component("systemMonitorTask")
+public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 	@Autowired
 	private SystemGroupService systemGroupService;
 	@Autowired
@@ -48,33 +67,14 @@ public class SystemMonitorThread {
 	protected Log log = LogFactory.getLog(getClass());
 	private SystemListBO monitorListBO;
 
-	// @Override
-	protected void doWakeUp(String tid, String method) {
+	public void doTaskWakeUp(TaskVO taskvo)  {
 		log.info("===========SystemMonitorThread begin===========");
-		// IThreadService iThreadService = (IThreadService)
-		// getBean("threadService");
-		// 修改重复实例 状态为活动
-		// iThreadService.ModifyThread(tid,"活动","",false,true);
-		String sResult = "";
 		try {
 			// 初始化数据
 			initData();
 			monitorSystem("");
-			// if (method.equalsIgnoreCase("MonitorSystem")) {// 10分钟一次
-			// // 获取监控结果
-			// MonitorSystem("");
-			// } else if (method.equalsIgnoreCase("MonitorSystemDay")) {// 每天八点
-			// // 获取监控结果
-			// MonitorSystem("每日");
-			// } else {
-			// throw new Exception("未找到方法" + method);
-			// }
-			// 修改重复实例 状态为成功
-			// iThreadService.ModifyThread(tid,"成功",sResult,true,false);
 		} catch (Exception e) {
-			// TODO: handle exception
-			// 修改重复实例 状态为错误
-			// iThreadService.ModifyThread(tid,"错误",getExceptionMessage(e),true,false);
+			e.printStackTrace();
 		}
 		log.info("===========SystemMonitorThread end===========");
 	}
@@ -92,6 +92,7 @@ public class SystemMonitorThread {
 		Callable<String> call = new Callable<String>() {
 			public String call() throws Exception {
 				// 开始执行耗时操作
+				@SuppressWarnings("rawtypes")
 				Class monitClass = Class.forName(className);
 				monitor = (MonitorService) monitClass.newInstance();
 				monitor.execute(param);
@@ -172,17 +173,60 @@ public class SystemMonitorThread {
 					systemMonitorInstanceService.save(entity);
 				}
 			}
+			
 			//报表生产
-			String fileFullPath = "";
-			emailNotify(batchNum,fileFullPath);
+			generateReport(batchNum);
+			//发送邮件
+			emailNotify(batchNum);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	public void emailNotify(String batchNum,String fileFullPath){
-		String fNameStr = ReadFromFile.readFileByLines(fileFullPath);
+	public void generateReport(String batchNum) throws IOException{
+		String destHtmlFile = WebUtil.getWebRootAbsolutePath()+"/html/"+"monitorReport_"+batchNum+".html";
+		String destHtmlUrl = "http://localhost:8077/johnny/html/"+"monitorReport_"+batchNum+".html";
+//		Connection conn = null;
+//		// 创建数据库连接Connection对象
+//		String url = "jdbc:mysql:///mto?useUnicode=true&characterEncoding=UTF-8";
+//		String user = "root";
+//		String password = "1230";
+//		try {
+//			Class.forName("com.mysql.jdbc.Driver");
+//			conn = DriverManager.getConnection(url, user, password);
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+		try {
+			Connection conn = ContextUtil.getConnectionFromSpring("dataSource");
+			//生产头报表 
+			File reportFile = new File(WebUtil.getWebRootAbsolutePath()+("/jasper/monitorReport.jasper"));
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			parameters.put("P_BATCH_NUM", batchNum);
+			parameters.put("P_URL", destHtmlUrl);
+			JasperReport jasperReport = (JasperReport) JRLoader.loadObject(new FileInputStream(reportFile));
+			JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,
+					parameters, conn);
+			JasperExportUtils.exportHtml(jasperPrint,destHtmlFile);
+			
+			
+			
+		} catch (JRException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(SystemMonitorTask.class.getResource("/").getPath());
+	}
+	
+	public void emailNotify(String batchNum){
+		String destHtmlFile = WebUtil.getWebRootAbsolutePath()+"/html/"+"monitorReport_"+batchNum+".html";
+		String fNameStr = ReadFromFile.readFileByLines(destHtmlFile);
 		
 		String result = ZMailUtil.invokeDPGSendTestMail("6092002318@zte.com.cn","服务器监控结果",fNameStr);
 		log.info("sendmail finished-----result:"+result);
@@ -298,6 +342,7 @@ public class SystemMonitorThread {
 
 	}
 
+	@SuppressWarnings("unused")
 	private String GetMailBody(int i, int size, String group,
 			String enviroment, String ipAddr, String getsMessage) {
 		String result = getsMessage;

@@ -1,6 +1,6 @@
 package com.johnny.monitor.common.run;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -8,15 +8,13 @@ import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.johnny.monitor.business.service.SystemGroupService;
-
 public class SystemMonitorThreadTest {
 	private ApplicationContext ctx = null;
 	long begin2 = 1L;
 	long end2 = 1L;
 
 	{
-		ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+//		ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
 	}
 	@Before
 	public void init() {
@@ -31,13 +29,26 @@ public class SystemMonitorThreadTest {
 
 	@Test
 	public void test() {
-		SystemMonitorThread systemMonitorThread = (SystemMonitorThread) ctx.getBean("systemMonitorThread");
+		SystemMonitorTask systemMonitorThread = new SystemMonitorTask();
 		systemMonitorThread.monitorSystem("");
 	}
 	@Test
 	public void testEmailNotify() {
-		SystemMonitorThread systemMonitorThread = (SystemMonitorThread) ctx.getBean("systemMonitorThread");
-		systemMonitorThread.emailNotify("","D:\\GIT\\johnnymaven\\report\\ireport-demo\\src\\main\\webapp\\html\\monitorReport_201610294213226188.html");
+		SystemMonitorTask systemMonitorThread = new SystemMonitorTask();
+		systemMonitorThread.emailNotify("20161026123058604");
 	}
 
+	@Test
+	public void testGenerateReport() throws IOException{
+		SystemMonitorTask systemMonitorThread = new SystemMonitorTask();
+		systemMonitorThread.generateReport("20161026123058604");
+	}
+	
+	@Test
+	public void testDir(){
+		System.out.println(System.getProperty("user.dir"));
+		System.out.println(this.getClass().getResource("").getPath());
+		System.out.println(this.getClass().getResource("/").getPath());
+	}
+	
 }

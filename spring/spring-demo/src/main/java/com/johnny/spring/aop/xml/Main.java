@@ -15,8 +15,8 @@ public class Main {
 		int result = arithmeticCalculator.add(1, 2);
 		System.out.println("result:" + result);
 		
-		result = arithmeticCalculator.div(1000, 10);
-		System.out.println("result:" + result);
+//		result = arithmeticCalculator.div(1000, 10);
+//		System.out.println("result:" + result);
 	}
 	
 }

@@ -14,7 +14,7 @@ public class ExceptionUtil {
      * @author JohnnyHuang 黄福强
      * @date 2016-4-7
      */
-	public static String getExceptionMessage(Exception e){
+	public static String getExceptionMessage(Throwable e){
 		String message = "";
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		e.printStackTrace(new PrintStream(baos));

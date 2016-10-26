@@ -23,13 +23,13 @@
 			id="pointcut"/>
 		<!-- 配置切面及通知 -->
 		<aop:aspect ref="loggingAspect" order="2">
-			<aop:before method="beforeMethod" pointcut-ref="pointcut"/>
+			<!-- <aop:before method="beforeMethod" pointcut-ref="pointcut"/>
 			<aop:after method="afterMethod" pointcut-ref="pointcut"/>
 			<aop:after-throwing method="afterThrowing" pointcut-ref="pointcut" throwing="e"/>
 			<aop:after-returning method="afterReturning" pointcut-ref="pointcut" returning="result"/>
-			<!--  
+			 -->
 			<aop:around method="aroundMethod" pointcut-ref="pointcut"/>
-			-->
+			
 		</aop:aspect>	
 		<aop:aspect ref="vlidationAspect" order="1">
 			<aop:before method="validateArgs" pointcut-ref="pointcut"/>

@@ -2,18 +2,20 @@ package com.johnny.monitor.common.run;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
 
 import com.johnny.common.util.DateUtil;
+import com.johnny.task.access.vo.TaskVO;
 import com.johnny.task.common.run.BaseTask;
-
-public class TestTask extends BaseTask{
+import com.johnny.task.common.run.BaseTaskImpl;
+@Component("testTask")
+public class TestTask extends BaseTaskImpl implements BaseTask{
 	private Log log = LogFactory.getLog(getClass());
 	private static int i = 0;
-	@Override
-	protected void doWakeUp(Long rowId, String method) {
-		log.error("执行"+(i++)+DateUtil.getNowDateTimeMMM());
+	
+	public void doTaskWakeUp(TaskVO taskvo) {
+//		System.out.println(taskvo.getClassName()+taskvo.getActlStartDt());
+		log.info("TestTask执行_"+(i++)+"__"+DateUtil.getNowDateTimeMMM());
 	}
-	
-	
 
 }

@@ -7,9 +7,9 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 
-	<!-- 配置自动扫描的包 -->
+	<!-- 配置自动扫描的包  -->
 	<context:component-scan base-package="com.johnny"></context:component-scan>
-
+	
 	<!-- 配置数据源 -->
 	<!-- 导入资源文件 -->
 	<context:property-placeholder location="classpath:db.properties" />
@@ -55,6 +55,10 @@
 		<property name="sessionFactory" ref="sessionFactory"></property>
 	</bean>
 
+	<!-- 配置切面的 bean. -->
+	<bean id="loggingAspect" class="com.johnny.monitor.common.aspect.LogAspect"></bean>
+	
+
 	<!-- 2. 配置事务属性, 需要事务管理器 -->
 	<tx:advice id="txAdvice" transaction-manager="transactionManager">
 		<tx:attributes>
@@ -72,6 +76,15 @@
 			||execution(* com.johnny.task.business.service.*.*(..))"
 			id="txPointcut" />
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut" />
+		
+		<!-- 配置切点表达式 -->
+		<aop:pointcut expression="execution(* com.johnny.monitor.common.run.IBaseTask.doTaskWakeUp(..))" 
+			id="pointcut"/>
+		<!-- 配置切面及通知 -->
+		<aop:aspect ref="loggingAspect" order="2">
+			<aop:before method="beforeMethod" pointcut-ref="pointcut"/>
+		</aop:aspect>	
+		
 	</aop:config>
 
 </beans>

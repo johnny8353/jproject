@@ -1,0 +1,33 @@
+以工程名为/DemoWeb为例： 
+访问的jsp为：http://localhost:8080/DemoWeb/test/index.jsp 
+
+1 JSP中获得当前应用的相对路径和绝对路径 
+(1)得到工程名：request.getContextPath() 
+结果：/DemoWeb 
+(2)得到包含工程名的当前页面全路径：request.getRequestURI() 
+结果：/DemoWeb/test/testpath.jsp 
+(3)得到IE地址栏地址：request.getRequestURL() 
+结果：http://localhost:8080/DemoWeb/test/testpath.jsp 
+(4)得到当前页面所在目录下全名称：request.getServletPath() 
+结果：/test/testpath.jsp 
+
+(5)得到页面所在服务器的全路径(实际的路径)：application.getRealPath("testpath.jsp") 
+结果：D:\Develop Files\apache-tomcat-5.5.15\apache-tomcat-5.5.15\webapps\DemoWeb\testpath.jsp 
+D:\Develop Files\apache-tomcat-5.5.15\apache-tomcat-5.5.15为tomcat的安装路径 
+
+2.java 的Class中获得相对路径，绝对路径的方法 
+
+(1)类的绝对路径： 
+System.out.println(TestPath.class.getResource("/").getPath()); 
+结果：/E:/workspace/workspace_tcc/DemoWeb/WebRoot/WEB-INF/classes/ 
+/D:/GIT/johnnymaven/app/j101-mto/target/test-classes/
+
+System.out.println(TestPath.class.getResource("")); 
+结果：file:/E:/workspace/workspace_tcc/DemoWeb/WebRoot/WEB-INF/classes/demo1/ 
+/D:/GIT/johnnymaven/app/j101-mto/target/test-classes/com/johnny/monitor/common/run/
+
+
+(2)得到工程的路径：System.getProperty("user.dir") 
+
+结果：E:\workspace\workspace_tcc\DemoWeb 
+

@@ -31,7 +31,7 @@
 		</dependency>
 		<!-- 数据库驱动 end -->
 
-		<!-- https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports -->
+		<!-- jasperreports begin -->
 		<dependency>
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports</artifactId>
@@ -71,14 +71,12 @@
 			<artifactId>jcommon</artifactId>
 			<version>1.0.17</version>
 		</dependency>
-
 		<!-- https://mvnrepository.com/artifact/com.keypoint/png-encoder -->
 		<dependency>
 			<groupId>com.keypoint</groupId>
 			<artifactId>png-encoder</artifactId>
 			<version>1.5</version>
 		</dependency>
-
 		<!-- https://mvnrepository.com/artifact/com.itextpdf/itext-asian -->
 		<dependency>
 			<groupId>com.itextpdf</groupId>
@@ -95,7 +93,6 @@
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
@@ -108,7 +105,8 @@
 			<artifactId>poi</artifactId>
 			<version>3.14</version>
 		</dependency>
-
+		
+		<!-- jasperreports end -->
 
 	</dependencies>
 

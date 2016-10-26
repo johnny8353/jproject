@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.johnny.common.util.DateUtil;
 import com.johnny.task.access.vo.TaskVO;
 import com.johnny.task.business.service.TaskService;
 import com.johnny.task.common.data.SysDataDictionary;
@@ -40,16 +41,35 @@ public class TaskServiceImplTest {
 	@Test
 	public void testSaveObject() {
 		TaskVO taskVO = new TaskVO();
-		taskVO.setClassName("com.johnny.monitor.common.run.TestTask");
+//		taskVO.setClassName("com.johnny.monitor.common.run.TestTask");
+		taskVO.setClassName("testTask");
 		taskVO.setRptFlag("Y");
-		taskVO.setRptUom("分钟");
-		taskVO.setRptInterval("1");
+		taskVO.setRptUom("S");
+		taskVO.setRptInterval("300");
 		taskVO.setStatus(SysDataDictionary.THREAD_STATUS_ACTIVE);
 		taskVO.setDescText("测试任务------");
+		taskVO.setSchedStartDt(DateUtil.stringToDate("2016-10-25 10:10:10"));
 		taskVO.setLastUpdDate(new Date());
 		taskVO.setCreateDate(new Date());
 		taskService.saveEntity(taskVO);
 	}
+	
+	@Test
+	public void testSaveMTOObject() {
+		TaskVO taskVO = new TaskVO();
+//		taskVO.setClassName("com.johnny.monitor.common.run.TestTask");
+		taskVO.setClassName("systemMonitorTask");
+		taskVO.setRptFlag("Y");
+		taskVO.setRptUom("S");
+		taskVO.setRptInterval("600");
+		taskVO.setStatus(SysDataDictionary.THREAD_STATUS_ACTIVE);
+		taskVO.setDescText("服务器监控定时任务------");
+		taskVO.setSchedStartDt(DateUtil.stringToDate("2016-10-25 10:10:10"));
+		taskVO.setLastUpdDate(new Date());
+		taskVO.setCreateDate(new Date());
+		taskService.saveEntity(taskVO);
+	}
+	
 	@Test
 	public void getStartupRpdTask(){
 		List<TaskVO> tasks = new ArrayList<>();

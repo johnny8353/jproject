@@ -12,6 +12,7 @@ public class BaseVO {
 	private String lastUpdBy;
 	private String conflictId;
 	private String dbLastUpdSrc;
+	private Long parRowId;
 	public Date getCreateDate() {
 		return createDate;
 	}
@@ -65,6 +66,12 @@ public class BaseVO {
 	}
 	public void setDbLastUpdSrc(String dbLastUpdSrc) {
 		this.dbLastUpdSrc = dbLastUpdSrc;
+	}
+	public Long getParRowId() {
+		return parRowId;
+	}
+	public void setParRowId(Long parRowId) {
+		this.parRowId = parRowId;
 	}
 	
 	

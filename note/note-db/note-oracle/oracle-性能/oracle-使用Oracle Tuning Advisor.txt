@@ -1,0 +1,35 @@
+--1、创建优化任务
+DECLARE
+  tuning_task_name VARCHAR2(30);
+  tuning_sqltext   CLOB;
+BEGIN
+  tuning_sqltext   := 'SELECT COUNT(*) FROM SIEBEL.S_ORG_EXT WHERE UPPER(NAME)=:username';
+  tuning_task_name := dbms_sqltune.create_tuning_task(sql_text => tuning_sqltext,
+   bind_list => sql_binds(anydata.Convertvarchar2(100)), user_name =>'SYS', scope =>'COMPREHENSIVE',
+    time_limit => 60, task_name =>'FIRST_TUNING_TASK1', description =>'Tune S_org_ext count');
+END;
+/
+--2、查看任务
+select TASK_NAME，V1.* FROM USER_ADVISOR_LOG V1 WHERE TASK_NAME='FIRST_TUNING_TASK1';
+--3、执行优化任务
+BEGIN
+  DBMS_SQLTUNE.EXECUTE_TUNING_TASK(TASK_NAME=>'FIRST_TUNING_TASK1');
+  END;
+ 
+--4、查看任务状态
+select status from user_advisor_tasks
+where TASK_NAME='FIRST_TUNING_TASK1';
+--5、查看报告
+select dbms_sqltune.report_tuning_task('FIRST_TUNING_TASK1') from dual;
+
+
+
+• 在Oracle10g之前，优化SQL是个比较费力的技术活，不停的分析执行计划，加hint，分析统计信息等等。在10g中，Oracle推出了自己的SQL优化辅助工具: 
+SQL优化器(SQL Tuning Advisor ：STA)，它是新的DBMS_SQLTUNE包。使用STA一定要保证优化器是CBO模式下
+• GRANT ADMINISTER SQL TUNING SET TO SIEBEL;
+• --OR
+• GRANT ADMINISTER ANY SQL TUNING SET TO SIEBEL;
+• GRANT ADVISOR TO SIEBEL;
+• GRANT CREATE ANY SQL PROFILE TO SIEBEL;
+• GRANT ALTER ANY SQL PROFILE TO SIEBEL;
+• GRANT DROP ANY SQL PROFILE TO SIEBEL;

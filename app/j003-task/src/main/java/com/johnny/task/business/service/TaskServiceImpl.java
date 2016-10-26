@@ -42,4 +42,11 @@ public class TaskServiceImpl extends HibernateBaseServiceImpl<TaskVO> implements
 		tasks = taskDao.findList(queryString, params);
 		return tasks;
 	}
+
+	@Override
+	public Integer GetCountInOnePeriod(Long taskPid) {
+		Integer count = 0;
+//		count = taskDao.executeQuery(handler)
+		return count;
+	}
 }

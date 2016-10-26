@@ -80,8 +80,8 @@
         <property name="status" type="java.lang.String">
             <column name="STATUS" />
         </property>
-        <property name="taskPid" type="java.lang.String">
-            <column name="TASK_PID" />
+        <property name="parRowId" type="java.lang.Long">
+            <column name="PAR_ROW_ID" />
         </property>
     </class>
 </hibernate-mapping>
