@@ -5,6 +5,8 @@ import org.apache.axis.client.Service;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.johnny.data.common.data.SysDataDictionary;
+
 
 public class ZMailUtil {
 	public static void main(String[] args) {
@@ -26,7 +28,7 @@ public class ZMailUtil {
 			// 这里使用org.apache.axis.client包中的service和call
 			Service service = new Service();
 			Call call = (Call) service.createCall();
-			call.setTargetEndpointAddress("http://itpmail.zte.com.cn/mailService/services/MailTemplateService");
+			call.setTargetEndpointAddress(SysDataDictionary.getSysPref("C_MAIL_URL"));
 
 			// 设置需要调用的方法名称
 			call.setOperationName("sendMail");

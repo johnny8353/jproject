@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import com.johnny.task.common.data.SysDataDictionary;
 @Service
 public class TaskServiceImpl extends HibernateBaseServiceImpl<TaskVO> implements
 		TaskService {
+	private Log log = LogFactory.getLog(getClass());
 	@Autowired
 	private TaskDao taskDao;
 
@@ -42,11 +45,25 @@ public class TaskServiceImpl extends HibernateBaseServiceImpl<TaskVO> implements
 		tasks = taskDao.findList(queryString, params);
 		return tasks;
 	}
-
+	
+	/**
+	 SELECT COUNT(1) FROM `mto`.`jt_task` t WHERE t.par_row_id = 3 AND T.CREATE_DATE BETWEEN
+   		DATE_SUB(NOW(),INTERVAL (SELECT rpt_interval  FROM `mto`.`jt_task` T  WHERE t.row_id = 3) SECOND) AND  NOW()
+	 */
 	@Override
 	public Integer GetCountInOnePeriod(Long taskPid) {
 		Integer count = 0;
-//		count = taskDao.executeQuery(handler)
+		String sql = "SELECT COUNT(1) FROM `mto`.`jt_task` t WHERE t.par_row_id = :par_row_id AND "
+				+ "T.CREATE_DATE BETWEEN DATE_SUB(NOW(),INTERVAL (SELECT rpt_interval  FROM `mto`.`jt_task` T  WHERE t.row_id = :par_row_id)"
+				+ " SECOND) AND  NOW()";
+		Map<String, Object> params = new  HashMap<String, Object>();
+		params.put("par_row_id", taskPid);
+		List<Object[]> objs = taskDao.findSqlList(sql, params );
+		try{
+			count = (Integer) objs.get(0)[0];
+		}catch(Exception e){
+			log.warn(e.getMessage());
+		}
 		return count;
 	}
 }

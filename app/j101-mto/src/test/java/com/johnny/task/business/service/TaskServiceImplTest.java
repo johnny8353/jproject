@@ -82,9 +82,11 @@ public class TaskServiceImplTest {
 		fail("Not yet implemented");
 	}
 
+	
+	
 	@Test
-	public void testUpdateObject() {
-		fail("Not yet implemented");
+	public void testGetCountInOnePeriod() {
+		System.out.println(taskService.GetCountInOnePeriod(3L));
 	}
 
 	@Test

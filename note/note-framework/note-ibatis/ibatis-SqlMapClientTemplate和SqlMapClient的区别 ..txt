@@ -1,0 +1,78 @@
+SqlMapClientTemplate是org.springframework.orm.ibatis下的
+
+而SqlMapClient是ibatis的
+
+
+SqlMapClientTemplate是SqlMapClient的封装类. 
+SqlMapClient中包含着session的管理. 
+SqlMapClientTemplate用于session的封装,以及异常的捕捉. 
+所以按照以上的推断来说.应该尽量使用SqlMapClientTemplate. 
+保证session以及Exception的正常以及统一.
+
+下面是两种类型在spring中的集成配置及用法：、
+
+SqlMapClientTemplate：
+
+
+1、在spring中的配置
+
+
+<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+   	 <property name="dataSource" ref="dataSource" />  
+        <property name="configLocation">
+            <value>classpath:/sqlmap-config.xml</value>
+        </property>
+    </bean>
+    <bean id="sqlMapClientTemplate" class="org.springframework.orm.ibatis.SqlMapClientTemplate">  
+        <property name="sqlMapClient" ref="sqlMapClient"></property> 
+    </bean>
+    <bean id="accountDAO" class="com.raycloud.test.dao.AccountDAO">
+    	<property name="sqlMapClientTemplate" ref="sqlMapClientTemplate"></property>
+    </bean>2、在dao中的实现 
+
+
+@Repository//使用该注解相当于声明了一个bean
+public class AccountDAO {
+
+	
+	SqlMapClientTemplate sqlMapClientTemplate; 
+
+	public void setSqlMapClientTemplate(SqlMapClientTemplate sqlMapClientTemplate) {
+		this.sqlMapClientTemplate = sqlMapClientTemplate;
+	}
+	
+	public Integer addAccount(Account account) throws SQLException{
+		return (Integer)this.sqlMapClientTemplate.insert("Account.insertAccount", account);
+	}
+}
+
+
+
+SqlMapClient：
+1、在spring中的配置
+
+    <bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+   	 <property name="dataSource" ref="dataSource" />  
+        <property name="configLocation">
+            <value>classpath:/sqlmap-config.xml</value>
+        </property>
+    </bean>
+    <bean id="accountDAO" class="com.raycloud.test.dao.AccountDAO">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+2、在dao中的实现 
+
+@Repository//使用该注解相当于声明了一个bean
+public class AccountDAO {
+
+	
+	SqlMapClient sqlMapClient; 
+
+	public void setSqlMapClient(SqlMapClient sqlMapClient) {
+		this.sqlMapClient = sqlMapClient;
+	}
+
+	public Integer addAccount(Account account) throws SQLException{
+		return (Integer)this.sqlMapClient.insert("Account.insertAccount", account);
+	}
+}

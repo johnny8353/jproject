@@ -1,0 +1,82 @@
+最近有个需求, 当DB压力过大时获取Connction的时间过慢长时间不返回的话, 就不连接DB了, 研究了好久,DataSource里面的setLoginTimeOut 根本没法用, 
+刚开始一直纠结在大google搜索"java get connection 超时"答案上, 但始终找不到答案, 偶然尝试了下"java 设置超时" 问题就迎刃而解了. 
+
+java早已经给我们提供了解决方案。jdk1.5自带的并发库中Future类就能满足这个需求。Future类中重要方法包括get()和cancel()。
+get()获取数据对象，如果数据没有加载，就会阻塞直到取到数据，而 cancel()是取消数据加载。另外一个get(timeout)操作，表示如果在timeout时间内没有取到就失败返回，而不再阻塞。 
+看来不能一直纠结在一条道上, 偶尔换个思路还是很有帮助的,  不多说了, 解决方案如下 
+
+	public boolean checkDBStatus() {
+		boolean bdStatus = false;
+
+		final ExecutorService exec = Executors.newFixedThreadPool(1);
+		Callable<String> call = new Callable<String>() {
+			public String call() throws Exception {
+				DataSource dataSource = getJdbcTemplate().getDataSource();
+				Connection connection = dataSource.getConnection();
+				Statement statement = connection.createStatement();
+				statement.executeQuery("select * from citirisk_menu_node");
+				return "true";
+			}
+		};
+
+		try {
+			Future<String> future = exec.submit(call);
+			// set db connection timeout to 10 seconds
+			String obj = future.get(1000 * 10, TimeUnit.MILLISECONDS); 
+			bdStatus = Boolean.parseBoolean(obj);
+			System.out.println("the return value from call is :" + obj);
+		} catch (TimeoutException ex) {
+			System.out.println("====================task time out===============");
+			ex.printStackTrace();
+			bdStatus = false;
+		} catch (Exception e) {
+			System.out.println("failed to handle.");
+			e.printStackTrace();
+			bdStatus = false;
+		}
+		// close thread pool
+		exec.shutdown();
+
+		return bdStatus;
+	}
+	
+在Java中，如果需要设定代码执行的最长时间，即超时，可以用Java线程池ExecutorService类配合Future接口来实现。 Future接口是Java标准API的一部分，在java.util.concurrent包中。
+Future接口是Java线程Future模式的实现，可以来进行异步计算。 
+
+Future模式可以这样来描述：我有一个任务，提交给了Future，Future替我完成这个任务。期间我自己可以去做任何想做的事情。一段时间之后，我就便可以从Future那儿取出结果。
+就相当于下了一张订货单，一段时间后可以拿着提订单来提货，这期间可以干别的任何事情。其中Future 接口就是订货单，真正处理订单的是Executor类，它根据Future接口的要求来生产产品。 
+
+Future接口提供方法来检测任务是否被执行完，等待任务执行完获得结果，也可以设置任务执行的超时时间。这个设置超时的方法就是实现Java程序执行超时的关键。 
+
+Future接口是一个泛型接口，严格的格式应该是Future<V>，其中V代表了Future执行的任务返回值的类型。 Future接口的方法介绍如下： 
+
+    boolean cancel (boolean mayInterruptIfRunning) 取消任务的执行。参数指定是否立即中断任务执行，或者等等任务结束 
+    boolean isCancelled () 任务是否已经取消，任务正常完成前将其取消，则返回 true 
+    boolean isDone () 任务是否已经完成。需要注意的是如果任务正常终止、异常或取消，都将返回true 
+    V get () throws InterruptedException, ExecutionException  等待任务执行结束，然后获得V类型的结果。InterruptedException 线程被中断异常， 
+    ExecutionException任务执行异常，如果任务被取消，还会抛出CancellationException 
+    V get (long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException 同上面的get功能一样，多了设置超时时间。
+    参数timeout指定超时时间，uint指定时间的单位，在枚举类TimeUnit中有相关的定义。如果计算超时，将抛出TimeoutException 
+
+Future的实现类有java.util.concurrent.FutureTask<V>即 javax.swing.SwingWorker<T,V>。通常使用FutureTask来处理我们的任务。
+FutureTask类同时又实现了Runnable接口，所以可以直接提交给Executor执行。使用FutureTask实现超时执行的代码如下： 
+
+ExecutorService executor = Executors.newSingleThreadExecutor();  
+FutureTask<String> future =  
+       new FutureTask<String>(new Callable<String>() {//使用Callable接口作为构造参数  
+         public String call() {  
+           //真正的任务在这里执行，这里的返回值类型为String，可以为任意类型  
+       }});  
+executor.execute(future);  
+//在这里可以做别的任何事情  
+try {  
+    result = future.get(5000, TimeUnit.MILLISECONDS); //取得结果，同时设置超时执行时间为5秒。同样可以用future.get()，不设置执行超时时间取得结果  
+} catch (InterruptedException e) {  
+    futureTask.cancel(true);  
+} catch (ExecutionException e) {  
+    futureTask.cancel(true);  
+} catch (TimeoutException e) {  
+    futureTask.cancel(true);  
+} finally {  
+    executor.shutdown();  
+}  

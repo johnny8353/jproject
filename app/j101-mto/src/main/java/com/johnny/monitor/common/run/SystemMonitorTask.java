@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import com.johnny.common.util.CommonUtil;
 import com.johnny.common.util.DateUtil;
+import com.johnny.common.util.FutureUtil;
 import com.johnny.common.util.ReadFromFile;
 import com.johnny.common.util.StringUtil;
 import com.johnny.monitor.access.vo.SystemGroupVO;
@@ -66,6 +67,8 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 	String className = null;
 	Map<String,Object> params = new HashMap<>();
 	String envName = null;
+	String batchNum = "";
+	String frequency = "";
 
 	protected Log log = LogFactory.getLog(getClass());
 	private SystemListBO monitorListBO;
@@ -73,8 +76,6 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 	public void doTaskWakeUp(TaskVO taskvo)  {
 		log.info("===========SystemMonitorThread begin===========");
 		try {
-			// 初始化数据
-			initData();
 			monitorSystem(taskvo.getMethod());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -90,7 +91,7 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 	/**
 	 * 控制执行时间
 	 */
-	public void ExecuteControl() {
+	public void executeControl() {
 		final ExecutorService exec = Executors.newFixedThreadPool(1);
 		Callable<String> call = new Callable<String>() {
 			public String call() throws Exception {
@@ -116,13 +117,42 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 			monitor.setsMessage("错误：处理失败");
 			System.out.println("处理失败.");
 			e.printStackTrace();
+		}finally{
+			// 关闭线程池
+			exec.shutdown();
 		}
-		// 关闭线程池
-		exec.shutdown();
+	}
+	
+	/**
+	 * 控制执行时间
+	 */
+	public void executeEmailNotify() {
+		final ExecutorService exec = Executors.newFixedThreadPool(1);
+		Callable<String> call = new Callable<String>() {
+			public String call() throws Exception {
+				// 开始执行耗时操作
+				emailNotify(batchNum,frequency);
+				return "";
+			}
+		};
+		try {
+			Future<String> future = exec.submit(call);
+			String obj = future.get(30000 * 1, TimeUnit.MILLISECONDS); // 任务处理超时时间设为
+																		// 1 秒
+		} catch (TimeoutException ex) {
+			ex.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			// 关闭线程池
+			exec.shutdown();
+		}
 	}
 
 	public synchronized void monitorSystem(String frequency) {
+		this.frequency = frequency;
 		String batchNum = DateUtil.getNowDateTimeStr();
+		this.batchNum = batchNum;
 		try {
 			if (monitorListBO == null) {
 				initData();
@@ -152,7 +182,9 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 								+ systemInfoVO.getEnviromentName() + "_"
 								+ systemInfoVO.getIpAddr();
 						
-						ExecuteControl();
+						executeControl();
+						
+						
 						String messageString = StringUtil
 								.retBlankIfNull(monitor.getsMessage());
 
@@ -178,9 +210,13 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 				}
 			}
 			//报表生产
+			log.info("--generateReport--begin");
 			generateReport(batchNum);
+			log.info("--generateReport--end");
 			//发送邮件
-			emailNotify(batchNum,frequency);
+			log.info("--emailNotify--begin");
+			executeEmailNotify();
+			log.info("--emailNotify--end");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -237,13 +273,14 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 	}
 	
 	public void emailNotify(String batchNum,String frequency){
+		log.info("---emailNotify---1");
 		String serverUrl= com.johnny.data.common.data.SysDataDictionary.getSysPref("JT_FILE_URL");
 		String destPath = com.johnny.data.common.data.SysDataDictionary.getSysPref("JT_FILE_PATH");
 		String htmlSufix = "/html/"+"monitorReport_"+batchNum+".html";
 		String destHtmlFile = destPath+htmlSufix;
-		String clickLook = "若邮件图表显示不正常，请点击查看监控结果";
+		String clickLook = "若邮件图表显示不正常，请点击该链接查看监控结果";
 		String fNameStr = ReadFromFile.readFileByLines(destHtmlFile);
-		
+		log.info("---emailNotify---2");
 		//获取所有报错实例
 		List<SystemGroupVO> groups = systemGroupService.findGroupList();
 		for (SystemGroupVO systemGroupVO : groups) {
@@ -291,6 +328,7 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 				title += " 服务器告警，请尽快查看原因！";
 			}
 			String result = "";
+			log.info("---emailNotify---3"+systemGroupVO.getSysCode());
 			if(!toMail.equals("")){
 				result = ZMailUtil.invokeDPGSendTestMail(
 						toMail.toString(), title, fNameStr, clickLook, serverUrl + htmlSufix);

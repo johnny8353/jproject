@@ -1,0 +1,59 @@
+Mysql时间加减函数为date_add（）、date_sub（）
+
+定义和用法
+DATE_ADD() 函数向日期添加指定的时间间隔。
+DATE_SUB() 函数向日期减少指定的时间间隔。
+语法
+DATE_ADD(date,INTERVAL expr type)
+DATE_SUB(date,INTERVAL expr type)
+
+date 参数是合法的日期表达式。
+
+expr参数是您希望添加的时间间隔。
+
+type 参数可以是下列值：
+
+Type 值 
+MICROSECOND 
+SECOND 
+MINUTE 
+HOUR 
+DAY 
+WEEK 
+MONTH 
+QUARTER 
+YEAR 
+SECOND_MICROSECOND 
+MINUTE_MICROSECOND 
+MINUTE_SECOND 
+HOUR_MICROSECOND 
+HOUR_SECOND 
+HOUR_MINUTE 
+DAY_MICROSECOND 
+DAY_SECOND 
+DAY_MINUTE 
+DAY_HOUR 
+YEAR_MONTH 
+
+
+
+1. MySQL 为日期增加一个时间间隔：date_add()
+
+set @dt = now();
+select date_add(@dt, interval 1 day);   - 加1天
+select date_add(@dt, interval 1 hour);   -加1小时
+select date_add(@dt, interval 1 minute);    - 加1分钟
+select date_add(@dt, interval 1 second); -加1秒
+select date_add(@dt, interval 1 microsecond);-加1毫秒
+select date_add(@dt, interval 1 week);-加1周
+select date_add(@dt, interval 1 month);-加1月
+select date_add(@dt, interval 1 quarter);-加1季
+select date_add(@dt, interval 1 year);-加1年例：更新某个时间，每个时间加上一个星期
+
+UPDATE comment c set c.time = DATE_ADD(c.time, INTERVAL 7 DAY) ;
+2. MySQL 为日期减去一个时间间隔：date_sub()，格式同date_add（）类似 
+
+
+例子：更新某个时间，使每个时间减少一个月
+
+UPDATE comment c set c.time = DATE_SUB(c.time, INTERVAL 1 MONTH)
