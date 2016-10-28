@@ -50,7 +50,7 @@ public class SystemGroupServiceImplTest extends TestCaseBase{
 
 	@Test
 	public void testDeleteEntity() {
-		SystemGroupVO group = groupServiceImpl.get(SystemGroupVO.class, 10L);
+		SystemGroupVO group = groupServiceImpl.getById(10L);
 		groupServiceImpl.delete(group);
 		System.out.println(group);
 	}
@@ -67,29 +67,28 @@ public class SystemGroupServiceImplTest extends TestCaseBase{
 	@Test
 	public void testGetLong() {
 		Serializable id = 9L;
-		System.out.println(groupServiceImpl.get(SystemGroupVO.class, id)
-				.getSysCode());
+		System.out.println(groupServiceImpl.getById(id).getSysCode());
 	}
 
 	@Test
 	public void testQuery1() {
-		Map<String, Object> params = new TreeMap<String, Object>();
-		params.put("sysType", "DataBase");
-		List<SystemGroupVO> groups = groupServiceImpl.findList(
-				"from SystemGroupVO where sysType=:sysType", params);
-		System.out.println(Arrays.asList(groups));
+//		Map<String, Object> params = new TreeMap<String, Object>();
+//		params.put("sysType", "DataBase");
+//		List<SystemGroupVO> groups = groupServiceImpl.findList(
+//				"from SystemGroupVO where sysType=:sysType", params);
+//		System.out.println(Arrays.asList(groups));
 	}
 
 	@Test
 	public void testQueryPage() {
-		Map<String, Object> params = new TreeMap<String, Object>();
-		params.put("sysType", "DataBase");
-		String queryString = "from SystemGroupVO where sysType=:sysType";
-		Pagination<SystemGroupVO> groups = groupServiceImpl.findPagination(
-				queryString, params, 2, 2);
-		System.out.println(Arrays.asList(groups.getItems()));
-		System.out.println(groups.getPagesCount());
-		System.out.println(groups.getRowsCount());
+//		Map<String, Object> params = new TreeMap<String, Object>();
+//		params.put("sysType", "DataBase");
+//		String queryString = "from SystemGroupVO where sysType=:sysType";
+//		Pagination<SystemGroupVO> groups = groupServiceImpl.findPagination(
+//				queryString, params, 2, 2);
+//		System.out.println(Arrays.asList(groups.getItems()));
+//		System.out.println(groups.getPagesCount());
+//		System.out.println(groups.getRowsCount());
 
 	}
 
@@ -98,6 +97,15 @@ public class SystemGroupServiceImplTest extends TestCaseBase{
 		SystemListBO systemListBO = new SystemListBO();
 		systemListBO = groupServiceImpl.findSystemListBO();
 		System.out.println(systemListBO);
+		System.out.println(systemListBO.getSystemBOList().size());
+		
+	}
+	
+	@Test
+	public void testfindGroupList(){
+		List<SystemGroupVO> groups = groupServiceImpl.findGroupList();
+		System.out.println(groups.size());
+		System.out.println(groups);
 		
 	}
 }

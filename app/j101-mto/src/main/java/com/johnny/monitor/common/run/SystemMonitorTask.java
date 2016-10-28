@@ -2,14 +2,14 @@ package com.johnny.monitor.common.run;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.math.BigInteger;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,9 +26,10 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.johnny.common.util.ContextUtil;
+import com.johnny.common.util.CommonUtil;
 import com.johnny.common.util.DateUtil;
 import com.johnny.common.util.ReadFromFile;
 import com.johnny.common.util.StringUtil;
@@ -47,12 +48,14 @@ import com.johnny.monitor.model.SystemListBO;
 import com.johnny.task.access.vo.TaskVO;
 import com.johnny.task.common.run.BaseTask;
 import com.johnny.task.common.run.BaseTaskImpl;
+import com.mchange.v2.collection.MapEntry;
 
 /**
  * 类 编 号： 类 名 称：SystemMonitorThread.java 内容摘要：监控 系统 是否可用 完成日期：2016-3-25
  * 编码作者：JohnnyHuang 黄福强
  */
 @Component("systemMonitorTask")
+@Scope(value="prototype")
 public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 	@Autowired
 	private SystemGroupService systemGroupService;
@@ -61,7 +64,7 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 
 	MonitorService monitor = null;
 	String className = null;
-	String param = null;
+	Map<String,Object> params = new HashMap<>();
 	String envName = null;
 
 	protected Log log = LogFactory.getLog(getClass());
@@ -72,7 +75,7 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 		try {
 			// 初始化数据
 			initData();
-			monitorSystem("");
+			monitorSystem(taskvo.getMethod());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -95,7 +98,7 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 				@SuppressWarnings("rawtypes")
 				Class monitClass = Class.forName(className);
 				monitor = (MonitorService) monitClass.newInstance();
-				monitor.execute(param);
+				monitor.execute(params);
 				return envName + DateUtil.getNowDateTimeMMM() + "_线程执行完成.";
 			}
 		};
@@ -128,21 +131,22 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 				for (SystemInfoVO systemInfoVO : systemBO.getSystemInfoVOList()) {
 					String result = SysDataDictionary.MONITOR_RESULT_SUCCESS_NAME;
 					StringBuffer resultMessageBuffer = new StringBuffer();
+					String url = "";
 					// 处理不监控数据
 					if (systemInfoVO.getEnableFlag().equals("Y")) {
 						SystemGroupVO groupVO = systemBO.getGroupVO();
 						if (groupVO.getSysType().equals(
 								SysDataDictionary.MONITOR_SYS_TYPE_DB)) {
-							param = systemInfoVO.getIpAddr() + ";"
+							url = systemInfoVO.getIpAddr() + ";"
 									+ systemInfoVO.getUserName() + ";"
 									+ systemInfoVO.getPassWord();
 						} else if (groupVO.getSysType().equals(
 								SysDataDictionary.MONITOR_SYS_TYPE_APP)) {
-							param = systemInfoVO.getIpAddr()
+							url = systemInfoVO.getIpAddr()
 									+ StringUtil.retBlankIfNull(groupVO
 											.getUrlParam());
 						}
-
+						params.put("url", url);
 						className = groupVO.getClassName();
 						envName = groupVO.getSysName() + "_"
 								+ systemInfoVO.getEnviromentName() + "_"
@@ -173,11 +177,10 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 					systemMonitorInstanceService.save(entity);
 				}
 			}
-			
 			//报表生产
 			generateReport(batchNum);
 			//发送邮件
-			emailNotify(batchNum);
+			emailNotify(batchNum,frequency);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -185,34 +188,20 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 	}
 	
 	public void generateReport(String batchNum) throws IOException{
-		String destHtmlFile = WebUtil.getWebRootAbsolutePath()+"/html/"+"monitorReport_"+batchNum+".html";
-		String destHtmlUrl = "http://localhost:8077/johnny/html/"+"monitorReport_"+batchNum+".html";
-//		Connection conn = null;
-//		// 创建数据库连接Connection对象
-//		String url = "jdbc:mysql:///mto?useUnicode=true&characterEncoding=UTF-8";
-//		String user = "root";
-//		String password = "1230";
-//		try {
-//			Class.forName("com.mysql.jdbc.Driver");
-//			conn = DriverManager.getConnection(url, user, password);
-//		} catch (Exception e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
+		String serverUrl= com.johnny.data.common.data.SysDataDictionary.getSysPref("JT_FILE_URL");
+		String destPath = com.johnny.data.common.data.SysDataDictionary.getSysPref("JT_FILE_PATH");
+		String htmlSufix = "/html/"+"monitorReport_"+batchNum+".html";
 		try {
-			Connection conn = ContextUtil.getConnectionFromSpring("dataSource");
+			Connection conn = CommonUtil.getConnectionFromSpring("dataSource");
 			//生产头报表 
 			File reportFile = new File(WebUtil.getWebRootAbsolutePath()+("/jasper/monitorReport.jasper"));
 			Map<String, Object> parameters = new HashMap<String, Object>();
 			parameters.put("P_BATCH_NUM", batchNum);
-			parameters.put("P_URL", destHtmlUrl);
+			parameters.put("P_URL", serverUrl+htmlSufix);
 			JasperReport jasperReport = (JasperReport) JRLoader.loadObject(new FileInputStream(reportFile));
 			JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,
 					parameters, conn);
-			JasperExportUtils.exportHtml(jasperPrint,destHtmlFile);
-			
-			
-			
+			JasperExportUtils.exportHtml(jasperPrint,destPath+htmlSufix);
 		} catch (JRException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -221,15 +210,93 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(SystemMonitorTask.class.getResource("/").getPath());
+//		System.out.println(SystemMonitorTask.class.getResource("/").getPath());
+		Map<String,Object> resultMap  = new HashMap<>();
+		resultMap.put("仿真", new BigInteger("1"));
+		resultMap.put("生产", 1);
+		System.out.println(new SystemMonitorTask().getCount(resultMap,"仿真"));
 	}
 	
-	public void emailNotify(String batchNum){
-		String destHtmlFile = WebUtil.getWebRootAbsolutePath()+"/html/"+"monitorReport_"+batchNum+".html";
+	public int getCount(Map<String,Object> resultMap,String name){
+		int count = 0;
+		try {
+			for (Entry<String, Object> entry : resultMap.entrySet()) {
+				if(entry.getKey().equals(name)){
+					Object obj = entry.getValue();
+					if(obj instanceof BigInteger){
+						BigInteger a = (BigInteger) obj;
+						count = a.intValue();
+					}else{
+						count = (int) obj;
+					}
+				}
+			}
+		} catch (Exception e) {
+		}
+		return count;
+	}
+	
+	public void emailNotify(String batchNum,String frequency){
+		String serverUrl= com.johnny.data.common.data.SysDataDictionary.getSysPref("JT_FILE_URL");
+		String destPath = com.johnny.data.common.data.SysDataDictionary.getSysPref("JT_FILE_PATH");
+		String htmlSufix = "/html/"+"monitorReport_"+batchNum+".html";
+		String destHtmlFile = destPath+htmlSufix;
+		String clickLook = "若邮件图表显示不正常，请点击查看监控结果";
 		String fNameStr = ReadFromFile.readFileByLines(destHtmlFile);
 		
-		String result = ZMailUtil.invokeDPGSendTestMail("6092002318@zte.com.cn","服务器监控结果",fNameStr);
-		log.info("sendmail finished-----result:"+result);
+		//获取所有报错实例
+		List<SystemGroupVO> groups = systemGroupService.findGroupList();
+		for (SystemGroupVO systemGroupVO : groups) {
+			String toMail = "";
+			String title = "";
+			
+			Map<String,Object> params = new HashMap<String, Object>();
+			Map<String,Object> resultMap = new HashMap<String, Object>();
+			params.put("batchNum", batchNum);
+			params.put("sysCode", systemGroupVO.getSysCode());
+			resultMap = systemMonitorInstanceService.findErrorCountGroupByType(params);
+			int devErrorCount = getCount(resultMap,SysDataDictionary.ENV_DEV_NAME) ;
+			int testErrorCount = getCount(resultMap,SysDataDictionary.ENV_TEST_NAME) ;
+			int recErrorCount = getCount(resultMap,SysDataDictionary.ENV_REC_NAME) ;
+			int prodErrorCount = getCount(resultMap,SysDataDictionary.ENV_PROD_NAME) ;
+			int totalErrorCount = devErrorCount+testErrorCount+recErrorCount+prodErrorCount;
+			//每日监控
+			if(frequency.equals(SysDataDictionary.MONITOR_SYS_FREQUENCE_DAY)){
+				toMail = systemGroupVO.getDevMailto()+systemGroupVO.getTestMailto()+systemGroupVO.getRecMailto()+systemGroupVO.getProdMailto();
+				title = "【"+systemGroupVO.getSysCode() + " 服务器每日监控结果" + "】 " + DateUtil.getNowDateTime();
+				if(totalErrorCount > 0) {
+					title +=  " 服务器告警，请尽快查看原因！";
+				}else{
+					title += " 本次监控正常！！";
+				}
+			}else{
+				if(totalErrorCount == 0) continue;
+				//开发
+				if (devErrorCount > 0) {
+					toMail = systemGroupVO.getDevMailto();
+				}
+				// 测试
+				if (testErrorCount > 0) {
+					toMail = systemGroupVO.getDevMailto()+systemGroupVO.getTestMailto();
+				}
+				// 仿真
+				if (recErrorCount > 0) {
+					toMail = systemGroupVO.getDevMailto()+systemGroupVO.getTestMailto()+systemGroupVO.getRecMailto();
+				}
+				// 生产
+				if (prodErrorCount > 0) {
+					toMail = systemGroupVO.getDevMailto()+systemGroupVO.getTestMailto()+systemGroupVO.getRecMailto()+systemGroupVO.getProdMailto();
+				}
+				title = "【"+systemGroupVO.getSysCode() + " 服务器监控结果" + "】 " + DateUtil.getNowDateTime();
+				title += " 服务器告警，请尽快查看原因！";
+			}
+			String result = "";
+			if(!toMail.equals("")){
+				result = ZMailUtil.invokeDPGSendTestMail(
+						toMail.toString(), title, fNameStr, clickLook, serverUrl + htmlSufix);
+			}
+			log.info(systemGroupVO.getSysCode()+"sendmail finished-----result:" + result + toMail);
+		}
 	}
 
 	/**

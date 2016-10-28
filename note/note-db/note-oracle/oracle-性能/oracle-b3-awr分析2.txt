@@ -81,7 +81,6 @@ Shared Pool Statistics
 	T_***NCE、T_***CE、T_A***T，关于此表的相关访问应该是最需要优化的了，需优化的sql语句为（比如索引是否合理）：
 	
 二、oracle优化
-
     1、合理设置DB_FILE_MULTIBLOCK_READ_COUNT，此参数控制在多数据块读时一次读入数据块的次数。适当增加这个参数大小，能够提高多数据块操作（如全表扫描）的IO效率。
 	2、可以考虑对以上热点表重建索引、分区表等方式来降低该数据段上的IO负荷，将历史数据进行分离（比如根据业务情况将2015年之前的数据转移到另外的备份库中）。
 	3、因Buffer Hit只有73%，可根据Buffer Pool Advisory调整buffer pool大小为：16g。

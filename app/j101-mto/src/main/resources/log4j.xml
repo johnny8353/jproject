@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <!-- 控制台日志，编码阶段使用-->
+    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+        <param name="Target" value="System.out" />
+        <param name="Threshold" value="DEBUG" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %l%n%p: %m%n" />
+        </layout>
+    </appender>
+
+    <!-- 控制台异步日志,开发环境使用，方便调试 -->
+    <appender name="ASYNC_CONSOLE" class="org.apache.log4j.AsyncAppender">
+        <param name="BufferSize" value="64" />
+        <param name="LocationInfo" value="true" />
+        <appender-ref ref="CONSOLE" />
+    </appender>
+
+    <!-- JSSB框架底层日志，分析框架问题时使用 -->
+    <appender name="JSSB_LOG" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="jssb.log" />
+        <param name="Append" value="true" />
+        <param name="DatePattern" value="'.'yyyy-MM-dd" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %l%n%p: %m%n" />
+        </layout>
+    </appender>
+
+    <!-- 异步JSSB框架底层日志，生产环境使用 -->
+    <appender name="ASYNC_JSSB_LOG" class="org.apache.log4j.AsyncAppender">
+        <param name="BufferSize" value="512" />
+        <param name="LocationInfo" value="true" />
+        <appender-ref ref="JSSB_LOG" />
+    </appender>
+    
+    <!-- 业务日志，生产环境使用 -->
+    <appender name="BUSINESS_LOG" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="/opt/j.log" />
+        <param name="Append" value="true" />
+        <param name="DatePattern" value="'.'yyyy-MM-dd" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %l%n%p: %m%n" />
+        </layout>
+    </appender>
+    
+        <!-- 业务日志，本地环境使用 -->
+    <appender name="LOCAL_BUSINESS_LOG" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="c://j.log" />
+        <param name="Append" value="true" />
+        <param name="DatePattern" value="'.'yyyy-MM-dd" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %l%n%p: %m%n" />
+        </layout>
+    </appender>
+
+    <!-- 异步业务日志，生产环境使用 -->
+    <appender name="ASYNC_BUSINESS_LOG" class="org.apache.log4j.AsyncAppender">
+        <param name="BufferSize" value="256" />
+        <param name="LocationInfo" value="true" />
+        <appender-ref ref="BUSINESS_LOG" />
+    </appender>
+    
+    <!-- 特定需要记录日志的包，如框架日志 -->
+    <!--  -->
+    <category name="com.zte.itp">
+        <param name="additivity" value="false" />
+        <priority value="debug" />
+        <appender-ref ref="ASYNC_JSSB_LOG" />
+    </category>
+    
+	<logger name="java.sql">
+	   <level value="debug" />
+	</logger>
+	 
+	<logger name="org.apache.ibatis">
+		<level value="debug"/>
+	</logger>
+	
+	<logger name="org.mybatis.spring">
+		<level value="debug" />
+	</logger>
+	
+	<logger name="com.opensymphony">
+		<level value="debug" />
+	</logger>
+	
+	<logger name="com.zte">
+		<level value="debug" />
+	</logger>
+
+    <!-- 默认所有业务日志异步输出到文件business.log; 其他特殊框架性的日志输出到jssb.log -->
+    <root>
+    	<!-- 主要分为error,warn,info,debug四个级别，也是使用最多的四种，日志级别从左至右依次增加 -->
+        <priority value="info" />
+        <appender-ref ref="ASYNC_CONSOLE" />
+         
+         <!-- <appender-ref ref="LOCAL_BUSINESS_LOG" />-->
+        <!--  <appender-ref ref="ASYNC_BUSINESS_LOG" />-->
+       
+    </root>
+
+</log4j:configuration>

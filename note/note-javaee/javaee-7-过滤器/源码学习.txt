@@ -1,3 +1,5 @@
+在该方法中启动了很多东西，包括listenerStart()-filterStart()-loadOnStartup(findChildren()) 按顺序
+			关闭的顺序相反，可以查看stopInternal方法
 分析代码，理解实现原理
 
 	1.在Servlet容器启动的时候就进行装载Filter类，加载web.xml的filter的配置信息

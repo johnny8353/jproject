@@ -12,7 +12,7 @@
     <name>app</name>
     <modules>
         <module>j001-common</module>
-        <module>j002-log</module>
+        <module>j002-data</module>
         <module>j003-task</module>
         <module>j101-mto</module>
         <!-- <module>j200-web</module> -->

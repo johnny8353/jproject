@@ -30,4 +30,7 @@ public class TestCaseSeq extends TestCaseBase{
 	public void test3(){
 		System.out.println("-test3-");
 	}
+	@Test
+	public void test5(){
+	}
 }

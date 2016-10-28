@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.johnny.data.access.vo.SystemPreferenceVO" table="JT_SYS_PREF">
+        <!-- common begin -->
+        <id name="rowId" type="java.lang.Long">
+            <column name="ROW_ID" />
+            <generator class="native" />
+        </id>
+        <property name="createDate" type="timestamp" >
+            <column name="CREATE_DATE" />
+        </property>
+        <property name="createdBy" type="java.lang.String">
+            <column name="CREATED_BY" />
+        </property>
+        <property name="lastUpdDate" type="timestamp" >
+            <column name="LAST_UPD_DATE" />
+        </property>
+        <property name="lastUpdBy" type="java.lang.String">
+            <column name="LAST_UPD_BY" />
+        </property>
+        <property name="modificationNum" type="java.lang.Long">
+            <column name="MODIFICATION_NUM" />
+        </property>
+        <property name="conflictId" type="java.lang.String">
+            <column name="CONFLICT_ID" />
+        </property>
+        <property name="parRowId" type="java.lang.Long">
+            <column name="PAR_ROW_ID" />
+        </property>
+        <property name="dbLastUpd" type="timestamp" >
+            <column name="DB_LAST_UPD" />
+        </property>
+        <property name="dbLastUpdSrc" type="java.lang.String">
+            <column name="DB_LAST_UPD_SRC" />
+        </property>
+        <!-- common end -->
+        
+        <property name="name" type="java.lang.String">
+            <column name="NAME" />
+        </property>
+        <property name="val" type="java.lang.String">
+            <column name="VAL" />
+        </property>
+        <property name="comments" type="java.lang.String">
+            <column name="COMMENTS" />
+        </property>
+        <property name="type" type="java.lang.String">
+            <column name="TYPE" />
+        </property>
+        
+    </class>
+</hibernate-mapping>

@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Properties;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,9 +16,6 @@ import com.johnny.monitor.common.data.SysDataDictionary;
 public class MonitorOracle extends MonitorService{
 	protected Log log = LogFactory.getLog(getClass());
 	
-	public static void main(String[] args) {
-		new MonitorOracle().execute("");
-	}
 	/**
 	 * @Description: 监控Oracle数据库是否可用
 	 * @param @param wsUrl
@@ -29,13 +26,14 @@ public class MonitorOracle extends MonitorService{
 	 * @date 2016-4-26
 	 */
 	@Override
-	public void execute(String url) {
+	public void execute(Map<String,Object> params) {
 		// TODO Auto-generated method stub
 		try {
+			String url = (String) params.get("url");
 			String[] param = url.split(";");
 			testResultSet("jdbc:oracle:thin:@"+param[0],param[1],param[2]);
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			String error = ExceptionUtil.getExceptionMessage(e);
 			log.debug("ERROR:"+error);
 			sMessage = "ERROR:";
@@ -101,7 +99,7 @@ public class MonitorOracle extends MonitorService{
 	public static Connection getConnection(String jdbcUrl,String user,String password) throws Exception {
 		// 1. 准备连接数据库的 4 个字符串.
 		// 1). 创建 Properties 对象
-		Properties properties = new Properties();
+//		Properties properties = new Properties();
 
 		// 2). 获取 jdbc.properties 对应的输入流
 

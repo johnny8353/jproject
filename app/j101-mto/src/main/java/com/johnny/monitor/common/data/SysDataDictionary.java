@@ -29,5 +29,8 @@ public class SysDataDictionary {
 	public final static String MONITOR_SYS_TYPE_DB = "DataBase";
 	public final static String MONITOR_SYS_TYPE_APP = "Application";
 	
+	public final static String MONITOR_SYS_FREQUENCE_DAY = "monitorDaily";// 一天 86400
+	public final static String MONITOR_SYS_FREQUENCE_MINUTES = "MonitorMinutely";//20分钟 1200
+	
 	
 }

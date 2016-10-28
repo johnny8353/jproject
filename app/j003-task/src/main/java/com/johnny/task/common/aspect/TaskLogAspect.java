@@ -40,6 +40,7 @@ public class TaskLogAspect {
 			System.out.println("The method " + methodName + " ends with " + result);
 			//成功
 			sTaskVO.setStatus(SysDataDictionary.THREAD_STATUS_SUCCESS);
+			sTaskVO.setActlEndDt(new Date());
 			taskService.saveOrUpdate(sTaskVO);
 		} catch (Throwable e) {
 			//异常通知

@@ -19,17 +19,17 @@ public interface HibernateBaseService<T>{
 	 *            实体对象
 	 * @return 实体主键
 	 */
-	Object save(Object entity);
+	Object save(T entity);
 
 	/**
 	 * 
 	 * 删除实体
 	 * 
-	 * @param entity
+	 * @param entiy
 	 *            实体对象
 	 * 
 	 */
-	void delete(Object entity);
+	void delete(T entity);
 
 	/**
 	 * 
@@ -39,7 +39,7 @@ public interface HibernateBaseService<T>{
 	 *            实体对象
 	 * 
 	 */
-	void update(Object entity);
+	void update(T entity);
 
 	/**
 	 * 
@@ -49,7 +49,7 @@ public interface HibernateBaseService<T>{
 	 *            实体对象
 	 * 
 	 */
-	void saveOrUpdate(Object entity);
+	void saveOrUpdate(T entity);
 
 	/**
 	 * 
@@ -100,8 +100,8 @@ public interface HibernateBaseService<T>{
 	 *            实体主键
 	 * @return 实体对象
 	 */
-	@SuppressWarnings("hiding")
-	<T> T get(Class<T> entityClass, Serializable id);
+//	@SuppressWarnings("hiding")
+//	<T> T get(Serializable id);
 
 	/**
 	 * 获取单个实体，根据查询语句及参数获取。
@@ -113,7 +113,7 @@ public interface HibernateBaseService<T>{
 	 * @return 单个实体，如果查询结果有多个，则返回第一个实体
 	 */
 	@SuppressWarnings("hiding")
-	<T> T get(CharSequence queryString, Map<String, Object> params);
+	<T> T get(Map<String, Object> params);
 
 	/**
 	 * 获取单个实体，根据查询语句及参数获取。
@@ -124,8 +124,21 @@ public interface HibernateBaseService<T>{
 	 *            可选的查询参数
 	 * @return 单个实体，如果查询结果有多个，则返回第一个实体
 	 */
-	@SuppressWarnings("hiding")
-	<T> T get(CharSequence queryString, Object... params);
+//	@SuppressWarnings("hiding")
+//	<T> T get(Object... params);
+
+	/**
+	 * 
+	 * 查询实体列表
+	 * 
+	 * @param queryString
+	 *            查询语句
+	 * @param params
+	 *            可选的查询参数
+	 * @return 实体列表
+	 */
+//	@SuppressWarnings("hiding")
+//	<T> List<T> findList(Object... params);
 
 	/**
 	 * 
@@ -138,20 +151,7 @@ public interface HibernateBaseService<T>{
 	 * @return 实体列表
 	 */
 	@SuppressWarnings("hiding")
-	<T> List<T> findList(CharSequence queryString, Object... params);
-
-	/**
-	 * 
-	 * 查询实体列表
-	 * 
-	 * @param queryString
-	 *            查询语句
-	 * @param params
-	 *            可选的查询参数
-	 * @return 实体列表
-	 */
-	@SuppressWarnings("hiding")
-	<T> List<T> findList(CharSequence queryString, Map<String, Object> params);
+	<T> List<T> findList(Map<String, Object> params);
 
 	/**
 	 * 分页查询实体
@@ -166,9 +166,9 @@ public interface HibernateBaseService<T>{
 	 *            可选的查询参数
 	 * @return 实体分页对象
 	 */
-	@SuppressWarnings("hiding")
-	<T> Pagination<T> findPagination(CharSequence queryString, int pageIndex,
-			int pageSize, Object... params);
+//	@SuppressWarnings("hiding")
+//	<T> Pagination<T> findPagination(int pageIndex,
+//			int pageSize, Object... params);
 
 	/**
 	 * 分页查询实体
@@ -185,70 +185,10 @@ public interface HibernateBaseService<T>{
 	 * @return 实体分页对象
 	 */
 	@SuppressWarnings("hiding")
-	<T> Pagination<T> findPagination(CharSequence queryString,
-			Map<String, Object> params, int pageIndex, int pageSize);
+	<T> Pagination<T> findPagination(int pageIndex, int pageSize,Map<String, Object> params);
 
-	/**
-	 * 分页查询实体，自定义总条数查询语句，适合复杂的hql分页查询
-	 * 
-	 * @param queryString
-	 *            查询语句
-	 * @param countString
-	 *            查询记录总条数语句
-	 * @param pageIndex
-	 *            当前页码，如果pageIndex<1则不分页，且返回pageSize条记录。
-	 * @param pageSize
-	 *            每页记录数，如果pageSize<1则返回所有记录。
-	 * @param params
-	 *            可选的查询参数
-	 * @return 实体分页对象
-	 */
-	@SuppressWarnings("hiding")
-	<T> Pagination<T> findPagination(CharSequence queryString,
-			CharSequence countString, int pageIndex, int pageSize,
-			Object... params);
 
-	/**
-	 * 分页查询实体，自定义总条数查询语句，适合复杂的hql分页查询
-	 * 
-	 * @param queryString
-	 *            查询语句
-	 * @param countString
-	 *            查询记录总条数语句
-	 * @param params
-	 *            可选的查询参数
-	 * @param pageIndex
-	 *            当前页码，如果pageIndex<2则不分页，且返回pageSize条记录。
-	 * @param pageSize
-	 *            每页记录数，如果pageSize<1则返回所有记录。
-	 * 
-	 * @return 实体分页对象
-	 */
-	@SuppressWarnings("hiding")
-	<T> Pagination<T> findPagination(CharSequence queryString,
-			CharSequence countString, Map<String, Object> params,
-			int pageIndex, int pageSize);
 
-	/**
-	 * 分页查询实体，自定义总条数查询语句，适合复杂的sql分页查询
-	 * 
-	 * @param queryString
-	 *            查询语句
-	 * @param countString
-	 *            查询记录总条数语句
-	 * @param params
-	 *            可选的查询参数
-	 * @param pageIndex
-	 *            当前页码，如果pageIndex<2则不分页，且返回pageSize条记录。
-	 * @param pageSize
-	 *            每页记录数，如果pageSize<1则返回所有记录。
-	 * 
-	 * @return 实体分页对象
-	 */
-	@SuppressWarnings("hiding")
-	public <T> Pagination<T> findSqlPagination(final CharSequence queryString,
-			final CharSequence countString, final Map<String, Object> params,
-			int pageIndex, int pageSize);
 
 	/**
 	 * 执行数据库更新操作
@@ -340,8 +280,8 @@ public interface HibernateBaseService<T>{
 	 *            可选的查询参数
 	 * @return 实体列表
 	 */
-	public <V> List<V> findListByMax(CharSequence queryString, int maxResults,
-			Object... params);
+//	public <V> List<V> findListByMax(int maxResults,
+//			Object... params);
 
 	/**
 	 * 
@@ -355,6 +295,6 @@ public interface HibernateBaseService<T>{
 	 *            可选的查询参数
 	 * @return 实体列表
 	 */
-	public <V> List<V> findListByMax(CharSequence queryString, int maxResults,
+	public <V> List<V> findListByMax(int maxResults,
 			Map<String, Object> params);
 }

@@ -7,7 +7,7 @@ import com.johnny.common.util.HttpClientUtil;
 
 public abstract class MonitorService {
 	protected String sMessage;
-	public abstract void execute(String url);
+	public abstract void execute(Map<String,Object> params);
 	
 	public String getsMessage() {
 		return sMessage;
@@ -30,11 +30,8 @@ public abstract class MonitorService {
 	 */
 	public String HttpPost(String reqUrl,String ms,String encode) throws Exception{
 		Map<String, String> maps = new HashMap<String, String>();
-		
 		String result = HttpClientUtil.getInstance().sendHttpPostJson(reqUrl, maps);
 		maps.put("OBJ", ms);
-		System.out.println(result);
-		
 		return result;
 		
 //		HttpClient client = new HttpClient();

@@ -13,6 +13,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.johnny.common.util.FileDirUtil;
+
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRExporter;
@@ -156,6 +158,7 @@ public class JasperExportUtils {
 	public static void exportHtml(JasperPrint jasperPrint,String destFileName)
 			throws IOException, JRException {
 		File dest = new File(destFileName);
+		FileDirUtil.createFile(dest);
 		if(dest.exists()){
 			dest.delete();
 		}

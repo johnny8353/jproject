@@ -26,9 +26,20 @@ public class SystemGroupServiceImpl extends
 	private SystemInfoDao systemInfoDao;
 
 	@Override
-	public <T> T get(Class<T> entityClass, Serializable id) {
-		return systemGroupDao.get(entityClass, id);
+	public SystemGroupVO getById(Serializable id) {
+		return systemGroupDao.get(SystemGroupVO.class, id);
 	}
+	
+	
+
+	@Override
+	public <T> List<T> findList(Map<String, Object> params) {
+		List<T> groups = systemGroupDao.findList(
+				"from SystemGroupVO s order by s.orderBy asc", params);
+		return groups;
+	}
+
+
 
 	@Override
 	public SystemListBO findSystemListBO() {
@@ -37,7 +48,7 @@ public class SystemGroupServiceImpl extends
 		// 获取所有group
 		ArrayList<SystemBO> systemboList = new ArrayList<>();
 		List<SystemGroupVO> groups = systemGroupDao.findList(
-				"from SystemGroupVO s order by s.orderBy asc", params);
+				"from SystemGroupVO s where s.sysType<>'Group' order by s.orderBy asc", params);
 		for (SystemGroupVO systemGroupVO : groups) {
 			SystemBO systemBO = new SystemBO();
 			systemBO.setGroupVO(systemGroupVO);
@@ -45,7 +56,7 @@ public class SystemGroupServiceImpl extends
 			params.put("groupId", systemGroupVO.getRowId());
 			List<SystemInfoVO> systemInfos = systemInfoDao
 					.findList(
-							"from SystemInfoVO s where s.groupId=:groupId order by s.orderby asc",
+							"from SystemInfoVO s where s.groupId=:groupId  order by s.orderby asc",
 							params);
 			List<SystemInfoVO> systemInfoVOs = new ArrayList<SystemInfoVO>();
 			for (SystemInfoVO systemInfoVO : systemInfos) {
@@ -57,6 +68,16 @@ public class SystemGroupServiceImpl extends
 		}
 		systemListBO.setSystemBOList(systemboList);
 		return systemListBO;
+	}
+
+
+
+	@Override
+	public List<SystemGroupVO> findGroupList() {
+		Map<String, Object> params = null;
+		List<SystemGroupVO> groups = systemGroupDao.findList(
+				"from SystemGroupVO s where s.sysType='Group' order by s.orderBy asc", params);
+		return groups;
 	}
 
 }

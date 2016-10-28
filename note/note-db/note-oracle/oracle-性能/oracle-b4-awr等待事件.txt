@@ -1,0 +1,141 @@
+　Oracle的等待事件是衡量Oracle运行状况的重要依据及指标。等待事件的概念是在Oracle7.0.1.2中引入的，大致有100个等待事件。在Oracle 8.0中这个数目增加到了大约150个，在Oracle8i中大约有200个事件,在Oracle9i中大约有360个等待事件。主要有两种类别的等待事件，即空闲(idle)等待事件和非空闲(non-idle)等待事件。
+　　空闲事件指Oracle正等待某种工作,在诊断和优化数据库的时候,我们不用过多注意这部分事件。
+　　常见的空闲事件有:
+　　• dispatcher timer
+　　• lock element cleanup
+　　• Null event
+　　• parallel query dequeue wait
+　　• parallel query idle wait - Slaves
+　　• pipe get
+　　• PL/SQL lock timer
+　　• pmon timer- pmon
+　　• rdbms ipc message
+　　• slave wait
+　　• smon timer
+　　• SQL*Net break/reset to client
+　　• SQL*Net message from client
+　　• SQL*Net message to client
+　　• SQL*Net more data to client
+　　• virtual circuit status
+　　• client message
+　　非空闲等待事件专门针对Oracle的活动,指数据库任务或应用运行过程中发生的等待，这些等待事件是我们在调整数据库的时候应该关注与研究的。
+　　一些常见的非空闲等待事件有:
+　　• db file scattered read
+　　• db file sequential read
+　　• buffer busy waits
+　　• free buffer waits
+　　• enqueue
+　　• latch free
+　　• log file parallel write
+　　• log file sync
+　　1. db file scattered read-DB 文件分散读取
+　　这种情况通常显示与全表扫描相关的等待。当数据库进行全表扫时，基于性能的考虑，数据会分散(scattered)读入Buffer Cache。如果这个等待事件比较显著，可能说明对于某些全表扫描的表，没有创建索引或者没有创建合适的索引，我们可能需要检查这些数据表已确定是否进行了正确的设置。
+　　然而这个等待事件不一定意味着性能低下，在某些条件下Oracle 会主动使用全表扫描来替换索引扫描以提高性能，这和访问的数据量有关，在CBO 下Oracle 会进行更为智能的选择，在RBO 下Oracle 更倾向于使用索引。
+　　因为全表扫描被置于LRU(Least Recently Used，最近最少适用)列表的冷端(cold end)，对于频繁访问的较小的数据表，可以选择把他们Cache 到内存中，以避免反复读取。
+　　当这个等待事件比较显著时，可以结合v$session_longops 动态性能视图来进行诊断，该视图中记录了长时间(运行时间超过6 秒的)运行的事物，可能很多是全表扫描操作(不管怎样，这部分信息都是值得我们注意的)。
+
+2. db file sequential read-DB 文件顺序读取。
+　　这一事件通常显示与单个数据块相关的读取操作(如索引读取)。如果这个等待事件比较显著，可能表示在多表连接中，表的连接顺序存在问题，可能没有正确的使用驱动表;或者可能说明不加选择地进行索引。
+　　在大多数情况下我们说，通过索引可以更为快速的获取记录，所以对于一个编码规范、调整良好的数据库，这个等待很大是很正常的。但是在很多情况下，使用索引并不是最佳的选择，比如读取较大表中大量的数据，全表扫描可能会明显快于索引扫描，所以在开发中我们就应该注意，对于这样的查询应该进行避免使用索引扫描。
+3. Free Buffer-释放缓冲区
+　　这个等待事件表明系统正在等待内存中的可用空间，这说明当前Buffer 中已经没有Free 的内存空间。如果应用设计良好，SQL 书写规范，充分绑定变量，那这种等待可能说明Buffer Cache 设置的偏小，你可能需要增大DB_BUFFER_CACHE。
+　　Free Buffer 等待可能说明DBWR 的写出速度不够，或者磁盘存在严重的竞争，可以需要考虑增加检查点、使用更多的DBWR 进程，或者增加物理磁盘的数量,分散负载，平衡IO。
+4. Buffer Busy-缓冲区忙
+　　	该等待事件表示正在等待一个以unshareable方式使用的缓冲区，或者表示当前正在被读入buffer cache。一般来说Buffer Busy Wait不应大于1%。
+	检查缓冲等待统计部分(或V$WAITSTAT)，看一下等待是否位于段头(Segment Header)。如果是，可以考虑增加自由列表(freelist，对于Oracle8i DMT)
+	或者增加freelist groups(在很多时候这个调整是立竿见影的，在8.1.6之前，这个freelists参数不能动态修改;在8.1.6及以后版本，动态修改feelists需要设置COMPATIBLE至少为8.1.6).
+　	如果这一等待位于undo header，可以通过增加回滚段(rollback segment)来解决缓冲区的问题。如果等待位于undo block上，我们可能需要检查相关应用，
+	适当减少大规模的一致性读取，或者降低一致性读取(consistent read)的表中的数据密度或者增大DB_CACHE_SIZE。
+　　	如果等待处于data block，可以考虑将频繁并发访问的表或数据移到另一数据块或者进行更大范围的分布(可以增加pctfree值 ，扩大数据分布，减少竞争)，以避开这个"热点"数据块，
+	或者可以考虑增加表中的自由列表或使用本地化管理的表空间(Locally Managed Tablespaces)。
+　　	如果等待处于索引块，应该考虑重建索引、分割索引或使用反向键索引。为了防止与数据块相关的缓冲忙等待，也可以使用较小的块:在这种情况下，单个块中的记录就较少，所以这个块就不是那么"繁忙";
+	或者可以设置更大的pctfree,使数据扩大物理分布，减少记录间的热点竞争。
+　　	在执行DML (insert/update/ delete)时，Oracle向数据块中写入信息，对于多事务并发访问的数据表，关于ITL的竞争和等待可能出现，为了减少这个等待，可以增加initrans，使用多个ITL槽。
+	在Oracle9i 中，引入了一个新概念:ASSM(Segment Space Management Auto)。通过这个新特性Oracle 使用位图来管理空间使用。
+　　	ASSM 结合LMT 彻底改变了Oracle 的存储机制，位图freelist 能够减轻缓冲区忙等待(buffer busy wait)，这个问题在Oracle9i 以前的版本里曾是一个严重的问题。
+　　	Oracle 宣称ASSM 显著地提高了DML 并发操作的性能，因为(同一个)位图的不同部分可以被同时使用，这样就消除了寻找剩余空间的串行化。
+	根据Oracle 的测试结果，使用位图freelist 会消除所有分段头部(对资源)的争夺，还能获得超快的并发插入操作。在Oracle9i 之中，Buffer Busy wait 不再常见!
+
+　5. latch free-latch 释放
+　　latch是一种低级排队机制，用于保护SGA中共享内存结构。latch就像是一种快速地被获取和释放的内存锁。用于防止共享内存结构被多个用户同时访问。如果latch不可用，就会记录latch释放失败(latch free miss )。有两种与闩有关的类型:
+　　■ 立刻。
+　　■ 可以等待。
+　　假如一个进程试图在立刻模式下获得闩，而该闩已经被另外一个进程所持有，如果该闩不能立可用的话，那么该进程就不会为获得该闩而等待。它将继续执行另一个操作。
+　　大多数latch问题都与以下操作相关:
+　　没有很好的是用绑定变量(library cache latch)、重作生成问题(redo allocation latch)、缓冲存储竞争问题(cache buffers LRU chain)，以及buffer cache中的存在"热点"块(cache buffers chain)。
+　　通常我们说，如果想设计一个失败的系统，不考虑绑定变量，这一个条件就够了，对于异构性强的系统，不使用绑定变量的后果是极其严重的。
+　　另外也有一些latch等待与bug有关，应当关注Metalink相关bug的公布及补丁的发布。当latch miss ratios大于0.5%时，就应当研究这一问题。
+　　Oracle的latch机制是竞争，其处理类似于网络里的CSMA/CD，所有用户进程争夺latch， 对于愿意等待类型(willing-to-wait)的latch,如果一个进程在第一次尝试中没有获得latch,那么它会等待并且再尝试一次,如果经过_spin_count次争夺不能获得latch, 然后该进程转入睡眠状态，持续一段指定长度的时间，然后再次醒来，按顺序重复以前的步骤.在8i/9i中默认值是_spin_count=2000。
+　　如果SQL语句不能调整，在8.1.6版本以上，Oracle提供了一个新的初始化参数: CURSOR_SHARING可以通过设置CURSOR_SHARING = force 在服务器端强制绑定变量。设置该参数可能会带来一定的副作用，对于Java的程序，有相关的bug，具体应用应该关注Metalink的bug公告。
+
+7. Log Buffer Space-日志缓冲空间
+　　当你将日志缓冲(log buffer)产生重做日志的速度比LGWR 的写出速度快，或者是当日志切换(log switch)太慢时，就会发生这种等待。这个等待出现时，通常表明redo log buffer 过小，为解决这个问题，可以考虑增大日志文件的大小，或者增加日志缓冲器的大小。
+　　另外一个可能的原因是磁盘I/O 存在瓶颈，可以考虑使用写入速度更快的磁盘。在允许的条件下设置可以考虑使用裸设备来存放日志文件，提高写入效率。在一般的系统中，最低的标准是，不要把日志文件和数据文件存放在一起，因为通常日志文件只写不读，分离存放可以获得性能提升。
+
+
+Log file Switch 主要包含两个子事件:
+	这个等待出现时，表示所有的提交(commit)的请求都需要等待"日志文件切换"的完成。
+	log file switch (archiving needed)
+	log file switch (checkpoint incomplete)
+	
+	其中log file switch (archiving needed)
+	这个等待事件出现时通常是因为日志组循环写满以后，第一个日志归档尚未完成，出现该等待。出现该等待，可能表示io 存在问题。解决办法:
+	可以考虑增大日志文件和增加日志组
+	移动归档文件到快速磁盘
+	调整log_archive_max_processes
+	
+	而log file switch (checkpoint incomplete)-日志切换(检查点未完成)
+	当你的日志组都写完以后，LGWR 试图写第一个log file，如果这时数据库没有完成写出记录在第一个log file 中的dirty 块时(例如第一个检查点未完成)，该等待事件出现。
+	该等待事件通常表示你的DBWR 写出速度太慢或者IO 存在问题。
+	为解决该问题，你可能需要考虑增加额外的DBWR 或者增加你的日志组或日志文件大小。
+	
+	log file switch (checkpoint incomplete)
+	Waiting for a log switch because the session cannot wrap into the next log. Wrapping cannot be performed because the checkpoint for that log has not completed.
+	意思是session不能写入下一个log，导致了日志切换等待。不能写入的原因是下一个log的ckpt检查还没结束。
+	
+	再来看看《剑破冰山-oracle开发艺术》上怎么描述这个等待事件的：
+	一般而言，此类等待事件是这么产生的，日志组都写完后，LGWR试图写第一个log file，如果此时数据库没有完成写出记录在第一个log file中的dirty块（如第一个检查点未完成），该等待时间就会出现。
+	
+	Tom哥的9i&10g编程艺术中这样描述这个事件：如果数据库试图重用一个在线重做日志文件，但是发现做不到，就会把这样一条消息写到服务器上的alert.log 中（Thread 1 cannot allocate new log, sequence 1466
+	Checkpoint not complete）。如果DBWR 还没有完成重做日志所保护数据的检查点（checkpointing）,或者ARCH 还没有把重做日志文件复制到归档目标，就会发生这种情况。
+	对最终用户来说，这个时间点上数据库实际上停止了。它会原地不动。DBWR 或ARCH 将得到最大的优先级以将redo 块刷新输出的磁盘。完成了检查点或归档之后，一切又回归正常。
+	数据库之所以暂停用户的活动，这是因为此时已经没地方记录用户所做的修改了。Oracle 试图重用一个在线重做日志文件，但是由于归档进程尚未完成这个文件的复制（Archival required），所以Oracle 必须等待（相应地，最终用户也必须等待），直到能安全地重用这个重做日志文件为止。
+	
+	其实还是Tom哥解释的最清楚呀~~
+	
+	那么怎么解决这个问题呢？
+	基本上可以从这几个方面来考虑：
+	1.扩容，就是增大重做日志的容量，增加重做日志组的数量。这样就缓冲了数据归档和循环写的时间。这个方法是最直接，不用动脑子就能想出来的。我首先把重做日志从100M扩容到200M，然后3组重做日志改成6组，每组成员2个（如果每组成员改成1个，这样肯定会更快一些，但是安全性会不会？）
+	2.让DBWR跑得更快些。可以考虑多增加dbwr线程。通过调整db_writer_process参数，指定多个dbwr线程。一般8个cpu可以设置一个dbwr线程。如果没有手工设置，oracle会帮你设置。
+	我服务器是16个cpu，但是oracle自动设置成了3个dbwr线程。因此以上对应关系不是很确定，但是oracle确实会自动设置dbwr线程数。
+	3.将重做日志组在磁盘上分散开来，比如一共有6组重做日志，那么把1,3组放在磁盘A上，2,5组放在磁盘B上，4,6组放在磁盘C上。Tom哥说：在线重做日志文件是一组Oracle 文件，
+	最适合使用RAW 磁盘（原始磁盘）。由于磁盘raid我不是很熟悉，这块的实验还没做过。有熟悉的兄弟麻烦发点资料共享。
+	4.设置合适的归档数。由于设计之初考虑安全问题，我设置了3个归档路径，即log_arch_dest_1,2,3。现在想来，其实没有必要。可以考虑减少1个。这样写入归档的时间还能进一步减少。
+	归档怎么减少？是不是直接将log_arch_dest_3这个参数设置为空就可以了？待实验。
+	
+log file sync-日志文件同步
+　　	当一个用户提交或回滚数据时，LGWR 将会话期的重做由日志缓冲器写入到重做日志中。日志文件同步过程必须等待这一过程成功完成。为了减少这种等待事件，
+	可以尝试一次提交更多的记录(频繁的提交会带来更多的系统开销)。将重做日志置于较快的磁盘上，或者交替使用不同物理磁盘上的重做日志，以降低归档对LGWR的影响。
+　　	对于软RAID，一般来说不要使用RAID 5，RAID5 对于频繁写入得系统会带来较大的性能损失，可以考虑使用文件系统直接输入/输出，或者使用裸设备(raw device)，这样可以获得写入的性能提高。
+
+log file single write该事件仅与写日志文件头块相关，通常发生在增加新的组成员和增进序列号时。
+　　	头块写单个进行，因为头块的部分信息是文件号，每个文件不同。更新日志文件头这个操作在后台完成，一般很少出现等待，无需太多关注。
+
+log file parallel write
+　　从log buffer 写redo 记录到redo log 文件，主要指常规写操作(相对于log file sync)。如果你的Log group 存在多个组成员，当flush log buffer 时，写操作是并行的，这时候此等待事件可能出现。
+　　尽管这个写操作并行处理，直到所有I/O 操作完成该写操作才会完成(如果你的磁盘支持异步IO或者使用IO SLAVE，那么即使只有一个redo log file member,也有可能出现此等待)。
+　　这个参数和log file sync 时间相比较可以用来衡量log file 的写入成本。通常称为同步成本率。
+　12. control file parallel write-控制文件并行写
+　　当server 进程更新所有控制文件时，这个事件可能出现。如果等待很短，可以不用考虑。如果等待时间较长，检查存放控制文件的物理磁盘I/O 是否存在瓶颈。
+　　多个控制文件是完全相同的拷贝，用于镜像以提高安全性。对于业务系统，多个控制文件应该存放在不同的磁盘上，一般来说三个是足够的，如果只有两个物理硬盘，那么两个控制文件也是可以接受的。在同一个磁盘上保存多个控制文件是不具备实际意义的。减少这个等待，可以考虑如下方法:
+　　减少控制文件的个数(在确保安全的前提下)
+　　如果系统支持，使用异步IO
+　　转移控制文件到IO 负担轻的物理磁盘
+13. control file sequential read/ control file single write 控制文件连续读/控制文件单个写对单个控制文件I/O 存在问题时，这两个事件会出现。如果等待比较明显，检查单个控制文件，看存放位置是否存在I/O 瓶颈。
+14. direct path write-直接路径写该等待发生在，系统等待确认所有未完成的异步I/O 都已写入磁盘。对于这一写入等待，我们应该找到I/O 操作最为频繁的数据文件(如果有过多的排序操作，很有可能就是临时文件)，分散负载，加快其写入操作。
+　　如果系统存在过多的磁盘排序，会导致临时表空间操作频繁，对于这种情况，可以考虑使用Local管理表空间，分成多个小文件，写入不同磁盘或者裸设备。
+16. Idle Event-空闲事件
+　　最后我们来看几个空闲等待事件。一般来说，空闲等待是指系统因为无事可做的等待，或者等待用户的请求或响应等，通常我们可以忽略这些等待事件。空闲事件可以通过stats$idle_event 表查询得到。
+　　我们看一下系统的主要空闲等待事件，对这些事件大家应该有个大致的印象，如果你的Top 5 等待事件中，主要都是这些事件，那么一般来说你的系统是比价清闲的。
+
+n_longops 动态性能视图来进行诊断，该视图中记录了长时间(运行时间超过6 秒的)运行的事物，可能很多是全表扫描操作(不管怎样，这部分信息都是值得我们注意的)。

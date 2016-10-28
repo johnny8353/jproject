@@ -32,7 +32,7 @@ import com.johnny.task.common.data.SysDataDictionary;
 public abstract class BaseTaskImpl extends Thread implements BaseTask
 {
 	protected Log log = LogFactory.getLog(getClass());
-	private Object semaphore = new byte[0]; // 特殊的instance变量 锁控制
+	private Object semaphore = null;// = new byte[0]; // 特殊的instance变量 锁控制
 
     protected volatile boolean needStop = false;//终止控制
 
@@ -45,7 +45,7 @@ public abstract class BaseTaskImpl extends Thread implements BaseTask
 
     protected long timeoffset = 0L;
 
-    private String param = null;
+    protected String param = null;
     
 
     public String getParam()
@@ -59,7 +59,6 @@ public abstract class BaseTaskImpl extends Thread implements BaseTask
          
     }
     
-    // 此属性为SyncOCUThread类而增加，从HttpServlet传递配置路径至OcuUtil
     private String configPath = "";
 
     public BaseTaskImpl()
@@ -81,33 +80,9 @@ public abstract class BaseTaskImpl extends Thread implements BaseTask
     private void CommonRun(){
 //    	doWakeUp(ptid,method);
     }
-    
-    private TaskVO getSonActiveTaskVO(TaskVO pTaskVO){
-    	String host_ip = "";
-    	try {
-			String ip= InetAddress.getLocalHost().getHostAddress();
-			String host= InetAddress.getLocalHost().getCanonicalHostName();
-			host_ip = host+"_"+ip;
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	TaskVO taskVO = new TaskVO();
-    	taskVO.setCreatedBy("JohnnyHuang 黄福强");
-    	taskVO.setLastUpdBy("JohnnyHuang 黄福强");
-    	taskVO.setCreateDate(new Date());
-    	taskVO.setLastUpdDate(new Date());
-    	taskVO.setModificationNum(0L);
-    	taskVO.setClassName("");
-		taskVO.setMethod("");
-		taskVO.setExecSrvrName(host_ip);
-    	taskVO.setSubmitDate(new Date());
-    	taskVO.setSchedStartDt(new Date());
-    	taskVO.setParRowId(pTaskVO.getRowId());
-    	taskVO.setStatus(SysDataDictionary.THREAD_STATUS_NEW);
-    	return taskVO;
+    public void setSemaphore(Object semaphore){
+    	this.semaphore = semaphore;
     }
-    
     private void ScheduleRun(){
     	TaskService taskService  = (TaskService) getBean("taskServiceImpl");
     	log.info(pTaskvo.getDescText()+pTaskvo.getClassName()+" entering " + getClass().getName());
@@ -229,6 +204,32 @@ public abstract class BaseTaskImpl extends Thread implements BaseTask
 
             log.info(this.getClass().getName()+"wake up - " + StringUtil.getDateWithFormat("HH:mm:ss"));
         }     
+    }
+    
+    private TaskVO getSonActiveTaskVO(TaskVO pTaskVO){
+    	String host_ip_thread = "";
+    	try {
+			String ip= InetAddress.getLocalHost().getHostAddress();
+			String host= InetAddress.getLocalHost().getCanonicalHostName();
+			String thread = Thread.currentThread().getName();
+			host_ip_thread = host+"_"+ip+"_"+thread;
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+    	TaskVO taskVO = new TaskVO();
+    	taskVO.setCreatedBy("JohnnyHuang 黄福强");
+    	taskVO.setLastUpdBy("JohnnyHuang 黄福强");
+    	taskVO.setCreateDate(new Date());
+    	taskVO.setLastUpdDate(new Date());
+    	taskVO.setModificationNum(0L);
+    	taskVO.setClassName(pTaskVO.getClassName());
+		taskVO.setMethod(pTaskVO.getMethod());
+		taskVO.setExecSrvrName(host_ip_thread);
+    	taskVO.setSubmitDate(new Date());
+    	taskVO.setSchedStartDt(new Date());
+    	taskVO.setParRowId(pTaskVO.getRowId());
+    	taskVO.setStatus(SysDataDictionary.THREAD_STATUS_NEW);
+    	return taskVO;
     }
     
     public static String getTimeDescByLong(long dt) {
@@ -412,8 +413,5 @@ public abstract class BaseTaskImpl extends Thread implements BaseTask
 	public void setpTaskvo(TaskVO pTaskvo) {
 		this.pTaskvo = pTaskvo;
 	}
-
-
-	
 	
 }

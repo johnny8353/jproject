@@ -1,4 +1,10 @@
 package com.johnny.task.common.data;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.johnny.task.model.TaskBO;
+
 /**
  * 类 编 号：
  * 类 名 称：SysDataConfig
@@ -7,7 +13,6 @@ package com.johnny.task.common.data;
  * 编码作者：JohnnyHuang 黄福强
  */
 public class SysDataDictionary {
-	
 	//线程状态 新建/排队/取消/活动/成功/错误/挂起
 	public static final String THREAD_STATUS_NEW="新建";
 	public static final String THREAD_STATUS_WAIT="排队";

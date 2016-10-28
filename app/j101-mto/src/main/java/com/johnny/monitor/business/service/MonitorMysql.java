@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
@@ -16,10 +17,6 @@ import com.johnny.monitor.common.data.SysDataDictionary;
 public class MonitorMysql extends MonitorService {
 	protected Log log = LogFactory.getLog(getClass());
 
-	public static void main(String[] args) {
-		new MonitorMysql().execute("");
-	}
-
 	/**
 	 * @Description: 监控Oracle数据库是否可用
 	 * @param @param wsUrl
@@ -30,13 +27,14 @@ public class MonitorMysql extends MonitorService {
 	 * @date 2016-4-26
 	 */
 	@Override
-	public void execute(String url) {
+	public void execute(Map<String,Object> params) {
 		// TODO Auto-generated method stub
 		try {
+			String url = (String) params.get("url");
 			String[] param = url.split(";");
 			testResultSet("jdbc:mysql://" + param[0], param[1], param[2]);
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			String error = ExceptionUtil.getExceptionMessage(e);
 			log.debug("错误:" + error);
 			sMessage = "错误:";

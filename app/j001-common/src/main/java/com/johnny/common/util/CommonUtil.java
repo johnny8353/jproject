@@ -1,6 +1,7 @@
 package com.johnny.common.util;
 
 import java.sql.Connection;
+import java.util.Date;
 
 import javax.sql.DataSource;
 
@@ -8,7 +9,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.context.ContextLoader;
 
-public class ContextUtil {
+import com.johnny.common.access.vo.BaseVO;
+
+public class CommonUtil {
 	/**
 	 * 获取bean实例 业务描述：XXX 作 者：JohnnyHuang 黄福强 完成日期：2015-7-24
 	 * 
@@ -37,6 +40,7 @@ public class ContextUtil {
 		Connection con = dbSource.getConnection();
 		return con;
 	}
+	
 
 	public static void main(String[] args) {
 	}

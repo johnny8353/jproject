@@ -27,6 +27,13 @@
 		</dependency>
 		<dependency>
 			<groupId>com.johnny.app</groupId>
+			<artifactId>j002-data</artifactId>
+			<version>1.0</version>
+			<scope>compile</scope>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>com.johnny.app</groupId>
 			<artifactId>j003-task</artifactId>
 			<version>1.0</version>
 			<scope>compile</scope>

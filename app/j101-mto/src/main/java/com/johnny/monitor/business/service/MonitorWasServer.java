@@ -1,5 +1,7 @@
 package com.johnny.monitor.business.service;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -18,15 +20,15 @@ public class MonitorWasServer extends MonitorService{
 	 * @date 2016-4-26
 	 */
 	@Override
-	public void execute(String url) {
-		// TODO Auto-generated method stub
+	public void execute(Map<String,Object> params) {
 		try {
+			String url = (String) params.get("url");
 			String result = HttpPost("http://"+url,"","gbk");
 			if(result.indexOf("SRVE")!=-1){
 				throw new Exception("404 Error");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			String error = ExceptionUtil.getExceptionMessage(e);
 			log.debug("ERROR:"+error);
 			sMessage = "ERROR:";

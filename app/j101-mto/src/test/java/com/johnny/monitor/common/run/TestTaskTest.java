@@ -25,6 +25,7 @@ public class TestTaskTest {
 	@Test
 	public void testDoTaskWakeUp() {
 		BaseTask baseTask = (BaseTask) ctx.getBean("testTask");
+		BaseTask baseTask2 = (BaseTask) ctx.getBean("testTask");
 		TaskVO taskVO= new TaskVO();
 		taskVO.setClassName("aa");
 		baseTask.doTaskWakeUp(taskVO);

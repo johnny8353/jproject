@@ -25,7 +25,7 @@ import com.johnny.task.model.TaskBO;
  * 类 编 号： 类 名 称：StartupServlet.java 内容摘要：服务器启动类 1、 线程的控制 完成日期：2016-3-23 
  * 编码作者：JohnnyHuang
  */
-public class StartupServlet extends HttpServlet {
+public class TaskStartupServlet extends HttpServlet {
 	/**
 	 * 名 称： 编码作者：JohnnyHuang
 	 */
@@ -37,7 +37,7 @@ public class StartupServlet extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
 		taskService = (TaskService) getBean("taskServiceImpl");
-		log.debug(this.getClass().getName() + "服务器启动=========init()");
+		log.debug(this.getClass().getName() + "=====TaskStartupServlet====init()");
 		// 从 web.xml 中决定调度线程是否处于挂起状态
 		boolean bSuspend = false;
 		String strSuspend = getServletConfig().getInitParameter("suspend");
@@ -55,7 +55,7 @@ public class StartupServlet extends HttpServlet {
 	public void inithread() throws ServletException {
 		// 检验是否重入（不应该出现重入）
 		if (schedulers != null) {
-			String msg = "!!!!!!!! re-enter StartupServlet !!!!!!!!";
+			String msg = "!!!!!!!! re-enter TaskStartupServlet !!!!!!!!";
 			log.info(this.getClass().getName() + msg);
 			throw new ServletException(msg);
 		}
@@ -64,14 +64,6 @@ public class StartupServlet extends HttpServlet {
 		List<TaskVO> threadVOs = taskService.getStartupRpdTask();
 		for (int i = 0; i < threadVOs.size(); i++) {
 
-		}
-
-		// 从 web.xml 中决定调度线程是否处于挂起状态
-		boolean bSuspend = false;
-		String strSuspend = getServletConfig().getInitParameter("suspend");
-		if (strSuspend != null) {
-			if (strSuspend.trim().equalsIgnoreCase("true"))
-				bSuspend = true;
 		}
 
 		// 加载所有需要的调度线程
@@ -84,6 +76,7 @@ public class StartupServlet extends HttpServlet {
 //				BaseTask bst = (BaseTask) threadClass.newInstance();
 				//使用aop 
 				BaseTask bst = (BaseTask)getBean(taskVO.getClassName());
+				bst.setSemaphore(new byte[0]);
 				bst.setpTaskvo(taskVO);
 				taskBO.setBaseTask(bst);
 				schedulers.add(taskBO);
@@ -107,13 +100,13 @@ public class StartupServlet extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest arg0, HttpServletResponse arg1)
 			throws ServletException, IOException {
-		log.info("=========service=========");
+		log.info("=========TaskStartupServlet service=========");
 
 	}
 
 	@Override
 	public void destroy() {
-		log.info("服务器停止=========destroy=========");
+		log.info("=========TaskStartupServlet destroy=========");
 		log.info(this.getClass().getName() + ".destroy()");
 
 		for (int i = 0; i < schedulers.size(); i++) {

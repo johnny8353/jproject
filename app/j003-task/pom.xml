@@ -19,18 +19,17 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.johnny</groupId>
-			<artifactId>jetty-demo</artifactId>
-			<version>2.3.4</version>
-			<scope>compile</scope>
-			<type>jar</type>
-		</dependency>
-		<dependency>
 			<groupId>com.johnny.app</groupId>
 			<artifactId>j001-common</artifactId>
 			<version>1.0</version>
 			<scope>compile</scope>
 			<type>jar</type>
+		</dependency>
+
+		<!-- servlet jsp api -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
 		</dependency>
 
 		<!-- 数据库驱动 begin -->

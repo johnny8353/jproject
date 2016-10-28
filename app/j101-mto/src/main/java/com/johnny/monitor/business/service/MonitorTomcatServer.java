@@ -1,5 +1,7 @@
 package com.johnny.monitor.business.service;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -18,12 +20,12 @@ public class MonitorTomcatServer extends MonitorService{
 	 * @date 2016-4-26
 	 */
 	@Override
-	public void execute(String url) {
-		// TODO Auto-generated method stub
+	public void execute(Map<String,Object> params) {
+		String url = (String) params.get("url");
 		try {
 			HttpPost("http://"+url,"","utf-8");
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			String error = ExceptionUtil.getExceptionMessage(e);
 			log.debug("ERROR:"+error);
 			sMessage = "ERROR:";

@@ -1,10 +1,11 @@
 package com.johnny.monitor.business.service;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.johnny.common.util.ExceptionUtil;
-import com.johnny.monitor.business.webservice.siebel.AccountQueryPageMSO_Output;
 import com.johnny.monitor.business.webservice.siebel.AccountWSLocator;
 import com.johnny.monitor.common.data.SysDataDictionary;
 
@@ -21,15 +22,14 @@ public class MonitorSiebelWeb extends MonitorService{
 	 * @date 2016-4-26
 	 */
 	@Override
-	public void execute(String url) {
-		// TODO Auto-generated method stub
-		AccountQueryPageMSO_Output output = new AccountQueryPageMSO_Output();
+	public void execute(Map<String,Object> params) {
+		String url = (String) params.get("url");
 		AccountWSLocator accountWS = new AccountWSLocator();
 		try {
 			accountWS.setAccountWSPortEndpointAddress("http://"+url+":7780/eai_anon_chs/start.swe?SWEExtSource=AnonWebService&SweExtCmd=Execute");
 			accountWS.getAccountWSPort().accountQueryPageMSO(null);
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			String error = ExceptionUtil.getExceptionMessage(e);
 			log.debug("ERROR:"+error);
 			sMessage = "ERROR:";
@@ -51,7 +51,6 @@ public class MonitorSiebelWeb extends MonitorService{
 			}
 			
 		}finally{
-			output = null;
 			accountWS = null;
 		}
 	}

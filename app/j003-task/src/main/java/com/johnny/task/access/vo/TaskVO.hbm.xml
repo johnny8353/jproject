@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated 2016-10-24 15:26:39 by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping>
     <class name="com.johnny.task.access.vo.TaskVO" table="JT_TASK">
+    	<!-- common begin -->
         <id name="rowId" type="java.lang.Long">
             <column name="ROW_ID" />
             <generator class="native" />
@@ -26,14 +26,22 @@
         <property name="conflictId" type="java.lang.String">
             <column name="CONFLICT_ID" />
         </property>
+        <property name="parRowId" type="java.lang.Long">
+            <column name="PAR_ROW_ID" />
+        </property>
+        <property name="dbLastUpd" type="timestamp" >
+            <column name="DB_LAST_UPD" />
+        </property>
+        <property name="dbLastUpdSrc" type="java.lang.String">
+            <column name="DB_LAST_UPD_SRC" />
+        </property>
+        <!-- common end -->
+        
         <property name="actlEndDt" type="timestamp" >
             <column name="ACTL_END_DT" />
         </property>
         <property name="actlStartDt" type="timestamp" >
             <column name="ACTL_START_DT" />
-        </property>
-        <property name="dbLastUpd" type="timestamp" >
-            <column name="DB_LAST_UPD" />
         </property>
         <property name="expirationDt" type="timestamp" >
             <column name="EXPIRATION_DT" />
@@ -52,9 +60,6 @@
         </property>
         <property name="completionText" type="java.lang.String">
             <column name="COMPLETION_TEXT" />
-        </property>
-        <property name="dbLastUpdSrc" type="java.lang.String">
-            <column name="DB_LAST_UPD_SRC" />
         </property>
         <property name="descText" type="java.lang.String">
             <column name="DESC_TEXT" />
@@ -79,9 +84,6 @@
         </property>
         <property name="status" type="java.lang.String">
             <column name="STATUS" />
-        </property>
-        <property name="parRowId" type="java.lang.Long">
-            <column name="PAR_ROW_ID" />
         </property>
     </class>
 </hibernate-mapping>

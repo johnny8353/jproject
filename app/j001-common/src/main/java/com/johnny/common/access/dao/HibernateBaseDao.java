@@ -134,6 +134,9 @@ public interface HibernateBaseDao<T> {
 	 */
 	@SuppressWarnings("hiding")
 	<T> List<T> findList(CharSequence queryString, Object... params);
+	
+	@SuppressWarnings("hiding")
+	List<Object []> findSqlList(CharSequence queryString, Map<String, Object> params);
 
 	/**
 	 * 

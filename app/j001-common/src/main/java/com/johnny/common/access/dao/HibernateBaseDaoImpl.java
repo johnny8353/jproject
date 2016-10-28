@@ -11,6 +11,8 @@ import java.util.Map;
 
 
 
+
+
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -135,6 +137,14 @@ public class HibernateBaseDaoImpl<T> extends HibernateSessionDao implements
 	public <T> List<T> findList(CharSequence queryString,
 			Map<String, Object> params) {
 		Query query = getSession().createQuery(queryString.toString());
+		setParameter(query, params);
+		return query.list();
+	}
+	
+	@SuppressWarnings({ "unchecked", "hiding" })
+	public List<Object []> findSqlList(CharSequence queryString,
+			Map<String, Object> params) {
+		Query query = getSession().createSQLQuery(queryString.toString());
 		setParameter(query, params);
 		return query.list();
 	}
@@ -523,4 +533,6 @@ public class HibernateBaseDaoImpl<T> extends HibernateSessionDao implements
 		});
 		return list;
 	}
+
+
 }
