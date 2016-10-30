@@ -6,7 +6,7 @@
 		打开git bash客户端，进行%HOME%目录，然后用touch创建文件 .git-credentials, 用vim编辑此文件，输入内容格式：
 		
 		touch .git-credentials
-		vim .git-credentials
+		vim .regit-credentials
 		https://johnny8353:{password}@github.com
 	
 	1.2 添加Git Config 内容
