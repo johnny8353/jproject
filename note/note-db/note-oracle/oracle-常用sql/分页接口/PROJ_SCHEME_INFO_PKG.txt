@@ -1,0 +1,509 @@
+CREATE OR REPLACE PACKAGE PROJ_SCHEME_INFO_PKG IS
+ /*
+   ==================================================
+   包头说明：该包头声明对外提供的接口过程
+   创 建 人：肖 浪
+   更新人： 高德群
+   创建日志：2014-05-21
+   更新日期：2014-8-27
+   版    本：1.0
+   ==================================================
+  */
+  ---------------------------------------------------
+  /*
+   过程说明：对外提供的接口过程
+   服务名称：已关联项目的方案信息查询分页服务
+   服务编码：SCRM_M048_PageInquiryProSolutionInfoSrv
+   创 建 人：高德群
+   创建日志：2014-05-21
+   版    本：1.0
+  */
+  PROCEDURE QUERY_SCHEME_INFO(MSG_HEADER          IN SIEBEL_EAI.MSG_HEADER_REC,--头信息参数,必须
+                              INPUT               IN SIEBEL_EAI.INPUT_SCHEME_PROJ__REC,--业务功能参数,必须
+                              INSTANCE_ID          OUT VARCHAR2,--服务实例ID
+                              X_RTN_STATUS        OUT VARCHAR2, --返回执行状态：S 成功；E:异常
+                              PROCESS_MESSAGE     OUT VARCHAR2,--消息处理
+                              X_TOTAL_RECORD      OUT NUMBER, --记录总数
+                              X_TOTAL_PAGE        OUT NUMBER,--总页数
+                              X_PAGE_SIZE          OUT NUMBER,--页大小
+                              X_CURRENT_PAGE      OUT NUMBER,--当前页
+                              X_SCHEME_INFO_TAB   OUT SIEBEL_EAI.OUT_SCHEME_PROJ_INFO_TAB, --返回记录集，只有状态成功才可能有值
+                              X_ERROR_MSG_TAB     OUT SIEBEL_EAI.ERROR_MSG_TAB --返回具体错误信息
+                              );
+
+END;
+
+CREATE OR REPLACE PACKAGE BODY PROJ_SCHEME_INFO_PKG IS
+ /*
+   ==================================================
+   包体说明：主要实现商机接口相关的接口
+   创 建 人：肖 浪
+   创建日志：2014-05-21
+   版    本：1.0
+   ==================================================
+  */
+   --消息处理成功状态
+   X_MSG_STATUS_SUCCESS VARCHAR2(1) :='S';
+   --消息处理失败状态
+   X_MSG_STATUS_ERROR VARCHAR2(1) :='E';
+   --异常数组id
+   SIEBEL_CONTRACT_IDX_Q NUMBER :=0;
+   --消息服务名称
+   SIEBEL_SRV_NAME VARCHAR2(50) :='SCRM_M048_PageInquiryProSolutionInfoSrv';
+   --SIEBEL子系统ID
+   SIEBEL_SOURCE_SYSTEM_ID VARCHAR2(20) :='100000201191';
+  ------------------------------------
+    /*
+     函数说明：捕捉系统异常过程
+     创 建 人：肖 浪
+     创建日志：2014-05-21
+     版    本：1.0
+    */
+    FUNCTION GET_ERROR_MSG RETURN VARCHAR2 IS
+       RTN_ERROR VARCHAR2(600);
+    BEGIN
+       RTN_ERROR :=SQLCODE || '::'||SUBSTR(SQLERRM, 1, 500);
+       DBMS_OUTPUT.put_line(RTN_ERROR);
+       RETURN RTN_ERROR;
+    END;--结束GET_ERROR_MSG过程
+    ------------------------------------
+    /*
+     函数说明：记录调用参数到日志表过程
+     创 建 人：肖 浪
+     创建日志：2014-05-21
+     版    本：1.0
+    */
+    PROCEDURE PUB_LOG_TO_TABEL (SIEBEL_SRV_NAME      IN VARCHAR2,--服务编码
+                                SOURCE_SYSTEM_ID     IN VARCHAR2,--子系统id
+                                SOURCE_SYSTEM_NAME   IN VARCHAR2,--子系统名称
+                                USER_ID              IN VARCHAR2,--消息用户id
+                                USER_NAME            IN VARCHAR2,--消息用户名称
+                                SUBMIT_DATE          IN VARCHAR2,--消息发送时间
+                                MSG_DESC             IN VARCHAR2,--消息参数内容
+                                X_RTN_STATUS         OUT VARCHAR2,--执行状态
+                                X_ERROR_MSG_TAB      IN OUT SIEBEL_EAI.ERROR_MSG_TAB --错误信息对象
+                                ) IS
+       PRAGMA AUTONOMOUS_TRANSACTION; --采用独立事务
+     BEGIN
+       --先默认状态是OK的
+       X_RTN_STATUS :=X_MSG_STATUS_SUCCESS;
+      --将调用参数信息增加到日志表
+      INSERT INTO SIEBEL_EAI.PUB_LOG_TO_TABEL
+      (
+          MSG_LOG_ID,
+          SIEBEL_SRV_NAME,
+          SOURCE_SYSTEM_ID,
+          SOURCE_SYSTEM_NAME,
+          USER_ID,
+          USER_NAME,
+          SUBMIT_DATE,
+          MSG_DESC,
+          CREATED_DATE,
+          LAST_UPDATED_DATE
+      )
+      VALUES
+      (
+          SIEBEL_EAI.PUB_LOG_TO_TABEL_S.NEXTVAL,
+          SIEBEL_SRV_NAME,
+          SOURCE_SYSTEM_ID,
+          SOURCE_SYSTEM_NAME,
+          USER_ID,
+          USER_NAME,
+          SUBMIT_DATE,
+          MSG_DESC,
+          SYSDATE,
+          SYSDATE
+      );
+      ------
+      COMMIT;
+      ------
+     EXCEPTION
+       WHEN OTHERS THEN
+         ROLLBACK;
+         X_ERROR_MSG_TAB.EXTEND;
+         X_RTN_STATUS := X_MSG_STATUS_ERROR;
+         SIEBEL_CONTRACT_IDX_Q := SIEBEL_CONTRACT_IDX_Q + 1;
+         X_ERROR_MSG_TAB(SIEBEL_CONTRACT_IDX_Q) := SIEBEL_EAI.ERROR_MSG_REC(SIEBEL_SRV_NAME,GET_ERROR_MSG);
+     END;--结束PUB_LOG_TO_TABEL过程
+     -------------------------------------------
+    /*
+     函数说明：效验输入参数的合法性过程
+     创 建 人：肖 浪
+     创建日志：2014-05-21
+     版    本：1.0
+    */
+     PROCEDURE VALIDATE_PARAMETERS(MSG_HEADER       IN SIEBEL_EAI.MSG_HEADER_REC,--头信息参数,必须
+                                   INPUT            IN SIEBEL_EAI.INPUT_SCHEME_PROJ__REC,--业务功能参数,必须
+                                   SIEBEL_SRV_NAME  IN VARCHAR2,--服务编码
+                                   X_RTN_STATUS     OUT VARCHAR2,--执行状态
+                                   X_ERROR_MSG_TAB  IN OUT SIEBEL_EAI.ERROR_MSG_TAB --错误信息对象
+                                  ) IS
+         ERROR_MSG        VARCHAR2(200);--错误信息描述
+      BEGIN
+         --先默认状态是OK的
+         X_RTN_STATUS :=X_MSG_STATUS_SUCCESS;
+
+         IF MSG_HEADER.SOURCE_SYSTEM_ID IS NULL THEN
+             X_ERROR_MSG_TAB.EXTEND;
+             X_RTN_STATUS := X_MSG_STATUS_ERROR;
+             ERROR_MSG :='消息头子系统ID不能为空!';
+             SIEBEL_CONTRACT_IDX_Q := SIEBEL_CONTRACT_IDX_Q + 1;
+             X_ERROR_MSG_TAB(SIEBEL_CONTRACT_IDX_Q) := SIEBEL_EAI.ERROR_MSG_REC(SIEBEL_SRV_NAME,ERROR_MSG);
+
+             RETURN;
+         END IF;
+         ---------
+         IF INPUT.PAGE_SIZE IS NULL THEN
+             X_ERROR_MSG_TAB.EXTEND;
+             X_RTN_STATUS := X_MSG_STATUS_ERROR;
+             ERROR_MSG :='页大小不能为空!';
+             SIEBEL_CONTRACT_IDX_Q := SIEBEL_CONTRACT_IDX_Q + 1;
+             X_ERROR_MSG_TAB(SIEBEL_CONTRACT_IDX_Q) := SIEBEL_EAI.ERROR_MSG_REC(SIEBEL_SRV_NAME,ERROR_MSG);
+             RETURN;
+         END IF;
+         ---------
+         IF INPUT.PAGE_SIZE<1 OR INPUT.PAGE_SIZE>1000 THEN
+             X_ERROR_MSG_TAB.EXTEND;
+             X_RTN_STATUS := X_MSG_STATUS_ERROR;
+             ERROR_MSG :='页大小范围必需在1到1000之间!';
+             SIEBEL_CONTRACT_IDX_Q := SIEBEL_CONTRACT_IDX_Q + 1;
+             X_ERROR_MSG_TAB(SIEBEL_CONTRACT_IDX_Q) := SIEBEL_EAI.ERROR_MSG_REC(SIEBEL_SRV_NAME,ERROR_MSG);
+             RETURN;
+         END IF;
+         ----------
+         --IF INPUT.SCHEME_CODE IS NULL AND INPUT.SCHEME_ID IS NULL AND INPUT.LAST_UPDATE_DATE_FROM IS NULL AND INPUT.LAST_UPDATE_DATE_END IS NULL AND INPUT.PROJ_NUM IS NULL THEN
+         IF  INPUT.LAST_UPDATE_DATE_FROM IS NULL AND INPUT.LAST_UPDATE_DATE_END IS NULL AND INPUT.PROJ_NUM IS NULL THEN
+             X_ERROR_MSG_TAB.EXTEND;
+             X_RTN_STATUS := X_MSG_STATUS_ERROR;
+             ERROR_MSG :='开始时间、结束时间,项目编号不能全部为空!';
+             SIEBEL_CONTRACT_IDX_Q := SIEBEL_CONTRACT_IDX_Q + 1;
+             X_ERROR_MSG_TAB(SIEBEL_CONTRACT_IDX_Q) := SIEBEL_EAI.ERROR_MSG_REC(SIEBEL_SRV_NAME,ERROR_MSG);
+             RETURN;
+         END IF;
+         ----------
+         IF INPUT.LAST_UPDATE_DATE_FROM IS NULL AND INPUT.LAST_UPDATE_DATE_END IS NOT NULL THEN
+             X_ERROR_MSG_TAB.EXTEND;
+             X_RTN_STATUS := X_MSG_STATUS_ERROR;
+             ERROR_MSG :='开始时间和结束时间如果有值,则必须成对出现!';
+             SIEBEL_CONTRACT_IDX_Q := SIEBEL_CONTRACT_IDX_Q + 1;
+             X_ERROR_MSG_TAB(SIEBEL_CONTRACT_IDX_Q) := SIEBEL_EAI.ERROR_MSG_REC(SIEBEL_SRV_NAME,ERROR_MSG);
+             RETURN;
+         END IF;
+         ----------
+         IF INPUT.LAST_UPDATE_DATE_FROM IS NOT NULL AND INPUT.LAST_UPDATE_DATE_END IS NULL THEN
+             X_ERROR_MSG_TAB.EXTEND;
+             X_RTN_STATUS := X_MSG_STATUS_ERROR;
+             ERROR_MSG :='开始时间和结束时间如果有值,则必须成对出现!';
+             SIEBEL_CONTRACT_IDX_Q := SIEBEL_CONTRACT_IDX_Q + 1;
+             X_ERROR_MSG_TAB(SIEBEL_CONTRACT_IDX_Q) := SIEBEL_EAI.ERROR_MSG_REC(SIEBEL_SRV_NAME,ERROR_MSG);
+             RETURN;
+         END IF;
+         ----------
+         EXCEPTION
+             WHEN OTHERS THEN
+                  X_ERROR_MSG_TAB.EXTEND;
+                  X_RTN_STATUS := X_MSG_STATUS_ERROR;
+                  SIEBEL_CONTRACT_IDX_Q := SIEBEL_CONTRACT_IDX_Q + 1;
+                  X_ERROR_MSG_TAB(SIEBEL_CONTRACT_IDX_Q) := SIEBEL_EAI.ERROR_MSG_REC(SIEBEL_SRV_NAME,GET_ERROR_MSG);
+      END;--结束VALIDATE_PARAMETERS过程
+    --------------------------------------------------
+    /*
+     函数说明：按输入参数拼装SQL串过程
+     创 建 人：肖 浪
+     创建日志：2014-05-21
+     版    本：1.0
+    */
+     FUNCTION GET_SQL_STATEMENTS(SIEBEL_SRV_NAME            IN VARCHAR2,--服务编码
+                                 --SCHEME_CODE                IN VARCHAR2,--方案编号
+                                 --SCHEME_ID                  IN NUMBER,  --方案id
+                                 LAST_UPDATE_DATE_FROM      IN VARCHAR2,--开始时间
+                                 LAST_UPDATE_DATE_END        IN VARCHAR2,--结束时间
+                                 RESERVED1                  IN VARCHAR2,
+                                 RESERVED2                  IN VARCHAR2,
+                                 RESERVED3                  IN VARCHAR2,
+                                 RESERVED4                  IN VARCHAR2,
+                                 RESERVED5                  IN VARCHAR2,
+                                 PROJ_NUM                   IN VARCHAR2,
+                                 X_PAGE_SIZE                IN NUMBER,--页大小
+                                 X_CURRENT_PAGE             IN NUMBER,--当前页
+                                 X_RTN_STATUS               OUT VARCHAR2,--执行状态
+                                 X_ERROR_MSG_TAB            IN OUT SIEBEL_EAI.ERROR_MSG_TAB--错误信息对象
+                                ) RETURN VARCHAR2 IS
+         --SQL语句串
+         SQL_STATEMENTS VARCHAR2(2000);
+         ----总SQL语句串
+         TOTAL_SQL VARCHAR2(4000);
+         --异常信息描述
+         ERROR_MSG VARCHAR2(100);
+         --开始记录行
+         START_ROWNUM NUMBER;
+         --结束记录行
+         END_ROWNUM NUMBER;
+      BEGIN
+         --先默认状态是OK的
+         X_RTN_STATUS :=X_MSG_STATUS_SUCCESS;
+         --------开始记录行-----------------------------
+         IF (X_CURRENT_PAGE-1)*X_PAGE_SIZE >0 THEN
+            START_ROWNUM :=(X_CURRENT_PAGE-1)*X_PAGE_SIZE;
+         ELSE
+            START_ROWNUM :=0;
+         END IF;
+         --------结束记录行-----------------------------
+         IF (X_CURRENT_PAGE-1)>0 THEN
+            END_ROWNUM := X_CURRENT_PAGE * X_PAGE_SIZE;
+         ELSE
+            END_ROWNUM := X_PAGE_SIZE;
+         END IF;
+         -----------------开始拼装SQL--------------------
+          SQL_STATEMENTS :='SELECT ';
+                           --方案编号,商机编码,最后更新时间,记录是否可用(Y:可用;N:已禁用)
+          SQL_STATEMENTS :=SQL_STATEMENTS || 'OP.ROW_ID,GS.SCHEME_CODE,GS.SCHEME_ID,P.PROJ_NUM,to_char(OP.LAST_UPD,''yyyy-MM-dd hh24:mi:ss'') LAST_UPD,OP.ENABLE_FLAG,';
+                           --5个保留字段
+          SQL_STATEMENTS :=SQL_STATEMENTS || ''''' RESERVED1,'''' RESERVED2,'''' RESERVED3,'''' RESERVED4,'''' RESERVED5';
+          SQL_STATEMENTS :=SQL_STATEMENTS || ' FROM SIEBEL.CX_OPTY_SCHEME OP ';
+          SQL_STATEMENTS :=SQL_STATEMENTS || ' INNER JOIN SIEBEL.CX_GSC_SCHEME GS ON OP.SOLUTION_ID=GS.SCHEME_ID ';
+          SQL_STATEMENTS :=SQL_STATEMENTS || ' INNER JOIN SIEBEL.S_PROJ P ON OP.PROJ_ID=P.ROW_ID WHERE 1=1 ';
+          SQL_STATEMENTS :=SQL_STATEMENTS || 'AND OP.PROJ_ID IS NOT NULL';
+          --IF SCHEME_CODE IS NOT NULL THEN
+            -- SQL_STATEMENTS :=SQL_STATEMENTS || ' AND GS.SCHEME_CODE=''' || SCHEME_CODE || '''';
+          --END IF;
+          --IF SCHEME_ID>0 THEN
+             --SQL_STATEMENTS :=SQL_STATEMENTS || ' AND GS.SCHEME_ID=' || SCHEME_ID;
+          --END IF;
+          IF PROJ_NUM IS NOT NULL THEN
+             SQL_STATEMENTS :=SQL_STATEMENTS || ' AND P.PROJ_NUM=''' || PROJ_NUM || '''';
+          END IF;
+          IF LAST_UPDATE_DATE_FROM IS NOT NULL AND LAST_UPDATE_DATE_END IS NOT NULL THEN
+             SQL_STATEMENTS :=SQL_STATEMENTS || ' AND OP.LAST_UPD BETWEEN TO_DATE(''' || LAST_UPDATE_DATE_FROM || ''',''yyyy-MM-dd HH24:MI:SS'')';
+             SQL_STATEMENTS :=SQL_STATEMENTS || ' AND TO_DATE(''' || LAST_UPDATE_DATE_END || ''',''yyyy-MM-dd HH24:MI:SS'')';
+          END IF;
+          SQL_STATEMENTS :=SQL_STATEMENTS ||' ORDER BY OP.LAST_UPD DESC';
+         ----组装总SQL-----------------------------------------
+         TOTAL_SQL :='SELECT SIEBEL_EAI.OUT_SCHEME_PROJ_INFO_REC(ROW_ID,SCHEME_CODE,SCHEME_ID,PROJ_NUM,LAST_UPD,ENABLE_FLAG,';
+         TOTAL_SQL :=TOTAL_SQL || 'RESERVED1,RESERVED2,RESERVED3,RESERVED4,RESERVED5) ';
+         TOTAL_SQL :=TOTAL_SQL || ' FROM (SELECT A.*, ROWNUM RNUM FROM ('||SQL_STATEMENTS||') A ';
+         TOTAL_SQL :=TOTAL_SQL || ' WHERE ROWNUM <='||END_ROWNUM||') WHERE RNUM >'||START_ROWNUM;
+
+        --打印SQL
+        dbms_output.put_line(SQL_STATEMENTS);
+        dbms_output.put_line('--------------------------');
+        dbms_output.put_line(TOTAL_SQL);
+         ---返回-----------------------------------------
+         RETURN  TOTAL_SQL;
+         ------异常处理--------
+         EXCEPTION
+         WHEN OTHERS THEN
+             X_ERROR_MSG_TAB.EXTEND;
+             X_RTN_STATUS := X_MSG_STATUS_ERROR;
+             SIEBEL_CONTRACT_IDX_Q := SIEBEL_CONTRACT_IDX_Q + 1;
+             X_ERROR_MSG_TAB(SIEBEL_CONTRACT_IDX_Q) := SIEBEL_EAI.ERROR_MSG_REC(SIEBEL_SRV_NAME,GET_ERROR_MSG);
+      END;--结束GET_SQL_STATEMENTS过程
+      ---------------------------------------
+     /*
+       函数说明：获取记录总数
+       创 建 人：肖 浪
+       创建日志：2014-05-21
+       版    本：1.0
+      */
+      PROCEDURE GET_TOTAL_RECORD (SIEBEL_SRV_NAME           IN VARCHAR2,--服务编码
+                                 --SCHEME_CODE                IN VARCHAR2,--方案编号
+                                 --SCHEME_ID                  IN NUMBER,--方案ID
+                                 LAST_UPDATE_DATE_FROM      IN VARCHAR2,--开始时间
+                                 LAST_UPDATE_DATE_END        IN VARCHAR2,--结束时间
+                                 PROJ_NUM                   IN VARCHAR2,--项目编号
+                                 RESERVED1                  IN VARCHAR2,
+                                 RESERVED2                  IN VARCHAR2,
+                                 RESERVED3                  IN VARCHAR2,
+                                 RESERVED4                  IN VARCHAR2,
+                                 RESERVED5                  IN VARCHAR2,
+                                 X_TOTAL_RECORD              OUT NUMBER,
+                                 X_RTN_STATUS               OUT VARCHAR2,--执行状态
+                                 X_ERROR_MSG_TAB            IN OUT SIEBEL_EAI.ERROR_MSG_TAB--错误信息对象
+                                ) IS
+         --SQL语句串
+         SQL_STATEMENTS  VARCHAR2(4000);
+         --记录总数
+      BEGIN
+          --先默认状态是OK的
+          X_RTN_STATUS :=X_MSG_STATUS_SUCCESS;
+          --总记录数
+          X_TOTAL_RECORD :=-1;
+          --组装SQL
+          SQL_STATEMENTS :='SELECT COUNT(*) X_TOTAL_RECORD FROM SIEBEL.CX_OPTY_SCHEME OP ';
+          SQL_STATEMENTS :=SQL_STATEMENTS || ' INNER JOIN SIEBEL.CX_GSC_SCHEME GS ON OP.SOLUTION_ID=GS.SCHEME_ID ';
+          SQL_STATEMENTS :=SQL_STATEMENTS || ' INNER JOIN SIEBEL.S_PROJ P ON OP.PROJ_ID =P.ROW_ID WHERE 1=1 ';
+          SQL_STATEMENTS :=SQL_STATEMENTS || ' AND OP.PROJ_ID IS NOT NULL';
+          --IF SCHEME_CODE IS NOT NULL THEN
+             --SQL_STATEMENTS :=SQL_STATEMENTS || ' AND GS.SCHEME_CODE=''' || SCHEME_CODE || '''';
+          --END IF;
+          --IF SCHEME_ID >0 THEN
+             --SQL_STATEMENTS :=SQL_STATEMENTS || ' AND GS.SCHEME_ID=' || SCHEME_ID ;
+          --END IF;
+          IF PROJ_NUM IS NOT NULL THEN
+             SQL_STATEMENTS :=SQL_STATEMENTS || ' AND P.PROJ_NUM=''' || PROJ_NUM || '''';
+          END IF;
+          IF LAST_UPDATE_DATE_FROM IS NOT NULL AND LAST_UPDATE_DATE_END IS NOT NULL THEN
+             SQL_STATEMENTS :=SQL_STATEMENTS || ' AND OP.LAST_UPD BETWEEN TO_DATE(''' || LAST_UPDATE_DATE_FROM || ''',''yyyy-MM-dd HH24:MI:SS'')';
+             SQL_STATEMENTS :=SQL_STATEMENTS || ' AND TO_DATE(''' || LAST_UPDATE_DATE_END || ''',''yyyy-MM-dd HH24:MI:SS'')';
+          END IF;
+          --执行SQL
+          EXECUTE IMMEDIATE SQL_STATEMENTS INTO X_TOTAL_RECORD;
+          ------异常处理--------
+          EXCEPTION
+          WHEN OTHERS THEN
+             X_TOTAL_RECORD :=-1;
+             X_ERROR_MSG_TAB.EXTEND;
+             X_RTN_STATUS := X_MSG_STATUS_ERROR;
+             SIEBEL_CONTRACT_IDX_Q := SIEBEL_CONTRACT_IDX_Q + 1;
+             X_ERROR_MSG_TAB(SIEBEL_CONTRACT_IDX_Q) := SIEBEL_EAI.ERROR_MSG_REC(SIEBEL_SRV_NAME,GET_ERROR_MSG);
+      END;--过程GET_TOTAL_RECORD结束
+      ---------------------------------------
+      /*
+       过程说明：对外提供的接口过程
+       服务名称：已关联商机的方案信息查询分页服务实现
+       服务编码：SCRM_M048_PageInquiryProSolutionInfoSrv
+       创 建 人：肖 浪
+       创建日志：2014-05-21
+       版    本：1.0
+      */
+      PROCEDURE QUERY_SCHEME_INFO(MSG_HEADER          IN SIEBEL_EAI.MSG_HEADER_REC,--头信息参数,必须
+                                  INPUT               IN SIEBEL_EAI.INPUT_SCHEME_PROJ__REC,--业务功能参数,必须
+                                  INSTANCE_ID          OUT VARCHAR2,--服务实例ID
+                                  X_RTN_STATUS        OUT VARCHAR2, --返回执行状态：S 成功；E:异常
+                                  PROCESS_MESSAGE     OUT VARCHAR2,--消息处理
+                                  X_TOTAL_RECORD      OUT NUMBER, --返回实际记录总数
+                                  X_TOTAL_PAGE        OUT NUMBER,--返回实际总页数
+                                  X_PAGE_SIZE          OUT NUMBER,--返回实际页大小
+                                  X_CURRENT_PAGE      OUT NUMBER,--返回实际当前页
+                                  X_SCHEME_INFO_TAB   OUT SIEBEL_EAI.OUT_SCHEME_PROJ_INFO_TAB, --返回记录集，只有状态成功才可能有值
+                                  X_ERROR_MSG_TAB     OUT SIEBEL_EAI.ERROR_MSG_TAB --返回具体错误信息
+                                  ) IS
+         --SQL语句串
+         SQL_STATEMENTS  VARCHAR2(4000);
+         --参数内容
+         MSG_DESC VARCHAR2(4000);
+      BEGIN
+
+         X_ERROR_MSG_TAB        := SIEBEL_EAI.ERROR_MSG_TAB();--初始化返回的错误信息对象
+         X_RTN_STATUS           := X_MSG_STATUS_SUCCESS;--执行状态,默认为S
+         SIEBEL_CONTRACT_IDX_Q  := X_ERROR_MSG_TAB.COUNT;
+         ---步骤一：先存储消息参数
+         ---拼装参数内容
+         MSG_DESC :=         '<name="PAGE_SIZE" value="'||INPUT.PAGE_SIZE||'"/>';
+         MSG_DESC :=MSG_DESC||'<name="CURRENT_PAGE" value="'||INPUT.CURRENT_PAGE||'"/>';
+         MSG_DESC :=MSG_DESC||'<name="TOTAL_RECORD" value="'||INPUT.TOTAL_RECORD||'"/>';
+         --MSG_DESC :=MSG_DESC||'<name="SolutionCode" value="'||INPUT.SCHEME_CODE||'"/>';
+         --MSG_DESC :=MSG_DESC||'<name="SolutionId" value="'||INPUT.SCHEME_ID||'"/>';
+         MSG_DESC :=MSG_DESC||'<name="PROJ_NUM" value="'||INPUT.PROJ_NUM||'"/>';
+         MSG_DESC :=MSG_DESC||'<name="LAST_UPDATE_DATE_FROM" value="'||INPUT.LAST_UPDATE_DATE_FROM||'"/>';
+         MSG_DESC :=MSG_DESC||'<name="LAST_UPDATE_DATE_END" value="'||INPUT.LAST_UPDATE_DATE_END||'"/>';
+         MSG_DESC :=MSG_DESC||'<name="RESERVED1" value="'||INPUT.RESERVED1||'"/>';
+         MSG_DESC :=MSG_DESC||'<name="RESERVED2" value="'||INPUT.RESERVED2||'"/>';
+         MSG_DESC :=MSG_DESC||'<name="RESERVED3" value="'||INPUT.RESERVED3||'"/>';
+         MSG_DESC :=MSG_DESC||'<name="RESERVED4" value="'||INPUT.RESERVED4||'"/>';
+         MSG_DESC :=MSG_DESC||'<name="RESERVED5" value="'||INPUT.RESERVED5||'"/>';
+         ---存储消息参数
+         PUB_LOG_TO_TABEL (SIEBEL_SRV_NAME,
+                           MSG_HEADER.SOURCE_SYSTEM_ID,
+                           MSG_HEADER.SOURCE_SYSTEM_NAME,
+                           MSG_HEADER.USER_ID,
+                           MSG_HEADER.USER_NAME,
+                           MSG_HEADER.SUBMIT_DATE,
+                           MSG_DESC,
+                           X_RTN_STATUS,
+                           X_ERROR_MSG_TAB
+                           );
+         --参数记录结果判断
+         IF X_RTN_STATUS != X_MSG_STATUS_SUCCESS THEN
+           PROCESS_MESSAGE :='存储消息参数失败!';
+           RETURN;
+         END IF;
+         --步骤二：效验参数的合法性
+         VALIDATE_PARAMETERS(MSG_HEADER,
+                             INPUT,
+                             SIEBEL_SRV_NAME,
+                             X_RTN_STATUS,
+                             X_ERROR_MSG_TAB
+                             );
+         --效验结果判断
+         IF X_RTN_STATUS != X_MSG_STATUS_SUCCESS THEN
+           PROCESS_MESSAGE :='消息参数效验没通过!';
+           RETURN;
+         END IF;
+        -----先获取总记录数-------------------------
+        GET_TOTAL_RECORD (SIEBEL_SRV_NAME,
+                          --INPUT.SCHEME_CODE,
+                          --INPUT.SCHEME_ID,
+                          INPUT.LAST_UPDATE_DATE_FROM,
+                          INPUT.LAST_UPDATE_DATE_END,
+                          INPUT.PROJ_NUM,
+                          INPUT.RESERVED1,
+                          INPUT.RESERVED2,
+                          INPUT.RESERVED3,
+                          INPUT.RESERVED4,
+                          INPUT.RESERVED5,
+                          X_TOTAL_RECORD,
+                          X_RTN_STATUS,
+                          X_ERROR_MSG_TAB
+                          );
+         --效验结果判断
+         IF X_RTN_STATUS != X_MSG_STATUS_SUCCESS THEN
+           PROCESS_MESSAGE :='SQL执行异常!';
+           RETURN;
+         END IF;
+         IF X_TOTAL_RECORD <1 THEN
+           PROCESS_MESSAGE :='查询成功但没有查到任何信息!';
+           RETURN;
+         END IF;
+
+        ---计算处理分页相关-----------------------------------
+         X_PAGE_SIZE    :=INPUT.PAGE_SIZE; --页大小
+         X_CURRENT_PAGE :=INPUT.CURRENT_PAGE;--当前页
+         --计算总页数 X_TOTAL_PAGE
+         SELECT CEIL(X_TOTAL_RECORD/X_PAGE_SIZE) INTO X_TOTAL_PAGE FROM DUAL;
+         --当前页------------------------------------------
+         IF X_CURRENT_PAGE IS NULL OR X_CURRENT_PAGE <1 THEN
+            X_CURRENT_PAGE :=1;
+         END IF;
+         --当前页不能超出总页数
+         IF X_CURRENT_PAGE > X_TOTAL_PAGE THEN
+            X_CURRENT_PAGE := X_TOTAL_PAGE;
+         END IF;
+        ---获取分页查询SQL------------------------------------
+        SQL_STATEMENTS := GET_SQL_STATEMENTS(SIEBEL_SRV_NAME,
+                                             --INPUT.SCHEME_CODE,
+                                             --INPUT.SCHEME_ID,
+                                             INPUT.LAST_UPDATE_DATE_FROM,
+                                             INPUT.LAST_UPDATE_DATE_END,
+                                             INPUT.RESERVED1,
+                                             INPUT.RESERVED2,
+                                             INPUT.RESERVED3,
+                                             INPUT.RESERVED4,
+                                             INPUT.RESERVED5,
+                                             INPUT.PROJ_NUM,
+                                             X_PAGE_SIZE,
+                                             X_CURRENT_PAGE,
+                                             X_RTN_STATUS,
+                                             X_ERROR_MSG_TAB
+                                             );
+         --结果判断
+         IF X_RTN_STATUS != X_MSG_STATUS_SUCCESS THEN
+           PROCESS_MESSAGE :='SQL执行异常!';
+           RETURN;
+         END IF;
+         --写入数据到返回对象
+         EXECUTE IMMEDIATE SQL_STATEMENTS BULK COLLECT INTO X_SCHEME_INFO_TAB;
+
+         ---------------------
+         EXCEPTION
+              WHEN OTHERS THEN
+                  PROCESS_MESSAGE :='执行操作发生异常!';
+                  X_ERROR_MSG_TAB.EXTEND;
+                  X_RTN_STATUS := X_MSG_STATUS_ERROR;
+                  SIEBEL_CONTRACT_IDX_Q := SIEBEL_CONTRACT_IDX_Q + 1;
+                  X_ERROR_MSG_TAB(SIEBEL_CONTRACT_IDX_Q) := SIEBEL_EAI.ERROR_MSG_REC(SIEBEL_SRV_NAME,GET_ERROR_MSG);
+
+     END;--结束QUERY_SCHEME_INFO过程
+------------------------------------------------
+END;--PKG包体结束 SIEBEL_EAI.SCHEME_INFO_PKG
+

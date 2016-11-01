@@ -1,0 +1,47 @@
+1. 复制表结构及其数据： 
+
+create table table_name_new as select * from table_name_old 
+
+2. 只复制表结构： 
+
+create table table_name_new as select * from table_name_old where 1=2; 
+
+或者： 
+
+create table table_name_new like table_name_old 
+
+3. 只复制表数据：
+
+如果两个表结构一样：
+
+insert into table_name_new select * from table_name_old 
+
+如果两个表结构不一样：
+
+insert into table_name_new(column1,column2...) select column1,column2... from table_name_old
+
+--SIEBEL/SIEBEL
+CREATE TABLE STU(
+SNO VARCHAR2(30) PRIMARY KEY,
+SNAME VARCHAR2(200),
+SDESC LONG
+)
+SELECT * FROM STU;
+INSERT INTO STU VALUES(s_sequence_pkg.get_next_rowid(),'HFQ','DDDDDDDDD');
+CREATE TABLE STU_BAK AS SELECT * FROM STU;--ora-00997非法使用long数据类型
+
+用备份表的方式无法备份long类型
+EXP 用户名/密码@连接字符串 GRANTS=Y TABLES=(stu) file=C:\文件名.DMP
+导出
+D:\oracle\product\10.2.0\client_1\BIN>>exp siebel/siebel@SIEBELDEV tables=(stu) file='c:\2.dmp'
+oracle数据库客户端路径：D:\oracle\product\10.2.0\client_1\BIN
+oracle数据库的用户名：exp username/username@username
+oracle数据库保存地址：file='D:\1.dmp'
+
+导入
+IMP 用户名/密码@连接字符串 IGNORE=Y TABLES=(stu) FULL=N file=C:\文件名.DMP 
+drop table stu;
+D:\oracle\product\10.2.0\client_1\BIN>>imp siebel/siebel@SIEBELDEV tables=(stu) full=null file='c:\2.dmp'
+SELECT * FROM STU;
+
+也可以直接用qlsql的export tables和import tables

@@ -1,0 +1,96 @@
+FindBugs
+	FindBugs 是由马里兰大学提供的一款开源 Java 静态代码分析工具。FindBugs 通过检查类文件或 JAR 文件，将字节码与一组缺陷模式进行对比从而发现代码缺陷，完成静态代码分析。
+	FindBugs 既提供可视化 UI 界面，同时也可以作为 Eclipse 插件使用。文本将主要使用将 FindBugs 作为 Eclipse 插件。
+	在安装成功后会在 eclipse 中增加 FindBugs perspective，用户可以对指定 Java 类或 JAR 文件运行 FindBugs，此时 FindBugs 会遍历指定文件，进行静态代码分析，
+	
+	顾名思义，FindBugs是一款帮助开发者发现bug的工具，它是一个开源项目，遵循GNU公共许可协议，运行的是Java字节码而不是源码。
+	它是一款静态分析工具，它检查类或者JAR文件，将字节码与一组缺陷模式进行对比来发现可能存在的问题，这些问题包括空指针引用、无限递归循环、死锁等。
+	FindBugs在发现错误后，会进行等级划分，它把发现的错误分为四个等级：
+	
+	
+
+	scariest（恐怖的）
+	scary（吓人的）
+	troubling（令人困扰的）
+	of concern（值得关注的）
+	FindBugs是一个独立的GUI应用程序，有多种使用方式，可以作为Eclipse、NetBeans、IntelliJ IDEA插件使用，也可以从命令行、Ant、Maven使用。
+
+安装使用如下：
+
+Here is how to install and use the Find Bugs Eclipse Plug-in:
+
+NOTE: Since FindBugs requires a JDK 1.5.x to run on, you MUST ENSURE that you
+start Eclipse using a JRE/JDK 1.5.x (or later) as well.
+
+Install the plug-in
+===================================================
+1) Extract the contents of the file
+   - edu.umd.cs.findbugs.plugin.eclipse_1.1.0.v20060908.zip
+   into the [plugins] folder of your Eclipse installation. This should result in
+   the following directory structure:
+   <eclipse-dir>
+   |
+   +- plugins
+      |
+      +- edu.umd.cs.findbugs.plugin.eclipse_1.1.0.v20060908
+         |
+         +- plugin.xml
+            +- icons
+            +- lib
+            |  |
+            |  +- annotations.jar
+            |     asm-3.3.jar
+            |     asm-commons-3.3.jar
+            |     asm-tree-3.3.jar
+            |     bcel.jar
+            |     commons-lang-2.6.jar
+            |     dom4j-1.6.1.jar
+            |     jaxen-1.1.6.jar
+            |     jFormatString.jar
+            |     jsr305.jar
+            |
+            +- META-INF
+            |  |
+            |  +- MANIFEST.MF
+            |
+            +- plugin
+            findbugs-plugin.jar
+            plugin.properties
+            plugin.xml
+            RELEASENEOTES
+            smallBuggy.png
+
+
+2) (Re-)start Eclipse
+
+
+Using the plug-in
+==================
+The plug-in can operate in two modes: the automatic mode and the manual mode.
+
+Automatic mode
+---------------
+When running in automatic mode, the plug-in will look for bug patterns every time
+you build your project or a single Java file. This means that (normally) every
+time you save a Java file, the FindBugs plug-in will scan this file for bugs.
+
+To enable the automatic mode:
+1) Open the context menu of a Java project (please go to the Java perspective first!)
+2) Select [Properties] from the context menu
+3) In the properties dialog, switch to the [FindBugs} section and
+4) Check the [Run FindBugs automatically] option.
+5) Click [OK] or [Apply] to persist your change.
+
+Manual mode
+------------
+Since running the FindBugs plug-in in automatic mode can be vey time-consuming,
+you may choose to run the plug-in in manual mode. As the name implies, you
+have to start the bug pattern detecion manually when the plug-in is in manual mode.
+
+To enable manual mode:
+1) Make sure that the [Run FindBugs automatically] checkbox on the Java project properties
+   page is disabled.
+2) Open the context menu of the current Java project.
+3) Select [Find Bugs -> Find Bugs]. The bug pattern detection process will be started.
+
+

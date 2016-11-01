@@ -1,0 +1,117 @@
+现象
+在开发测试时一切正常, 一旦部署到正式服务器上, 就会出现以下几类异常:
+
+1, java类找不到 java.lang.ClassNotFoundException
+2, 方法不存在 java.lang.NoSuchMethodError
+3, 字段不存在 java.lang.NoSuchFieldError
+4, 类错误 java.lang.LinkageError
+原因
+war包中jar包和服务器上jar包冲突, 由于现在服务器功能越来越强大, 而引入的jar也在不断增加, 
+出现的冲突的可能性也越来越大, 而且正式环境复杂, 而且不能轻易修改服务器相关配置, 
+为解决jar包冲突的问题带来困难, 如果去解决过这些问题, 那是相当折腾人的, 下面是一些方法的总结
+
+根本 
+这类冲突根本原因就是: 同一个java类存在多个jar包或类路径中, 而这大多由于使用了不同jar包版本造成.
+
+方法
+1, 案例法 
+使用服务器上已有应用的jar包(前提:服务器上面已经部署过别的应用), 曾经使用过此方法解决冲突
+
+2, 最小化法 
+正式环境有很多限制, 上传,部署,启停,测试这些过程越简单越好, 最近一次把war包中137jar删除只剩下14个jar包, 
+整个测试验证周期大大缩短
+
+3, 来源法 
+如果能知道类加载于哪个jar包, 解决就比较容易, 在异常中会有出错类的完整类名, 
+如果能获取此类加载于那个jar包, 就能确认冲突的jar包,
+如何知道class加载于那个jar包, 昨天灵机一动想到了一个方法, 其实也很简单, 代码如下:
+
+clazz.getResource("className.class").toString(); 
+
+后面有一个jsp专门获取class加载于那个jsp包, 可供下载使用.
+
+4, 服务器分析法
+了解各种应用服务器的class加载机制, 就能判断是什么原因, 什么时候导致的冲突, 这样可以通过调整class加载顺序解决, 
+最近一次WAS服务器上的jar包冲突就此方法解决.
+
+
+附录
+深入探讨 Java 类加载器 http://www.ibm.com/developerworks/cn/java/j-lo-classloader/ 
+如何在 WebSphere 中解决 jar 包冲突 http://www.ibm.com/developerworks/cn/websphere/library/techarticles/haoaili/0512/
+
+附件
+class来源那个jar包的jsp 下载路径: http://pan.baidu.com/share/link?shareid=1635172140&uk=1963494373
+
+后记
+解决了一个问题，往往还有更大的问题，循环往复。
+
+冲突2：	
+	最近弄webservice，我使用的jdk自带的wsimport工具来生成客户端代码，发现生成的代码具有编译错误，错误描述如下：
+	The method getPort(QName, Class<T>) in the type Service is not applicable for the arguments
+	 (QName, Class<SCServicePortType>, WebServiceFeature[]).
+	而我单独创建新的项目来测试生成的客户端代码却没有这样的错误，所以错误原因在于jar包冲突.....
+	
+	几近周折，终于让我发现，原来javax.xml.ws.Service这个类，即存在于jdk自带的rt.jar中，也存在于我项目引用包jaxws-api.jar，这种情况就是两个jar包中存在包名和类名都完全相同的问题。
+	我需要的是rt.jar中的javax.xml.ws.Service类，但它却自动引入了jaxws-api.jar的javax.xml.ws.Service类，但是这两个jar包都不能去掉。
+	所以，只有改变编译器优先选择的jar顺序（这个顺序是可以改变的）：在Eclipse中是在Java Build Path-》Order and Export里面，通过"up"/"down"按钮改变顺序，
+	把jaxws-api.jar放在jdk的下面就可以了。
+	
+	
+
+tomcat 和webapp下jar包冲突 .
+	1，开发过程中遇到过这样一个情况，在本地tomcat下开发调试正常，打包到测试环境的tomcat下所有页面都变成空白页。通过日志发现httpRequest为空，通过对比发现 tomcat的sevlet.jar和webapp的不一致导致。换成相同版本即可
+	2,tomcat的WebappClassLoader findclass先从自己的webappx下加载类，没有则找父类。和java默认的加载方式不同。
+	
+	public Class findClass(String name) throws ClassNotFoundException {
+	        // 先自己加载类，找不到则请求parent来加载,注意这点和java默认的委托模式不同
+	        Class clazz = null;
+	        try {
+	            if ((clazz == null)) {
+	                    clazz = findClassInternal(name);
+	            }
+	            if ((clazz == null) && hasExternalRepositories && !searchExternalFirst) {
+	                    clazz = super.findClass(name);
+	            }
+	            if (clazz == null) {
+	                throw new ClassNotFoundException(name);
+	            }
+	        } catch (ClassNotFoundException e) {
+	            if (log.isTraceEnabled())
+	                log.trace("    --> Passing on ClassNotFoundException");
+	            throw e;
+	        }
+	        return (clazz);
+	}
+	
+	
+	**据此可以认为，在web项目WEB-INF\lib下的jar包优先级高于jboss,tomcat 下的lib.
+	两处版本不一致的话会导致程序异常。
+	比较省事的办法是WEB-INF\lib下不再保留重复的jar包，实在闲着没事的话可以自己写个类加载器替换tomcat下WebappClassLoader改变加载顺序。
+	但是还可能有隐患，WebappClassLoader权限较低，它加载的类只能访问web应用下的资源，如果servlet-api.jar等包用到其他资源时可能出现异常。
+	这个没实际测过，只是推测。但是catalina要提供对整个容器的支持，servlet-api实现对http协议的封装转换用到外部资源的可能性很大。 
+	
+	
+解决weblogic下jar包冲突的问题
+	刚刚帮同事解决了在weblogic部署webapp的问题； 最终的问题是jar包冲突； 
+	找问题的过程就不赘述了，各种try之后，确定了问题； 
+	然后我就查询了weblogic的类加载顺序的问题，不同于tomcat，weblogic的类加载顺序是： 
+	**首先加载domain/lib下的jar，然后再加载webapp/web-inf/lib下的jar 
+	同事的项目是flex+spring，通信框架要求spring.jar必须放在web-inf/lib下； 
+	其实目前一个最简单的解决方案就是删掉domain/lib下的spring.jar，但其他的app就不好使了； 
+	所以问题就定位在类加载顺序的问题上，只要让weblogic的加载顺序修改为先加载web-inf/lib下的jar就ok 
+	随后我在weblogic的文档(http://edocs.weblogicfans.net/wls/docs92/webapp/weblogic_xml.html#wp1067857)找到了如下解决方案： 
+	prefer-web-inf-classes 
+	如果将 <prefer-web-inf-classes> 元素设置为 true，则将优先加载位于 Web 应用程序的 WEB-INF 目录中的类，然后再加载应用程序或系统类加载器中的类。默认值为 false。控制台中指定的值优先于手工设置的值。 
+	最终的解决办法： 
+	在web-inf下创建一个weblogic.xml文件（如果没有的话） 
+	然后在其中增加如下信息： 
+	<?xml version="1.0" encoding="utf-8"?> 
+	<weblogic-web-app
+	  xmlns="http://www.bea.com/ns/weblogic/90"
+	  xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="http://www.bea.com/ns/weblogic/90 http://www.bea.com/ns/weblogic/90/weblogic-web-app.xsd"> 
+	     <container-descriptor>
+	         <prefer-web-inf-classes>true</prefer-web-inf-classes>
+	     </container-descriptor> 
+	</weblogic-web-app>

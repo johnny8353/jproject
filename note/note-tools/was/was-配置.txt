@@ -27,6 +27,9 @@
 		实际运行中可以修改此参数值，观察调整对性能是否有正面影响。
 		注意，如果把数据库连接池最大大小调得过大，JVM有限的资源都耗费在维护连接池、处理与数据库连接上，可能反而造成WAS性能的下降。 
 
+查看连接池情况：监视和调整-性能查看器-当前活动-Tivoli Performance Viewer > MSMTASK -选择线程池
+
+
 -------10.5.6.46 启动命令
 ps -ef | grep java | grep -v grep | cut -c 9-15 | xargs kill -s 9
 	1、启动控制台：/opt/IBM/WebSphere/AppServer/bin/startManager.sh

@@ -1,0 +1,81 @@
+
+/* 
+查询:
+select job,broken,what,interval,t.* from user_jobs t; 
+job job的唯一标识，自动生成的   
+broken 是否处于运行状态，N;运行；Y:停止   
+what 存储过程名称
+next_date 初次执行时间    
+interval 执行周期  
+
+删除:
+begin dbms_job.remove(jobno); end;
+根据what的内容确定其对应的job，并如此执行删除
+
+执行时间例子:
+描述                    INTERVAL参数值   
+每天午夜12点            ''TRUNC(SYSDATE + 1)''   
+每天早上8点30分         ''TRUNC(SYSDATE + 1) + （8*60+30）/(24*60)''   
+每星期二中午12点         ''NEXT_DAY(TRUNC(SYSDATE ), ''''TUESDAY'''' ) + 12/24''   
+每个月第一天的午夜12点    ''TRUNC(LAST_DAY(SYSDATE ) + 1)''   
+每个季度最后一天的晚上11点 ''TRUNC(ADD_MONTHS(SYSDATE + 2/24, 3 ), ''Q'' ) -1/24''   
+每星期六和日早上6点10分    ''TRUNC(LEAST(NEXT_DAY(SYSDATE, ''''SATURDAY"), NEXT_DAY(SYSDATE, "SUNDAY"))) + （6×60+10）/（24×60）''  
+每3秒钟执行一次             'sysdate+3/(24*60*60)' 
+每2分钟执行一次           'sysdate+2/(24*60)' 
+
+1:每分钟执行
+Interval => TRUNC(sysdate,'mi') + 1/ (24*60) --每分钟执行
+interval => 'sysdate+1/（24*60）'  --每分钟执行
+interval => 'sysdate+1'    --每天
+interval => 'sysdate+1/24'   --每小时
+interval => 'sysdate+2/24*60' --每2分钟
+interval => 'sysdate+30/24*60*60'  --每30秒
+2:每天定时执行
+Interval => TRUNC(sysdate+1)  --每天凌晨0点执行
+Interval => TRUNC(sysdate+1)+1/24  --每天凌晨1点执行
+Interval => TRUNC(SYSDATE+1)+(8*60+30)/(24*60)  --每天早上8点30分执行
+3:每周定时执行
+Interval => TRUNC(next_day(sysdate,'星期一'))+1/24  --每周一凌晨1点执行
+Interval => TRUNC(next_day(sysdate,1))+2/24  --每周一凌晨2点执行
+4:每月定时执行
+Interval =>TTRUNC(LAST_DAY(SYSDATE)+1)  --每月1日凌晨0点执行
+Interval =>TRUNC(LAST_DAY(SYSDATE))+1+1/24  --每月1日凌晨1点执行
+5:每季度定时执行
+Interval => TRUNC(ADD_MONTHS(SYSDATE,3),'q')  --每季度的第一天凌晨0点执行
+Interval => TRUNC(ADD_MONTHS(SYSDATE,3),'q') + 1/24  --每季度的第一天凌晨1点执行
+Interval => TRUNC(ADD_MONTHS(SYSDATE+ 2/24,3),'q')-1/24  --每季度的最后一天的晚上11点执行
+6:每半年定时执行
+Interval => ADD_MONTHS(trunc(sysdate,'yyyy'),6)+1/24  --每年7月1日和1月1日凌晨1点
+7:每年定时执行
+Interval =>ADD_MONTHS(trunc(sysdate,'yyyy'),12)+1/24  --每年1月1日凌晨1点执行
+
+相关方法:
+修改要执行的操作：dbms_job.what（jobno，'sp_fact_charge_code;'）；  --修改某个job名
+修改下次执行时间：dbms_job.next_date（job，next_date）；
+修改间隔时间：dbms_job.interval（job，interval）； 
+停止job：dbms.broken（job，broken，nextdate）； 
+dbms_job.broken(v_job,true,next_date);        --停止一个job,里面参数true也可是false，next_date（某一时刻停止）也可是sysdate（立刻停止）。  
+*/
+
+create or replace procedure proc_auto_exec_job as
+begin
+  declare
+    job number;
+    BEGIN
+      DBMS_JOB.SUBMIT(
+        JOB => job,  /*自动生成JOB_ID*/
+        WHAT => 'proc_test_job;',  /*需要执行的过程或SQL语句*/
+        /*NEXT_DATE => sysdate, */ /*初次执行时间，立刻执行*/
+        /*INTERVAL => 'sysdate+3/(24*60*60)' */ /*执行周期 -每3秒钟*/
+        NEXT_DATE => TRUNC(SYSDATE+1)+(0*60+30)/(24*60),  /*初次执行时间，12点30分*/
+        INTERVAL => 'TRUNC(SYSDATE+1)+(0*60+30)/(24*60)'  /*每天12点30分*/
+      );  
+      COMMIT;
+
+      /*dbms_job.submit(job, 'proc_test_job;', sysdate, 'trunc(sysdate,''mi'')+1/(24*60)'); /*执行周期 -每1分钟*/
+      commit;*/
+      
+      DBMS_JOB.RUN(job);
+    end;
+end proc_auto_exec_job;
+begin proc_auto_exec_job; end;

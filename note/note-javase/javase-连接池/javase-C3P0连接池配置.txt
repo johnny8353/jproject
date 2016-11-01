@@ -60,3 +60,17 @@ static{
 public static Connection getConnection() throws Exception {
 	return dataSource.getConnection();
 }
+
+
+如何监控
+DataSource dbSource = (DataSource) getBean(beanId); // 配置文件里的beanid
+if ( dbSource instanceof PooledDataSource) { 
+	PooledDataSource pds = (PooledDataSource) dbSource; 
+	try {
+		log.info("num_connections: " + pds.getNumConnectionsDefaultUser());
+		log.info("num_busy_connections: " + pds.getNumBusyConnectionsDefaultUser()); 
+		log.info("num_idle_connections: " + pds.getNumIdleConnectionsDefaultUser()); 
+	} catch (SQLException e) {
+		e.printStackTrace();
+	} 
+} 

@@ -1,0 +1,7 @@
+
+-- 查看那些表锁到了
+SHOW OPEN TABLES WHERE In_use > 0;
+-- 查看进程号
+SHOW PROCESSLIST;
+-- 删除进程
+KILL 1085850； 

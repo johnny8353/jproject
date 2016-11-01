@@ -1,0 +1,198 @@
+ORACLE里锁有以下几种模式:
+0：none
+1：null 空
+2：Row-S 行共享(RS)：共享表锁，sub share 
+3：Row-X 行独占(RX)：用于行的修改，sub exclusive 
+4：Share 共享锁(S)：阻止其他DML操作，share
+5：S/Row-X 共享行独占(SRX)：阻止其他事务操作，share/sub exclusive 
+6：exclusive 独占(X)：独立访问使用，exclusive
+
+数字越大锁级别越高, 影响的操作越多。
+
+1级锁有：Select，有时会在v$locked_object出现。
+2级锁有：Select for update,Lock For Update,Lock Row Share 
+select for update当对话使用for update子串打开一个游标时，所有返回集中的数据行都将处于行级(Row-X)独占式锁定，其他对象只能查询这些数据行，不能进行update、delete或select for update操作。
+3级锁有：Insert, Update, Delete, Lock Row Exclusive
+没有commit之前插入同样的一条记录会没有反应, 因为后一个3的锁会一直等待上一个3的锁, 我们必须释放掉上一个才能继续工作。
+4级锁有：Create Index, Lock Share
+locked_mode为2,3,4不影响DML(insert,delete,update,select)操作, 但DDL(alter,drop等)操作会提示ora-00054错误。
+00054, 00000, "resource busy and acquire with NOWAIT specified"
+// *Cause: Resource interested is busy.
+// *Action: Retry if necessary.
+5级锁有：Lock Share Row Exclusive 
+具体来讲有主外键约束时update / delete ... ; 可能会产生4,5的锁。
+6级锁有：Alter table, Drop table, Drop Index, Truncate table, Lock Exclusive
+
+以DBA角色, 查看当前数据库里锁的情况可以用如下SQL语句：
+
+col owner for a12
+col object_name for a16
+select b.owner,b.object_name,l.session_id,l.locked_mode
+from v$locked_object l, dba_objects b
+where b.object_id=l.object_id
+/
+
+select t2.username,t2.sid,t2.serial#,t2.logon_time 
+from v$locked_object t1,v$session t2 
+where t1.session_id=t2.sid order by t2.logon_time
+/
+
+如果有长期出现的一列，可能是没有释放的锁。我们可以用下面SQL语句杀掉长期没有释放非正常的锁：
+
+alter system kill session 'sid,serial#';
+
+如果出现了锁的问题, 某个DML操作可能等待很久没有反应。
+
+当你采用的是直接连接数据库的方式，也不要用OS系统命令 $kill process_num 或者 $kill -9 process_num来终止用户连接，因为一个用户进程可能产生一个以上的锁, 杀OS进程并不能彻底清除锁的问题。
+
+
+Oracle事务之一：锁和隔离
+   一. 事务概述
+
+      事务管理是数据库处理的核心。数据库既要保证用户能并发地执行事务，还要保证数据库的一致性。
+      当第一条可执行的SQL开始执行，就隐形地开始了一个事务，直到遇到下面的几种情况：
+      1.Commit：提交事务。
+      2.RollBack：回滚。
+      3.DDL语句：执行和提交DDL语句结果前首先提交当前所有DML语句，成为隐式提交。
+      4.程序正常退出：自动提交。
+      5.不正常的程序失败：隐式回滚。
+ 
+二.事务特性
+      事务的四个特性：A（原子性）、C（一致性）、I（隔离性）、D（永久性）。
+ 
+三.事务隔离级别
+      数据库并发的事务会带来以下四个问题：脏读，更新丢失，不可重复读，幻读。
+      对于上面这四个问题，可以通过设置不同的隔离级别来避免。
+      首先是未提交读。这种并发性最高，但是仍会产生以上四个问题。
+      第二种是已提交读。这是Oracle的默认隔离级别，查询语句只能看到已提交的数据。隔离的已提交读能保证在访问特定的行时，该行的数据保持不变。所以，这个级别可以防止脏读和更新丢失。
+      第三种是可重复读。保证读一致性。
+      最后一种是串行。隔离级别最高，但数据库的并发性受到了很大的限制。对DML操作的数据会放置一个写锁，别的涉及DML的操作不得不等待锁解除。可以避免上面的四个问题，但在现实中不可用。
+ 
+四.多版本读一致性
+    Oracle通过提供多版本来保证一致性，这个是通过撤销段来实现的。
+      Oracle默认提供语句级读一致性，也就是说，查询只能看到它开始前已提交的数据，看不到执行过程中提交的数据。
+    事务级读一致性就是可以保证在一个事务中的所有查询一致性。在这种情况下，每个事务中的语句都从同一个时间点来看数据，这个时间点就是事务开始时。它可以避免出现不可重复读和幻读。
+ 
+五.锁的类型
+      根据保护的对象不同，Oracle数据库锁可以分为以下几大类：DML锁（data locks，数据锁），用于保护数据的完整性；DDL锁（dictionary locks，字典锁），用于保护数据库对象的结构，如表、索引等的结构定义；内部锁和闩（internal locks and latches），保护数据库的内部结构。
+      DML锁的目的在于保证并发情况下的数据完整性，在Oracle数据库中，DML锁主要包括TM锁和TX锁，其中TM锁称为表级锁，TX锁称为事务锁或行级锁。
+      当Oracle执行DML语句时，系统自动在所要操作的表上申请TM类型的锁。当TM锁获得后，系统再自动申请TX类型的锁，并将实际锁定的数据行的锁标志位进行置位。这样在事务加锁前检查TX锁相容性时就不用再逐行检查锁标志，而只需检查TM锁模式的相容性即可，大大提高了系统的效率。TM锁包括了SS、SX、S、X 等多种模式，在数据库中用0－6来表示。不同的SQL操作产生不同类型的TM锁。
+      在数据行上只有X锁（排他锁）。在 Oracle数据库中，当一个事务首次发起一个DML语句时就获得一个TX锁，该锁保持到事务被提交或回滚。当两个或多个会话在表的同一条记录上执行 DML语句时，第一个会话在该条记录上加锁，其他的会话处于等待状态。当第一个会话提交后，TX锁被释放，其他会话才可以加锁。
+      下面是各种锁。
+行级排他锁（Row Exclusive，简称RX锁）
+      当我们进行DML时会自动在被更新的表上添加RX锁，或者也可以通过执行lock命令显式的在表上添加RX锁。在该锁定模式下，允许其他的事务通过DML语句修改相同表里的其他数据行，或通过lock命令对相同表添加RX锁定，但是不允许其他事务对相同的表添加排他锁（X锁）。
+行级共享锁（Row Shared，简称RS锁）
+     通常是通过select … from for update语句添加的，同时该方法也是我们用来手工锁定某些记录的主要方法。比如，当我们在查询某些记录的过程中，不希望其他用户对查询的记录进行更新操作，则可以发出这样的语句。当数据使用完毕以后，直接发出rollback命令将锁定解除。当表上添加了RS锁定以后，不允许其他事务对相同的表添加排他锁，但是允许其他的事务通过DML语句或lock命令锁定相同表里的其他数据行。
+共享锁（Share，简称S锁）
+     通过lock table in share mode命令添加该S锁。在该锁定模式下，不允许任何用户更新表。但是允许其他用户发出select …from for update命令对表添加RS锁。
+排他锁（Exclusive，简称X锁）
+     通过lock table in exclusive mode命令添加X锁。在该锁定模式下，其他用户不能对表进行任何的DML和DDL操作，该表上只能进行查询。
+共享行级排他锁（Share Row Exclusive，简称SRX锁）
+     通过lock table in share row exclusive mode命令添加SRX锁。该锁定模式比行级排他锁和共享锁的级别都要高，这时不能对相同的表进行DML操作，也不能添加共享锁。
+     这五种模式的TM锁的兼容关系如下表所示（√表示互相兼容的请求；×表示互相不兼容的请求；N/A表示没有锁定请求）：
+-	S	X	RS	RX	SRX	N/A
+S	√	×	√	×	×	√
+X	×	×	×	×	×	√
+RS	√	×	√	√	√	√
+RX	×	×	√	√	×	√
+SRX	×	×	√	×	×	√
+N/A	√	√	√	√	√	√
+
+      从前面的描述中可以看到，我们不仅可以通过发出DML语句的方式，由Oracle自动在表级别上添加TM锁。我们还可以通过发出lock table命令主动地在表级别上添加TM锁，并在该命令中可以指定不同的锁定模式，其命令格式如下所示：
+lock table in [row share][row exclusive]
+[share][share row exclusive][exclusive] mode;
+      对Oracle数据库中的各SQL语句所产生的表级锁的情况进行汇总，如下表所示：
+	SQL语句	表锁定模	允许的表锁定模式
+	Select * from ……	RS	RS、RX、S、SRX、X
+	Insert into ……	RX	RS、RX
+	Update ……	RX	RS、RX
+	Delete from ……	RX	RS、RX
+	Select * from for update	RS	RS、RX、S、SRX
+	lock table in row share mode	RS	RS、RX、S、SRX
+	lock table in row exclusive mode	RX	RS、RX
+	lock table in share mode	S	RS、S
+	lock table in share row exclusive mode	SRX	RS
+	lock table in exclusive mode	X	RS
+      
+    对于通过lock table命令主动添加的锁定来说，如果要释放它们，只需要发出rollback命令即可。
+ 
+ 六.我学习中的疑惑和解答
+疑惑：既然已经有了锁，为什么还要有隔离级别？
+解答：在csdn上找到一个答案，地址：http://topic.csdn.net/u/20100713/12/7e6e102e-03f9-420e-81b3-527ab4437792.html。
+具体：
+事务隔离级别是并发控制的整体解决方案，其实际上是综合利用各种类型的锁和行版本控制，来解决并发问题。
+锁是数据库并发控制的内部机制，是基础。当然，数据库同时还会利用行版本控制（SQL Server 2005 及以上）来进行并发控制；在数据库内部还使用闩（latch），互斥（mutex）等机制处理内部资源（如，缓存）的并发访问。
+对用户来说，只有当事务隔离级别无法解决一些并发问题和需求时，才有必要在语句中手动设置锁。不适当的设置锁，可能会导致严重的阻塞和死锁。建议，只有在完全了解锁机制的情况下，才可以在语句中手动设置锁，否则应该使用事务隔离级别。
+
+oracle中的事务
+数据库事务有严格的定义，它必须满足4个特性：
+原子性（Atomic）：表示组成一个事务的多个数据库操作是一个不可分割的原子单元只有所有的操作执行成功，整个事务才能提交，事务中任何一个数据库操作失败，己经执行的任何操作都必须撤销，让数据主加返回到初状态。
+一致性(Consistency)：事务操作成功后，数据所处的状态和它的业务规则是一致的，即数据不会被被破坏。如从A账户转账100元到B账户，不管操作成功与否，A和B的存款总额不变的。
+隔离性(Isolation)：在并发数据操作时，不同的事务拥有各自的数据空间，它们的操作不会对对方产生干扰。准确地说，并非要求做到完全无干扰，数据库规定了多种事务隔离级别，不同隔离级别，对应不同的干扰程度，隔离级别越高，数据一致性越好，但并发性越弱。
+持久性(Durabiliy)：一旦事务提交成功后，事务中所有的数据操作都必须被持久化到数据库中，取出使提交事务后，数据库马上崩溃，在数据库重启时，也必须保证能够通过某种机制恢复数据。
+在这些事务特性中，数据“一致性”是最终目标，其他特性都是为达到这个目标的措施、要求或手段。
+数据并发的问题：
+脏读:A事务读取B事务尚未提交的更改数据，并在这个数据的基础上操作。如果恰巧B事务回滚，那么A事务读到的数据根本是不被承认的。
+不可重复读：A事务读取到了B事务已经提交的更改的数据。假设A在取款事务的过程中，B往该账户转账100元，A两次读取的账户的余额发生不一致。
+幻象读：A事务读取了B事务提交的新增数据，这时A事将出现幻象读。幻象读一般发生在计算数据的事务中，举一个例子，假设银行系统在同一个事务中，两次统计存款账户的总金额，在两次统计过程中刚好新增了一个存款户，并存入100元，这时两次统计的总金额不一致。
+幻读和不可重复读是两个容易混淆的概念，前者是指读到了其他己经提交的事务的新数据，而后者是指读到了己经提交事务的更改数据（更改或删除），为了避免这种情况，采取的对策是不同的，防止读取到更改数据，只需要对操作的数据添加行级锁，阻止操作中的数据发生
+变化，而防止读取到新增数据，则往往需要对操作的灵气添加表级锁--将对整个表锁定，防止新增数据。
+第一类丢失更新：A事务撤销时，把己提交的B事务的更新数据覆盖了。
+第二类丢失更新：A事务覆盖B事务己经提交的数据，造成B事务所做的操作丢失。
+行共享锁定：一般通过select for update 语句隐式获得共享锁定，在Oracle中用户也可以通过LOCK TABLE IN ROW SHARE MODE语句显式获得行共享锁定。行共享锁定并不防止对数据行进行更改的操作，但是可以防止其他会话获取独占性数据表锁定，允许进行多个并发的行共
+享和行独占性锁定，还允许进行数据表的共享或者采用共享行独占锁定。
+行独占锁定：通过一条INSERT、UPDATE 或DELETE 语句隐式获取，或者通过一条LOCK TABLE IN ROW EXCLUSIVE MODE 语句显式获取。这个锁定可以防止其他会话获取一个共享锁定、共享行独占锁定或独占锁定。
+表共享锁定：通过LOCK TABLE IN SHARE MODE语句显式获得。这种锁定可以防止其他会话获得行独占锁定（INSERT、UPDATE 或DELETE）,或者防止其他表共享行独占锁定或表独占锁定，它允许在表中拥多个共享和表共享锁定。该锁定可以让会话具有对表事务级一致访问，因为
+其他会话在用户提交或者回滚该 事务并释放对该表锁定之前不能更改这个被锁定的表。
+表共享行独占：通过LOCK TABLE IN SHARE ROW EXCLUSIVE MODE 语句显式获得。这种锁定可防止其他会获得一个表共享、行独占或者表独占锁颇定，它允许其他行共享锁定。这种锁定类似于表共享锁定，只是一次只能对一个表放置一个表共享行独占锁定。如果A会话拥有该锁定
+，则B会话可执行SELECT ROR UPDATE操作，但是如果B会话试图更新选择行，则需要等待。
+表独占：通过LOCK TABLE IN EXCLUSIVE MODE 显式获得。这个锁定防止其他会话对该表的任何其他锁定。
+隔离级别 脏读 不可重复读 幻读 第一类丢失更新 第二类丢失更新
+-----------------------------------------------------------------------------------------
+read uncommited yes yes yes no yes
+read committed no yes yes no yes
+repeatable read no no yes no no
+serializable no no no no no 
+-----------------------------------------------------------------------------------------
+Spring 的事务管理器实现类
+事务 说明
+org.springframework.orm.jpa.JpaTransactionManager 使用JPA进行持久化时，使用该事务管理器
+org.springframework.orm.hibernate3.HibernateTransactionManager 使用Hibernate3.0
+org.springframework.jdbc.datasource.DataSourceTransactionManager 使用JDBC 或iBatis
+org.springframework.orm.jdo.JdoTransactionManager 使用JDO
+org.springframework.transaction.jta.JtaTransactionManager 具有多个数据源的全局事务使用事务管理器
+----------------------------------------------------------------------------------------
+事务的传播行为类型 说明
+--------------------------------------------------------------------------------------
+propagation_required 如果当前没有事务，就新建一个事务，如果己经存在一个事务中，加入到这个事务中。这是最常见的选择。
+propagation_supports 支持当前事务，如果当前没有事务，就以非事务方式执行。
+propagation_mandatory 使用当前事务，如果当前没有事务，就抛出异常。
+propagation_requires_new 新建事务，如果当前存在事务，把当前事务挂起。
+propagation_not_suppoprted 以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。
+propagation_never 以非事务方式执行，如查当前存在事务，则抛出异常。
+propatation_nested 如果当前存在事务，则在嵌套事务内执行，如果当前没有事务，则执行与propagation_required
+-----------------------------------------------------------------------------------------
+编程式的事务管理
+Spring为编程式事务客理提供了模板类org.springframework.transaction.support.TransactionTemplate
+使用xml配置声明式事务
+Spring的声明事务管理是通过SpringAOP实现的。
+Spring默认的事务回滚规则为：运行期异常回滚，检查型异常不回滚。
+----------------------------------------------------------------------------------------------
+我们可以得出这样的结论：
+在相同的线程中进行相互嵌套调用的事务方法工作于相同的事务中。如果这些相互嵌套调用的方法工用在不同的线程中，则不同线程下的事务方法工作在独立的事务中。
+--------------------------------------------------------------------------
+事务隔离级别对并发问题解决情况
+序号 混合数据库访问技术框架 事务管理器
+1 Hibernate+Spring JDBC或iBatis org.springframework.orm.hibernate3.HibernateTransactionManager
+2 JPA+Spring JDBC或iBatis org.springframework.orm.jpa.JpaTransactionManger
+3 JDO+Spring JDBC或iBatis org.springframework.orm.jdo.JdoTransactionManger
+------------------------------------------------------------------------------------------------------
+不能被Spring AOP事务增强的方法
+序号 动态代理策略 不能被事务增强的方法
+1 基于接口的动态代理 除public 外的其他所有的方法，此外public static也不能被增强
+2 基于CGLib动态代理 private、static、final的方法
+---------------------------------------------------------
+spring整合其他ORM框架
+1.在spring中配置Hibernate文件：
+<bean id="sessionFactory" class="org.springframework.orm.hibernatge3.LocalSessionFactoryBean"
+p:configLocation="classpath:hibernate.cfg.xml"/>

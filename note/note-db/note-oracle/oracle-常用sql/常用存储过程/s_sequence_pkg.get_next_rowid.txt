@@ -1,0 +1,71 @@
+odi target datastore mapping:siebel.s_sequence_pkg.get_next_rowid
+=================================
+CREATE OR REPLACE PACKAGE s_sequence_pkg IS
+
+
+
+  FUNCTION get_next_rowid
+    RETURN VARCHAR2;
+
+END s_sequence_pkg;
+
+
+
+CREATE OR REPLACE PACKAGE BODY s_sequence_pkg IS
+
+
+  MAX_ROWID_SIZE CONSTANT INTEGER := 15;
+  g_node_prefix     VARCHAR2(15) := NULL;
+  g_node_prefix_len INTEGER := 0;
+  g_delimiter       CHAR(1) := '@';
+
+
+  FUNCTION get_next_rowid
+    RETURN VARCHAR2
+  IS
+    suffix    VARCHAR2(15);
+    row_id    VARCHAR2(15);
+    totlength INTEGER;
+  BEGIN
+    IF g_node_prefix is null THEN
+      raise_application_error (-20001, 'Unable to find row in S_SEQUENCE table.');
+    END IF;
+
+    SELECT s_sequence_s.nextval
+      INTO suffix
+      FROM sys.dual;
+
+    totlength := length (suffix) + g_node_prefix_len + 1;
+    IF totlength > MAX_ROWID_SIZE THEN
+      raise_application_error (-20005, 'Row_id VAL is too large for max rowid size.');
+    END IF;
+
+    row_id := g_node_prefix || g_delimiter || suffix;
+    RETURN row_id;
+  END get_next_rowid;
+
+BEGIN
+  SELECT corporate_prefix
+    INTO g_node_prefix
+    FROM s_ssa_id;
+
+  IF g_node_prefix is null THEN
+    raise_application_error (-20003, 'Node prefix is NULL.');
+  END IF;
+  g_node_prefix_len := length (g_node_prefix);
+
+EXCEPTION
+  WHEN no_data_found THEN
+    raise_application_error (-20001,
+      'Unable to find row in S_SEQUENCE table.');
+END s_sequence_pkg;
+============================================
+-- Create sequence 
+create sequence S_SEQUENCE_S
+minvalue 1
+maxvalue 9999999999999999999999999999
+start with 81038253
+increment by 1
+cache 20
+order;
+=============================================

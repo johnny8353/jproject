@@ -1,0 +1,33 @@
+CREATE OR REPLACE PACKAGE ZTE_CUSTOMER_INFO_PKG IS
+  /*
+  ==================================================
+  包头说明：该包头声明对外提供的接口过程
+  创 建 人：黄福强
+  创建日志：2015-01-07
+  更新日期：2015-01-07
+  版    本：1.0
+  ==================================================
+  */
+  ---------------------------------------------------
+  /*
+  过程说明：对外提供的接口过程
+  服务名称：1.1.3  客户信息查询分页服务
+  服务编码：SCRM_M05_PageInquiryCustomerInfoSrv
+  创 建 人：黄福强
+  创建日志：2015-01-07
+  版    本：1.0
+  */
+  PROCEDURE QUERY_CUSTOMER_INFO(MSG_HEADER        IN SIEBEL_EAI.MSG_HEADER_REC, --头信息参数,必须
+                                INPUT             IN SIEBEL_EAI.INPUT_CUSTOMER_INFO_REC, --业务功能参数,必须
+                                INSTANCE_ID       OUT VARCHAR2, --服务实例ID
+                                X_RTN_STATUS      OUT VARCHAR2, --返回执行状态：S 成功；E:异常
+                                PROCESS_MESSAGE   OUT VARCHAR2, --消息处理
+                                X_TOTAL_RECORD    OUT NUMBER, --记录总数
+                                X_TOTAL_PAGE      OUT NUMBER, --总页数
+                                X_PAGE_SIZE       OUT NUMBER, --页大小
+                                X_CURRENT_PAGE    OUT NUMBER, --当前页
+                                X_CUSTOMER_INFO_TAB OUT SIEBEL_EAI.OUT_CUSTOMER_INFO_TAB, --返回记录集，只有状态成功才可能有值
+                                X_ERROR_MSG_TAB   OUT SIEBEL_EAI.ERROR_MSG_TAB --返回具体错误信息
+                                );
+END;
+/

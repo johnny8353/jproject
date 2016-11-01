@@ -1,0 +1,14 @@
+
+在Mysql中，可以通过如下方式查询Mysql数据库当前连接的用户及会话信息：
+命令： SHOW PROCESSLIST; 
+如果是root帐号，你能看到所有用户的当前连接。如果是其它普通帐号，只能看到自己占用的连接。 
+SHOW PROCESSLIST;只列出前100条，如果想全列出请使用SHOW FULL PROCESSLIST; 
+mysql> SHOW PROCESSLIST;
+
+mysql>  SHOW FULL PROCESSLIST
+
+max_connections 参数可以用于控制数据库的最大连接数：
+
+mysql> SHOW VARIABLES LIKE '%connect%';
+
+SHOW STATUS;

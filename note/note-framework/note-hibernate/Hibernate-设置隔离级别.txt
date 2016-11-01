@@ -1,0 +1,22 @@
+1、在 MySql 中设置隔离级别
+¨ 每启动一个 mysql 程序, 就会获得一个单独的数据库连接. 每个数据库连接都有一个全局变量 @@tx_isolation, 表示当前的事务隔离级别. MySQL 默认的隔离级别为 Repeatable Read
+¨ 查看当前的隔离级别: 
+? 当前连接：SELECT @@tx_isolation;
+? 全局：SELECT @@global.tx_isolation;
+¨ 设置当前 mySQL 连接的隔离级别:  
+? set transaction isolation level read committed;
+? 或set session transaction isolation level read uncommitted;
+¨ 设置数据库系统的全局的隔离级别:
+? set global transaction isolation level read committed;
+2、在 Hibernate 中设置隔离级别
+JDBC 数据库连接使用数据库系统默认的隔离级别. 在 Hibernate 的配置文件中可以显式的设置隔离级别. 每一个隔离级别都对应一个整数:  
+隔离级别			对应的整数表示  
+READ UNCOMMITED	1
+READ COMMITED	2
+REPEATABLE READ	4
+SERIALIZEABLE	8
+Hibernate 通过为 Hibernate 映射文件指定 hibernate.connection.isolation 属性来设置事务的隔离级别。例：
+hibernate.connection.isolation = 4
+注意
+¨ Hibernate不可能改变在受管环境下由应用服务器提供的数据库连接的隔离级别,只能通过改变应用服务器配置的方式来改变.
+¨ 设置隔离级别是全局选项,会影响所有的连接和事务

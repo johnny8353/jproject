@@ -1,0 +1,152 @@
+1. 查看被锁的表,sql
+SELECT ses.sid sessionId,ses.USERNAME,ses.STATUS,ses.logon_time,ses.LAST_CALL_ET,ses.PROGRAM,p.spid ospid,sq.sql_text,o.object_name,ses.serial#,l.locked_mode,l.oracle_username,l.os_user_name,
+       ses.machine,ses.terminal,ses.LOCKWAIT,p.PID
+  FROM v$session       ses,
+       v$locked_object l,
+       all_objects     o,
+       v$process       p,
+       v$sqlarea       sq
+ WHERE ses.sid = l.session_id(+)
+   AND l.object_id = o.object_id(+)
+   and ses.pADDR = p.ADDR(+)
+   and ses.prev_sql_addr = sq.address
+ ORDER BY sid, ses.serial#;
+
+
+2. 查看是哪个进程锁的 
+SELECT l.session_id sid, s.serial#, l.locked_mode,l.oracle_username,
+l.os_user_name,s.machine, s.terminal, o.object_name, s.logon_time
+FROM v$locked_object l, all_objects o, v$session s
+WHERE l.object_id = o.object_id
+AND l.session_id = s.sid
+ORDER BY sid, s.serial# ;
+
+
+
+3. 杀掉这个进程  alter system kill session 'sid,serial#';
+
+
+23配合即可
+
+
+
+如果利用上面的命令杀死一个进程后，进程状态被置为"killed"，但是锁定的资源很长时间没有被释放，那么可以在os一级再杀死相应的进程（线程），首先执行下面的语句获得进程（线程）号：
+select spid, osuser, s.program 
+from v$session s,v$process p
+where s.paddr=p.addr and s.sid=24 （24是上面的sid）
+
+4.在OS上杀死这个进程（线程）：
+1)在unix上，用root身份执行命令: 
+#kill -9 12345（即第3步查询出的spid）
+2)在windows（unix也适用）用orakill杀死线程，orakill是oracle提供的一个可执行命令，语法为：
+orakill sid thread
+其中：
+sid：表示要杀死的进程属于的实例名
+thread：是要杀掉的线程号，即第3步查询出的spid。
+例：c:>orakill orcl 12345
+
+--查询应用的连接数此时是多少
+select b.MACHINE, b.PROGRAM, count(*)
+  from v$process a, v$session b
+ where a.ADDR = b.PADDR
+   --and b.USERNAME is not null
+ group by b.MACHINE, b.PROGRAM
+ order by count(*) desc;
+
+
+
+锁说明
+ORACLE里锁有以下几种模式:
+0：none
+1：null 空
+2：Row-S 行共享(RS)：共享表锁，sub share 
+3：Row-X 行独占(RX)：用于行的修改，sub exclusive 
+4：Share 共享锁(S)：阻止其他DML操作，share
+5：S/Row-X 共享行独占(SRX)：阻止其他事务操作，share/sub exclusive 
+6：exclusive 独占(X)：独立访问使用，exclusive
+
+数字越大锁级别越高, 影响的操作越多。
+
+1级锁有：Select，有时会在v$locked_object出现。
+2级锁有：Select for update,Lock For Update,Lock Row Share 
+select for update当对话使用for update子串打开一个游标时，所有返回集中的数据行都将处于行级(Row-X)独占式锁定，其他对象只能查询这些数据行，不能进行update、delete或select for update操作。
+3级锁有：Insert, Update, Delete, Lock Row Exclusive
+没有commit之前插入同样的一条记录会没有反应, 因为后一个3的锁会一直等待上一个3的锁, 我们必须释放掉上一个才能继续工作。
+4级锁有：Create Index, Lock Share
+locked_mode为2,3,4不影响DML(insert,delete,update,select)操作, 但DDL(alter,drop等)操作会提示ora-00054错误。
+00054, 00000, "resource busy and acquire with NOWAIT specified"
+// *Cause: Resource interested is busy.
+// *Action: Retry if necessary.
+5级锁有：Lock Share Row Exclusive 
+具体来讲有主外键约束时update / delete ... ; 可能会产生4,5的锁。
+6级锁有：Alter table, Drop table, Drop Index, Truncate table, Lock Exclusive
+
+
+
+
+--kill inactive session
+CREATE OR REPLACE PROCEDURE DB_KILL_IDLE_CLIENTS AUTHID DEFINER AS
+  -- job_no       number;
+  --create log create table JOB_LOG(type varchar2(30 char),name varchar2(300 char),attr01 varchar2(300 char),attr02 varchar2(300 char),attr03 varchar2(300 char),created date)
+  num_of_kills number := 0;
+  logsql varchar2(1000);
+  preCount number := 0;
+  aftCount number := 0;
+  CURSOR CUR IS
+    SELECT SID, SERIAL#, USERNAME, PROGRAM, STATUS
+      FROM sys.v_$session S -- grant select on sys.v_$session to system
+     WHERE S.USERNAME IS NOT NULL
+          -- AND UPPER(S.PROGRAM) IN ('plsqldev.exe', 'xxx.EXE')
+       AND S.LAST_CALL_ET >= 2 * 60 * 60
+       AND S.STATUS = 'INACTIVE';
+BEGIN
+  SELECT count(1) into preCount from v$session;
+  FOR rec IN CUR LOOP
+    ---------------------------------------------------------------------------
+    -- kill inactive sessions immediately
+	--grant alter system to system;
+    ---------------------------------------------------------------------------
+    -- DBMS_OUTPUT.PUT('LOCAL SID ' || rec.sid || '(' || rec.module || ')');
+    execute immediate 'alter system kill session ''' || rec.sid || ', ' ||
+                      rec.serial# || '''immediate';
+    -- DBMS_OUTPUT.PUT_LINE('. killed locally ' || job_no);
+    num_of_kills := num_of_kills + 1;
+  END LOOP;
+  commit;
+  aftCount := preCount-num_of_kills;
+  --logsql := 'insert into JOB_LOG(type,name,created) values (''DB_KILL_IDLE_CLIENTS'',''count:'||num_of_kills||''',sysdate)';
+  --execute immediate logsql;
+  logsql := 'insert into JOB_LOG(type,name,attr01,attr02,created) values (''session'',''count:'||num_of_kills||''','||preCount||','||aftCount||',sysdate)';
+  dbms_output.put_line(logsql);
+  execute immediate logsql;
+  commit;
+  --DBMS_OUTPUT.PUT_LINE('Number of killed xxxx system sessions: ' ||
+  -- num_of_kills);
+END DB_KILL_IDLE_CLIENTS;
+
+create or replace procedure proc_auto_exec_job as
+begin
+  declare
+    job number;
+    BEGIN
+      DBMS_JOB.SUBMIT(
+        JOB => job,  /*自动生成JOB_ID*/
+        WHAT => 'proc_test_job;',  /*需要执行的过程或SQL语句*/
+        /*NEXT_DATE => sysdate, */ /*初次执行时间，立刻执行*/
+        /*INTERVAL => 'sysdate+3/(24*60*60)' */ /*执行周期 -每3秒钟*/
+        NEXT_DATE => TRUNC(SYSDATE+1)+(0*60+30)/(24*60),  /*初次执行时间，12点30分*/
+        INTERVAL => 'TRUNC(SYSDATE+1)+(0*60+30)/(24*60)'  /*每天12点30分*/
+      );  
+      COMMIT;
+
+      /*dbms_job.submit(job, 'proc_test_job;', sysdate, 'trunc(sysdate,''mi'')+1/(24*60)'); /*执行周期 -每1分钟*/
+      commit;*/
+      
+      DBMS_JOB.RUN(job);
+    end;
+end proc_auto_exec_job;
+
+begin proc_auto_exec_job; end;
+
+
+

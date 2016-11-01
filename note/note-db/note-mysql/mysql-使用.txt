@@ -35,6 +35,8 @@
 	可以看到host中只有localhost主机。我们需要将xxx.xxx.xxx.xxx也添加到这里才对
 	
 	添加方法如下：
+	user表中的host表示支持的连接的远程主机的ip，“%”表示支持所有ip;
+	grant all privileges on *.* to root@"%" identified by "密码";
 	输入 grant all privileges on *.* to root@"10.17.183.31" identified by "密码";
 	这相当于是给IP-xxx.xxx.xxx.xxx赋予了所有的权限，包括远程访问权限。
 	然后再输入
