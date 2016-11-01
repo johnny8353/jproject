@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -67,11 +68,18 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 	String className = null;
 	Map<String,Object> params = new HashMap<>();
 	String envName = null;
-	String batchNum = "";
+//	String batchNum = "";
 	String frequency = "";
 
-	protected Log log = LogFactory.getLog(getClass());
+//	protected Log log = LogFactory.getLog(getClass());
 	private SystemListBO monitorListBO;
+	
+	
+	
+
+	public SystemMonitorTask() {
+		log.info("--SystemMonitorTask construct--");
+	}
 
 	public void doTaskWakeUp(TaskVO taskvo)  {
 		log.info("===========SystemMonitorThread begin===========");
@@ -108,40 +116,14 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 			Future<String> future = exec.submit(call);
 			String obj = future.get(30000 * 1, TimeUnit.MILLISECONDS); // 任务处理超时时间设为
 																		// 1 秒
-			System.out.println("任务成功返回:" + obj);
+			log.info("任务成功返回:" + obj);
 		} catch (TimeoutException ex) {
 			monitor.setsMessage("错误：请求超时");
-			System.out.println("处理超时啦....");
+			log.info("处理超时啦....");
 			ex.printStackTrace();
 		} catch (Exception e) {
 			monitor.setsMessage("错误：处理失败");
-			System.out.println("处理失败.");
-			e.printStackTrace();
-		}finally{
-			// 关闭线程池
-			exec.shutdown();
-		}
-	}
-	
-	/**
-	 * 控制执行时间
-	 */
-	public void executeEmailNotify() {
-		final ExecutorService exec = Executors.newFixedThreadPool(1);
-		Callable<String> call = new Callable<String>() {
-			public String call() throws Exception {
-				// 开始执行耗时操作
-				emailNotify(batchNum,frequency);
-				return "";
-			}
-		};
-		try {
-			Future<String> future = exec.submit(call);
-			String obj = future.get(30000 * 1, TimeUnit.MILLISECONDS); // 任务处理超时时间设为
-																		// 1 秒
-		} catch (TimeoutException ex) {
-			ex.printStackTrace();
-		} catch (Exception e) {
+			log.info("处理失败.");
 			e.printStackTrace();
 		}finally{
 			// 关闭线程池
@@ -152,11 +134,12 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 	public synchronized void monitorSystem(String frequency) {
 		this.frequency = frequency;
 		String batchNum = DateUtil.getNowDateTimeStr();
-		this.batchNum = batchNum;
+//		this.batchNum = batchNum;
 		try {
 			if (monitorListBO == null) {
 				initData();
 			}
+			//监控
 			for (SystemBO systemBO : monitorListBO.getSystemBOList()) {
 				for (SystemInfoVO systemInfoVO : systemBO.getSystemInfoVOList()) {
 					String result = SysDataDictionary.MONITOR_RESULT_SUCCESS_NAME;
@@ -215,7 +198,7 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 			log.info("--generateReport--end");
 			//发送邮件
 			log.info("--emailNotify--begin");
-			executeEmailNotify();
+			emailNotify(batchNum,frequency);
 			log.info("--emailNotify--end");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -223,12 +206,13 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 		}
 	}
 	
-	public void generateReport(String batchNum) throws IOException{
+	public void generateReport(String batchNum) throws IOException, SQLException{
 		String serverUrl= com.johnny.data.common.data.SysDataDictionary.getSysPref("JT_FILE_URL");
 		String destPath = com.johnny.data.common.data.SysDataDictionary.getSysPref("JT_FILE_PATH");
+		Connection conn = null;
 		String htmlSufix = "/html/"+"monitorReport_"+batchNum+".html";
 		try {
-			Connection conn = CommonUtil.getConnectionFromSpring("dataSource");
+			conn = CommonUtil.getConnectionFromSpring("dataSource");
 			//生产头报表 
 			File reportFile = new File(WebUtil.getWebRootAbsolutePath()+("/jasper/monitorReport.jasper"));
 			Map<String, Object> parameters = new HashMap<String, Object>();
@@ -242,15 +226,19 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}finally{
+			if(!conn.isClosed()){
+				conn.close();
+			}
 		}
 	}
 	
 	public static void main(String[] args) {
-//		System.out.println(SystemMonitorTask.class.getResource("/").getPath());
+//		log.info(SystemMonitorTask.class.getResource("/").getPath());
 		Map<String,Object> resultMap  = new HashMap<>();
 		resultMap.put("仿真", new BigInteger("1"));
 		resultMap.put("生产", 1);
-		System.out.println(new SystemMonitorTask().getCount(resultMap,"仿真"));
+//		log.info(new SystemMonitorTask().getCount(resultMap,"仿真"));
 	}
 	
 	public int getCount(Map<String,Object> resultMap,String name){
@@ -272,14 +260,14 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 		return count;
 	}
 	
-	public void emailNotify(String batchNum,String frequency){
+	public void emailNotify(String batchNum,String frequency) throws IOException{
 		log.info("---emailNotify---1");
 		String serverUrl= com.johnny.data.common.data.SysDataDictionary.getSysPref("JT_FILE_URL");
 		String destPath = com.johnny.data.common.data.SysDataDictionary.getSysPref("JT_FILE_PATH");
 		String htmlSufix = "/html/"+"monitorReport_"+batchNum+".html";
 		String destHtmlFile = destPath+htmlSufix;
 		String clickLook = "若邮件图表显示不正常，请点击该链接查看监控结果";
-		String fNameStr = ReadFromFile.readFileByLines(destHtmlFile);
+		String fNameStr = "";//发送内容
 		log.info("---emailNotify---2");
 		//获取所有报错实例
 		List<SystemGroupVO> groups = systemGroupService.findGroupList();
@@ -330,6 +318,7 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 			String result = "";
 			log.info("---emailNotify---3"+systemGroupVO.getSysCode());
 			if(!toMail.equals("")){
+				fNameStr = ReadFromFile.readFileByLines(destHtmlFile);
 				result = ZMailUtil.invokeDPGSendTestMail(
 						toMail.toString(), title, fNameStr, clickLook, serverUrl + htmlSufix);
 			}
@@ -433,7 +422,7 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 		// String bodyDetail = fNameStr;
 		// if(!toMail.equals("")){
 		// ZMailUtil.invokeDPGSendTestMail(toMail,title,bodyDetail);
-		// System.out.println(toMail);
+		// log.info(toMail);
 		// }
 		// sDetail = null;
 		// toMail = null;

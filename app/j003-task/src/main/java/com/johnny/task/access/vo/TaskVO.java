@@ -16,6 +16,7 @@ public class TaskVO extends BaseVO{
     private String descText;//说明
     private String execSrvrName;
     private String method;//组件/作业
+    private String duration;//持续时间
     private String tmodel;
     private String rptFlag;
     private String rptInterval;
@@ -116,6 +117,13 @@ public class TaskVO extends BaseVO{
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	
+	public String getDuration() {
+		return duration;
+	}
+	public void setDuration(String duration) {
+		this.duration = duration;
 	}
 	@Override
 	public String toString() {

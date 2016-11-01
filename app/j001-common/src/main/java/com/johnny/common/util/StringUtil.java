@@ -940,14 +940,15 @@ public class StringUtil {
 	 * Trim the str null not changed
 	 */
 	public static String trimNull(String str) {
-		String temp = null;
+		String temp = str;
 		try {
 			if (str != null)
 				temp = str.trim();
 		} catch (Exception e) {
+			e.printStackTrace();
 		} finally {
-			return temp;
 		}
+		return temp;
 	}
 
 	/**

@@ -94,7 +94,7 @@
     	<!-- 主要分为error,warn,info,debug四个级别，也是使用最多的四种，日志级别从左至右依次增加 -->
         <priority value="info" />
         <appender-ref ref="ASYNC_CONSOLE" />
-         
+        <appender-ref ref="LOCAL_BUSINESS_LOG" />
          <!-- <appender-ref ref="LOCAL_BUSINESS_LOG" />-->
         <!--  <appender-ref ref="ASYNC_BUSINESS_LOG" />-->
        

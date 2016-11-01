@@ -129,7 +129,7 @@ public class ReadFromFile
 				// 同样屏蔽掉r不显示
 				if ((charread == tempchars.length) && (tempchars[tempchars.length - 1] != 'r'))
 				{
-					System.out.print(tempchars);
+//					System.out.print(tempchars);
 					tempchars.toString();
 				} 
 				else

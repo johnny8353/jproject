@@ -103,7 +103,7 @@ public class MonitorMysql extends MonitorService {
 			String password) throws Exception {
 		// 1. 准备连接数据库的 4 个字符串.
 		// 1). 创建 Properties 对象
-		Properties properties = new Properties();
+//		Properties properties = new Properties();
 
 		// 2). 获取 jdbc.properties 对应的输入流
 

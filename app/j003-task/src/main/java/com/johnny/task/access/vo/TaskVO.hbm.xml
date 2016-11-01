@@ -43,6 +43,9 @@
         <property name="actlStartDt" type="timestamp" >
             <column name="ACTL_START_DT" />
         </property>
+        <property name="duration" type="java.lang.String" >
+            <column name="DURATION" />
+        </property>
         <property name="expirationDt" type="timestamp" >
             <column name="EXPIRATION_DT" />
         </property>

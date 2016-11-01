@@ -26,6 +26,8 @@ import com.johnny.task.common.data.SysDataDictionary;
  * 类 编 号：
  * 类 名 称：BaseSchedulerThread.java 
  * 内容摘要：作为 Scheduler Thread 的基类，提供基本的“睡眠/唤醒”支持，并通过统一的接口进行“挂起/恢复/终止”操作。 
+ * 周期1分钟，任务需要执行两分钟  的执行情况：
+ * 
  * 完成日期：2016-3-23
  * 编码作者：JohnnyHuang 黄福强
  */
@@ -71,7 +73,7 @@ public abstract class BaseTaskImpl extends Thread implements BaseTask
 	public void run() 
     {
     	//schedStartDate 必输字段
-    	if(pTaskvo.getSchedStartDt()==null||pTaskvo.getSchedStartDt().equals("")){//普通任务
+    	if(pTaskvo.getSchedStartDt() == null){//普通任务
     		CommonRun();
     	}else{//定时任务
     		ScheduleRun();

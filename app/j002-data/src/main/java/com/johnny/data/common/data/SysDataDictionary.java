@@ -13,8 +13,8 @@ public class SysDataDictionary {
 	public static final String SYS_PREF_TYPE_SERINIT = "SERVER_INIT";
 	public static final String SYS_PREF_TYPE_OTHERS = "OTHERS";
 	
-	public static List<SystemPreferenceVO> SYS_PREF_LISTS = new ArrayList<>();
-	public static Map<String,String> SYS_PREF_MAPS = new HashMap<String, String>();
+	public static List<SystemPreferenceVO> SYS_PREF_LISTS;// = new ArrayList<>();
+	public static Map<String,String> SYS_PREF_MAPS;// = new HashMap<String, String>();
 	
 	public static String getSysPref(String name){
 		String val = SYS_PREF_MAPS.get(name);

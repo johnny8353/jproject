@@ -273,4 +273,17 @@ public abstract class DateUtil {
         if(ms<100) return s+".0"+ms;
 		return s+"."+ms;
 	}
+	
+	/**
+	* 业务描述：获取 两个时间相差 秒数.毫秒数
+	* 作    者：Johnny Huang
+	* 完成日期：2015-12-29 	下午05:29:43
+	* @param @param date1
+	* @param @param date2
+	* @param date2>date1
+	* @return String
+	*/
+	public static String getDiffDate(Date date1,Date date2){
+		return getDiffDate(dateToStringMMM(date1),dateToStringMMM(date2));
+	}
 }

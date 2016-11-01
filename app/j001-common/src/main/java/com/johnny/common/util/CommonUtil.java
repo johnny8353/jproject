@@ -1,15 +1,19 @@
 package com.johnny.common.util;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.context.ContextLoader;
 
 import com.johnny.common.access.vo.BaseVO;
+import com.mchange.v2.c3p0.PooledDataSource;
 
 public class CommonUtil {
 	/**
@@ -36,7 +40,18 @@ public class CommonUtil {
 	 */
 	public static Connection getConnectionFromSpring(String beanId)
 			throws Exception {
+		Log log = LogFactory.getLog(CommonUtil.class);
 		DataSource dbSource = (DataSource) getBean(beanId); // 配置文件里的beanid
+		if ( dbSource instanceof PooledDataSource) { 
+			PooledDataSource pds = (PooledDataSource) dbSource; 
+			try {
+				log.info("num_connections: " + pds.getNumConnectionsDefaultUser());
+				log.info("num_busy_connections: " + pds.getNumBusyConnectionsDefaultUser()); 
+				log.info("num_idle_connections: " + pds.getNumIdleConnectionsDefaultUser()); 
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} 
+		} 
 		Connection con = dbSource.getConnection();
 		return con;
 	}

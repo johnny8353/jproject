@@ -31,7 +31,7 @@ public class TaskStartupServlet extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 1L;
 	protected Log log = LogFactory.getLog(getClass());
-	private static List<TaskBO> schedulers;
+	private List<TaskBO> schedulers;
 	private TaskService taskService;
 
 	@Override
@@ -129,16 +129,16 @@ public class TaskStartupServlet extends HttpServlet {
 	 * @author JohnnyHuang
 	 * @date 2016-3-23
 	 */
-	public static TaskBO getSchdulerObject(Long rowId) {
+	public TaskBO getSchdulerObject(Long rowId) {
 		for (int i = 0; i < schedulers.size(); i++) {
 			TaskBO so = schedulers.get(i);
-			if (so.getBaseTask().getsTaskvo().getRowId() == rowId)
+			if (so.getBaseTask().getsTaskvo().getRowId().equals(rowId))
 				return so;
 		}
 		return null;
 	}
 
-	public static List<TaskBO> getSchedulers() {
+	public List<TaskBO> getSchedulers() {
 		return schedulers;
 	}
 

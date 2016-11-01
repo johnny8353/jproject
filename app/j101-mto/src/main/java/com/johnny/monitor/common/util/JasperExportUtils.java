@@ -76,7 +76,7 @@ public class JasperExportUtils {
 		 */
 		response.setContentType("application/vnd.ms-excel");
 		String fileName = request.getParameter("fileName");
-		if (fileName.equals("") || fileName == null) {
+		if (fileName == null || fileName.equals("")  ) {
 			fileName = new String("未命名.xls".getBytes(JASPER_EXPORT_ENCODE), JASPER_EXPORT_ENCODE);
 		}
 		response.setHeader("Content-disposition", "attachment; filename="
@@ -110,7 +110,7 @@ public class JasperExportUtils {
 			throws IOException, JRException {
 		response.setContentType("application/pdf");
 		String fileName = request.getParameter("fileName");
-		if (fileName.equals("") || fileName == null) {
+		if (fileName == null || fileName.equals("")  ) {
 			fileName = new String("未命名.pdf".getBytes(JASPER_EXPORT_ENCODE), JASPER_EXPORT_ENCODE);
 		}
 		response.setHeader("Content-disposition", "attachment; filename="
@@ -195,7 +195,7 @@ public class JasperExportUtils {
 			throws JRException, IOException {
 		response.setContentType("application/msword;charset=utf-8");
 		String fileName = request.getParameter("fileName");
-		if (fileName.equals("") || fileName == null) {
+		if (fileName == null || fileName.equals("")  ) {
 			fileName = new String("未命名.doc".getBytes(JASPER_EXPORT_ENCODE), JASPER_EXPORT_ENCODE);
 		}
 		response.setHeader("Content-disposition", "attachment; filename="
