@@ -1,6 +1,7 @@
 package com.johnny.monitor.common.run;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -48,7 +49,7 @@ public class SystemMonitorThreadTest {
 	}
 
 	@Test
-	public void testGenerateReport() throws IOException{
+	public void testGenerateReport() throws IOException, SQLException{
 		SystemMonitorTask systemMonitorThread = new SystemMonitorTask();
 		systemMonitorThread.generateReport("20161026123058604");
 	}
