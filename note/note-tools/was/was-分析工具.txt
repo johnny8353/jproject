@@ -1,0 +1,41 @@
+一、工具下载
+可从IBM官网下载JCA工具，专门用来分析JAVACORE文件的工具。使用JCA工具需要JAVA环境，再下载一个JDK。由于我们使用的JCA是3.9.6版，所以下载一个JDK1.6版的就行。
+
+二、启动JCA工具
+安装完JDK1.6后，配置JAVA环境。JAVA环境的配置简单说一下：
+打开 我的电脑--属性--高级--环境变量
+新建系统变量JAVA_HOME 和CLASSPATH 
+变量名：JAVA_HOME 
+变量值：C:\Program Files\Java\1.6.0_37
+变量名：CLASSPATH
+变量值：.;%JAVA_HOME%\lib\dt.jar;%JAVA_HOME%\lib\tools.jar;
+
+选择“系统变量”中变量名为“Path”的环境变量，双击该变量，把JDK安装路径中bin目录的绝对路径，添加到Path变量的值中，并使用半角的分号和已有的路径进行分隔。 
+变量名：Path 
+变量值：C:\Program Files\Java\1.6.0_37\bin;C:\Program Files\Java\1.6.0_37\jre\bin;
+
+启动JCA工具
+C:\jca396>java -Xmx2000M -jar jca396.jar
+Error occurred during initialization of VM
+Could not reserve enough space for object heap
+Could not create the Java virtual machine.
+如果出现这个错误，把内存分配小点就可以了。
+
+C:\jca396>java -Xmx500M -jar jca396.jar  javacore.20131101.txt
+175502558.jpg
+点开waiting状态比较多的事件，有如下显示
+175652800.jpg
+这是典型的BLOCK堆载，在IBM官网有相应的参考文章，解决这个问题一个比较简单的方法就是增大WAS的JVM大小。
+
+三、解决问题
+进入WAS控制台，找到JVM设置，进行调整。如图：
+服务器--应用程序服务器--app01--进程定义-Java 虚拟机
+
+注：当部署在websphere上的应用出现了问题，比如调用缓慢，线程挂起，节点假死的时候，光看应用的SystemOut.log是不够的，我们还需要手动生成javacore文件，
+查询服务器上各个线程的堆栈情况，它可以具体到一个方法的调用情况。Javacore是Java应用程序在某一时间的文本表示形式，也可理解为Java Dump（通常称为Thread Dump）的线程转储文件。
+该文件记录了整个JVM的运行情况，包含线程、垃圾回收、JVM运行参数、内存地址等信息。JVM的许多问题都可以用这个文件进行诊断，
+其中比较典型的包括线程阻塞、CPU使用率过高、JVM Crash、堆内存不足和类装载等问题。
+Javacore文件通常以*.txt方式显示，名称格式主要是以Javacore为头，加上日期号、产生的时间号、当时的线程编号。
+Javacore文件的生成
+ps -ef | grep java查看进程ID，在linux 系统中 使用 kill -3 pid ,它会在应用程序的概要文件的目录下生成一个javacore 文件，
+比如在 /usr/IBM/WebSphere/AppServer1/profiles/AppSrv01下

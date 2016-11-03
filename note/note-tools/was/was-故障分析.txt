@@ -1,0 +1,95 @@
+ 在生产环境中一旦有内存溢出情况发生，系统会自动生成javacore和heapdump文件，但是有时候我们为解决cpu使用率较高或其它问题时，需要手工生成javacore和heapdump文件，这时我们该如何手动触发生成javacore和heapdump文件呢？
+     获取javacore和heapdump文件的方法有两种：
+第一种：
+     系统发生内存溢出，在目录下会生产javacore和heapdump文件生成（最常见的一种）
+第二种：
+     手动触发生成javacore和heapdump文件，
+1.手工生成javacore文件
+  ps -ef |grep was --找到pid
+  kill -3 pid  --跟据pid生成javacore文件
+2.手工生成heapdump文件
+  cd /opt/IBM/WebSphere/AppServer/bin/
+  ./wsadmin.sh -lang jython -user wasadmin -password wasadmin
+  ojbServer = AdminControl.queryNames("WebSphere:type=JVM,process=SampleServer1,node=PrdNode01,*")
+  AdminControl.invoke(ojbServer, "generateHeapDump")
+  
+javacore.***.txt : 关于cpu的，javacore文件是java进程的快照，主要保存的是Java应用各线程在某一时刻的运行的位置，即JVM执行到哪一个类、哪一个方法、哪一行上。也即threaddump文件。
+
+heapdump.***.phd : 关于memory的，heapdump文件是指定时刻java堆栈的快照，是一个二进制镜像文件，它保存了某一时刻JVM堆中对象的使用情况。
+
+core.***.dmp : core文件是java宕掉生成的操作系统级别的进程二进制镜像文件。又叫核心转储，当程序运行过程中发生异常，程序异常退出时，由操作系统把程序当前的内存状况存储在一个core文件中。
+
+Snap.***.trc : snap文件是快速追踪的保留在跟踪缓冲区里的追踪点数据，用来分析本地内存的OOM异常。
+
+   管理过中间件weblogic和webspere的朋友都知道，两者中都有一个通病，都会发生内存溢出的情况发生，当然，内存溢出跟中间件本身没有关系，主要是应用程序设计不合理或参数设置不当引起，
+   javacore就是内存溢出生成的其中一个文件，但是javacore也可以通过手工kill -3 pid生成，用于诊断系统性能，提供优化分析数据。
+    javacore还有一个最大的用途是我们可以通过Javacore文件来进行线程转储，通过采集和分析Javacore，了解JVM的运行情况，可以使我们更清晰地了解系统的整体运行情况
+    ，帮助我们判断系统是否运行正常，或是在繁忙时存在哪些隐患，但是javacore具体是什么呢?
+    
+一:什么是javacore
+    javacore是Java应用程序在某一时间的文本表示形式，也可理解为Java Dump（通常称为Thread Dump）的线程转储文件。该文件记录了整个JVM的运行情况，
+    包含线程、垃圾回收、JVM运行参数、内存地址等信息。JVM的许多问题都可以用这个文件进行诊断，其中比较典型的包括线程阻塞、CPU使用率过高、JVM Crash、堆内存不足和类装载等问题。
+    Javacore文件通常以*.txt方式显示，名称格式主要是以Javacore为头，加上日期号、产生的时间号、当时的线程编号，如: Javacore.20131129.003424.299228.txt
+二：如何获取javacore  
+   1. 向操作系统发送一个中止的signal
+      AIX和Linux：kill －3 PID
+      Windows：CTRL＋Break，DrAdmin in WAS环境
+   2.在Java的执行代码中使用JavaDump（）方法
+      com.ibm.jvm.Dump.JavaDump（） 方法促使JVM dump
+      发布ProblemDiagnosticsLabToolkit应用包，通过可视化页面直接生成相关文件。
+   3.系统在异常时自动抛出
+      一个严重的本地调用出错（非Java的异常）
+      JVM堆的大小被使用完了
+      OutOfMemory 错误(最最常见的一种，也就是我们前天所说的内存溢出)
+三：javacore描述了什么内容 
+    在Javacore文件的帮助下，我们就可以更好地分析系统运行情况，在系统出现死锁，或者内部错误、中间件等问题时，我们都可以通过Javacore进一步深入分析。我们可以在Javacore文件里找到以下相关信息：
+    1.JVM的参数启动参数、Jdk版本
+    2.JVM堆大小
+    3.JVM产生原因、产生时间（可手动获取，可系统抛出）
+    4.全局垃圾回收次数、分配失败次数、内存溢出时，最后一次详细的垃圾回收记录
+    5.JVM堆内存地址信息
+    6.JVM中，所有线程执行情况（包含应用程序内部执行线程，容器线程，垃圾回收线程，定时线程，线程
+      池线程，页面请求转发线程等多种线程信息）
+    7.已装载入JVM中的类的信息   
+四：如何分析javacore?
+   通过Javacore提供的信息对JVM进行一个全面的分析，除了了解垃圾回收情况、JVM相关配置信息外，分析重点可放在线程执行情况上，分析哪些线程在等待，哪些在执行，以便快速缩小问题范围。
+   IBM Thread and Monitor Dump Analyzer for Java分析工具可以让我们清晰的分析Javacore文件，在IBM Thread and Monitor Dump Analyzer for Java工具中，
+   请求线程可分为以下几种状态：
+    1.死锁，Deadlock（重点关注） 
+    2.执行中，Runnable（重点关注）   
+    3.等待资源，Waiting on condition（重点关注） 
+    4.等待监控器检查资源，Waiting on monitor
+    5.暂停，Suspended
+    6.对象等待中，Object.wait()
+    7.阻塞，Blocked（重点关注）  
+    8.停止，Parked
+Deadlock：死锁线程：一般指多个线程调用间，进入相互资源占用，导致一直等待无法释放的情况。
+Runnable：一般指该线程正在执行状态中，该线程占用了资源，正在处理某个请求，有可能正在传递SQL到数据
+           库执行，有可能在对某个文件操作，有可能进行数据类型等转换。
+Waiting on condition：等待资源，如果堆栈信息明确是应用代码，则证明该线程正在等待资源，一般是大 量读取某资源，且该资源采用了资源锁的情况下，线程进入等待状态，等待资源的读取。又或者，
+           正在等待其他线程的执行等。
+Blocked：线程阻塞，是指当前线程执行过程中，所需要的资源长时间等待却一直未能获取到，被容器的线程管
+           理器标识为阻塞状态，可以理解为等待资源超时的线程。这种情况在was的日志中，一般可以看到
+           CPU饥渴，或者某线程已执行了XX秒的信息。
+在了解了以上线程状态的具体意思后，我们就可以结合这些信息更进一步分析线程问题
+在内存溢出时，分析Javacore文件中的线程内容，可以采用自下而上的分析方法。首先查看有多少线程被设置了Blocked状态，这些线程是在执行什么请求，并且到了堆栈最后一步在等待什么资源，
+将其分类记录下来；查找到这些Blocked线程等待的执行线程编号，在Javacore中，继续查找该线程，分析其堆栈与状态与监控器的记录的信息。
+一般这些线程会处于Waiting on condition状态，因为这些线程也是因为资源迟迟未获取到或者执行时间过长一直处于等待状体，进一步导致队列中其他需要访问这些资源的线程都被设置为Blocked状态。
+在找到线程后，我们就可以初步将问题缩小到哪些业务应用请求存在问题，是哪一个类与哪一行代码，其等待的资源是什么。结合这些信息详细分析业务代码，或者根据这些问题到IBM网站中，
+查找对应版本的中间件是否存在同样的问题，如有，则可以考虑打补丁升级。
+	
+	一个Javacore描述的是在一个时间片段中的JVM的运行情况，这些信息相对来说是有限的，为了更进一步分析与定位问题，我们可以采集连续多个时间片段的Javacore，
+	我一般情况下会每隔30秒或10秒生成一个javacore,这样更加清晰JVM在该时间段内的运行情况，或者出现阻塞问题的线程及其相关线程的的执行情况，从而准确定位问题。
+     学会了javacore文件分析，不仅可以帮助我们定位并处理日常问题，也为日后向调优方向打了良好基础。
+     
+     在整个性能优化过程中，学会如何分析Javacore是十分关键的一步。通过切面，对JVM中所运行的线程及堆栈进行全面分析，可以让我们顺利而有方向性地开展性能调优工作，并使优化工作更加简单快捷。
+
+ 
+
+然后采用jca分析工具，我采用的是jca401的版本，进入dos环境，执行：
+java -Xmx200m -jar jca401.jar
+
+会打开图形界面，调入javacore文件，进行分析发现有线程处于blocked状态，点击toolbar中的“Thread Detail”图标，能够看到具体的线程状态及明细，
+定位blocked的线程，查看明细，本例中发现该线程blocked by一个QuartzScheduler线程，该线程的调用堆栈如下：
+
+     
