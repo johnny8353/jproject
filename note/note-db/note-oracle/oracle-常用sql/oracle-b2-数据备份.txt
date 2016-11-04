@@ -1,22 +1,22 @@
-1. ¸´ÖÆ±í½á¹¹¼°ÆäÊı¾İ£º 
+1. å¤åˆ¶è¡¨ç»“æ„åŠå…¶æ•°æ®ï¼š 
 
 create table table_name_new as select * from table_name_old 
 
-2. Ö»¸´ÖÆ±í½á¹¹£º 
+2. åªå¤åˆ¶è¡¨ç»“æ„ï¼š 
 
 create table table_name_new as select * from table_name_old where 1=2; 
 
-»òÕß£º 
+æˆ–è€…ï¼š 
 
 create table table_name_new like table_name_old 
 
-3. Ö»¸´ÖÆ±íÊı¾İ£º
+3. åªå¤åˆ¶è¡¨æ•°æ®ï¼š
 
-Èç¹ûÁ½¸ö±í½á¹¹Ò»Ñù£º
+å¦‚æœä¸¤ä¸ªè¡¨ç»“æ„ä¸€æ ·ï¼š
 
 insert into table_name_new select * from table_name_old 
 
-Èç¹ûÁ½¸ö±í½á¹¹²»Ò»Ñù£º
+å¦‚æœä¸¤ä¸ªè¡¨ç»“æ„ä¸ä¸€æ ·ï¼š
 
 insert into table_name_new(column1,column2...) select column1,column2... from table_name_old
 
@@ -28,20 +28,20 @@ SDESC LONG
 )
 SELECT * FROM STU;
 INSERT INTO STU VALUES(s_sequence_pkg.get_next_rowid(),'HFQ','DDDDDDDDD');
-CREATE TABLE STU_BAK AS SELECT * FROM STU;--ora-00997·Ç·¨Ê¹ÓÃlongÊı¾İÀàĞÍ
+CREATE TABLE STU_BAK AS SELECT * FROM STU;--ora-00997éæ³•ä½¿ç”¨longæ•°æ®ç±»å‹
 
-ÓÃ±¸·İ±íµÄ·½Ê½ÎŞ·¨±¸·İlongÀàĞÍ
-EXP ÓÃ»§Ãû/ÃÜÂë@Á¬½Ó×Ö·û´® GRANTS=Y TABLES=(stu) file=C:\ÎÄ¼şÃû.DMP
-µ¼³ö
+ç”¨å¤‡ä»½è¡¨çš„æ–¹å¼æ— æ³•å¤‡ä»½longç±»å‹
+EXP ç”¨æˆ·å/å¯†ç @è¿æ¥å­—ç¬¦ä¸² GRANTS=Y TABLES=(stu) file=C:\æ–‡ä»¶å.DMP
+å¯¼å‡º
 D:\oracle\product\10.2.0\client_1\BIN>>exp siebel/siebel@SIEBELDEV tables=(stu) file='c:\2.dmp'
-oracleÊı¾İ¿â¿Í»§¶ËÂ·¾¶£ºD:\oracle\product\10.2.0\client_1\BIN
-oracleÊı¾İ¿âµÄÓÃ»§Ãû£ºexp username/username@username
-oracleÊı¾İ¿â±£´æµØÖ·£ºfile='D:\1.dmp'
+oracleæ•°æ®åº“å®¢æˆ·ç«¯è·¯å¾„ï¼šD:\oracle\product\10.2.0\client_1\BIN
+oracleæ•°æ®åº“çš„ç”¨æˆ·åï¼šexp username/username@username
+oracleæ•°æ®åº“ä¿å­˜åœ°å€ï¼šfile='D:\1.dmp'
 
-µ¼Èë
-IMP ÓÃ»§Ãû/ÃÜÂë@Á¬½Ó×Ö·û´® IGNORE=Y TABLES=(stu) FULL=N file=C:\ÎÄ¼şÃû.DMP 
+å¯¼å…¥
+IMP ç”¨æˆ·å/å¯†ç @è¿æ¥å­—ç¬¦ä¸² IGNORE=Y TABLES=(stu) FULL=N file=C:\æ–‡ä»¶å.DMP 
 drop table stu;
 D:\oracle\product\10.2.0\client_1\BIN>>imp siebel/siebel@SIEBELDEV tables=(stu) full=null file='c:\2.dmp'
 SELECT * FROM STU;
 
-Ò²¿ÉÒÔÖ±½ÓÓÃqlsqlµÄexport tablesºÍimport tables
+ä¹Ÿå¯ä»¥ç›´æ¥ç”¨qlsqlçš„export tableså’Œimport tables

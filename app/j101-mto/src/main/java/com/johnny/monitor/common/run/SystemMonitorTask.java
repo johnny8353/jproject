@@ -271,10 +271,11 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 		log.info("---emailNotify---2");
 		//获取所有报错实例
 		List<SystemGroupVO> groups = systemGroupService.findGroupList();
+		String toMail = "";
+		String title = "";
+		StringBuffer errorEnv = new StringBuffer();
 		for (SystemGroupVO systemGroupVO : groups) {
-			String toMail = "";
-			String title = "";
-			
+			String errString = "";
 			Map<String,Object> params = new HashMap<String, Object>();
 			Map<String,Object> resultMap = new HashMap<String, Object>();
 			params.put("batchNum", batchNum);
@@ -287,42 +288,64 @@ public class SystemMonitorTask  extends BaseTaskImpl implements BaseTask{
 			int totalErrorCount = devErrorCount+testErrorCount+recErrorCount+prodErrorCount;
 			//每日监控
 			if(frequency.equals(SysDataDictionary.MONITOR_SYS_FREQUENCE_DAY)){
-				toMail = systemGroupVO.getDevMailto()+systemGroupVO.getTestMailto()+systemGroupVO.getRecMailto()+systemGroupVO.getProdMailto();
-				title = "【"+systemGroupVO.getSysCode() + " 服务器每日监控结果" + "】 " + DateUtil.getNowDateTime();
-				if(totalErrorCount > 0) {
-					title +=  " 服务器告警，请尽快查看原因！";
-				}else{
-					title += " 本次监控正常！！";
+				toMail += systemGroupVO.getDevMailto()+systemGroupVO.getTestMailto()+systemGroupVO.getRecMailto()+systemGroupVO.getProdMailto();
+				//开发
+				if (devErrorCount > 0) {
+					errString = systemGroupVO.getSysCode()+SysDataDictionary.ENV_DEV_NAME+" ";
 				}
+				// 测试
+				if (testErrorCount > 0) {
+					errString = systemGroupVO.getSysCode()+SysDataDictionary.ENV_TEST_NAME+" ";
+				}
+				// 仿真
+				if (recErrorCount > 0) {
+					errString = systemGroupVO.getSysCode()+SysDataDictionary.ENV_REC_NAME+" ";
+				}
+				// 生产
+				if (prodErrorCount > 0) {
+					errString = systemGroupVO.getSysCode()+SysDataDictionary.ENV_PROD_NAME+" ";
+				}
+				errorEnv.append(errString);
 			}else{
 				if(totalErrorCount == 0) continue;
 				//开发
 				if (devErrorCount > 0) {
-					toMail = systemGroupVO.getDevMailto();
+					toMail += systemGroupVO.getDevMailto();
+					errString = systemGroupVO.getSysCode()+SysDataDictionary.ENV_DEV_NAME+" ";
 				}
 				// 测试
 				if (testErrorCount > 0) {
-					toMail = systemGroupVO.getDevMailto()+systemGroupVO.getTestMailto();
+					toMail += systemGroupVO.getDevMailto()+systemGroupVO.getTestMailto();
+					errString = systemGroupVO.getSysCode()+SysDataDictionary.ENV_TEST_NAME+" ";
 				}
 				// 仿真
 				if (recErrorCount > 0) {
-					toMail = systemGroupVO.getDevMailto()+systemGroupVO.getTestMailto()+systemGroupVO.getRecMailto();
+					toMail += systemGroupVO.getDevMailto()+systemGroupVO.getTestMailto()+systemGroupVO.getRecMailto();
+					errString = systemGroupVO.getSysCode()+SysDataDictionary.ENV_REC_NAME+" ";
 				}
 				// 生产
 				if (prodErrorCount > 0) {
-					toMail = systemGroupVO.getDevMailto()+systemGroupVO.getTestMailto()+systemGroupVO.getRecMailto()+systemGroupVO.getProdMailto();
+					toMail += systemGroupVO.getDevMailto()+systemGroupVO.getTestMailto()+systemGroupVO.getRecMailto()+systemGroupVO.getProdMailto();
+					errString = systemGroupVO.getSysCode()+SysDataDictionary.ENV_PROD_NAME+" ";
 				}
-				title = "【"+systemGroupVO.getSysCode() + " 服务器监控结果" + "】 " + DateUtil.getNowDateTime();
-				title += " 服务器告警，请尽快查看原因！";
+				errorEnv.append(errString);
 			}
-			String result = "";
-			log.info("---emailNotify---3"+systemGroupVO.getSysCode());
-			if(!toMail.equals("")){
-				fNameStr = ReadFromFile.readFileByLines(destHtmlFile);
-				result = ZMailUtil.invokeDPGSendTestMail(
-						toMail.toString(), title, fNameStr, clickLook, serverUrl + htmlSufix);
+		}
+		if(!toMail.equals("")){
+			fNameStr = ReadFromFile.readFileByLines(destHtmlFile);
+			if(frequency.equals(SysDataDictionary.MONITOR_SYS_FREQUENCE_DAY)){
+				title = "【每日服务器监控结果】 " + DateUtil.getNowDateTime();
+			}else{
+				title = "【服务器监控结果】 " + DateUtil.getNowDateTime();
 			}
-			log.info(systemGroupVO.getSysCode()+"sendmail finished-----result:" + result + toMail);
+			if(!StringUtil.retBlankIfNull(errorEnv.toString()).equals("")){
+				title = title+ "【"+errorEnv.toString()+"】 服务器告警，请尽快查看原因！";
+			}else{
+				title = title+ " 本次服务器监控正常！";
+			}
+			String result = ZMailUtil.invokeDPGSendTestMail(
+					toMail.toString(), title, fNameStr, clickLook, serverUrl + htmlSufix);
+			log.info("邮件发送结果"+result+toMail+title);
 		}
 	}
 

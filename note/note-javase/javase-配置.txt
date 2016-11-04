@@ -1,24 +1,24 @@
-进行java开发，首先要安装jdk，安装了jdk后还要进行环境变量配置：
-1、下载jdk（http://java.sun.com/javase/downloads/index.jsp），我下载的版本是：jdk-6u12-windows-i586-p.exe
+﻿进行java开发，首先要安装jdk，安装了jdk后还要进行环境变量配置：
+安装jdk，这个没有的百度就能搜到，不再赘述
+首先，右键计算机---属性---高级系统设置---环境变量
+2
+建议是都设置系统变量，一般Path这个变量是存在的。
+第一步，添加JAVA_HOME
+新建系统变量JAVA_HOME 变量名：JAVA_HOME 变量值：C:\Program Files\Java\jdk1.7.0(此处是你的jdk安装目录，建议默认的C盘即可)
+3
+第二步，添加CLASSPATH 
+新建系统变量CLASSPATH 
+变量名：CLASSPATH 
+变量值：.;%JAVA_HOME%\lib\dt.jar;%JAVA_HOME%\lib\tools.jar;
+4
+第三步，添加Path变量内容
+这个变量一般系统中已经存在，所以编辑它，在最后加上如下变量值：
+变量值：;%JAVA_HOME%\bin;%JAVA_HOME%\jre\bin
+5
+添加完成之后，确认保存
+验证：打开cmd命令窗口，
+分别输入java、javac、java -version 三个命令验证，如果都不会出错，则证明配置完成。
 
-2、安装jdk-6u12-windows-i586-p.exe，我安装在D:\dev\Java\jdk1.6.0_12\目录下
-
-3、配置环境变量：右击“我的电脑”-->"高级"-->"环境变量"
-
-1）在系统变量里新建JAVA_HOME变量，变量值为：D:\dev\Java\jdk1.6.0_12\（根据自己的安装路径填写）
-
-2）新建classpath变量，在path变量（已存在不用新建）添加变量值，变量值为：
-.;%JAVA_HOME%\lib;%JAVA_HOME%\lib\tools.jar
-
-3）在path变量（已存在不用新建）添加变量值：
-%JAVA_HOME%\bin;%JAVA_HOME%\jre\bin（注意变量值之间用“;”隔开）
-
-eg、.;%JAVA_HOME%\lib;%JAVA_HOME%\lib\tools.jar;%JAVA_HOME%\bin;%JAVA_HOME%\jre\bin;
-
-4、测试是否配置成功
-在dos中，输入命令java，回车后应该会出现java的各种命令；
-javac  出现相关编译的命令；
-java -version 出现jdk版本号
 
 补充环境变量的解析:
 JAVA_HOME:jdk的安装路径

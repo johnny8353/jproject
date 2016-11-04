@@ -1,5 +1,6 @@
 package com.johnny.task.business.service;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -60,9 +61,16 @@ public class TaskServiceImpl extends HibernateBaseServiceImpl<TaskVO> implements
 		params.put("par_row_id", taskPid);
 		List<Object[]> objs = taskDao.findSqlList(sql, params );
 		try{
-			count = (Integer) objs.get(0)[0];
+			Object obj = objs.get(0);
+			if(obj instanceof BigInteger){
+				count = ((BigInteger)obj).intValue();
+			}
+			else{
+				count = (Integer) obj;
+			}
 		}catch(Exception e){
-			log.warn(e.getMessage());
+			log.error(e.getMessage());
+			e.printStackTrace();
 		}
 		return count;
 	}
