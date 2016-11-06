@@ -13,6 +13,7 @@
     <name>nosql</name>
     <modules>
         <module>redis-demo</module>
+        <module>ehcache-demo</module>
     </modules>
 	
 	<dependencies>

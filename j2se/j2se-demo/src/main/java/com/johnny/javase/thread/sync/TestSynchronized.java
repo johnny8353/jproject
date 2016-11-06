@@ -25,7 +25,6 @@ public class TestSynchronized {
 				}
 			}
 		};
-
 		Thread t1 = new Thread(run1, "线程1");
 		Thread t2 = new Thread(run1, "线程2");
 

@@ -1,0 +1,16 @@
+>>  执行控制台 报错
+	SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+	SLF4J: Defaulting to no-operation (NOP) logger implementation
+	SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+	da one!
+	错误信息是因为没有配置日志相关的SLF4J所致。
+	<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12 -->
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-log4j12</artifactId>
+		<version>1.7.7</version>
+	</dependency>
+	
+>> ehcache.xml 载入报错
+	org.ehcache.xml.exceptions.XmlConfigurationException: Error parsing XML configuration at file:/E:/GIT/jproject/nosql/ehcache-demo/target/classes/ehcache.xml
+	Caused by: org.xml.sax.SAXParseException; systemId: file:/E:/GIT/jproject/nosql/ehcache-demo/target/classes/ehcache.xml; lineNumber: 1; columnNumber: 11; cvc-elt.1: 找不到元素 'ehcache' 的声明。

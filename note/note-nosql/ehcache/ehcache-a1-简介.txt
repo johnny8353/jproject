@@ -1,0 +1,122 @@
+
+在开发中大型Java软件项目时，很多Java架构师都会遇到数据库读写瓶颈，如果你在系统架构时并没有将缓存策略考虑进去，或者并没有选择更优的缓存策略，那么到时候重构起来将会是一个噩梦。
+
+1、Ehcache – Java分布式缓存框架  Ehcache是一个Java实现的开源分布式缓存框架，EhCache 可以有效地减轻数据库的负载，可以让数据保存在不同服务器的内存中，
+在需要数据的时候可以快速存取。同时EhCache 扩展非常简单，官方提供的Cache配置方式有好几种。你可以通过声明配置、在xml中配置、在程序里配置或者调用构造方法时传入不同的参数。
+
+    <dependency>
+      <groupId>org.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>3.1.3</version>
+    </dependency>
+    
+1. EHCache 的特点，是一个纯Java ,过程中（也可以理解成插入式）缓存实现，单独安装Ehcache ，需把ehcache-X.X.jar 和相关类库方到classpath中。
+如项目已安装了Hibernate ,则不需要做什么。。直接可以使用Ehcache 
+
+	Cache 存储方式 ：内存或磁盘 
+
+2. 单独使用 EHCache 
+	
+	使用CacheManager 创建并管理Cache 
+	1.创建CacheManager有4种方式： 
+	
+	A:使用默认配置文件创建 
+		CacheManager manager = CacheManager.create(); 
+	
+	B:使用指定配置文件创建 
+		CacheManager manager = CacheManager.create("src/config/ehcache.xml"); 
+	
+	C:从classpath中找寻配置文件并创建
+		URL url = getClass().getResource("/anothername.xml");
+		CacheManager manager = CacheManager.create(url);
+	
+	D:通过输入流创建
+		InputStream fis = new FileInputStream(new File("src/config/ehcache.xml").getAbsolutePath());
+		try {
+			manager = CacheManager.create(fis);
+		} finally {
+			fis.close();
+		}
+
+卸载CacheManager ,关闭Cache     
+	manager.shutdown(); 
+	
+使用Caches - ehcache2.6.11
+	取得配置文件中预先 定义的sampleCache1设置,通过CacheManager生成一个Cache 
+	
+	Cache cache = manager.getCache("sampleCache1");  
+	
+	设置一个名为test 的新cache,test属性为默认 
+		
+		CacheManager manager = CacheManager.create();
+		manager.addCache("test");
+	
+	设置一个名为test 的新cache,并定义其属性 
+		CacheManager manager = CacheManager.create();
+		Cache cache = new Cache("test", 1, true, false, 5, 2);
+		manager.addCache(cache);
+	
+	往cache中加入元素 
+		
+		Element element = new Element("key1", "value1");
+		cache.put(new Element(element);
+	
+	从cache中取得元素
+	
+		Element element = cache.get("key1"); 
+所以大概步骤为： 
+	第一步：生成CacheManager对象 
+	第二步：生成Cache对象 
+	第三步：向Cache对象里添加由key,value组成的键值对的Element元素 
+	
+	具体一个Test.java程序： 
+
+
+package test;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+/**
+ * 第一步：生成CacheManager对象
+ * 第二步：生成Cache对象
+ * 第三步：向Cache对象里添加由key,value组成的键值对的Element元素
+ * @author mahaibo
+ *
+ */
+public class Test {
+	
+	public static void main(String[] args) {
+		  //指定ehcache.xml的位置
+		  String fileName="E:\\1008\\workspace\\ehcachetest\\ehcache.xml";
+		  CacheManager manager = new CacheManager(fileName);
+		  //取出所有的cacheName
+		  String names[] = manager.getCacheNames();
+		  for(int i=0;i<names.length;i++){
+			  System.out.println(names[i]);
+		  }
+		  //根据cacheName生成一个Cache对象
+		  //第一种方式：
+		  Cache cache=manager.getCache(names[0]);
+		  
+		  //第二种方式，ehcache里必须有defaultCache存在,"test"可以换成任何值
+//		  Cache cache = new Cache("test", 1, true, false, 5, 2);   
+//		  manager.addCache(cache); 
+		  
+		  //向Cache对象里添加Element元素，Element元素有key，value键值对组成
+		  cache.put(new Element("key1","values1"));
+		  Element element = cache.get("key1");
+		  
+		  System.out.println(element.getValue());
+		  Object obj = element.getObjectValue();
+		  System.out.println((String)obj);
+		  manager.shutdown();
+		  
+
+	 }
+
+
+}
+
+
+	
