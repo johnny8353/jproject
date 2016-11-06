@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
 
-	<diskStore path="C:/temp" />
+	<diskStore path="C:/temp-aop" />
 
 	<defaultCache maxElementsInMemory="10000"
 		maxElementsOnDisk="10000000" eternal="false" timeToIdleSeconds="120"
@@ -36,7 +36,12 @@
 		maxEntriesLocalDisk="1000" eternal="false" overflowToDisk="true"
 		diskSpoolBufferSizeMB="20" timeToIdleSeconds="300" timeToLiveSeconds="600"
 		memoryStoreEvictionPolicy="LFU" transactionalMode="off" />
-
-	<cache name="levelOneCache" maxElementsInMemory="1000" eternal="false"
+	<!-- 设置 diskPersistent="true" 实现持久化到 磁盘，当执行cacheManager.shutdown();、 servlet容器正常关闭时 会  持久化到磁盘-->
+	<cache name="levelOneCache2" maxElementsInMemory="1000" eternal="false"
 		timeToIdleSeconds="300" timeToLiveSeconds="1000" overflowToDisk="true" />
+
+	<cache name="levelOneCache" maxElementsInMemory="36"
+		maxElementsOnDisk="10000" eternal="false" diskPersistent="true"
+		overflowToDisk="true" timeToIdleSeconds="300"
+		timeToLiveSeconds="600" memoryStoreEvictionPolicy="LRU" />
 </config>

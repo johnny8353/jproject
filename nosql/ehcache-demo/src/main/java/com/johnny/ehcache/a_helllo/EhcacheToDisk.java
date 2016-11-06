@@ -12,7 +12,15 @@ import net.sf.ehcache.Element;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/**
+ * 下面说下最近使用到的磁盘持久化与加载功能，由于之前使用过程中一般为直接缓存，而最近想到使用diskPersistent来配置本地磁盘持久化，发现了一些常见问题，网上找了很多文章终于得到最终效果。
+实现此功能其实非常简单，只用简单的将diskPersistent配置为true，以tomcat为例，在重启时候需要告知EhCache，你要重启了，
+让EhCache去序列化内容到磁盘，此过程可以自己写监听实现重启时调用CacheManager的shutdown，也可以直接使用EhCache提供的监听类
+net.sf.ehcache.constructs.web.ShutdownListener，但是有一点需要注意，
+	就是在使用此项功能时，必须保持重启或者关闭Server采用的是正常手段关闭，直接杀进程之类的关闭时完全不生效的。
+ * @author Administrator
+ *
+ */
 public class EhcacheToDisk {
 	private static final Logger logger = (Logger) LoggerFactory
 			.getLogger(EhcacheToDisk.class);
@@ -72,7 +80,7 @@ public class EhcacheToDisk {
 //		}
 //		logger.warn("本次get花费的时间：" + (System.currentTimeMillis() - begin));
 //		
-		cacheManager.shutdown();
+//		cacheManager.shutdown();
 	}
 	
 	@Test
@@ -91,6 +99,7 @@ public class EhcacheToDisk {
 		logger.warn("本次getCache花费的时间：" + (System.currentTimeMillis() - begin));
 
 		Element result = cache.get("UserCache");
+		if(result==null) return ;
 		logger.warn("本次get花费的时间：" + (System.currentTimeMillis() - begin));
 		logger.warn("输出：--"  + result.getObjectKey());
 		Set<User> users = (Set<User>) result.getObjectValue();

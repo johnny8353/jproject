@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-4.0.xsd">
+
+	<bean id="cacheManager"
+		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation">
+			<value>classpath:ehcache-aop.xml</value>
+		</property>
+	</bean>
+	<bean id="levelOneCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		<property name="cacheManager">
+			<ref bean="cacheManager" />
+		</property>
+		<property name="cacheName">
+			<value>levelOneCache</value>
+		</property>
+	</bean>
+
+
+	<bean id="testService" class="com.johnny.ehcache.spring.aop.TestServiceImpl" />
+
+	<bean id="serviceMethodInterceptor" class="com.johnny.ehcache.spring.aop.CacheInterceptor">
+		<property name="cache">
+			<ref bean="levelOneCache" />
+		</property>
+	</bean>
+
+	<bean id="serviceAutoProxyCreator"
+		class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<property name="interceptorNames">
+			<list>
+				<value>serviceMethodInterceptor</value>
+			</list>
+		</property>
+		<property name="beanNames">
+			<value>*Service</value>
+		</property>
+	</bean>
+
+
+</beans>
