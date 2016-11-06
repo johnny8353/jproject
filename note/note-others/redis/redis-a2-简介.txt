@@ -1,8 +1,0 @@
-1 互联网时代背景下	大机遇，为什么用nosql
-	1单机MySQL的美好年代
-	2 Memcached(缓存)+MySQL+垂直拆分
-	3 Mysql主从读写分离
-	4 分表分库+水平拆分+mysql集群 
-	5 MySQL的扩展性瓶颈
-	6 今天是什么样子？？
-	7 为什么用NoSQL

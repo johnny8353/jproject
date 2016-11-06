@@ -1,0 +1,148 @@
+	daemonize		yes
+	pidfile	/usr/local/redis/var/redis.pid
+	requirepass johnny
+	port	6379
+	timeout	300
+	loglevel	debug
+	logfile	/usr/local/redis/var/redis.log
+	databases	16
+	save	9001
+	save	30010
+	save	6010000
+	rdbcompression	yes
+	dbfilename	dump.rdb
+	dir	/usr/local/redis/var/
+	appendonly	no
+	appendfsync	always
+	glueoutputbuf	yes
+	shareobjects	no
+	shareobjectspoolsize	1024
+	
+如何修改？下面是redis.conf的主要配置参数的意义：
+daemonize：是否以后台daemon方式运行
+pidfile：pid文件位置
+port：监听的端口号
+timeout：请求超时时间
+loglevel：log信息级别
+logfile：log文件位置
+databases：开启数据库的数量
+save * *：保存快照的频率，第一个*表示多长时间，第二个*表示执行多少次写操作。在一定时间内执行一定数量的写操作时，自动保存快照。可设置多个条件。
+rdbcompression：是否使用压缩
+dbfilename：数据快照文件名（只是文件名，不包括目录）
+dir：数据快照的保存目录（这个是目录）
+appendonly：是否开启appendonlylog，开启的话每次写操作会记一条log，这会提高数据抗风险能力，但影响效率。
+appendfsync：appendonlylog如何同步到磁盘（三个选项，分别是每次写都强制调用fsync、每秒启用一次fsync、不调用fsync等待系统自己同步）
+
+
+存储配置
+	redis使用了两种文件格式：全量数据和增量请求。
+	全量数据格式是把内存中的数据写入磁盘，便于下次读取文件进行加载；
+	增量请求文件则是把内存中的数据序列化为操作请求，用于读取文件进行replay得到数据，序列化的操作包括SET、RPUSH、SADD、ZADD。
+	redis的存储分为内存存储、磁盘存储和log文件三部分，配置文件中有三个参数对其进行配置。
+	save seconds updates，save配置，指出在多长时间内，有多少次更新操作，就将数据同步到数据文件。这个可以多个条件配合，比如默认配置文件中的设置，就设置了三个条件。
+	appendonly yes/no ，appendonly配置，指出是否在每次更新操作后进行日志记录，如果不开启，可能会在断电时导致一段时间内的数据丢失。
+		因为redis本身同步数据文件是按上面的save条件来同步的，所以有的数据会在一段时间内只存在于内存中。
+	appendfsync no/always/everysec ，appendfsync配置，no表示等操作系统进行数据缓存同步到磁盘，always表示每次更新操作后手动调用fsync()将数据写到磁盘，
+		everysec表示每秒同步一次。
+	
+启动redis
+	启动，并查看相应的端口是否已经启动：
+	$ /usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf
+	并查看相应的端口是否已经启动
+	# ps -ef | grep redis
+	$ netstat -tlnp
+	tcp        0      0 0.0.0.0:6379                0.0.0.0:*                   LISTEN      6432/redis-server
+	此时启动所有的配置都是默认的端口是6379，可以看到redis是前台运行。
+
+配置让redis在后台运行
+	这里要修改一下redis的配置文件了，主要是redis.conf这个文件。
+	打开文件redis.conf,修改 ”daemonize no“ 为 “daemonize yes”，然后重新启动下redis：
+	/usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf
+	就可以看出 redis为后台运行了。
+
+redis配置密码
+	1.通过配置文件进行配置
+		yum方式安装的redis配置文件通常在/etc/redis.conf中，打开配置文件找到
+		
+		#requirepass foobared  
+		去掉行前的注释，并修改密码为所需的密码,保存文件
+		
+		requirepass myRedis  
+		重启redis
+		
+		sudo service redis restart  
+		#或者  
+		sudo service redis stop  
+		sudo redis-server /etc/redis.conf  
+		这个时候尝试登录redis，发现可以登上，但是执行具体命令是提示操作不允许
+		
+		redis-cli -h 127.0.0.1 -p 6379  
+		redis 127.0.0.1:6379>  
+		redis 127.0.0.1:6379> keys *  
+		(error) ERR operation not permitted  
+		redis 127.0.0.1:6379> select 1  
+		(error) ERR operation not permitted  
+		redis 127.0.0.1:6379[1]>   
+		尝试用密码登录并执行具体的命令看到可以成功执行
+		
+		redis-cli -h 127.0.0.1 -p 6379 -a myRedis  
+		redis 127.0.0.1:6379> keys *  
+		1) "myset"  
+		2) "mysortset"  
+		redis 127.0.0.1:6379> select 1  
+		OK  
+		redis 127.0.0.1:6379[1]> config get requirepass  
+		1) "requirepass"  
+		2) "myRedis"  
+		
+		
+	2.通过命令行进行配置
+		redis 127.0.0.1:6379[1]> config set requirepass my_redis  
+		OK  
+		redis 127.0.0.1:6379[1]> config get requirepass  
+		1) "requirepass"  
+		2) "my_redis"  
+		无需重启redis
+		使用第一步中配置文件中配置的老密码登录redis，会发现原来的密码已不可用，操作被拒绝
+		
+		redis-cli -h 127.0.0.1 -p 6379 -a myRedis  
+		redis 127.0.0.1:6379> config get requirepass  
+		(error) ERR operation not permitted  
+		使用修改后的密码登录redis，可以执行相应操作
+		
+		redis-cli -h 127.0.0.1 -p 6379 -a my_redis  
+		redis 127.0.0.1:6379> config get requirepass  
+		1) "requirepass"  
+		2) "my_redis  
+		尝试重启一下redis，用新配置的密码登录redis执行操作，发现新的密码失效，redis重新使用了配置文件中的密码
+		
+		sudo service redis restart  
+		Stopping redis-server:                                     [  OK  ]  
+		Starting redis-server:                                     [  OK  ]  
+		redis-cli -h 127.0.0.1 -p 6379 -a my_redis  
+		redis 127.0.0.1:6379> config get requirepass  
+		(error) ERR operation not permitted  
+		redis-cli -h 127.0.0.1 -p 6379 -a myRedis  
+		redis 127.0.0.1:6379> config get requirepass  
+		1) "requirepass"  
+		2) "myRedis"  
+		
+		除了在登录时通过 -a 参数制定密码外，还可以登录时不指定密码，而在执行操作前进行认证。
+		
+		redis-cli -h 127.0.0.1 -p 6379  
+		redis 127.0.0.1:6379> config get requirepass  
+		(error) ERR operation not permitted  
+		redis 127.0.0.1:6379> auth myRedis  
+		OK  
+		redis 127.0.0.1:6379> config get requirepass  
+		1) "requirepass"  
+		2) "myRedis"  
+			
+	3.master配置了密码，slave如何配置
+		若master配置了密码则slave也要配置相应的密码参数否则无法进行正常复制的。
+		slave中配置文件内找到如下行，移除注释，修改密码即可
+		
+		#masterauth  mstpassword  
+
+
+			

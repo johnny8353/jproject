@@ -1,0 +1,22 @@
+>>错误
+	redis.clients.jedis.exceptions.JedisDataException: WRONGTYPE Operation against a key holding the wrong kind of value
+	今天改动代码，一运行就跑错了，错误原因：
+	    因为redis中已经存在了相同的key， 而且key对应的值类型并不是Set，而是SortSet(改动前)；再调用smembers时，抛出此错误。
+	
+	解决方法：
+	    将原来的SortSet类型的key给Del掉，再从新执行代码，没有问题。
+	
+	看来以后改动缓存类型时，要长个心眼，先把之前的同名不同类型的Key给Del掉。
+
+>>jedis中的JedisPoolConfig没有setMaxActive和setMaxWait属性
+
+	首次使用redis，因为以后需要用到阿里云的redis，所以也看了阿里云的demo。 开始是自己部署在局域网的。
+	我的环境是：redis3.0，jedis2.8.1
+	1.发现少了setMaxActive 这个方法，所以就各种百度，找到了问题。 原来在jedis2.4 之后的版本，将其替换为setMaxTotal 这样的向后兼容，不友好，可是还是得用啊
+	pool2中修改如下：
+	maxActive  ==>  maxTotal
+	maxWait ==> maxWaitMillis
+	
+	2.将其修改为setMaxTotal ，居然提示没有这个方法，还是不行。 这下就操蛋了，网上各种例子都说有，我用的是commons-pool1.6jar，里面没有jedis 所需要的class，所以提示异常。所以下载了一个commons-pool2-2.4.1 加进去就好了
+	
+	

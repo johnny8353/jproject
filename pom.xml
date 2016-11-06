@@ -27,6 +27,7 @@
 		<module>bpm</module>
 		<module>report</module>
 		<module>app</module>
+		<module>nosql</module>
 	</modules>
 
 	<properties>
@@ -446,6 +447,17 @@
 				<version>${httpclient.version}</version>
 			</dependency>
 			<!-- client end -->
+
+			<!-- nosql begin -->
+			<!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
+			<dependency>
+				<groupId>redis.clients</groupId>
+				<artifactId>jedis</artifactId>
+				<version>2.9.0</version>
+			</dependency>
+
+
+			<!-- nosql end -->
 
 
 		</dependencies>

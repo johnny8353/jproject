@@ -1,0 +1,105 @@
+最近项目组有用到这三个缓存，去各自的官方看了下,觉得还真的各有千秋！今天特意归纳下各个缓存的优缺点，仅供参考！
+
+
+ehcache直接在jvm虚拟机中缓存，速度快，效率高；但是缓存共享麻烦，集群分布式应用不方便。
+redis是通过socket访问到缓存服务，效率比ecache低，比数据库要快很多，处理集群和分布式缓存方便，有成熟的方案。
+
+如果是单个应用或者对缓存访问要求很高的应用，用ehcache。
+如果是大型系统，存在缓存共享、分布式部署、缓存内容很大的，建议用redis。
+
+补充下：ehcache也有缓存共享方案，不过是通过RMI或者Jgroup多播方式进行广播缓存通知更新，缓存共享复杂，维护不方便；简单的共享可以，但是涉及到缓存恢复，大数据缓存，则不合适。
+
+
+
+
+Ehcache
+	在Java项目广泛的使用。它是一个开源的、设计于提高在数据从RDBMS中取出来的高花费、高延迟采取的一种缓存方案。正因为Ehcache具有健壮性（基于java开发）、
+	被认证（具有apache 2.0  license）、充满特色（稍后会详细介绍），所以被用于大型复杂分布式web application的各个节点中。
+	主要的特性有：
+	1. 快速
+	2. 简单
+	3. 多种缓存策略
+	4. 缓存数据有两级：内存和磁盘，因此无需担心容量问题
+	5. 缓存数据会在虚拟机重启的过程中写入磁盘
+	6. 可以通过RMI、可插入API等方式进行分布式缓存
+	7. 具有缓存和缓存管理器的侦听接口
+	8. 支持多缓存管理器实例，以及一个实例的多个缓存区域
+	9. 提供Hibernate的缓存实现
+	什么特色？
+	1.  够快
+	Ehcache的发行有一段时长了，经过几年的努力和不计其数的性能测试，Ehcache终被设计于large, high concurrency systems.
+	2. 够简单
+	开发者提供的接口非常简单明了，从Ehcache的搭建到运用运行仅仅需要的是你宝贵的几分钟。其实很多开发者都不知道自己用在用Ehcache，Ehcache被广泛的运用于其他的开源项目
+	比如：hibernate
+	3.够袖珍
+	关于这点的特性，官方给了一个很可爱的名字small foot print ，一般Ehcache的发布版本不会到2M，V 2.2.3  才 668KB。
+	4. 够轻量
+	核心程序仅仅依赖slf4j这一个包，没有之一！
+	5.好扩展
+	Ehcache提供了对大数据的内存和硬盘的存储，最近版本允许多实例、保存对象高灵活性、提供LRU、LFU、FIFO淘汰算法，基础属性支持热配置、支持的插件多
+	6.监听器
+	缓存管理器监听器 （CacheManagerListener）和 缓存监听器（CacheEvenListener）,做一些统计或数据一致性广播挺好用的
+	
+	如何使用？
+	够简单就是Ehcache的一大特色，自然用起来just so easy!
+	贴一段基本使用代码
+	CacheManager manager = CacheManager.newInstance("src/config/ehcache.xml");
+	Ehcache cache = new Cache("testCache", 5000, false, false, 5, 2);
+	cacheManager.addCache(cache);
+	代码中有个ehcache.xml文件，现在来介绍一下这个文件中的一些属性
+	1.       name:缓存名称。
+	2.       maxElementsInMemory：缓存最大个数。
+	3.       eternal:对象是否永久有效，一但设置了，timeout将不起作用。
+	4.       timeToIdleSeconds：设置对象在失效前的允许闲置时间（单位：秒）。仅当eternal=false对象不是永久有效时使用，可选属性，默认值是0，也就是可闲置时间无穷大。
+	5.       timeToLiveSeconds：设置对象在失效前允许存活时间,最大时间介于创建时间和失效时间之间。仅当eternal=false对象不是永久有效时使用，默认是0.，也就是对象存活时 间无穷大。
+	6.       overflowToDisk：当内存中对象数量达到maxElementsInMemory时，Ehcache将会对象写到磁盘中。
+	7.       diskSpoolBufferSizeMB：这个参数设置DiskStore（磁盘缓存）的缓存区大小。默认是30MB。每个Cache都应该有自己的一个缓冲区。
+	8.       maxElementsOnDisk：硬盘最大缓存个数。
+	9.       diskPersistent：是否缓存虚拟机重启期数据 Whether the disk store persists between restarts of the Virtual Machine. The default value is false.
+	10.       diskExpiryThreadIntervalSeconds：磁盘失效线程运行时间间隔，默认是120秒。
+	11.       memoryStoreEvictionPolicy：当达到maxElementsInMemory限制时，Ehcache将会根据指定的策略去清理内存。默认策略是LRU。你可以设置为 FIFO或是LFU。
+	12.       clearOnFlush：内存数量最大时是否清除。
+
+	
+memcache
+	memcache 是一种高性能、分布式对象缓存系统，最初设计于缓解动态网站数据库加载数据的延迟性，你可以把它想象成一个大的内存HashTable，就是一个key-value键值缓存。
+	Danga Interactive为了LiveJournal所发展的，以BSD license释放的一套开放源代码软件。
+	1.依赖
+	memcache C语言所编写，依赖于最近版本的GCC和libevent。GCC是它的编译器，同事基于libevent做socket io。在安装memcache时保证你的系统同事具备有这两个环境。
+	
+	2.多线程支持
+	memcache支持多个cpu同时工作，在memcache安装文件下有个叫threads.txt中特别说明，By default, memcached is compiled as a single-threaded application.
+	默认是单线程编译安装，如果你需要多线程则需要修改./configure --enable-threads，为了支持多核系统，前提是你的系统必须具有多线程工作模式。开启多线程工作的线程数默认是4，
+	如果线程数超过cpu数容易发生操作死锁的概率。结合自己业务模式选择才能做到物尽其用。
+	
+	3.高性能
+	通过libevent完成socket 的通讯，理论上性能的瓶颈落在网卡上。
+	
+redis
+	redis是在memcache之后编写的，大家经常把这两者做比较，如果说它是个key-value store 的话但是它具有丰富的数据类型，我想暂时把它叫做缓存数据流中心，就像现在物流中心那样，
+	order、package、store、classification、distribute、end。
+	先说说reidis的特性
+	
+	1. 支持持久化
+	redis的本地持久化支持两种方式：RDB和AOF。RDB 在redis.conf配置文件里配置持久化触发器，AOF指的是redis没增加一条记录都会保存到持久化文件中（保存的是这条记录的生成命令），
+	如果不是用redis做DB用的话还会不要开AOF ，数据太庞大了，重启恢复的时候是一个巨大的工程！
+	
+	2.丰富的数据类型
+	redis 支持 String 、Lists、sets、sorted sets、hashes 多种数据类型,新浪微博会使用redis做nosql主要也是它具有这些类型，
+	时间排序、职能排序、我的微博、发给我的这些功能List 和 sorted set  的强大操作功能息息相关
+	
+	3.高性能
+	 这点跟memcache很想象，内存操作的级别是毫秒级的比硬盘操作秒级操作自然高效不少，较少了磁头寻道、数据读取、页面交换这些高开销的操作！这也是NOSQL冒出来的原因吧，应该是高性能
+	是基于RDBMS的衍生产品，虽然RDBMS也具有缓存结构，但是始终在app层面不是我们想要的那么操控的。
+	4.replication 复制
+	redis提供主从复制方案，跟mysql一样增量复制而且复制的实现都很相似，这个复制跟AOF有点类似复制的是新增记录命令，主库新增记录将新增脚本发送给从库，从库根据脚本生成记录，
+	这个过程非常快，就看网络了，一般主从都是在同一个局域网，所以可以说redis的主从近似及时同步，同事它还支持一主多从，动态添加从库，从库数量没有限制。 
+	主从库搭建，我觉得还是采用网状模式，如果使用链式（master-slave-slave-slave-slave·····）如果第一个slave出现宕机重启，首先从master 接收 数据恢复脚本，
+	这个是阻塞的，如果主库数据几TB的情况恢复过程得花上一段时间，在这个过程中其他的slave就无法和主库同步了。
+	
+	5.更新快
+	   这点好像从我接触到redis到目前为止 已经发了大版本就4个，小版本没算过。redis作者是个非常积极的人，无论是邮件提问还是论坛发帖，他都能及时耐心的为你解答，维护度很高。
+	   有人维护的话，让我们用的也省心和放心。目前作者对redis 的主导开发方向是redis的集群方向。
+	   
+	
+	

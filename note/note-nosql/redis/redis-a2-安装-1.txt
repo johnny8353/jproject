@@ -1,0 +1,285 @@
+单机安装配置
+	下载地址：http://download.redis.io/releases/redis-3.0.4.tar.gz
+		
+	
+	获取源码、解压、进入源码目录
+	tar xzf redis-3.0.4.tar.gz 
+	cd redis-3.0.4
+	
+	编译生成可执行文件
+		由于makefile文件已经写好，我们只需要直接在源码目录执行make命令进行编译即可：
+		make
+		make install
+		make命令执行完成后，会在当前目录redis-3.0.4/src下生成本个可执行文件，分别是redis-server、redis-cli、redis-benchmark、redis-stat，它们的作用如下：
+		redis-server：Redis服务器的daemon启动程序
+		redis-cli：Redis命令行操作工具。当然，你也可以用telnet根据其纯文本协议来操作
+		redis-benchmark：Redis性能测试工具，测试Redis在你的系统及你的配置下的读写性能
+		redis-stat：Redis状态检测工具，可以检测Redis当前状态参数及延迟状况。
+		redis-check-aof    ---->检查aof日志工具，如果日志损坏能检查出来
+		redis-check-dump---->检查rdb日志工具
+	
+	建立Redis目录（非必须）
+		这个过程不是必须的，只是为了将Redis相关的资源统一管理而进行的操作。
+		执行以下命令建立相关目录并拷贝相关文件至目录中：
+		mkdir -p /usr/local/redis/bin
+		mkdir -p /usr/local/redis/etc
+		mkdir -p /usr/local/redis/var
+		cp redis-server redis-cli redis-benchmark redis-check-aof redis-check-dump /usr/local/redis/bin/
+		cp redis.conf /usr/local/redis/etc/
+	
+	
+	该步骤可以不做，不用make test直接make&make install就会成功，查看src下是否有对应的可执行文件即可
+		make test 报错You need tcl 8.5 or newer in order to run the Redis test
+		缺少tcl，下载并安装 http://downloads.sourceforge.net/tcl/tcl8.6.1-src.tar.gz  注意安装标红的步骤来
+		sudo tar xzvf tcl8.6.1-src.tar.gz  -C /usr/local/
+		cd  /usr/local/tcl8.6.1/unix/
+		sudo ./configure
+		sudo make
+		sudo make install
+	
+	配置参数
+		在我们成功安装Redis后，我们直接执行redis-server即可运行Redis，此时它是按照默认配置来运行的（默认配置甚至不是后台运行）。我们希望Redis按我们的要求运行，则我们需要修改配置文件，
+		Redis的配置文件就是我们上面第二个cp操作的redis.conf文件，它被我们拷贝到了/usr/local/redis/etc/目录下。修改它就可以配置我们的server了。
+		下面是一个略做修改后的配置文件内容：
+		daemonize		yes
+		pidfile	/usr/local/redis/var/redis.pid
+		requirepass johnny
+		port	6379
+		timeout	300
+		loglevel	debug
+		logfile	/usr/local/redis/var/redis.log
+		databases	16
+		save	9001
+		save	30010
+		save	6010000
+		rdbcompression	yes
+		dbfilename	dump.rdb
+		dir	/usr/local/redis/var/
+		appendonly	no
+		appendfsync	always
+		glueoutputbuf	yes
+		shareobjects	no
+		shareobjectspoolsize	1024
+	
+	
+		将上面内容写为redis.conf并保存到/usr/local/redis/etc/目录下
+		然后在命令行执行：
+		$ /usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf
+		即可在后台启动redis服务，这时你通过telnet 127.0.0.1 6379即可连接到你的redis服务
+		检查是否启动成功 ps -ef | grep redis
+		
+单机启动多个redis实例的配置
+	拷贝redis.conf 为 redis-test.conf(举例)
+	修改redis-test.conf文件中
+	 ”daemonize no“ 为 “daemonize yes”，
+	 ”port 6379“ 为 “port 6380”，
+	然后启动redis：
+	/usr/local/redis/bin/redis-server ./redis—test.conf
+	查看是否启动：
+	$ netstat -tlnp
+	应该可以看下边进程：
+	tcp        0      0 0.0.0.0:6380                0.0.0.0:*                   LISTEN      ***2/redis-server
+	另外：你可以通过 telnet ip 端口，如果telent通，说明redis成功启动了。
+	
+单机主从配置
+	环境	主服务器			从服务器
+	节点1	10.5.6.195:6379	10.5.7.116:6379
+	
+	分别安装配置好两台服务器的redis，安装配置方法参考《单机安装配置》
+	
+	修改配置文件
+		修改从服务器redis.conf文件的如下配置
+		slaveof 10.5.6.195 6739
+		masterauth johnny
+		重启后可以看到同步日志信息
+		
+	使用客户端登陆验证
+		# ./redis-cli 
+		127.0.0.1:6379> auth johnny
+		OK
+		127.0.0.1:6379> slaveof 10.5.6.195 6379
+		OK
+		127.0.0.1:6379> keys *
+		1) "user2"
+		2) "a"
+		3) "username"
+		4) "age"
+		5) "qq"
+		6) "name"
+		7) "java framework"
+		127.0.0.1:6379> set a a
+		(error) READONLY You can't write against a read only slave.
+		
+		slave-read-only no， 让slave 能写，因为 “Since Redis 2.6 by default slaves are read-only.”
+		
+		在主服务器set赋值后，从服务器使用keys * 可以看到同步过来的数据，从服务器的数据不会同步到主服务器。
+			
+集群安装配置
+	Redis在3.0版正式引入了集群这个特性。Redis集群是一个分布式（distributed）、容错（fault-tolerant）的 Redis内存K/V服务， 集群可以使用的功能是普通单机 Redis 
+	所能使用的功能的一个子集（subset），比如Redis集群并不支持处理多个keys的命令,因为这需要在不同的节点间移动数据,从而达不到像Redis那样的性能,在高负载的情况下可能会导致不可预料的错误。
+	
+	Redis集群的几个重要特征：
+		
+		(1).Redis 集群的分片特征在于将键空间分拆了16384个槽位，每一个节点负责其中一些槽位。
+		(2).Redis提供一定程度的可用性,可以在某个节点宕机或者不可达的情况下继续处理命令.
+		(3).Redis 集群中不存在中心（central）节点或者代理（proxy）节点， 集群的其中一个主要设计目标是达到线性可扩展性（linear scalability）。
+	
+	1. Redis的数据分片（Sharding）
+		
+		Redis 集群的键空间被分割为 16384 （2^14)个槽（slot）， 集群的最大节点数量也是 16384 个（推荐的最大节点数量为 1000 个），同理每个主节点可以负责处理1到16384个槽位。
+		
+		当16384个槽位都有主节点负责处理时，集群进入”稳定“上线状态，可以开始处理数据命令。当集群没有处理稳定状态时，可以通过执行重配置（reconfiguration）操作，使得每个哈希槽都只由一个节点进行处理。
+		
+		重配置指的是将某个/某些槽从一个节点移动到另一个节点。一个主节点可以有任意多个从节点， 这些从节点用于在主节点发生网络断线或者节点失效时， 对主节点进行替换。
+		
+		集群的使用公式CRC16（Key）&16383计算key属于哪个槽：
+		
+		HASH_SLOT = CRC16(key) mod 16384
+		CRC16其结果长度为16位。
+	
+	2. Redis集群节点
+	
+		部分内容摘自附录2。Redis集群中的节点不仅要记录键和值的映射，还需要记录集群的状态，包括键到正确节点的映射。它还具有自动发现其他节点，识别工作不正常的节点，并在有需要时，在从节点中选举出新的主节点的功能。
+		
+		为了执行以上列出的任务， 集群中的每个节点都与其他节点建立起了“集群连接（cluster bus）”， 该连接是一个 TCP 连接， 使用二进制协议进行通讯。
+		
+		节点之间使用 Gossip 协议 来进行以下工作：
+		
+		a).传播（propagate）关于集群的信息，以此来发现新的节点。
+		b).向其他节点发送 PING 数据包，以此来检查目标节点是否正常运作。
+		c).在特定事件发生时，发送集群信息。
+		
+		除此之外， 集群连接还用于在集群中发布或订阅信息。
+		
+		集群节点不能前端代理命令请求， 所以客户端应该在节点返回 -MOVED 或者 -ASK 转向（redirection）错误时， 自行将命令请求转发至其他节点。
+		
+		客户端可以自由地向集群中的任何一个节点发送命令请求， 并可以在有需要时， 根据转向错误所提供的信息， 将命令转发至正确的节点， 所以在理论上来说， 客户端是无须保存集群状态信息的。但如果客户端可以将键和节点之间的映射信息保存起来， 可以有效地减少可能出现的转向次数， 籍此提升命令执行的效率。
+		
+		每个节点在集群中由一个独一无二的 ID标识， 该 ID 是一个十六进制表示的 160 位随机数，在节点第一次启动时由 /dev/urandom 生成。节点会将它的 ID 保存到配置文件， 只要这个配置文件不被删除， 节点就会一直沿用这个 ID 。一个节点可以改变它的 IP 和端口号， 而不改变节点 ID 。 集群可以自动识别出IP/端口号的变化， 并将这一信息通过 Gossip协议广播给其他节点知道。
+		
+		下面是每个节点都有的关联信息， 并且节点会将这些信息发送给其他节点：
+		
+		a).节点所使用的 IP 地址和 TCP 端口号。
+		b).节点的标志（flags）。
+		c).节点负责处理的哈希槽。
+		b).节点最近一次使用集群连接发送 PING 数据包（packet）的时间。
+		e).节点最近一次在回复中接收到 PONG 数据包的时间。
+		f).集群将该节点标记为下线的时间。
+		g).该节点的从节点数量。
+		
+		如果该节点是从节点的话，那么它会记录主节点的节点 ID 。 如果这是一个主节点的话，那么主节点 ID 这一栏的值为 0000000。
+		在了解Redis Cluster的集群基本特征后，我们首先搭建出这个Redis Cluster集群。
+	环境准备：
+		两主两从（不成功尝试三主三从，集群最少6个阶段）
+		环境	主服务器	从服务器
+		节点1	10.5.6.195:6379	10.5.7.116:6379
+		节点2	10.5.7.161:6379	10.5.6.118:6379
+	
+	分别安装配置好四台服务器的redis，安装配置方法参考《单机安装配置》
+	
+	集群配置
+		修改配置文件
+			修改每台服务器redis.conf文件的如下配置
+			cluster-enabled yes
+			cluster-config-file nodes-6379.conf
+			cluster-node-timeout 5000 
+			appendonly yes 
+			重新启动每台服务器redis服务
+		添加集群节点
+			选择一台redis服务器，使用redis-cli进行节点添加
+			[root@localhost bin]# ./redis-cli -h localhost -p 6379 -a johnny
+			10.5.6.195:6379> cluster nodes
+			9174865a3d7139a2988755c98d8e5286751e8d86 :6379 myself,master - 0 0 0 connected 741 5474 5598 5798 12233 13119 15495
+			10.5.6.195:6379> cluster meet 10.5.7.161 6379
+			OK
+			10.5.6.195:6379> cluster meet 10.5.7.116 6379
+			OK
+			10.5.6.195:6379> cluster meet 10.5.6.118 6379
+			OK
+			10.5.6.195:6379> cluster nodes
+			735b54953b0d297facd70add0f328b3ce29d33c1 10.5.6.118:6379 master - 0 1467866880587 2 connected
+			f49c998ec32ad072aa66e89e58586e8a68c4543a 10.5.7.116:6379 master - 0 1467866878936 0 connected
+			9174865a3d7139a2988755c98d8e5286751e8d86 10.5.6.195:6379 myself,master - 0 0 3 connected 741 5598 5798 12233 13119 15495
+			25178da4c167e886da1eaf81836843b55ed6f321 10.5.7.161:6379 master - 0 1467866879584 1 connected 5474
+			
+			通过cluster nodes命令可以看到目前四台服务器都是master，接下来配置主从关系
+		
+		配置主从关系
+			通过cluster nodes命令获取两台主服务器Id
+			主服务器	节点id	从服务器
+			10.5.6.195:6379	9174865a3d7139a2988755c98d8e5286751e8d86	10.5.7.116:6379
+			10.5.7.161:6379	25178da4c167e886da1eaf81836843b55ed6f321	10.5.6.118:6379
+			分别使用redis-cli登陆两台从服务区，执行以下命令
+			# ./redis-cli
+			127.0.0.1:6379> auth johnny
+			OK
+			127.0.0.1:6379> cluster replicate 9174865a3d7139a2988755c98d8e5286751e8d86
+			OK
+			127.0.0.1:6379>
+			使用 cluster replicate node_id  ，将当前节点设置为 node_id 指定的节点的从节点
+			再使用cluster node查看节点信息
+			10.5.6.195:6379> cluster nodes
+			735b54953b0d297facd70add0f328b3ce29d33c1 10.5.6.118:6379 slave 25178da4c167e886da1eaf81836843b55ed6f321 0 1467867626503 2 connected
+			f49c998ec32ad072aa66e89e58586e8a68c4543a 10.5.7.116:6379 slave 9174865a3d7139a2988755c98d8e5286751e8d86 0 1467867627506 3 connected
+			9174865a3d7139a2988755c98d8e5286751e8d86 10.5.6.195:6379 myself,master - 0 0 3 connected 741 5598 5798 12233 13119 15495
+			25178da4c167e886da1eaf81836843b55ed6f321 10.5.7.161:6379 master - 0 1467867624499 1 connected 5474
+			
+		指定槽位
+			Redis是采用哈希算法加上固定槽位的分片机制来实现集群，默认分为16384个槽位，每个槽位必须对应一个节点，否则集群就处理下线状态，不能处理命令请求。
+			10.5.6.195:6379> cluster info
+			cluster_state:fail
+			cluster_slots_assigned:7
+			cluster_slots_ok:7
+			cluster_slots_pfail:0
+			cluster_slots_fail:0
+			cluster_known_nodes:4
+			cluster_size:2
+			cluster_current_epoch:3
+			cluster_my_epoch:3
+			cluster_stats_messages_sent:2400
+			cluster_stats_messages_received:1803
+			10.5.6.195:6379> keys *
+			1) "user2"
+			2) "name"
+			3) "qq"
+			4) "age"
+			5) "a"
+			6) "java framework"
+			10.5.6.195:6379> get user2
+			(error) CLUSTERDOWN The cluster is down
+			如图：cluster_state:fail表示集群的状态为下线状态，执行get命令的时候直接失败。
+			分别修改代表主节点的10.5.6.195, 10.5.7.161目录的nodes.conf文件，将本节点（节点信息带有myself）配置相应的槽位。10.5.6.195配置的槽位为0-10000, 
+			10.5.7.161配置的槽位为10001-16383，改完重启每台服务器redis服务进程。
+			 
+			 
+			
+		集群验证
+			数据读写操作
+				通过上面的输出，我们可以看出Redis主节点的slot范围。一个 Redis 客户端可以向集群中的任意节点（包括从节点）发送命令请求。我们首先连接195节点：
+				127.0.0.1:6379> set username johnny
+				(error) MOVED 14315 10.5.7.161:6379
+				127.0.0.1:6379> set password 123
+				OK
+				127.0.0.1:6379> get password
+				"123"
+				127.0.0.1:6379>
+				此时在116上get password 
+				127.0.0.1:6379> get password
+				(error) MOVED 9540 10.5.6.195:6379
+				节点会对命令请求进行分析和key的slot计算，并且会查找这个命令所要处理的键所在的槽。如果要查找的哈希槽正好就由接收到命令的节点负责处理， 那么节点就直接执行这个命令。
+				
+				另一方面， 如果所查找的槽不是由该节点处理的话， 节点将查看自身内部所保存的哈希槽到节点 ID 的映射记录， 并向客户端回复一个 MOVED 错误。
+				上面的错误信息包含键 x 14315 以及负责处理这个槽的节点的 IP 和端口号 10.5.7.161:6379
+				
+				虽然我们用NodeID来标识集群中的节点，但是为了让客户端的转向操作尽可能地简单，节点在MOVED错误中直接返回目标节点的IP和端口号，而不是目标节点的ID。
+				客户端应该记录槽14315由节点10.5.7.161:6379负责处理“这一信息，这样当再次有命令需要对槽15495执行时，客户端就可以加快寻找正确节点的速度。
+				这样，当集群处于稳定状态时，所有客户端最终都会保存有一个哈希槽至节点的映射记录，使得集群非常高效： 
+				客户端可以直接向正确的节点发送命令请求， 无须转向、代理或者其他任何可能发生单点故障（single point failure）的实体（entiy）。
+			
+		
+			主节点关闭从节点是否接管
+				我们可以关闭主redis服务器195如果对应的从服务器116能自动切换成主服务器，并且195重新上线后将成为116的从服务器即集群搭建成功。
+				关闭195服务器一段时间之后（116服务器已经成为主服务器）
+				
+				目前未生效，具体见  redis-复制，需要sentinel 哨兵
+					

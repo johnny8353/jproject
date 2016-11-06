@@ -1,0 +1,38 @@
+Linux版安装
+  下载获得redis-3.0.4.tar.gz后将它放入我们的Linux目录/opt
+  /opt目录下，解压命令:tar -zxvf redis-3.0.4.tar.gz
+  解压完成后出现文件夹：redis-3.0.4
+  进入目录:cd redis-3.0.4
+  在redis-3.0.4目录下执行make命令
+  如果make完成后继续执行make install
+  查看默认安装目录：usr/local/bin
+    Redis-benchmark:性能测试工具，可以在自己本子运行，看看自己本子性能如何
+      服务启动起来后执行
+    Redis-check-aof：修复有问题的AOF文件，rdb和aof后面讲
+    Redis-check-dump：修复有问题的dump.rdb文件
+    Redis-cli：客户端，操作入口
+    Redis-sentinel：redis集群使用
+    Redis-server：Redis服务器启动命令
+  启动
+    修改redis.conf文件将里面的daemonize no 改成 yes，让服务在后台启动
+    将默认的redis.conf拷贝到自己定义好的一个路径下，比如/myconf
+    启动
+    连通测试
+    /usr/local/bin目录下运行redis-server，运行拷贝出存放了自定义conf文件目录下的redis.conf文件
+  永远的helloworld
+  关闭
+    单实例关闭：redis-cli shutdown
+    多实例关闭，指定端口关闭:redis-cli -p 6379 shutdown
+    
+Redis启动后杂项基础知识讲解
+  单进程
+    单进程模型来处理客户端的请求。对读写等事件的响应 是通过对epoll函数的包装来做到的。Redis的实际处理速度完全依靠主进程的执行效率
+    Epoll是Linux内核为处理大批量文件描述符而作了改进的epoll，是Linux下多路复用IO接口select/poll的增强版本， 它能显著提高程序在大量并发连接中只有少量活跃的情况下的系统CPU利用率。
+  默认16个数据库，类似数组下表从零开始，初始默认使用零号库
+  Select命令切换数据库
+  Dbsize查看当前数据库的key的数量
+  Flushdb：清空当前库
+  Flushall；通杀全部库	--linux自动补全命令
+  统一密码管理，16个库都是同样密码，要么都OK要么一个也连接不上
+  Redis索引都是从零开始
+  为什么默认端口是6379
