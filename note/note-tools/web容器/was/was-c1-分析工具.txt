@@ -39,3 +39,27 @@ Javacore文件通常以*.txt方式显示，名称格式主要是以Javacore为�
 Javacore文件的生成
 ps -ef | grep java查看进程ID，在linux 系统中 使用 kill -3 pid ,它会在应用程序的概要文件的目录下生成一个javacore 文件，
 比如在 /usr/IBM/WebSphere/AppServer1/profiles/AppSrv01下
+
+
+javacode日志如下： 可以查看内存，当前执行的线程情况
+	javacore.20161107.104258.27908.0014.txt
+	
+	***WARNING*** Java heap is almost exhausted : 0% free Java heap Please enable verbosegc trace and use IBM Pattern Modeling and Analysis Tool(http://www.alphaworks.ibm.com/tech/pmat) to analyze garbage collection activities. If heapdumps are generated at the same time, please use IBM HeapAnalyzer(http://www.alphaworks.ibm.com/tech/heapanalyzer) to analyze Java heap.  
+	File name : D:\app log\msm\1107\47\javacore.20161107.105511.11894.0014.txt  
+	Cause of thread dump : Dump Event "user" (00004000) received  
+	Date: 2016/11/07 at 10:55:11  
+	Process ID : Not available  
+	Operating System : Linux 2.6.18-238.el5  
+	Processor Architecture : amd64  
+	Number of Processors : 8  
+	Java version : JRE 1.6.0 Linux amd64-64 build 20130204_137148 (pxa6460_26sr5ifix-20130301_01(SR5+IV36426))  
+	Virtual machine version : VM build R26_Java626_SR5_20130204_0851_B137148  
+	Just-In-Time(JIT) compiler switch, Ahead-Of-Time (AOT) compiler switch, Compiler version : r11.b03_20130131_32403  
+	Garbage collector version : GC - R26_Java626_SR5_20130204_0851_B137148_CMPRSS  
+	Java Heap Information 
+	Maximum Java heap size : 4096m 
+	Initial Java heap size : 2048m 
+	 
+	Java Home Directory : /opt/IBM/WebSphere/AppServer/java/jre  
+	Java DLL Directory : /opt/IBM/WebSphere/AppServer/java/jre/bin
+	

@@ -62,4 +62,38 @@ ps -ef | grep java | grep -v grep | cut -c 9-15 | xargs kill -s 9
 	    在服务器用户标识字段中输入有效用户名。
 	    在服务器用户密码字段中输入用户密码。
 
-	 
+自动补数脚本
+[root@msmtestweb3 usr]# cat deploy-msmsfix.sh
+#!/bin/sh
+#defined 
+echo "delete dmp,phd log files"
+echo $(date)
+rm -rf /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/*dmp
+rm -rf /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/*phd
+rm -rf /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/javacore*.txt
+rm -rf /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/Snap*.trc
+echo "stop MSMFIX"
+echo $(date)
+/opt/IBM/WebSphere/AppServer/profiles/AppSrv01/bin/wsadmin.sh -user admin -password admin202 -lang jacl -c '$AdminControl invoke [$AdminControl queryNames type=ApplicationManager,node=MSMTESTWEB3Node01,process=MSMFIX,*] stopApplication MSMSFIX'
+echo "delete files" 
+echo $(date)
+# 缓存目录
+cd /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/temp/MSMTESTWEB3Node01
+rm -rf *
+cd /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/installedApps/MSMTESTWEB3Cell01/MSMSFIX.ear/EccWeb.war
+rm -rf *
+echo "tar war"
+echo $(date)
+jar -xf /usr/EccWeb.war
+#找到${was安装目录}/AppServer/profiles/AppSrv01/config/cells/xxxNode01Cell/applications/${应用名}.ear/deployments/目录下，
+#有一个与应用相同名称的缓存文件夹，删除或修改该文件夹的web.xml，重启was即可。
+rm -rf /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/config/cells/MSMTESTWEB3Cell01/applications/MSMSFIX.ear/deployments/MSMSFIX/EccWeb.war/WEB-INF/*.xml
+cp /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/installedApps/MSMTESTWEB3Cell01/MSMSFIX.ear/EccWeb.war/WEB-INF/*.xml /opt/IBM/WebSphere/AppServer/profiles/AppSrv01/config/cells/MSMTESTWEB3Cell01/applications/MSMSFIX.ear/deployments/MSMSFIX/EccWeb.war/WEB-INF/
+echo "start MSMFIX"
+echo $(date)
+/opt/IBM/WebSphere/AppServer/profiles/AppSrv01/bin/wsadmin.sh -user admin -password admin202 -lang jacl -c '$AdminControl invoke [$AdminControl queryNames type=ApplicationManager,node=MSMTESTWEB3Node01,process=MSMFIX,*] startApplication MSMSFIX'
+
+
+
+was启动日志
+/opt/IBM/WebSphere/AppServer/profiles/AppSrv01/logs/MSMFIX	 

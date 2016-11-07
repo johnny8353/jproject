@@ -36,7 +36,7 @@ public class MonitorOracle extends MonitorService{
 //			e.printStackTrace();
 			String error = ExceptionUtil.getExceptionMessage(e);
 			log.debug("ERROR:"+error);
-			sMessage = "ERROR:";
+			sMessage = "错误:";
 			if(error.indexOf(SysDataDictionary.MSG_SERVER_CONN_REFUSED)>-1){
 				sMessage = "错误:"+"无法建立连接！";
 			}

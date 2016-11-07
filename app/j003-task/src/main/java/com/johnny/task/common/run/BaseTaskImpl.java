@@ -157,7 +157,7 @@ public abstract class BaseTaskImpl extends Thread implements BaseTask
                     		if(count>0){
                     			waittime++;
                     		}else{
-                    			log.info("----周期内未执行，执行一次");
+                    			log.info(pTaskvo.getDescText()+"----周期内未执行，执行一次");
                     		}
                     	}
                         
@@ -170,7 +170,7 @@ public abstract class BaseTaskImpl extends Thread implements BaseTask
 
                         long t1 = rptInterval - t + 100;
                         log.info("sleep time:" + getTimeDescByLong(t1));
-                        log.info("下一个次执行时间 time:" + StringUtil.getDateWithFormat("yyyy-MM-dd HH:mm:ss")+"+"+getTimeDescByLong(t1));
+                        log.info(pTaskvo.getDescText()+"下一个次执行时间 time:" + StringUtil.getDateWithFormat("yyyy-MM-dd HH:mm:ss")+"+"+getTimeDescByLong(t1));
                         nextExeTimeStr = "下一次："+StringUtil.getDateWithFormat("yyyy-MM-dd HH:mm:ss")+"+"+getTimeDescByLong(t1);
                         //在头上写如下一次执行时间
                         pTaskvo.setCompletionText(nextExeTimeStr);

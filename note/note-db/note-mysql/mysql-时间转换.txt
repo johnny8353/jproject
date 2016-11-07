@@ -1,0 +1,6 @@
+MySQL内置函数，在mysql里面利用str_to_date（）把字符串转换为日期。
+示例：分隔符一致，年月日要一致
+
+select str_to_date('2008-4-2 15:3:28','%Y-%m-%d %H:%i:%s');
+
+select str_to_date('2008-08-09 08:9:30', '%Y-%m-%d %h:%i:%s');

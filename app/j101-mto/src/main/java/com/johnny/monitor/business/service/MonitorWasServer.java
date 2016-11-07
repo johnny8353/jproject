@@ -30,16 +30,16 @@ public class MonitorWasServer extends MonitorService{
 		} catch (Exception e) {
 //			e.printStackTrace();
 			String error = ExceptionUtil.getExceptionMessage(e);
-			log.debug("ERROR:"+error);
-			sMessage = "ERROR:";
+			log.debug("错误:"+error);
+			sMessage = "错误:";
 			if(error.indexOf(SysDataDictionary.MSG_SERVER_CONN_REFUSED)>-1){
-				sMessage = "ERROR:"+"WAS服务器无法访问！";
+				sMessage = "错误:"+"WAS服务器无法访问！";
 			}
 			if(error.indexOf(SysDataDictionary.MSG_SERVER_404)>-1){
-				sMessage = "ERROR:"+"应用无法访问！";
+				sMessage = "错误:"+"应用无法访问！";
 			}
 			if(error.indexOf("java.net.UnknownHostException")>-1){
-				sMessage = "ERROR:"+"地址无法访问！";
+				sMessage = "错误:"+"地址无法访问！";
 			}
 			sMessage += error;
 		}

@@ -1,0 +1,134 @@
+内存泄漏指你用malloc或new申请了一块内存，但是没有通过free或delete将内存释放，导致这块内存一直处于占用状态
+
+内存溢出指你申请了10个字节的空间，但是你在这个空间写入11或以上字节的数据，就是溢出
+
+一、常见的Java内存溢出有以下三种：
+	1. java.lang.OutOfMemoryError: Java heap space ----JVM Heap（堆）溢出
+		JVM在启动的时候会自动设置JVM Heap的值，其初始空间(即-Xms)是物理内存的1/64，最大空间(-Xmx)不可超过物理内存。
+		可以利用JVM提供的-Xmn -Xms -Xmx等选项可进行设置。Heap的大小是Young Generation 和Tenured Generaion 之和。
+		在JVM中如果98％的时间是用于GC，且可用的Heap size 不足2％的时候将抛出此异常信息。
+		解决方法：手动设置JVM Heap（堆）的大小。  
+		 
+	2. java.lang.OutOfMemoryError: PermGen space  ---- PermGen space溢出。 
+		PermGen space的全称是Permanent Generation space，是指内存的永久保存区域。
+		为什么会内存溢出，这是由于这块内存主要是被JVM存放Class和Meta信息的，Class在被Load的时候被放入PermGen space区域，它和存放Instance的Heap区域不同,sun的 GC不会在主程序运行期对PermGen space进行清理，所以如果你的APP会载入很多CLASS的话，就很可能出现PermGen space溢出。
+		解决方法： 手动设置MaxPermSize大小
+		 
+	3. java.lang.StackOverflowError   ---- 栈溢出
+		栈溢出了，JVM依然是采用栈式的虚拟机，这个和C和Pascal都是一样的。函数的调用过程都体现在堆栈和退栈上了。
+		调用构造函数的 “层”太多了，以致于把栈区溢出了。
+		通常来讲，一般栈区远远小于堆区的，因为函数调用过程往往不会多于上千层，而即便每个函数调用需要 1K的空间(这个大约相当于在一个C函数内声明了256个int类型的变量)，那么栈区也不过是需要1MB的空间。通常栈的大小是1－2MB的。
+		通常递归也不要递归的层次过多，很容易溢出。
+		解决方法：修改程序。
+		
+要点
+
+内存泄露是指程序中间动态分配了内存，但在程序结束时没有释放这部分内存，从而造成那部分内存不可用的情况，重启计算机可以解决，但也有可能再次发生内存泄露，内存泄露和硬件没有关系，它是由软件设计缺陷引起的。 
+内存泄漏可以分为4类：
+1)常发性内存泄漏。发生内存泄漏的代码会被多次执行到，每次被执行的时候都会导致一块内存泄漏。
+2)偶发性内存泄漏。发生内存泄漏的代码只有在某些特定环境或操作过程下才会发生。常发性和偶发性是相对的。对于特定的环境，偶发性的也许就变成了常发性的。所以测试环境和测试方法对检测内存泄漏至关重要。
+3)一次性内存泄漏。发生内存泄漏的代码只会被执行一次，或者由于算法上的缺陷，导致总会有一块仅且一块内存发生泄漏。比如，在类的构造函数中分配内存，在析构函数中却没有释放该内存，所以内存泄漏只会发生一次。
+4)隐式内存泄漏。程序在运行过程中不停的分配内存，但是直到结束的时候才释放内存。严格的说这里并没有发生内存泄漏，因为最终程序释放了所有申请的内存。但是对于一个服务器程序，需要运行几天，几周甚至几个月，
+不及时释放内存也可能导致最终耗尽系统的所有内存。所以，我们称这类内存泄漏为隐式内存泄漏。
+
+内存溢出即用户在对其数据缓冲区操作时，超过了其缓冲区的边界；尤其是对缓冲区写操作时，缓冲区的溢出很可能导致程序的异常。
+内存溢出类型：
+
+1)java.lang.OutOfMemoryError:PermGen space
+	PermGen space 的全称是 Permanent Generation space,是指内存的永久保存区域。这块内存主要是被JVM存放Class和Meta信息的，Class在被Loader时就会被放到PermGenspace中，
+	它和存放类实例(Instance)的Heap区域不同，GC不会在主程序运行期对PermGenspace进行清理。
+	
+	JVM由XX:PermSize设置非堆内存初始值，默认是物理内存的1/64；
+	JVM由XX:MaxPermSize设置最大非堆内存的大小，默认是物理内存的1/4。
+	 
+	
+	该错误常见场合：
+	a) 应用中有很多Class，web服务器对JSP进行pre compile时。
+	b) Webapp下用了大量的第三方jar, 其大小超过了JVM默认的大小(4M)时。
+
+2)java.lang.OutOfMemoryError:Java heap space
+	在JVM中如果98%的时间是用于GC且可用的Heap size 不足2%的时候将抛出此异常信息。
+	JVM初始分配的内存由-Xms指定，默认是物理内存的1/64； 
+	JVM最大分配的内存由-Xmx指定，默认是物理内存的1/4。 
+	
+	JVM内存的最大值跟操作系统有很大的关系。32位处理器虽然可控内存空间有4GB，但是具体的操作系统会给一个限制，这个限制一般是2GB-3GB（一般来说Windows系统下为1.5G-2G，Linux系统下为2G-3G），
+	而64bit以上的处理器就不会有限制了。
+	
+	注意：如果Xms超过了Xmx值，或者堆最大值和非堆最大值的总和超过了物理内存或者操作系统的最大限制都会引起服务器启动不起来。 
+	该错误常见场合：
+	a) Web上传文件时。
+	b) 开启大型文件或从数据库中一次取了太多的数据。 
+
+相关问题
+
+1. Q:Java中会存在内存泄漏吗？
+   A: Java中也存在内存泄露。当被分配的对象可达但已无用（未对作废数据内存单元的引用置null）即会引起。
+         如：
+	Java代码 
+	Vector v=new Vector(10);   
+	for (int i=1;i<100; i) {   
+	    Object o=new Object();   
+	    v.add(o);   
+	    o=null;   
+	}   
+	// 此时，所有的Object对象都没有被释放，因为变量v引用这些对象。   
+	// 对象加入到Vector后，还必须从Vector中删除，最简单释放方法就是将Vector对象设置为null。   
+	 
+
+ 
+
+2. Q:内存泄露、溢出的异同？ 
+    A: 同：都会导致应用程序运行出现问题，性能下降或挂起。
+        异：
+        1) 内存泄露是导致内存溢出的原因之一；内存泄露积累起来将导致内存溢出。
+        2) 内存泄露可以通过完善代码来避免；内存溢出可以通过调整配置来减少发生频率，但无法彻底避免。
+
+3. 如何检测内存泄露？   
+    A: 可以通过一些性能监测分析工具，如 JProfiler、OptimizeitProfiler。
+
+4. Q: 如何避免内存泄露、溢出？
+    A: 
+    1)尽早释放无用对象的引用。
+    	好的办法是使用临时变量的时候，让引用变量在退出活动域后自动设置为null，暗示垃圾收集器来收集该对象，防止发生内存泄露。
+	2)程序进行字符串处理时，尽量避免使用String，而应使用StringBuffer。
+	          因为每一个String对象都会独立占用内存一块区域，如：
+		Java代码 
+		String str = "aaa";   
+		String str2 = "bbb";   
+		String str3 = str  str2;   
+		// 假如执行此次之后str , str2再不被调用，那么它们就会在内存中等待GC回收；   
+		// 假如程序中存在过多的类似情况就会出现内存错误；   
+		
+	3) 尽量少用静态变量。
+		 因为静态变量是全局的，GC不会回收。
+
+	4)避免集中创建对象尤其是大对象，如果可以的话尽量使用流操作。
+		JVM会突然需要大量内存，这时会触发GC优化系统内存环境； 一个案例如下： 
+		Java代码 
+		// 使用jspsmartUpload作文件上传，运行过程中经常出现java.outofMemoryError的错误，   
+		// 检查之后发现问题：组件里的代码   
+		m_totalBytes = m_request.getContentLength();   
+		m_binArray = new byte[m_totalBytes];   
+		// totalBytes这个变量得到的数极大，导致该数组分配了很多内存空间，而且该数组不能及时释放。   
+		// 解决办法只能换一种更合适的办法，至少是不会引发outofMemoryError的方式解决。   
+		// 参考：http://bbs.xml.org.cn/blog/more.asp?name=hongrui&id=3747   
+   
+	5)尽量运用对象池技术以提高系统性能。
+		生命周期长的对象拥有生命周期短的对象时容易引发内存泄漏，例如大集合对象拥有大数据量的业务对象的时候，可以考虑分块进行处理，然后解决一块释放一块的策略。
+
+ 	6)不要在经常调用的方法中创建对象，尤其是忌讳在循环中创建对象。
+ 		可以适当的使用hashtable，vector创建一组对象容器，然后从容器中去取那些对象，而不用每次new之后又丢弃。
+	7) 优化配置。
+ 
+
+5. Q:内存溢出的解决方案？ 
+    A: 一是从代码层面进行优化完善，尽量避免该情况发生；
+       	 二是调整优化服务器配置： 
+        1) 设置-Xms、-Xmx相等；
+        2) 设置NewSize、MaxNewSize相等；
+        3) 设置Heap size, PermGen space:
+            Tomcat 的配置示例：修改 %TOMCAT_HOME%/bin/catalina.bat or catalina.sh
+            	在“echo "Using CATALINA_BASE: $CATALINA_BASE"”上面加入以下行：
+				Cmd代码 set JAVA_OPTS=-Xms800m -Xmx800m -XX:PermSize=128M -XX:MaxNewSize=256m -XX:MaxPermSize=256m
+				
+				
