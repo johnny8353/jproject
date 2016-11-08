@@ -1,0 +1,58 @@
+
+Network File System
+nfs-utils是nfs服务的一个脚本控制工具，使用nfs前要安装上这个包
+#yum list nfs-utils                            //检查是否安装了nfs-utils
+
+服务端
+1、首先要开启portmap和nfs服务。
+     service portmap start 
+     service nfs start 
+2、查看服务是否开启。
+3、修改/etc/exports 
+vi /etc/exports
+/home/temp *(rw,sync,no_root_squash,all_squash)  
+/home/temp *(ro,sync,no_root_squash,all_squash) 
+/oracle/app/siebel/fs 10.5.7.161(rw)
+(/home/temp 表示要被共享的目录）（* 表示任意地址）rw：可读写的权限；ro：只读的权限；
+no_root_squash：登入到NFS主机的用户如果是ROOT用户，他就拥有ROOT的权限
+root_squash：在登入NFS 主机使用目录的使用者如果是root 时，那么这个使用者的权限将被压缩成为匿名使用者，通常他的UID 与GID 都会变成nobody 那个身份； 
+all_squash：管登陆NFS主机的用户是什么都会被重新设定为nobody。
+anonuid：将登入NFS主机的用户都设定成指定的user id,此ID必须存在于/etc/passwd中。
+anongid：同anonuid ，但是变成group ID 就是了！
+sync：资料同步写入存储器中。
+async：资料会先暂时存放在内存中，不会直接写入硬盘。
+insecure         允许从这台机器过来的非授权访问。
+
+4、[root@sblreceive etc]# showmount -e
+Export list for sblreceive:
+/oracle/app/siebel/fs 10.5.7.161
+
+客户端
+1、service nfs start 
+1、在客户端输入所需要的共享文件。
+  mount -t nfs 192.168.111.1:/mnt/inst  /mnt/inst (mount服务器上的共享目录）
+2、exportfs -a (导出所有共享的目录) 
+3、在客户端使用mount命令，就可以看到刚才被mount的文件了。
+    
+这样简单的就是实现了文件共享
+ 
+6）.一些命令的介绍
+  #showmount -e 192.168.2.129               //查看客户端共享出得文件目录有哪些(客户端使用)
+  #showmount -a                             //查看共享出的目录被哪些用户使用（服务端的使用）  
+  #exportfs  -ar                            //更改配置文件后重新读取以下（相当于重启服务）
+  #exportfs  -au                            //关闭所有共享的目录
+  
+但是我们发现，我们进入挂载目录之后对文件不具有写权限
+我们不是root用户吗？为什么我们不具有写权限呢?这就是以下要说明的内容：
+客户端挂载的文件系统的权限取决于两项：文件权限和挂载权限，并且nfs文件系统的用户映射是根据ID映射的
+如果server端的文件用户为gentoo，id为166，那么client端没有这个用户gentoo,但是有一个id=166的用户jobs，那么server端的文件属主在client端将被映射为jobs
+server端把client端的用户映射为两类：
+root用户被映射为nfsnobody（通常只有读权限，这是一种安全机制）
+一般用户中如果server端的文件ID在client端中存在，则被映射为client端的用户名字，如果不存在，则被映射为其他用户，解决上述问题我们需要明白，此时我们的身份为root用户，但是映射过去之后为nfsnobody用户，所以不具有写权限，此时我们要写这个文件，在服务端给这个文件权限中的其他用户一个写权限即可。chmod -R 777
+
+
+If the Siebel file system is "c:\FS\", the "Application Shared Mode users directory" parameter is set to “c:\FS\userpref".
+
+Siebel File System	/oracle/app/siebel/fs
+Application Shared Mode users directory	/oracle/app/siebel/fs/userpref
+

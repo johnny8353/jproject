@@ -1,0 +1,50 @@
+
+扩充硬盘/dev/sdc 80G，将原安装目录/oracle对应文件系统/dev/sdb1卸载后，用dd命令全部拷贝到新盘，然后重新把新盘mount到/oracle目录。参考命令:
+umount /dev/sdb1
+umount /dev/sdc1
+mkfs.ext3 /dev/sdc1
+nohup dd if=/dev/sdb1 of=/dev/sdc1 bs=1M &
+e2fsck -f /dev/sdc1
+resize2fs /dev/sdc1
+mount /dev/sdc1 /oracle
+
+第一步：创建分区
+	root# fdisk  /dev/had        à进入到新添加的硬盘中
+	The number of cylinders for this disk is set to 10402.
+	There is nothing wrong with that, but this is larger than 1024,
+	and could in certain setups cause problems with:
+	1) software that runs at boot time (e.g., old versions of LILO)
+	2) booting and partitioning software from other OSs
+	   (e.g., DOS FDISK, OS/2 FDISK)
+	 
+	Command (m for help): n           à创建新分区
+	 Command action
+	   e   extended
+	   p   primary partition (1-4)
+	p                             à创建主分区
+	Partition number (1-4): 1          à新建的主分区序号
+	First cylinder (1-10402, default 1):
+	Using default value 1
+	Last cylinder or +size or +sizeM or +sizeK (1-10402, default 10402): +500M   à创建主分区大小
+	 
+	Command (m for help): w       à保存创建的主分区
+	
+第二步：使新创建的分区在系统中立即生效，可以不执行
+	root#partprobe
+	
+第三步：格式化新创建的分区
+	[root@server ~]# mkfs.ext3 /dev/hda1
+	
+第四步：使新创建的分区挂载/mnt/rhce01 目录下
+	Root#mount /dev/hda1 /mnt/rhce01	
+	
+第五步：让挂载在系统重启后仍然有效	-	另一种方案，在/etc/rc.local 上面写 mount 脚本进行启动挂盘
+	root# vim /etc/fstab       à编辑这个文件，添加上下面的一行，使挂载在重启后有效；  mount -a 不用重启生效
+	设备名称        挂载点          分区的类型   挂载选项     dump选项 fsck选项	
+	LABEL=/1                /                       ext3    defaults        1 1
+	tmpfs                   /dev/shm                tmpfs   defaults        0 0
+	devpts                  /dev/pts                devpts  gid=5,mode=620  0 0
+	sysfs                   /sys                    sysfs   defaults           0 0
+	proc                    /proc                   proc    defaults         0 0
+	LABEL=SWAP-sda3         swap                    swap    defaults        0 0
+**	/dev/hda1              /mnt/rhce01              ext3    defaults        1 1	
