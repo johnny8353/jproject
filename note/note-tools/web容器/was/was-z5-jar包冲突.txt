@@ -1,0 +1,120 @@
+
+>>	，现在将程序打成WAR包，发布到WEBSPHERE 7上面。在发布完应用过后，将应用中类加载顺序改成“类已装入并且是先使用本地类装入器（父类最后）”，重启服务后。
+	访问was发布地址http://locatlhost:9080/se/services/listServices时，WEB端报错500，后台报错日志为：
+	[16-11-9 15:22:13:158 CST] 000000a3 ServletWrappe E com.ibm.ws.webcontainer.servlet.ServletWrapper service Uncaught service() exception thrown by servlet TestServlet: 
+	java.lang.AbstractMethodError: org/apache/axis2/databinding/ADBBean.serialize(Ljavax/xml/namespace/QName;Ljavax/xml/stream/XMLStreamWriter;)V
+	at org.apache.axis2.databinding.ADBDataSource.serialize(ADBDataSource.java:90)
+	引起异常的原因：
+	1).缺少JAR包
+	2).Axis2的JAR包和WAS自身JAR冲突
+	通过网上查询可以排除可以排除第一种可能，第二种原因网上解决办法：
+	a.在控制台的“管理模块”中改变was的类加载顺序。更改为父类最后加载后，应用中的struts2又出错，欲哭无泪。
+	b.新建共享库，将Axis2的JAR放到共享库中，应用程序引用共享库。创建共享库并引用后，整个应用都起不来了，报“更改未保存”错误，心都碎了。
+		设置was对应应用程序的类加载方案为父类最后，需要从 管理模块--》项目---》设置父类最后，其他地方修改无效（可能是was的bug）
+
+	不管得改类加载机制，WebSphere 7 自带axis2 jar可能引起与应用程序冲突。
+	问题1描述：
+		  Web应用使用了Axis21.4.1，在Tomcat或Jetty部署时，均没有问题，转移到WAS后，启动报如下错误：java.lang.ClassNotFoundException: org.apache.woden.resolver.URIResolver
+	 
+	产生原因：
+		   本人刚开始接触WAS，不清楚真正原因，估计与WAS自带了Axis2有关
+	 
+	解决方法：
+		  拷贝woden-api-1.0M8.jar文件到/WebSphere/AppServer/java/jre/lib/ext这个目录，重启WAS进程
+	 
+	问题2描述：
+		 当执行某个WebService时，又发现了新的错误：java.lang.AbstractMethodError: org/apache/axis2/databinding/ADBBean.serialize(Ljavax/xml/namespace/QName;Ljavax/xml/stream/XMLStreamWriter;)V
+		
+	产因原因：
+		   发现WebSphere/AppServer/plugins/下面有一个org.apache.axis2.jar，与工程中的axis2-1.4.1.jar版本不一致，并且ADBBean.serialize在1.4.1版本中没有问题中签名的方法，更深的原因应该和WAS的类加载机制有关，目前我也不明白。
+			CodeSource of ADBBean is: CodeSource, url=file:/data/IBM/WebSphere/AppServer/plugins/org.apache.axis2.jar, <no certificates>
+	解决方法：
+		  升级应用中的axis2-1.4.1到版本1.6.2，解决了，升到1.6.2后，问题1的woden-api-1.0M8.jar也不需要了。
+	这里还有二篇文章：
+
+	Using a third-party JAX-WS Web services engine 
+	http://publib.boulder.ibm.com/in ... wbs_thirdparty.html 
+
+	Application Server Specific Configuration Guide 
+	http://axis.apache.org/axis2/java/core/docs/app_server.html 
+
+	分别是Apache和IBM针对aixs2问题所给的解决方案，请尝试一下。
+
+	另附：
+	Enabling a third-party JAX-WS application in WebSphere Application Server V7 
+	http://www.ibm.com/developerwork ... er/1001_thaker.html 
+
+	这篇文章是IBM Web Service 架构师写的一个解决Axis2的文章，里面有一个pdf一步一步讲述如何修改应用。
+
+	
+问题描述
+	在应用程序中，需要通过浏览器往服务器端上传一个文件。在服务器端，通过使用 Apache 的上传文件组件来完成该功能。示例代码为：
+	清单 1. 使用 Apache 组件上传文件示例代码
+	 FileUpload fu = new FileUpload(); 
+	 fu.setSizeMax(1000000); 
+	 List fileItems = fu.parseRequest(request);
+	运行程序后，在上传文件时，发生了错误：
+	检查 Console 输出，发现有如下 Exception：
+		清单 2. 异常输出
+		 [4/18/11 15:39:36:734 CST] 0000002c servlet       E 
+		 com.ibm.ws.webcontainer.servlet.ServletWrapper service SRVE0068E: 
+		 Uncaught exception created in one of the service methods of the servlet TestServlet in 
+		 application TestApp_ear. 
+		 Exception created : java.lang.NoSuchMethodError: org/apache/commons/fileupload
+		 /FileUpload.setSizeMax(I)V 
+		 at ...... 
+		 at ...... 
+		 at javax.servlet.http.HttpServlet.service(HttpServlet.java:738) 
+		 at javax.servlet.http.HttpServlet.service(HttpServlet.java:831) 
+		 at com.ibm.ws.webcontainer.servlet.ServletWrapper.service(ServletWrapper.java:1583) 
+		 at com.ibm.ws.webcontainer.servlet.ServletWrapper.handleRequest(ServletWrapper
+		 .java:870) 
+		 at com.ibm.ws.webcontainer.servlet.ServletWrapper.handleRequest(ServletWrapper
+		 .java:475) 
+		 at com.ibm.ws.webcontainer.servlet.ServletWrapperImpl.handleRequest(ServletWrapperImpl
+		 .java:175) 
+		 at com.ibm.ws.webcontainer.webapp.WebApp.handleRequest(WebApp.java:3799) 
+		 at com.ibm.ws.webcontainer.webapp.WebGroup.handleRequest(WebGroup.java:276) 
+		 at com.ibm.ws.webcontainer.WebContainer.handleRequest(WebContainer.java:930) 
+		 at com.ibm.ws.webcontainer.WSWebContainer.handleRequest(WSWebContainer.java:1583) 
+		 at com.ibm.ws.webcontainer.channel.WCChannelLink.ready(WCChannelLink.java:182) 
+		 at com.ibm.ws.http.channel.inbound.impl.HttpInboundLink.handleDiscrimination
+		 (HttpInboundLink.java:455) 
+		 at com.ibm.ws.http.channel.inbound.impl.HttpInboundLink.handleNewInformation
+		 (HttpInboundLink.java:384) 
+		 at com.ibm.ws.http.channel.inbound.impl.HttpICLReadCallback.complete
+		 (HttpICLReadCallback.java:83) 
+		 at com.ibm.ws.tcp.channel.impl.AioReadCompletionListener.futureCompleted
+		 (AioReadCompletionListener.java:165) 
+		 at com.ibm.io.async.AbstractAsyncFuture.invokeCallback
+		 (AbstractAsyncFuture.java:217) 
+		 at com.ibm.io.async.AsyncChannelFuture.fireCompletionActions
+		 (AsyncChannelFuture.java:161) 
+		 at com.ibm.io.async.AsyncFuture.completed(AsyncFuture.java:138) 
+		 at com.ibm.io.async.ResultHandler.complete(ResultHandler.java:204) 
+		 at com.ibm.io.async.ResultHandler.runEventProcessingLoop(ResultHandler.java:775) 
+		 at com.ibm.io.async.ResultHandler$2.run(ResultHandler.java:905) 
+		 at com.ibm.ws.util.ThreadPool$Worker.run(ThreadPool.java:1550)
+		 
+		 
+	初步判断，是在 WTE V7 的执行环境中存在了与该类冲突的其他同名类。接下来通过修改调用代码打印出该类在执行期间的加载路径：
+	清单 3. 打印类的来源
+	 FileUpload fu = new FileUpload(); 
+	 java.security.CodeSource cs = fu.getClass().getProtectionDomain().getCodeSource(); 
+	 System.out.println("CodeSource of FileUpload is: " + cs.toString());
+	输出结果为：
+	清单 4. 类来源的输出结果
+	 [4/18/11 16:38:59:328 CST] 0000002c SystemOut     O 
+	 CodeSource of FileUpload is: CodeSource,
+	  url=file:/D:/IBM/WID V7_WTE/runtimes/bi_v7/BusinessSpace
+	  /mm.runtime/eclipse/plugins/com.ibm.mm.widgets.lib
+	  /lib/commons-fileupload-1.2.jar, <no certificates>
+	可以看出，FileUpload 类是从 WTE V7 的系统插件中加载的，而不是从应用程序自身所带的 JAR 包中加载。这就是冲突的根源！
+	在 J2EE 应用程序中，允许修改程序的 ClassLoader 加载顺序。如果是 Parent First，则在加载类时，优先加载应用程序的 Parent（也就是 WTE V7 的容器环境）中的同名类；如果是 Parent Last，则优先在应用程序本身所带的 JAR 包中搜索。
+	很显然，解决上述问题的方法就是在 WAS 的控制台中，把该应用程序的 ClassLoader 顺序修改成 Parent Last。
+	然而，意外的是，在 WAS 的 Admin Console 中，该顺序竟然是不可修改的！
+	
+	修改WebSphere Application Server  的类加载顺序
+	
+	保存上述设置，重新启动 WAS Server，然后先卸载应用程序，再重新部署。这里请注意，一定要按顺序来，先重启，再卸载，再部署，否则有可能不成功。
+	

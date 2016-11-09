@@ -1,0 +1,32 @@
+
+
+	1>	tomcat启动报错：Server Tomcat v7.0 was unable to start within 45 seconds. If the server requires more time,
+	 try increasing the timeout in the server editor.
+	解决方案： 
+	修改 workspace\.metadata\.plugins\org.eclipse.wst.server.core\servers.xml文件。 
+	把其中的start-timeout="45" 改为  start-timeout="100" 或者更长
+		<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+		<servers>
+		  <server auto-publish-setting="2" auto-publish-time="1" configuration-id="/Servers/Tomcat v7.0-config" deployDir="wtpwebapps"
+		   hostname="localhost" id="Tomcat v7.0" name="Tomcat v7.0" runtime-id="Apache Tomcat v7.0" 
+		   server-type="org.eclipse.jst.server.tomcat.70" server-type-id="org.eclipse.jst.server.tomcat.70" 
+		   start-timeout="6000" stop-timeout="15" testEnvironment="true" timestamp="4">
+		    <list key="modules"/>
+		  </server>
+		</servers>
+		 
+		 
+	2>> 启动tomcat  报错：Caused by: java.lang.OutOfMemoryError: PermGen space
+	在 linux下的tomcat：  
+		tomcat:修改TOMCAT_HOME/bin/catalina.sh 
+		位置cygwin=false前。
+
+		JAVA_OPTS="-server -Xms256m -Xmx512m -XX:PermSize=64M -XX:MaxPermSize=128m" 
+		JAVA_OPTS="-XX:PermSize=128M -XX:MaxPermSize=256m -Xms2048m -Xmx3072m"
+		
+		eclipse 下 tomcat：正确的方法是，在任意一个项目上点击右键“Run As” – “Run Configurations…”，选中Tomcat Server，
+		进入Arguments分页，在VM arguments中加入提升初始分配空间的参数，如下图所示：
+		-XX:MaxPermSize=256m
+
+	3>> 启动报错 Unsupported major.minor version 51.0
+		java compile版本不一致

@@ -1,0 +1,429 @@
+环境准备
+	使用四台服务器作为演示环境
+		服务器		作用
+		10.3.64.180	Web服务器 1
+		10.5.7.116	Web服务器 2
+		10.5.6.196	主负载均衡服务器
+		10.5.7.161	从负载均衡服务器
+	
+		
+	分别启动两台web服务器的http server，并编写区分服务器的脚本。
+		[root@ZTE-Receive html]# vi index.html
+		[root@ZTE-Receive html]# pwd
+		/var/www/html
+		[root@ZTE-Receive html]# cat index.html 
+		this is 10.3.64.180
+		[root@ZTE-Receive conf]# service httpd start
+		Starting httpd: httpd: Could not reliably determine the server's fully qualified domain name, using ZTE-Receive.localdomain for ServerName
+		                                                           [  OK  ]
+		[root@ZTE-Receive conf]# service iptables status
+		iptables: Firewall is not running.
+			
+安装httpd服务
+	linux默认自带apache，如果没有选择安装，可以去apache官网下载
+	yum安装
+		1.yum安装apache
+		#yum install httpd -y
+		
+		2.随系统自启动
+		#chkconfig httpd on
+		
+		3.开启apache
+		#service httpd start
+		
+		PS:在CentOS里Apache的默认文档路径的位置是在/var/www/html，配置文件的路径是/etc/httpd/conf/httpd.conf。其他的配置存储在/etc/httpd/conf.d/ 文件夹里。
+		建议删除/etc/httpd/conf.d/下的welcome.conf文件
+		删除指令 #rm -rf *.* （注释：*.*改成/etc/httpd/conf.d/welcome.conf）
+			
+	RPM安装
+		1. 从apache.org下载源码安装包
+		 	apr-1.5.2.tar.gz
+		 	apr-util-1.5.4.tar.gz
+		 	httpd-2.4.20.tar.gz
+		 	pcre-8.21.tar.gz
+		2. 解压缩
+			# tar zxf httpd-2.2.4.tar.gz
+			# cd httpd-2.2.4
+		
+		3. 安装apache依赖包apr和apr-util，他们都在srclib目录中
+		
+			3.1 安装apr
+			# cd srclib/apr
+			# ./configure --prefix=/usr/local/apr
+			# make
+			# make install
+			
+			3.2 安装apr-util
+			# cd ../apr-util
+			# ./configure --prefix=/usr/local/apr-util --with-apr=/usr/local/apr
+			# make
+			# make install
+			
+			3.3 安装pcre
+			# ./configure --prefix=/usr/local/pcre --disable-shared --with-pic
+			# make
+			# make install
+			
+			Make报错：./.libs/libpcre.so: could not read symbols: File in wrong format
+			解决办法：./configure --disable-shared --with-pic	之后执行：make 没有错误
+		
+		4.安装httpd
+			# cd ../../
+			#./configure --prefix=/usr/local/httpd --with-apr=/usr/local/apr --with-apr-util=/usr/local/apr-util 
+			--with-pcre=/usr/local/pcre/  --enable-so --enable-rewrite
+			# make
+			# make install
+			
+			--enable-so 支持DSO模式（动态模块加载方式）
+			--enable-rewrite 支持rewrite（地址重定向）
+		
+		等这些都装完后，打开浏览器，输入你安装apache所在的服务器地址，看起来像这个样子：
+		http://192.168.1.3/
+		
+		如果页面显示如下：
+		It works!
+		恭喜你，apache安装成功了~
+		http://blog.csdn.net/zouqingfang/article/details/48471257
+	
+	安装nginx
+		安装主负载均衡服务器http://www.cnblogs.com/zhuhongbao/archive/2013/06/04/3118061.html
+		下载软件
+			zlib-1.2.8.tar.gz
+			pcre-8.21.tar.gz
+			openssl-1.0.1c.tar.gz
+			nginx-1.2.8.tar.gz
+		分别解包，然后按顺序安装pcre, zlib，前者为了重写rewrite，后者为了gzip压缩。然后安装ssl和nginx。
+		1.选定源码目录
+			选定目录 /usr/local/
+			 
+			cd /usr/local/
+		 
+		2.安装PCRE库 如果已经安装可以跳过
+			tar -zxvf pcre-8.21.tar.gz 
+			cd pcre-8.21 
+			./configure --prefix=/usr/local/pcre
+			make
+			make install 
+		 
+		3.安装zlib库
+			tar -zxvf zlib-1.2.8.tar.gz cd zlib-1.2.8 
+			./configure --prefix=/usr/local/zlib
+			make
+			make install 
+		 
+		4.安装ssl
+			tar -zxvf openssl-1.0.1c.tar.gz 
+			./config --prefix=/usr/local/ssl
+			make
+			make install 
+		 
+		5.安装nginx
+		 
+			Nginx 一般有两个版本，分别是稳定版和开发版，您可以根据您的目的来选择这两个版本的其中一个，下面是把 Nginx 安装到 /usr/local/nginx 目录下的详细步骤：
+			 
+			tar -zxvf nginx-1.2.8.tar.gz 
+			cd nginx-1.2.8   
+			#	错误： ./configure --prefix=/usr/local/nginx --with-pcre=/usr/local/pcre --with-zlib=/usr/local/zlib
+			#	正确 ./configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-openssl=/usr/local/openssl --with-pcre=/oracle/software/pcre-8.21
+			make
+			make install 
+			
+			报错：/bin/sh: line 2: ./configure: 没有那个文件或目录
+			make[1]: *** [/usr/local/pcre/Makefile] Error 127 
+			解决：编译nginx怎么会去pcre目录下找makefile呢？那我指定pcre源码目录给它。
+			./configure --prefix=/usr/local/nginx --with-pcre=/oracle/software/pcre-8.21 --with-zlib=/usr/local/zlib
+			
+			
+			报错：
+			make[2]: Entering directory `/usr/local/zlib'
+			make[2]: *** 没有规则可以创建目标“distclean”。 停止。
+			make[2]: Leaving directory `/usr/local/zlib'
+			make[1]: *** [/usr/local/zlib/libz.a] 错误 2
+			make[1]: Leaving directory `/oracle/software/nginx/nginx-1.2.8'
+			make: *** [build] 错误 2
+			解决：
+			./configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-openssl=/usr/local/openssl --with-pcre=/oracle/software/pcre-8.21
+		
+		6.启动
+			确保系统的 80 端口没被其他程序占用，
+			/usr/local/nginx/sbin/nginx
+			 
+			检查是否启动成功：
+			netstat -ano|grep 80 有结果输入说明启动成功
+	打开浏览器访问此机器的 IP，如果浏览器出现 Welcome to nginx! 则表示 Nginx 已经安装并运行成功。
+ 
+	7.重启
+	/usr/local/nginx/sbin/nginx –s reload
+	 
+	8.修改配置文件
+	cd /usr/local/nginx/conf
+	vi nginx.conf
+	
+	配置nginx
+		负载均衡关键配置
+		#weigth参数表示权值，权值越高被分配到的几率越大
+		upstream johnnyTest{
+			server 10.3.64.180:80 weight=3 max_fails=10 fail_timeout=60s;
+			server 10.5.7.116:80 weight=3 max_fails=10 fail_timeout=60s;
+		}
+		
+		location /johnny {        
+			proxy_connect_timeout 75;
+			proxy_read_timeout 259200;
+			proxy_send_timeout 259200;
+			proxy_next_upstream http_502 http_504 error timeout;
+			proxy_pass   http://johnnyTest/;
+			proxy_set_header Host $host;
+			proxy_set_header x-forwarded-for $proxy_add_x_forwarded_for;     
+			proxy_set_header Upgrade $http_upgrade;
+			proxy_set_header Connection "upgrade";
+			client_max_body_size 100M;
+		}
+	
+		重启
+		/usr/local/nginx/sbin/nginx –s reload
+	
+	
+	配置解释
+		#设定http服务器，利用它的反向代理功能提供负载均衡支持
+		http {
+		     #设定mime类型,类型由mime.type文件定义
+		    include       /etc/nginx/mime.types;
+		    default_type  application/octet-stream;
+		    #设定日志格式
+		    access_log    /var/log/nginx/access.log;
+		    #省略上文有的一些配置节点
+		    #。。。。。。。。。。
+		    #设定负载均衡的服务器列表
+		     upstream mysvr {
+		    #weigth参数表示权值，权值越高被分配到的几率越大
+		    server 192.168.8.1x:3128 weight=5;#本机上的Squid开启3128端口
+		    server 192.168.8.2x:80  weight=1;
+		    server 192.168.8.3x:80  weight=6;
+		    }
+		   upstream mysvr2 {
+		    #weigth参数表示权值，权值越高被分配到的几率越大
+		    server 192.168.8.x:80  weight=1;
+		    server 192.168.8.x:80  weight=6;
+		    }
+		   #第一个虚拟服务器
+		   server {
+		    #侦听192.168.8.x的80端口
+		        listen       80;
+		        server_name  192.168.8.x;
+		      #对aspx后缀的进行负载均衡请求
+		    location ~ .*\.aspx$ {
+		         root   /root;      #定义服务器的默认网站根目录位置
+		          index index.php index.html index.htm;   #定义首页索引文件的名称
+		          proxy_pass  http://mysvr ;#请求转向mysvr 定义的服务器列表
+		          #以下是一些反向代理的配置可删除.
+		          proxy_redirect off;
+		          #后端的Web服务器可以通过X-Forwarded-For获取用户真实IP
+		          proxy_set_header Host $host;
+		          proxy_set_header X-Real-IP $remote_addr;
+		          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		          client_max_body_size 10m;    #允许客户端请求的最大单文件字节数
+		          client_body_buffer_size 128k;  #缓冲区代理缓冲用户端请求的最大字节数，
+		          proxy_connect_timeout 90;  #nginx跟后端服务器连接超时时间(代理连接超时)
+		          proxy_send_timeout 90;        #后端服务器数据回传时间(代理发送超时)
+		          proxy_read_timeout 90;         #连接成功后，后端服务器响应时间(代理接收超时)
+		          proxy_buffer_size 4k;             #设置代理服务器（nginx）保存用户头信息的缓冲区大小
+		          proxy_buffers 4 32k;               #proxy_buffers缓冲区，网页平均在32k以下的话，这样设置
+		          proxy_busy_buffers_size 64k;    #高负荷下缓冲大小（proxy_buffers*2）
+		          proxy_temp_file_write_size 64k;  #设定缓存文件夹大小，大于这个值，将从upstream服务器传
+		       }
+		     }
+		}
+		
+安装keepalived
+	下载介质，keepalived属于apache组织，可以从http://www.keepalived.org/download.html下载
+	双机热备是指两台机器都在运行，但并非两台机器同时在提供服务。
+	当提供服务的一台出现故障的时候，另外一台会马上自动接管并且提供服务，且切换的时间非常短。
+	keepalived的工作原理是VRRP——虚拟路由冗余协议。
+	
+环境准备
+	VIP不可跟当前网络的ip重叠
+			Ip			vip
+	Master	10.5.6.196	10.5.7.199
+	Backup	10.5.7.161	10.5.7.199
+	
+	编写两台nginx服务器的区分脚本
+
+	在两台nginx服务器上安装keepalived
+		#	tar xvf keepalived-1.2.22.tar.gz 
+		#	cd keepalived-1.2.22
+		#	./configure --prefix=/usr/local/keepalived
+		#	make
+		#	make install
+	
+		在两台服务器都配置好keepalived后,在分别启动keepalived。
+	建立软链接
+		# ln -s /usr/local/keepalived/sbin/keepalived /sbin/
+		# ln -s /usr/local/keepalived/etc/rc.d/init.d/keepalived /etc/init.d/
+		# ln -s /usr/local/keepalived/etc/sysconfig/keepalived /etc/sysconfig/
+	
+	启动
+		# keepalived -D -f /usr/local/keepalived/etc/keepalived/keepalived.conf
+	关闭
+		# killall keepalived
+	
+	查看主节点log消息:
+		[root@sblreceive bin]# tail -f /var/log/messages
+		Jul  4 20:39:19 sblreceive Keepalived_vrrp[20811]: VRRP sockpool: [ifindex(2), proto(112), unicast(0), fd(10,11)]
+		Jul  4 20:39:20 sblreceive Keepalived_vrrp[20811]: VRRP_Instance(VI_1) Transition to MASTER STATE
+		Jul  4 20:39:21 sblreceive Keepalived_vrrp[20811]: VRRP_Instance(VI_1) Entering MASTER STATE
+		Jul  4 20:39:21 sblreceive Keepalived_vrrp[20811]: VRRP_Instance(VI_1) setting protocol VIPs.
+		Jul  4 20:39:21 sblreceive Keepalived_vrrp[20811]: Sending gratuitous ARP on eth0 for 10.5.7.199
+		Jul  4 20:39:21 sblreceive avahi-daemon[3619]: Registering new address record for 10.5.7.199 on eth0.
+		Jul  4 20:39:21 sblreceive Keepalived_healthcheckers[20810]: Netlink reflector reports IP 10.5.7.199 added
+		Jul  4 20:39:21 sblreceive Keepalived_vrrp[20811]: VRRP_Instance(VI_1) Sending/queueing gratuitous ARPs on eth0 for 10.5.7.199
+		Jul  4 20:39:21 sblreceive Keepalived_vrrp[20811]: Sending gratuitous ARP on eth0 for 10.5.7.199
+		Jul  4 20:39:21 sblreceive last message repeated 3 times
+		Jul  4 20:39:21 sblreceive Keepalived_vrrp[20811]: Netlink reflector reports IP 10.5.7.199 added
+	通过ip a  命令可以看到10.5.7.199/24绑定到了eth0上
+		[root@sblreceive bin]# ip a
+		1: lo: <LOOPBACK,UP,LOWER_UP> mtu 16436 qdisc noqueue 
+		    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+		    inet 127.0.0.1/8 scope host lo
+		2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast qlen 1000
+		    link/ether 00:50:56:94:01:0c brd ff:ff:ff:ff:ff:ff
+		    inet 10.5.6.196/22 brd 10.5.7.255 scope global eth0
+		inet 10.5.7.199/24 scope global eth0
+
+	启动备用节点B的日志
+		[root@RECMOB keepalived]# tail -f /var/log/messages
+		Jul  4 20:20:10 RECMOB kernel: IPVS: ipvs loaded.
+		Jul  4 20:20:10 RECMOB Keepalived_healthcheckers[18854]: Using LinkWatch kernel netlink reflector...
+		Jul  4 20:21:49 RECMOB Keepalived[18890]: Starting Keepalived v1.2.22 (07/04,2016)
+		Jul  4 20:21:49 RECMOB Keepalived[18890]: daemon is already running
+		Jul  4 20:22:34 RECMOB Keepalived[18893]: Starting Keepalived v1.2.22 (07/04,2016)
+		Jul  4 20:22:34 RECMOB Keepalived[18893]: daemon is already running
+		Jul  4 20:23:56 RECMOB Keepalived[18904]: Starting Keepalived v1.2.22 (07/04,2016)
+		Jul  4 20:23:56 RECMOB Keepalived[18904]: daemon is already running
+		Jul  4 20:24:02 RECMOB Keepalived[18905]: Starting Keepalived v1.2.22 (07/04,2016)
+		Jul  4 20:24:02 RECMOB Keepalived[18905]: daemon is already running
+	配置keepalived
+		配置中的state MASTER决定了节点为主节点
+		priority决定了优先级，比如在有多个备用节点的时候，主节点故障后优先级值大的接管。
+
+		主节点配置（keepalived.conf）：
+			global_defs {
+			    router_id NodeA
+			}
+			vrrp_instance VI_1 {
+			    state MASTER    #设置为主服务器
+			    interface eth0  #监测网络接口
+			    virtual_router_id 51  #主、备必须一样
+			    priority 100   #(主、备机取不同的优先级，主机值较大，备份机值较小,值越大优先级越高)
+			    advert_int 1   #VRRP Multicast广播周期秒数
+			    authentication {
+					auth_type PASS  #VRRP认证方式，主备必须一致
+					auth_pass 1111   #(密码)
+				}
+				virtual_ipaddress {
+					10.5.7.199/24  #VRRP HA虚拟地址
+				}
+			}
+		备用节点的配置如下:
+			global_defs {
+			    router_id NodeB
+			}
+			vrrp_instance VI_1 {
+			    state BACKUP    #设置为主服务器
+			    interface eth0  #监测网络接口
+			    virtual_router_id 51  #主、备必须一样
+				priority 90   #(主、备机取不同的优先级，主机值较大，备份机值较小,值越大优先级越高)
+			    advert_int 1   #VRRP Multicast广播周期秒数
+			    authentication {
+				auth_type PASS  #VRRP认证方式，主备必须一致
+				auth_pass 1111   #(密码)
+			}
+			virtual_ipaddress {
+				10.5.7.199/24  #VRRP HA虚拟地址
+			}
+			}
+
+	其他问题
+		nginx宕掉/机器宕掉热备
+		为了解决上一问题，可以利用脚本，当检测到nginx进程宕掉后，自动关闭keepalived进程，从而实现热备份。
+		主节点的配置
+		global_defs {
+		    router_id NodeA
+		}
+		vrrp_script chk_http_port {
+		    script " /usr/local/keepalived/etc/keepalived/check_nginx.sh"
+		    interval 2
+		    weight 2
+		}
+		vrrp_instance VI_1 {
+		    state MASTER    #设置为主服务器
+		    interface eth0  #监测网络接口
+		    virtual_router_id 51  #主、备必须一样
+		    priority 100   #(主、备机取不同的优先级，主机值较大，备份机值较小,值越大优先级越高)
+		    advert_int 1   #VRRP Multicast广播周期秒数
+		    authentication {
+				auth_type PASS  #VRRP认证方式，主备必须一致
+				auth_pass 1111   #(密码)
+			}
+			track_script {
+		        chk_http_port
+		    }
+			virtual_ipaddress {
+				10.5.7.199/24  #VRRP HA虚拟地址
+			}
+		}
+		
+		备用节点
+		global_defs {
+		    router_id NodeB
+		}
+		vrrp_script chk_http_port {
+		    script " /usr/local/keepalived/etc/keepalived/check_nginx.sh"
+		    interval 2
+		    weight 2
+		}
+		vrrp_instance VI_1 {
+		    state MASTER    #设置为主服务器
+		    interface eth0  #监测网络接口
+		    virtual_router_id 51  #主、备必须一样
+		    priority 90   #(主、备机取不同的优先级，主机值较大，备份机值较小,值越大优先级越高)
+		    advert_int 1   #VRRP Multicast广播周期秒数
+		    authentication {
+				auth_type PASS  #VRRP认证方式，主备必须一致
+				auth_pass 1111   #(密码)
+			}
+			track_script {
+		        chk_http_port
+		    }
+			virtual_ipaddress {
+				10.5.7.199/24  #VRRP HA虚拟地址
+			}
+		}
+
+	check_nginx.sh
+		其中/usr/local/keepalived/etc/keepalived/check_nginx.sh为
+		
+		//ps -ef|grep tomcat|grep -v grep|wc -l
+		[root@sblreceive keepalived]# cat check_nginx.sh 
+		#!/bin/bash
+		A=`ps -C nginx --no-header |wc -l`
+		echo $A
+		if [ $A -eq 0 ]
+		then
+		    echo 'nginx server is died'
+		    killall keepalived
+		fi
+
+
+	问题：杀死keepalived进程后，可以实现vip的偏移，但是原机器的vip无法自动删除
+	原因：VRRP协议原理是：只有MASTER对外发送消息。各BACKUP接受消息，当接受不到消息时会在剩下的BACKUP机器中选出新的MASTER。
+	之前用kill -9 pid 或killall pid杀死keepalived进程，导致安装keepalived不能发送信息，BACKUP收不到信息升级为MASTER，但是由于进程被杀死【非正常关闭】，导致keepalived没有能力自己删除vip。
+	解决方案：关闭keepalived时用命令
+	       service keepalived stop  或   kill -15 pid（注：只删除第一个进程号）
+	存在问题：
+	       非正常关闭keepalived。 禁止使用kill -9  或killall杀死keepalived。
+			
+	
+				
+			
+		
