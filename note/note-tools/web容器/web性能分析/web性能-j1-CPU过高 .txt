@@ -1,104 +1,105 @@
-����1��
-	����������
-	���������µ�ĳ̨tomcat7���������ڸշ���ʱ��ʱ��һ�ж���������������һ��ʱ���ͳ���CPUռ�úܸߵ����⣬�������Ǹ���һ���һ��ߡ�
+案例1：
+	问题描述：
+	生产环境下的某台tomcat7服务器，在刚发布时的时候一切都很正常，在运行一段时间后就出现CPU占用很高的问题，基本上是负载一天比一天高。
 
-	���������
-	1����������CPU�ܼ��ͣ��Ϳ�����ͨ�����ų����������
-	2��������������⣬������ѭ���������Լ���
+	问题分析：
+	1，程序属于CPU密集型，和开发沟通过，排除此类情况。
+	2，程序代码有问题，出现死循环，可能性极大。
 
-	��������
-	1�������Ǳ��޷��Ų����ĳ��ģ�������⣬����־��Ҳ�޷������ó���
-	2���ǵ�ԭ��ͨ��strace���ٵķ��������һ̨PHP������CPUռ�øߵ����⣬����ͨ�����ַ�����Ч������google���������ֿ���ͨ������ķ������н�����Ǿͳ����°ɡ�
+	问题解决：
+	1，开发那边无法排查代码某个模块有问题，从日志上也无法分析得出。
+	2，记得原来通过strace跟踪的方法解决了一台PHP服务器CPU占用高的问题，但是通过这种方法无效，经过google搜索，发现可以通过下面的方法进行解决，那就尝试下吧。
 
-	������̣�
-	1������top�������PIDΪ2633��Java����ռ��CPU�ߴ�300%�����ֹ��ϡ�
+	解决过程：
+	1，根据top命令，发现PID为2633的Java进程占用CPU高达300%，出现故障。
 
-	2���ҵ��ý��̺���ζ�λ�����̻߳�����أ�������ʾ�߳��б�,������CPUռ�øߵ��߳�����
+	2，找到该进程后，如何定位具体线程或代码呢，首先显示线程列表,并按照CPU占用高的线程排序：
 	[root@localhost logs]# ps -mp 2633 -o THREAD,tid,time | sort -rn
 
-	��ʾ������£�
+	显示结果如下：
 	USER     %CPU PRI SCNT WCHAN  USER SYSTEM   TID     TIME
 	root     10.5  19    - -         -      -  3626 00:12:48
 	root     10.1  19    - -         -      -  3593 00:12:16
 
-	�ҵ��˺�ʱ��ߵ��߳�3626��ռ��CPUʱ����12�����ˣ�
+	找到了耗时最高的线程3626，占用CPU时间有12分钟了！
 
-	����Ҫ���߳�IDת��Ϊ16���Ƹ�ʽ��
+	将需要的线程ID转换为16进制格式：
 	[root@localhost logs]# printf "%x\n" 3626
 	e18
 
-	����ӡ�̵߳Ķ�ջ��Ϣ��
+	最后打印线程的堆栈信息：
 	[root@localhost logs]# jstack 2633 |grep e18 -A 30
 
 
-	���������Ϣ��������������ȷ�ϣ����������ҳ�������Ĵ��롣
-	ͨ���������ļ�أ�CPU�Ѿ����������ˡ�
+	将输出的信息发给开发部进行确认，这样就能找出有问题的代码。
+	通过最近几天的监控，CPU已经安静下来了。
 
 
-	�ű�show-busy-java-threads.sh https://github.com/oldratlee/useful-scripts/blob/master/docs/java.md#beer-show-busy-java-threadssh 
+	脚本show-busy-java-threads.sh https://github.com/oldratlee/useful-scripts/blob/master/docs/java.md#beer-show-busy-java-threadssh 
 
-	����һ���ҳ��������е�Java�����У�����CPU�����߳�ջ�����ڿ����Ų�Java���������⡣ �������� :)
+	可以一键找出出在运行的Java进程中，消耗CPU最多的线程栈。用于快速排查Java的性能问题。 可以试试 :)
 	
 	
-����2��
-    ƽʱ��Ŀ����ʱ����cpu���ߵ�������ڴ˻����Լ����޵ľ���д���������˴��ķ��������ǻ���linuxƽ̨��
-		cpu��ռ���߳������ܵ���˵��Ϊ���֣�
-		us ���û��ռ�ռ��CPU�ٷֱ�
-		sy ���ں˿ռ�ռ��CPU�ٷֱ�
-	��linux�¿���ͨ��top����鿴��ϸ��ʾ�����£�
+案例2；
+    平时项目中有时遇到cpu过高的情况，在此基于自己有限的经验写个分享，此处的服务器都是基于linux平台。
+		cpu的占有线程类型总的来说分为两种：
+		us ：用户空间占用CPU百分比
+		sy ：内核空间占用CPU百分比
+	在linux下可以通过top命令查看详细，示例如下：
 
-	һ������CPU us�ߵĽ��������
-	CPU us �ߵ�ԭ����Ҫ��ִ���̲߳���Ҫ�κι���������һֱִ�У�����CPU û�л���ȥ����ִ���������̡߳�
-	CPU sy�ߵĽ��������
-	CPU sy �ߵ�ԭ����Ҫ���̵߳�����״̬Ҫ�����л����������������������һ���Ż������Ǽ����߳�����
+	一般来讲CPU us高的解决方法：
+	CPU us 高的原因主要是执行线程不需要任何挂起动作，且一直执行，导致CPU 没有机会去调度执行其他的线程。
+	CPU sy高的解决方法：
+	CPU sy 高的原因主要是线程的运行状态要经常切换，对于这种情况，常见的一种优化方法是减少线程数。
 	 
-	��ƽʱ����Ĳ������£�
-	1.�õ��߳���ߵļ���id��ps- process state��
+	我平时具体的步骤如下：
+	1.得到线程最高的几个id（ps- process state）
 		ps  -eLo pid,lwp,pcpu | grep  15285|sort -nk 3   
 
-	2.����JAVA�߳�ջ��Ϣ
-		���kill -3 [PID] ���� jstack [PID]
+	2.导出JAVA线程栈信息
+		命令：kill -3 [PID] 或者 jstack [PID]
 
-	3.��ջ��Ϣ���ҵ��߳�����ļ���
-		���sort  �ļ��� | uniq -c | sort -nk 1
+	3.从栈信息中找到线程数多的几个
+		命令：sort  文件名 | uniq -c | sort -nk 1
 
-	4.�ֱ�����߳�������ǰʮ���̺߳��߳�ռ��cpu��ߵ�ǰ10���߳�
-		�ⲽ����ؼ��ģ��ҳ���Щ�쳣�㣬����ĳ��ҵ���ܵ�ռ�ýϸߵ�cpu����ĳ�����͵��߳������Ƚ϶࣬�����ҵ���Լ����������ܹ����ģ��ڴ˾Ͳ���˵�ˡ�
+	4.分别分析线程数最多的前十个线程和线程占用cpu最高的前10个线程
+		这步是最关键的，找出这些异常点，比如某个业务功能点占用较高的cpu或者某种类型的线程数量比较多，这个和业务以及具体程序紧密关联的，在此就不多说了。
 
-	5.����ռ��cpu��ߵ�ǰ10���̣߳����ʾ�����£�
-		0x1a5��gc�߳�
+	5.分析占用cpu最高的前10个线程，结果示例如下：
+		0x1a5：gc线程
 		"Concurrent Mark-Sweep GC Thread#0" prio=1 tid=0x0000002b29df1400 nid=0x1a5 runnable 
-		0x35f��memcache�߳�
+		0x35f：memcache线程
 		"memcache5-CacheThread" prio=1 tid=0x0000002b3d277de0 nid=0x35f runnable [0x0000000042755000..0x0000000042755c30]
-		0x35e��memcache�߳�
+		0x35e：memcache线程
 		"memcache1-CacheThread" prio=1 tid=0x0000002b371212f0 nid=0x35e runnable [0x0000000042654000..0x0000000042654cb0]
-		0x14e9��RMI�߳�
+		0x14e9：RMI线程
 		"RMI TCP Connection(102)-10.23.241.59" daemon prio=1 tid=0x0000002b37e72790 nid=0x14e9 runnable [0x000000005103c000..0x000000005103deb0]
-		0x1be��memcache�߳�
+		0x1be：memcache线程
 		"memcache5-CacheThread" prio=1 tid=0x0000002b3dba4790 nid=0x1be runnable [0x0000000041a48000..0x0000000041a48eb0]
-		0x1bd��memcache�߳�
+		0x1bd：memcache线程
 		"memcache1-CacheThread" prio=1 tid=0x0000002b3fb70340 nid=0x1bd runnable [0x0000000041947000..0x0000000041947b30]
-		0x1af��jdk�����߳�
+		0x1af：jdk编译线程
 		"CompilerThread1" daemon prio=1 tid=0x0000002b30e11620 nid=0x1af waiting on condition [0x0000000000000000..0x000000004123f7c0]
-		0x1ae��jdk�����߳�
+		0x1ae：jdk编译线程
 		"CompilerThread0" daemon prio=1 tid=0x0000002b30e10280 nid=0x1ae waiting on condition [0x0000000000000000..0x000000004113e440]
-		0x1684��http�����̣߳�ͨ�����߳�ջ���Կ����˴����õ���hibernate��ѯ
+		0x1684：http请求线程，通过该线程栈可以看到此处调用的是hibernate查询
 		"http-8080-Processor123" daemon prio=1 tid=0x0000002b37dfd9d0 nid=0x1684 runnable [0x000000005afd7000..0x000000005afdcd30]
 
 	--------------------------------------------------------------------------------------------------------------------------------
-	 6.ϵͳ�Ż�
-		  ����ҳ�����Щ���ܵ�ռ��cpu�ߣ�����������Ҫ�Ż��ˣ����Դ�ҵ��ͼ����ֶ������������У�ƽʱ�����бȽϳ��õļ����ֶΣ�
-		  ����ʱ�䣺�Ը�ʹ���ʵ����󣬷�ɢ����ͬ��ʱ�䣬������ö��л��첽������ͬһʱ�䴦��������
-		  ��������ʱ���񣺰�������ϳ�������������ʹ��ʱ������Ķ���Ч�������˴����ϣ����������紫���׼�������ϡ����������紫�䡢���ݿ����ӡ�socket���ӣ�
-		  ���棺����������������ռ任ʱ�䡣
+	 6.系统优化
+		  如果找出了哪些功能点占用cpu高，接下来就需要优化了，可以从业务和技术手段两方面来进行，平时工作中比较常用的技术手段：
+		  弹性时间：对高使用率的请求，分散到不同的时间，比如采用队列或异步，减少同一时间处理的请求。
+		  批处理或定时任务：把请求组合成批，这样可以使得时间真真的都有效的用在了处理上，而不是网络传输等准备工作上。（减少网络传输、数据库连接、socket连接）
+		  缓存：将结果缓存起来，空间换时间。
 	  --------------------------------------------------------------------------------------------------------------------------------
 
-	7.�����gc�̱߳ȽϷ�ʱ������Ҫ��һ���Ķ�λ��
-		  ���Ȳ鿴һ��gc�����Ƿ������Ȼ��������jmap -F -dump:live,file=jmap.hprof [PID] �����ڴ�dump�ļ�����һ��ÿ��5s��һ�Σ�һ������3�Ρ�
-		  ��Eclipse Memory Analyzer�������������ļ����������ĸ���ռ���ڴ�Ƚ϶࣬���������ܴ����ڴ�й¶�ĵط���
-		  ע��jvm�����ڴ�ʱһ�������ķ���ȶ��С����ķ���Ч��Ҫ�ͣ��������Ƚϴ󣬽��в�������Ч�ʣ�����ԭ�����£�
-		  Java������ռ�õ��ڴ���Ҫ�Ӷ��Ͻ��з��䣬���������̹߳����ģ�����ڶ��Ϸ����ڴ�ʱ��Ҫ���м������⵼���˴����������Ƚϴ󡣵����Ͽռ䲻��ʱ���ᴥ��GC�����GC��ռ���Ȼ���㣬
-		  ���׳�OutOfMemory������Ϣ��Sun JDKΪ�������ڴ�����Ч�ʣ���Ϊÿ���´������߳�����������Eden Space�Ϸ���һ������Ŀռ䣬
-		  ���ռ��ΪTLAB��Thread Local Allocation Buffer�������С��JVM�����������������ã���ͨ��-XX:TLABWasteTargetPercent������TLAB��ռ�õ�Eden Space�İٷֱȣ�Ĭ��ֵΪ1%��
-		  JVM������������ʡ��߳��������߳��Ƿ�Ƶ�������������ÿ���̷߳�����ʴ�С��TLAB�ռ� ����TLAB�Ϸ����ڴ�ʱ����Ҫ���������JVM�ڸ��߳��еĶ�������ڴ�ʱ�ᾡ����TLAB�Ϸ��䣬
-		  �����������TLAB�ռ������꣬����Ȼ�ڶ��Ͻ��з��䣬����ڱ�дJava����ʱ��ͨ�����С�Ķ���ȴ�Ķ�������������Ӹ�Ч��
+	7.如果是gc线程比较费时，则需要进一步的定位：
+		  首先查看一下gc策略是否合理，然后用命令jmap -F -dump:live,file=jmap.hprof [PID] 导出内存dump文件，我一般每隔5s导一次，一共导出3次。
+		  用Eclipse Memory Analyzer分析导出来的文件，分析是哪个类占用内存比较多，分析出可能存在内存泄露的地方。
+		  
+		  注意jvm分配内存时一个大对象的分配比多个小对象的分配效率要低，如果对象比较大，进行拆分能提高效率，具体原因如下：
+		  Java对象所占用的内存主要从堆上进行分配，堆是所有线程共享的，因此在堆上分配内存时需要进行加锁，这导致了创建对象开销比较大。当堆上空间不足时，会触发GC，如果GC后空间仍然不足，
+		  则抛出OutOfMemory错误信息。Sun JDK为了提升内存分配的效率，会为每个新创建的线程在新生代的Eden Space上分配一块独立的空间，
+		  这块空间称为TLAB（Thread Local Allocation Buffer），其大小由JVM根据运行情况计算而得，可通过-XX:TLABWasteTargetPercent来设置TLAB可占用的Eden Space的百分比，默认值为1%。
+		  JVM将根据这个比率、线程数量及线程是否频繁分配对象来给每个线程分配合适大小的TLAB空间 。在TLAB上分配内存时不需要加锁，因此JVM在给线程中的对象分配内存时会尽量在TLAB上分配，
+		  如果对象过大或TLAB空间已用完，则仍然在堆上进行分配，因此在编写Java程序时，通常多个小的对象比大的对象分配起来更加高效。
