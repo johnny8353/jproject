@@ -1,0 +1,12 @@
+create database dbtest1;
+create database dbtest2;
+create database dbtest3;
+
+分别在这三个数据库中创建下面的表：
+CREATE TABLE `cont` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `taobaoId` bigint(20) DEFAULT '0',
+  `name` varchar(20) DEFAULT '',
+  `upd_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;

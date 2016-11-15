@@ -1,0 +1,149 @@
+
+检查是否已安装，grep的-i选项表示匹配时忽略大小写
+	
+	[root@localhost JavaEE]#rpm -qa|grep -i mysql
+	
+	mysql-libs-5.1.61-4.el6.x86_64
+	
+	可见已经安装了库文件，应该先卸载，不然会出现覆盖错误。注意卸载时使用了--nodeps选项，忽略了依赖关系：
+	
+	[root@localhost JavaEE]#rpm -e mysql-libs-5.1.61-4.el6.x86_64 --nodeps
+
+安装MySQL的服务器端软件，注意切换到root用户：
+	
+	[root@localhost JavaEE]#rpm -ivh MySQL-server-5.5.29-2.el6.x86_64.rpm 
+	
+	安装完成后，安装进程会在Linux中添加一个mysql组，以及属于mysql组的用户mysql。可通过id命令查看：
+	
+	[root@localhost JavaEE]#id mysql
+	
+	uid=496(mysql)gid=493(mysql) groups=493(mysql)
+	
+	MySQL服务器安装之后虽然配置了相关文件，但并没有自动启动mysqld服务，需自行启动：
+	
+	[root@localhost JavaEE]#service mysql start
+	
+	Starting MySQL.. SUCCESS!
+	
+	可通过检查端口是否开启来查看MySQL是否正常启动：
+	
+	[root@localhost JavaEE]#netstat -anp|grep 3306
+	
+	tcp        0     0 0.0.0.0:3306               0.0.0.0:*                   LISTEN      34693/mysqld 
+
+安装MySQL的客户端软件：
+	
+	[root@localhost JavaEE]#rpm -ivh MySQL-client-5.5.29-2.el6.x86_64.rpm
+	
+	如果安装成功应该可以运行mysql命令，注意必须是mysqld服务以及开启：
+	
+	[root@localhost JavaEE]#mysql
+	
+	Welcome to the MySQLmonitor.  Commands end with ; or \g.
+	
+	Your MySQL connection idis 1
+	
+	Server version: 5.5.29MySQL Community Server (GPL)
+	
+	Copyright (c) 2000, 2012,Oracle and/or its affiliates. All rights reserved.
+	
+	Oracle is a registered trademarkof Oracle Corporation and/or its affiliates. Other names may be trademarks oftheir respective owners.
+	
+	Type 'help;' or '\h' forhelp. Type '\c' to clear the current input statement.
+	
+	mysql>
+
+d.  RPM安装方式文件分布
+	Directory
+	 Contents of Directory
+	 
+	/usr/bin
+	 Client programs and scripts
+	 
+	/usr/sbin
+	 The mysqld server
+	 
+	/var/lib/mysql
+	 Log files, databases
+	 
+	/usr/share/info
+	 Manual in Info format
+	 
+	/usr/share/man
+	 Unix manual pages
+	 
+	/usr/include/mysql
+	 Include (header) files
+	 
+	/usr/lib/mysql
+	 Libraries
+	 
+	/usr/share/mysql
+	 Miscellaneous support files, including error messages, character set files, sample configuration files, SQL for database installation
+	 
+	/usr/share/sql-bench
+	 Benchmarks
+ 
+修改数据文件位置
+	
+rpm方式安装的MySQL服务如何修改数据文件目录
+	mkdir -p /data/mysql 
+	修改mysql用户家目录为/data/mysql 
+		mysql:x:27:27:MySQL Server:/data/mysql:/bin/bash 
+	chown mysql.mysql /data/mysql/ 
+	chmod -R 775 /data/mysql/
+	
+	vi /etc/my.cnf 
+		# For advice on how to change settings please see
+		# http://dev.mysql.com/doc/refman/5.6/en/server-configuration-defaults.html
+		
+		[mysqld]
+		
+		# Remove leading # and set to the amount of RAM for the most important data
+		# cache in MySQL. Start at 70% of total RAM for dedicated server, else 10%.
+		# innodb_buffer_pool_size = 128M
+		
+		# Remove leading # to turn on a very important data integrity option: logging
+		# changes to the binary log between backups.
+		# log_bin
+		
+		# These are commonly set, remove the # and set as required.
+		# basedir = .....
+		# datadir = .....
+		# port = .....
+		# server_id = .....
+		# socket = .....
+		
+		# Remove leading # to set options mainly useful for reporting servers.
+		# The server defaults are faster for transactions and fast SELECTs.
+		# Adjust sizes as needed, experiment to find the optimal values.
+		# join_buffer_size = 128M
+		# sort_buffer_size = 2M
+		# read_rnd_buffer_size = 2M 
+		
+		sql_mode=NO_ENGINE_SUBSTITUTION
+		
+		[mysql]
+		default-character-set=utf8
+		[client]
+		socket=/data/mysql/mysql.sock 
+		default-character-set=utf8
+		[mysqld]
+		# The MySQL server  #修改mysqld服务器端的内容  
+		log-bin=master-bin #主服务器二进制日志文件前缀名  
+		log-bin-index=master-bin.index  #索引文件  
+		innodb_file_per_table= 1    # 开启innodb的一表一个文件的设置  
+		server-id       = 1         # 必须是唯一的  
+		socket=/data/mysql/mysql.sock
+		character_set_server=utf8
+		init_connect='SET NAMES utf8'
+		datadir=/data/mysql
+		log-error=/data/mysql/error.log
+		pid-file=/data/mysql/mysql.pid
+		lower_case_table_names=1
+	所以需要关闭selinux才可以，关闭selinux cat /etc/selinux/config  重启
+	#	/usr/bin/mysql_install_db --datadir=/data/mysql --user=mysql 
+	#	/usr/bin/mysqld_safe & 
+	
+	service  mysqld  restart时候不会自动执行 /usr/bin/mysqld_safe &
+	

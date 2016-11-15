@@ -1,0 +1,283 @@
+4、一主一从实验演示，本实验都使用多实例演示。
+1)、安装MySQL
+/usr/bin/mysql_install_db --datadir=/data/mysql --user=mysql 
+
+2)、为主服务器提供配置文件
+cp /usr/local/mysql/support-files/my-small.cnf /data/3306/my.cnf 
+vim /data/3306/my.cnf  
+[client]
+#password       = your_password
+port            = 3306
+socket          = /tmp/mysql.sock1
+# The MySQL server
+[mysqld]
+port            = 3306
+socket          = /tmp/mysql.sock1
+skip-external-locking
+key_buffer_size = 16K
+max_allowed_packet = 1M
+table_open_cache = 4
+sort_buffer_size = 64K
+read_buffer_size = 256K
+read_rnd_buffer_size = 256K
+net_buffer_length = 2K
+thread_stack = 128K
+  
+datadir = /data/3306/data    #指定数据存放位置
+server-id       = 3306     #指定一个唯一的server id，可以使用ip后8位，本机采用端口
+log-bin=/data/3306/data/mysql-bin  #二进制日志的位置
+binlog_format=mixed            #二进制日志的格式
+sync_binlog=1              #MySQL在每次提交事物前会把二进制日志同步到磁盘上面。
+
+3)、为备服务器提供配置文件
+
+cp /usr/local/mysql/support-files/my-small.cnf /data/3307/my.cnf
+vim /data/3307/my.cnf
+[client]
+#password       = your_password
+port            = 3307
+socket          = /tmp/mysql.sock2
+# The MySQL server
+[mysqld]
+port            = 3307
+socket          = /tmp/mysql.sock2
+skip-external-locking
+key_buffer_size = 16K
+max_allowed_packet = 1M
+table_open_cache = 4
+sort_buffer_size = 64K
+read_buffer_size = 256K
+read_rnd_buffer_size = 256K
+net_buffer_length = 2K
+thread_stack = 128K
+  
+datadir = /data/3307/data  #指定数据存放位置
+server-id       = 3307   #为备服务器提供唯一的server id
+relay-log = /data/3307/data/relay-log    #指定中继日志的位置和名称 *
+log_bin = /data/3307/data/mysql-bin    #指定二进制日志的位置和名称
+log_slave_updates = 1    #允许备库将其重放的事件也记录到自身的二进制日志中。
+read_only = 1   #该选项会阻止任何没有特权权限的线程修改数据。 *
+skip_slave_start #该选项能够阻止备库在崩溃后自动启动复制，崩溃后启动复制，数据可能不一致
+#sysnc_master_info = 1 
+#sync_relay_log = 1
+#sync_relay_log_info = 1
+
+4)、主库创建复制账号
+mysql -S /tmp/mysql.sock1   #登录主服务器
+
+mysql> grant replication slave on *.* to 'rep'@'10.5.172.146
+' identified by '1230';  #创建并授权复制账号
+Query OK, 0 rows affected (0.05 sec)
+
+mysql>flush privileges;  #刷新权限
+Query OK, 0 rows affected (0.05 sec)
+
+5)、为备库提供数据，备库和主库数据不一致会出现错误，生产场景下，大多数也是主库已经运行了一段时间了。这里给主库做个全备，然后恢复到备库上面。  
+mysqldump -u root -p -S /data/mysql/mysql.sock -A -B -x --events --master-data=1 > /data/data.sql;    #做一次完全备份
+mysql -S /data/mysql/mysql.sock < /data/data.sql;     #备库恢复数据
+
+6)、备库连接主库
+
+mysql -S /tmp/mysql.sock2  #登录备库
+mysql> CHANGE MASTER TO
+    -> MASTER_HOST='10.5.172.146',
+    -> MASTER_PORT=3306,
+    -> MASTER_USER='rep',
+    -> MASTER_PASSWORD='123456';  
+    CHANGE MASTER TO MASTER_HOST='10.5.172.146',MASTER_PORT=3306,MASTER_USER='rep',MASTER_PASSWORD='1230';  
+#注意：因为备份的时候指定了--master-data=1,里面已经告诉了备库，主库复制的二进制的位置，假如没有指定--master-data=1 ;
+mysql> show master status;   #在主库上，查看当前二进制日志的位置
++------------------+----------+--------------+------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++------------------+----------+--------------+------------------+
+| mysql-bin.000006 |      402 |              |                  |
++------------------+----------+--------------+------------------+
+1 row in set (0.00 sec)
+  
+#备库上面，执行change master 的时候需要如下指定指定
+mysql> CHANGE MASTER TO
+    -> MASTER_HOST='192.168.198.139',
+    -> MASTER_PORT=3306,
+    -> MASTER_USER='rep',
+    -> MASTER_PASSWORD='123456',
+    ->MASTER_LOG_FILE='mysql-bin.000006',   #指定二进制日志的名称
+    ->MASTER_LOG_POS=402;   # 指定二进制日志位置
+    
+    CHANGE MASTER TO MASTER_HOST='10.5.172.146',MASTER_PORT=3306,MASTER_USER='rep',MASTER_PASSWORD='1230',MASTER_LOG_FILE='master-bin.000005',MASTER_LOG_POS=3427;  
+    
+7)、启动复制
+mysql> start slave;  
+Query OK, 0 rows affected (0.00 sec)
+mysql> stop slave;
+mysql> show slave status\G
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 192.168.198.139
+                  Master_User: rep
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000006
+          Read_Master_Log_Pos: 402
+               Relay_Log_File: relay-log.000003
+                Relay_Log_Pos: 253
+        Relay_Master_Log_File: mysql-bin.000006
+             Slave_IO_Running: Yes        #IO线程状态
+            Slave_SQL_Running: Yes             #SQL线程状态
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 402
+              Relay_Log_Space: 549
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: 0       #备库落后主库的秒数，然而有时可能并不准确
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 3306
+1 row in set (0.00 sec)
+
+8)、查看主库和备库进程状态
+mysql> show processlist\G    #这是主库
+*************************** 1. row ***************************
+     Id: 9
+   User: root
+   Host: localhost
+     db: NULL
+Command: Query
+   Time: 0
+  State: NULL
+   Info: show processlist
+*************************** 2. row ***************************
+     Id: 10
+   User: rep
+   Host: 192.168.198.139:37230
+     db: NULL
+Command: Binlog Dump
+   Time: 348
+  State: Master has sent all binlog to slave; waiting for binlog to be updated   #线程状态
+   Info: NULL
+2 rows in set (0.00 sec)
+### 
+mysql> show processlist\G    #从库线程状态
+*************************** 1. row ***************************
+     Id: 3
+   User: root
+   Host: localhost
+     db: NULL
+Command: Query
+   Time: 0
+  State: NULL
+   Info: show processlist
+*************************** 2. row ***************************
+     Id: 12
+   User: system user
+   Host:
+     db: NULL
+Command: Connect
+   Time: 395
+  State: Waiting for master to send event     #从库IO线程状态
+   Info: NULL
+*************************** 3. row ***************************
+     Id: 13
+   User: system user
+   Host:
+     db: NULL
+Command: Connect
+   Time: 395
+  State: Slave has read all relay log; waiting for the slave I/O thread to update it   #从库SQL线程状态
+   Info: NULL
+3 rows in set (0.00 sec)
+
+9)、复制文件信息
+mysql-bin.index  #二进制文件索引，不可以被删除，立面每一行包含一个二进制文件的文件名，如果被删除，MySQL将识别不了二进制文件
+cat /data/3306/data/mysql-bin.index
+./mysql-bin.000001
+./mysql-bin.000002
+/data/3306/data/mysql-bin.000003
+/data/3306/data/mysql-bin.000004
+/data/3306/data/mysql-bin.000005
+/data/3306/data/mysql-bin.000006
+
+mysql-relay-bin-index  #中继日志的索引文件，和mysql-bin.index 作用类似
+cat /data/3307/data/relay-log.index
+/data/3307/data/relay-log.000002
+/data/3307/data/relay-log.000003
+
+master.info #保存备库连接到主库的信息，格式为纯文本，该文件不能被删除，否则备库无法连接到主库  
+master.info内容  #请自行查看
+relay-log.info #包含当前备库复制的二进制日志和中继日志坐标，不可删除，否则备库不知道从哪个位置开始复制
+行 描述  
+/data/3307/data/relay-log.000003    # Relay_Log_File
+253                                 # Relay_Log_Pos
+mysql-bin.000006                    # Master_Log_File
+402                                 # Exec_Master_Log_Pos 
+967                             #####
+
+5、测试结果
+主库：
+mysql> use test;
+Database changed
+mysql> create table student (                     #在主库上创建表，并且插入数据
+    -> id int(2) AUTO_INCREMENT PRIMARY KEY,
+    -> names char(20));
+Query OK, 0 rows affected (0.19 sec)
+  
+mysql> insert into student(names) values('yun zhongehe');
+Query OK, 1 row affected (0.03 sec)
+从库：
+mysql> select * from test.student;    #在从库上查看主库的数据是否同步过来
+
+6、额外的配置参数
+6.1、推荐的复制选项
+skip_slave_errors = xxx,xxx  #从服务器再复制过程中忽略的错误类型，xxx为mysql错误代码。
+skip_slave_start  #从服务器崩溃之后，重新启动，不会自动复制
+log_slave_updates=1  #可以把S变成M，让从服务器把自身复制的事件和记录都写到自己的二进制日志里 
+read_only=1   #从机会阻止没有特殊权限的线程更改数据，即就是从机只能读，不能写. 
+sync_binlog = 1 #主机每次提交事务的时候把二进制日志的内容同步到磁盘上，所以即使服务器崩溃，也会把事件写入日志中。
+
+6.2复制过滤选项
+binlog_do_db   #只复制指定的数据库(主服务器配置文件里设置) binlog_ignore_db   #不复制指定的数据库(主服务器配置文件里设置)
+replicate_do_db  #从服务器复制指定的数据库
+replicate_ignore_db #从服务器不复制指定的数据库   
+replicate_ignore_table  #不复制指定的表(从服务器配置文件里设置) 
+replicate_wild_ignore_table  #使用wild匹配来不复制的指定表(从服务器配置文件里设置),比如参数设为abc.%,表示不复制abc的所有表。
+
+
+7、提升备库成为主库
+有些情况需要将备库提升为主库，一种情况是计划内的，另一种是计划外的，如主库宕机。
+7.1计划内的提升
+	1)、停止当前主库上所有的写操作，如果可以，最好将所有的客户端程序关闭，如果正在使用虚拟IP地址，也可以简单的关闭虚拟IP，然后断开所有的客户端连接以关闭其打开的事物。
+	2)、通过Flush tables with read lock; 在主库停止所有活跃的写入，这一步是可选的。这时刻应该禁止向即将被替换的主库写入，因为写入的任何数据意味着丢失。为了更好的保证这一点，可以kill所有打开的事物，这会真正的结束所有写入。
+	3)、选择一个备库作为主库，并确保它执行完所有从主库获得的中继日志。
+	4)、确保新主库和旧主库的数据是一致的。
+	5)、新主库执行stop slave;
+	6)、在新主库执行CHANGE MASTER TO MASTER_HOST='';，然后执行RESET SLAVE，使其断开与老主库的连接，并丢弃master.info 里面的信息。如果连接信息保存在my.cnf里面，会无法正确工作
+	7)、执行SHOW MASTER STATUS；记录新主库的二进制日志坐标
+	8)、确保其它备库已经赶上。
+	9)、关闭旧主库
+	10)、在MySQL 5.1 以及以上的版本，如果需要，激活新主库的事件
+	11)、将客户端连接到新主库
+	12)、在每台备库上面，执行CHANGE MASTER TO语句使用之前通过SHOW MASTER STATUS获得的二进制坐标日志，来指向新的主库。
+7.2计划外的提升
+	1)、确定那台备库的数据最新，检查每台备库上SHOW SLAVE STATUS；命令的输出，选择值最新的哪一个
+	2)、让所有的被执行完所有其从崩溃前的旧主库获得的中继日志，如果再未完成前修改备库的主库，它会抛弃剩下的日志事件，从而无法获得该备库在什么地方停止。
+	3)、执行计划内提升的5~7步。
+	4)、比较每台备库和新主库的MASTER_LOG_FILE/Read_Master_Log_Pos的值。
+	5)、执行计划内提升的的10~12步。

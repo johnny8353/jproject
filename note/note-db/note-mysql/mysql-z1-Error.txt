@@ -1,0 +1,62 @@
+》》	service mysqld start 启动报错
+	The server quit without updating PID file
+	
+	1.可能是/usr/local/mysql/data/rekfan.pid文件没有写的权限
+	解决方法 ：给予权限，执行 “chown -R mysql:mysql /var/data” “chmod -R 755 /usr/local/mysql/data”  然后重新启动mysqld！
+	
+	2.可能进程里已经存在mysql进程
+	解决方法：用命令“ps -ef|grep mysqld”查看是否有mysqld进程，如果有使用“kill -9  进程号”杀死，然后重新启动mysqld！
+	
+	3.可能是第二次在机器上安装mysql，有残余数据影响了服务的启动。
+	解决方法：去mysql的数据目录/data看看，如果存在mysql-bin.index，就赶快把它删除掉吧，它就是罪魁祸首了。本人就是使用第三条方法解决的 ！http://blog.rekfan.com/?p=186
+	
+	4.mysql在启动时没有指定配置文件时会使用/etc/my.cnf配置文件，请打开这个文件查看在[mysqld]节下有没有指定数据目录(datadir)。
+	解决方法：请在[mysqld]下设置这一行：datadir = /usr/local/mysql/data
+	
+	5.skip-federated字段问题
+	解决方法：检查一下/etc/my.cnf文件中有没有没被注释掉的skip-federated字段，如果有就立即注释掉吧。
+	
+	6.错误日志目录不存在
+	解决方法：使用“chown” “chmod”命令赋予mysql所有者及权限
+	
+	7.selinux惹的祸，如果是centos系统，默认会开启selinux
+	解决方法：关闭它，打开/etc/selinux/config，把SELINUX=enforcing改为SELINUX=disabled后存盘退出重启机器试试。
+	
+》》mysqladmin: connect to server at 'localhost' failed
+	1  登陆失败,mysqladmin修改密码失败
+	[root@mysql var]# mysqladmin -u root password '123456'
+	mysqladmin: connect to server at 'localhost' failed
+	error: 'Access denied for user 'root'@'localhost' (using password: NO)'
+	2 停止mysql服务
+	[root@mysql var]# /etc/init.d/mysqld stop
+	Shutting down MySQL.... SUCCESS!
+	3 安全模式启动
+	[root@mysql var]# mysqld_safe --skip-grant-tables &
+	/opt/mysql/product/5.5.25a/bin/mysqld_safe --skip-grant-tables &
+	[1] 10912
+	[root@mysql var]# 110407 17:39:28 mysqld_safe Logging to '/usr/local/mysql/var//mysql.chinascopefinanical.com.err'.
+	110407 17:39:29 mysqld_safe Starting mysqld daemon with databases from /usr/local/mysql/var/
+	
+	4 无密码root帐号登陆
+	[root@mysql var]# /usr/bin/mysql -uroot -p 【注释，在下面的要求你输入密码的时候，你不用管，直接回车键一敲就过去了】
+	Enter password:
+	Welcome to the MySQL monitor.  Commands end with ; or \g.
+	Your MySQL connection id is 48
+	Server version: 5.1.41-log Source distribution
+	
+	
+	Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+	
+	
+	mysql> use mysql;
+	Database changed
+	5 手动update修改密码
+	mysql> update user set password=password("guxxxxxahyVh") where user='root' and host='localhost';
+	Query OK, 1 row affected (0.00 sec)
+	Rows matched: 1  Changed: 1  Warnings: 0
+	
+	
+	mysql> flush privileges;
+	Query OK, 0 rows affected (0.00 sec)
+	
+		

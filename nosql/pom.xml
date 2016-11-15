@@ -15,6 +15,7 @@
         <module>redis-demo</module>
         <module>ehcache-demo</module>
         <module>mysql-demo</module>
+        <module>cobar-demo</module>
     </modules>
 	
 	<dependencies>

@@ -1,0 +1,60 @@
+修改登录密码
+ 
+	MySQL默认没有密码
+	usr/bin/mysqladmin -u root password 'new-password'
+	格式：
+	mysql -u用户名 -p旧密码
+	
+	启动与停止
+	MySQL安装完成后启动文件mysql在 /etc/init.d 目录下，在需要启动时运行下面命令即可
+	启动：
+	/etc/init.d/mysql start
+	停止：
+	/usr/bin/mysqladmin -u root -p shutdown
+	重新启动：
+	sudo  /etc/init.d/mysql restart
+	
+自动启动：
+	察看mysql是否在自动启动列表中 /sbin/chkconfig --list
+	把MySQL添加到你系统的启动服务组里面去 /sbin/chkconfig --add mysql
+	把MySQL从启动服务组里面删除 /sbin/chkconfig --del mysql
+	
+7.添加远程访问权限
+	
+	mysql> use mysql; 
+	Reading table information for completion of table and column names
+	You can turn off this feature to get a quicker startup with -A
+	
+	Database changed
+	mysql> update user set host = '%' where user = 'root'  and host='localhost';
+	Query OK, 1 row affected (0.00 sec)
+	Rows matched: 1  Changed: 1  Warnings: 0
+	
+	
+	mysql> select host, user from user;
+	+-----------+-----------+
+	| host      | user      |
+	+-----------+-----------+
+	| %         | root      |
+	| localhost | mysql.sys |
+	+-----------+-----------+
+	重启生效
+	/etc/init.d/mysqld restart
+	
+	grant all on *.* to user_1@'%' Identified by '123';
+	grant all privileges on *.* to root@"%" identified by "1230";
+	flush privileges;
+	这相当于是重新加载一下mysql权限，这一步必须有。
+	再次输入select user,password,host from user;
+	可以看到host中已经有了新加的IP。
+	
+中文乱码	
+	SHOW VARIABLES LIKE 'character_set_%'	
+	检查编码设为 utf-8,这样可以兼容世界上所有字符
+	
+备份与恢复
+	备份
+	进入到库目录，cd /val/lib/mysql
+		mysqldump -u root -p --opt aaa > back_aaa
+	恢复
+		mysql -u root -p ccc < back_aaa
