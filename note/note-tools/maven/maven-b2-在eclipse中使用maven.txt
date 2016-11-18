@@ -1,0 +1,55 @@
+二、配置Maven插件
+	2.1、配置使用的Maven
+		我们不使用默认安装的那个Maven，配置我们自己下载安装好的那个Maven 
+		window->preferences-Maven-Installations-add(D:\apache-maven-3.3.9)
+	2.2、配置User Settings
+　　		window->preferences-Maven-User Settings
+		在之前安装和配置Maven时，我已经将Maven本地仓库的位置设置成了"E:\repository"目录，所以需要将"C:\Users\gacl\.m2\repository"改成"E:\repository"
+		首先找到Maven安装目录下的conf目录下的settings.xml文件
+	2.3、配置Maven编译时使用的JDK
+	　　	因为Maven必须要JDK1.6以上才能够正常运行，所以需要配置一下Eclipse使用的JDK。
+	　　	进入window->preferences窗口，选择java->Installed JREs，通过add按钮增加jdk对对应的路径加进来，否则在编译的时候会报错：
+	　　	No compiler is provided in this environment. Perhaps you are running on a JRE rather than a JDK?
+		接着，进入Installed JREs的子项Execute Environment：在左侧选择JavaSE-1.5、JavaSE-1.6、JavaSE-1.7，右侧选择编译时使用的jdk版本
+	2.4、在Default VM arguments中设置
+		-Dmaven.multiModuleProjectDirectory=D:\apache-maven-3.3.9
+		否则会报错-Dmaven.multiModuleProjectDirectory system property is not set.
+	2.5、build path添加maven dependencies
+		项目-maven-update project
+		
+普通java工程，需要把它转换成maven project
+	操作步骤如下：
+		1、右键工程--maven--Disable maven nature 
+		2、在当前目录下执行命令（就是有pom.xml文件的那个目录） —— mvn eclipse:clean 
+		3、重新转换该工程为maven工程。右键工程--- 'Configure'--- 'Convert to meven project'			
+		
+如何在eclipse中使用maven
+　　	我使用的eclipse有自带的maven插件，因此直接创建就可以了。这里就不介绍如何安装maven了。下面介绍一下maven工程的创建：
+	1 如何创建maven工程：
+　　		直接点击新建，在里面可以找到Maven选项卡，点击Maven Project创建Maven工程
+　　	2 选择默认的工程位置
+　　	3 创建工程。
+		maven-archetype-quickstart 		-创建普通的maven工程
+		maven-archetype-webapp			-创建web工程
+　　	4 填写相关的groupId artifactId version等信息
+　　		点击完成就创建好了一个简单的maven工程。
+
+Eclipse中maven常用的命令
+　　	点击Run As就可以发现几个Maven的命令：
+　　	Maven Build:
+　　	这个命令用于编译Maven工程，执行命令后会在target文件夹中的classes中生成对应的class文件。
+　	Maven Clean:
+　　	删除target文件夹，即删除生成的package包以及class等文件。
+　　	Maven Test:
+　　	先自动进行编译，在运行所有的测试用例。
+　　	Maven install:
+　　	发布生成对应的package包。
+
+　　	注意：
+	留意上面的命令的作用，build和test都会生成相应的class文件。也就是说，当你新建一个maven工程，或者clean一个maven工程后，如果没有使用这两个命令，
+	直接针对类进行测试，会跑出java.class.notfound的错误。因为此时还没有编译生成class文件，如果有朋友发现这个问题注意一下就好了。
+	（该部分只针对旧版本，新版本如maven3.3是可以自动编译的）
+
+	只有使用了上面的两个命令后，才能针对某个类进行单元测试。
+	
+		

@@ -1,0 +1,152 @@
+https://my.oschina.net/xiaokaceng/blog/169530
+
+版本：nexus-3.1.0-04-win64.zip  http://www.sonatype.com/nexus-repository-oss
+端口修改：etc/nexus-default.properties  默认为8081
+
+版本：nexus-2.14.1-01-bundle.zip
+端口修改：conf/nexus.properties
+
+安装启动nexus
+	先安装、再启动。启动脚本在{nexus_HOME}\bin\jsw\windows-x86-32下面。Installnexus.bat是安装、Startnexus.bat是启动。
+	默认是占用了您机器的8081端口。启动前请务必保证该端口未被占用。
+	
+Repository
+	列出来的都是仓库，一般用到的仓库种类是hosted、proxy。
+	Hosted代表宿主仓库，用来发布一些第三方不允许的组件，比如oracle驱动、比如商业软件jar包。
+	Proxy代表代理远程的仓库，最典型的就是Maven官方中央仓库、JBoss仓库等等。如果构建的Maven项目本地仓库没有依赖包，那么就会去这个代理站点去下载，
+	那么如果代理站点也没有此依赖包，就回去远程中央仓库下载依赖，这些中央仓库就是proxy。代理站点下载成功后再下载至本机。
+	
+	笔者认为，其实Maven这个自带的默认仓库一般情况下已经够大多数项目使用了。
+	Nexus中仓库组的概念是Maven没有的，在Maven看来，不管你是hosted也好，proxy也好，或者group也好，对我都是一样的，我只管根据groupId，artifactId，version等
+	信息向你要构件。为了方便Maven的配置，Nexus能够将多个仓库，hosted或者proxy合并成一个group，这样，Maven只需要依赖于一个group，便能使用所有该group包含的仓库的内容。
+	
+设置代理：
+server--Default Http Proxy Settings
+
+Nexus更新索引
+Repository 进行update index的时候会报错：
+	Cannot fetch remote index for repository "Central"
+	
+1.手动更新
+	1.  下载索引文件
+	在http://repo.maven.apache.org/maven2/.index/ 中下载
+	nexus-maven-repository-index.gz
+	nexus-maven-repository-index.properties
+	然后再下载一个indexer-cli-5.1.0.jar
+	indexer的下载地址:http://maven.outofmemory.cn/org.apache.maven.indexer/indexer-cli/5.1.0/
+	indexer的Maven
+
+	<dependency>
+	    <groupId>org.apache.maven.indexer</groupId>
+	    <artifactId>indexer-cli</artifactId>
+	    <version>5.1.0</version>
+	</dependency>
+	2.   解压缩索引文件
+	将上面三个文件（.gz & .properties & .jar）放置到同一目录下，运行如下命令
+	java -jar indexer-cli-5.1.0.jar -u nexus-maven-repository-index.gz -d indexer
+	3.   停止nexus
+	4.   删除原有的索引文件
+	将{nexus_home}\sonatype-work\nexus\indexer\central-ctx下的文件全部删掉
+	5.   拷贝索引至central-ctx目录下
+	将nexus-maven-repository-index.gz解压后的indexer目录中所有文件，放到sonatype-work\nexus\indexer\central-ctx下面
+	6.   启动nexus即自动更新索引
+	
+2.自动下载
+	1.  打开Repositories标签，选中远程仓库并打开Configuration，将Download Romote Location 设置为true；
+	2. 在远程仓库上右键选择Update Index，Nexus会自动建立一条任务计划；一般远程仓库都比较大，构建会比较多，索引文件会很大，
+	像http://repo1.maven.org/maven2 就有几百M，因此需要的时间就比较长。
+	3.  可以进入Scheduled Tasks查看任务的执行情况，当执行完成时，远程仓库的索引就已经建立完毕了。
+	两种方式，只要Browse_Index后看到许多文件的话就说明更新成功		
+	
+设置 Download Remote Indexex，保存后后台会运行一个任务，点击菜单栏的Scheduled Tasks选项即可看到有个任务在RUNNING。
+下载完成后，Maven索引就可以使用了，在搜索栏输入要搜索的项，就可以查到相关的信息。比如搜索关键字Struts。
+
+
+使用这个私服仓库，先在项目pom中配置相关私服信息
+	<repositories>
+		<repository>
+			<id>nexus</id>
+			<name>nexus</name>
+			<url>http://10.3.64.217:8085/nexus/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>nexus</id>
+			<name>nexus</name>
+			<url>http://10.3.64.217:8085/nexus/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+	
+	这样这个Maven项目构建的时候会从私服下载相关依赖。当然这个配置仅仅是在此项目中生效，对于其他项目还是不起作用。如果相对Maven的其他项目也生效的话。
+	需要修改全局的settings.xml文件。
+	<profiles>
+		<profile>
+			<id>nexus</id>
+			<repositories>
+				<repository>
+					<id>nexus</id>
+					<name>local private nexus</name>
+					<url>http://10.3.64.217:8085/nexus/content/groups/public/</url>
+				</repository>
+			</repositories>
+		</profile>
+		<profile>
+			<id>nexus-snapshots</id>
+			<repositories>
+				<repository>
+					<id>nexus-snapshots</id>
+					<name>local private nexus snapshots</name>
+					<url>http://10.3.64.217:8085/nexus/content/repositories/apache-snapshots/</url>
+				</repository>
+			</repositories>
+		</profile>
+	</profiles>
+	<activeProfiles>
+		<activeProfile>nexus</activeProfile>
+		<activeProfile>nexus-snapshots</activeProfile>
+	</activeProfiles>
+	
+	settings.xml配置账号密码。注意server的id与repository的id必须对应
+	<servers>
+		<server>
+			<id>nexus-releases</id>
+			<username>admin</username>
+			<password>admin123</password>
+		</server>
+		<server>
+			<id>nexus-snapshots</id>
+			<username>admin</username>
+			<password>xxx</password>
+		</server>
+	</servers>
+	
+	需要在pom.xml文件中添加，此处的id应该和settings里面的id相同
+
+	<distributionManagement>
+		<repository>
+			<id>nexus-releases</id>
+			<name>releases</name>
+			<url>http://10.3.64.217:8085/nexus/content/repositories/releases/</url>
+		</repository>
+	</distributionManagement>
+
+	
+
+发布到Nexus Repository
+	项目中执行mvn deploy，成功如下所示
+	Uploaded: http://localhost:8081/nexus/content/repositories/releases/com/capital/tenpay/maven-metadata.xml (376 B at 7.8 KB/sec)
+	[INFO] ------------------------------------------------------------------------
+	[INFO] BUILD SUCCESS

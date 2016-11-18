@@ -53,38 +53,6 @@
 	
 	mysql>
 
-d.  RPM安装方式文件分布
-	Directory
-	 Contents of Directory
-	 
-	/usr/bin
-	 Client programs and scripts
-	 
-	/usr/sbin
-	 The mysqld server
-	 
-	/var/lib/mysql
-	 Log files, databases
-	 
-	/usr/share/info
-	 Manual in Info format
-	 
-	/usr/share/man
-	 Unix manual pages
-	 
-	/usr/include/mysql
-	 Include (header) files
-	 
-	/usr/lib/mysql
-	 Libraries
-	 
-	/usr/share/mysql
-	 Miscellaneous support files, including error messages, character set files, sample configuration files, SQL for database installation
-	 
-	/usr/share/sql-bench
-	 Benchmarks
- 
-修改数据文件位置
 	
 rpm方式安装的MySQL服务如何修改数据文件目录
 	mkdir -p /data/mysql 
@@ -147,3 +115,35 @@ rpm方式安装的MySQL服务如何修改数据文件目录
 	
 	service  mysqld  restart时候不会自动执行 /usr/bin/mysqld_safe &
 	
+	
+d.  RPM安装方式文件分布
+	Directory
+	 Contents of Directory
+	 
+	/usr/bin
+	 Client programs and scripts
+	 
+	/usr/sbin
+	 The mysqld server
+	 
+	/var/lib/mysql
+	 Log files, databases
+	 
+	/usr/share/info
+	 Manual in Info format
+	 
+	/usr/share/man
+	 Unix manual pages
+	 
+	/usr/include/mysql
+	 Include (header) files
+	 
+	/usr/lib/mysql
+	 Libraries
+	 
+	/usr/share/mysql
+	 Miscellaneous support files, including error messages, character set files, sample configuration files, SQL for database installation
+	 
+	/usr/share/sql-bench
+	 Benchmarks
+ 

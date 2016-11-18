@@ -1,0 +1,124 @@
+新版本：
+	dependency:可以嵌入式启动	-	webservice-cxf-demo:JettyStart
+	<!-- jetty dependecies begin -->
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-server</artifactId>
+		<version>9.2.18.v20160721</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-webapp</artifactId>
+		<version>9.2.18.v20160721</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-continuation</artifactId>
+		<version>9.2.18.v20160721</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-jsp</artifactId>
+		<version>9.2.18.v20160721</version>
+	</dependency>
+	<!-- jetty dependecies end -->
+	
+build：	
+	<build>
+		<finalName>webservice-cxf-demo</finalName>
+		<pluginManagement>
+			<plugins>
+				<!--配置Jetty 1-->
+				<plugin>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-maven-plugin</artifactId>
+					<version>${jetty.version}</version>
+					<configuration>
+						<webAppSourceDirectory>src/main/webapp</webAppSourceDirectory>
+						<!-- <scanIntervalSeconds>6</scanIntervalSeconds> -->
+						<scanTargets>
+							<!-- <scanTarget>src/main/webapp/WEB-INF</scanTarget> -->
+							<scanTarget>src/main/webapp/WEB-INF/web.xml</scanTarget>
+						</scanTargets>
+						<contextPath>/webservice-cxf-demo</contextPath>
+						<webDefaultXml></webDefaultXml>
+						<jettyEnvXml></jettyEnvXml>
+						<connectors>
+							<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+								<port>8090</port>
+								<headerBufferSize>80000</headerBufferSize>
+							</connector>
+						</connectors>
+						<stopKey>stop</stopKey>
+						<stopPort>8099</stopPort>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.1</version>
+					<configuration>
+						<encoding>UTF-8</encoding>
+						<source>1.7</source>
+						<target>1.7</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>2.2</version>
+					<configuration>
+						<webappDirectory>${project.basedir}/src/main/webapp</webappDirectory>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>2.2.1</version>
+					<executions>
+						<execution>
+							<phase>package</phase>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>attach-sources</id>
+							<phase>deploy</phase>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.9.1</version>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<phase>deploy</phase>
+						</execution>
+					</executions>
+					<configuration>
+						<aggregate>true</aggregate>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.7</version>
+					<executions>
+						<execution>
+							<id>deploy</id>
+							<phase>deploy</phase>
+							<goals>
+								<goal>deploy</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>

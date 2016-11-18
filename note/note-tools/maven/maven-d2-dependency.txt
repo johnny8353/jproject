@@ -1,0 +1,160 @@
+用了Maven，所需的JAR包就不能再像往常一样，自己找到并下载下来，用IDE导进去就完事了，Maven用了一个项目依赖 (Dependency)的概念，
+用俗话说，就是我的项目需要用你这个jar包，就称之为我的项目依赖你这个包，换句话说，你这个JAR包就是我这个项目的Dependency。
+
+于是很多人在刚用Maven的时候，就会在加Dependency时栽跟头，明明我手头上就有需要的JAR嘛，它偏不让我用，什么道理，跟着就是生闷气，少点耐性的，就会说Maven怎么怎么不爽，
+其实，如果你理解了Maven的一些机制，一些配置及管理的流程，就会觉得它其实很爽。
+
+
+依赖项的作用域 - 6
+	在定义项目的依赖项的时候，我们可以通过scope来指定该依赖项的作用范围。scope的取值有compile、runtime、test、provided、system和import。
+		compile：这是依赖项的默认作用范围，即当没有指定依赖项的scope时默认使用compile。compile范围内的依赖项在所有情况下都是有效的，包括运行、测试和编译时。
+		runtime：表示该依赖项只有在运行时才是需要的，在编译的时候不需要。这种类型的依赖项将在运行和test的类路径下可以访问。
+		test：	表示该依赖项只对测试时有用，包括测试代码的编译和运行，对于正常的项目运行是没有影响的。
+		provided：表示该依赖项将由JDK或者运行容器在运行时提供，也就是说由Maven提供的该依赖项我们只有在编译和测试时才会用到，而在运行时将由JDK或者运行容器提供。
+		system：	当scope为system时，表示该依赖项是我们自己提供的，不需要Maven到仓库里面去找。指定scope为system需要与另一个属性元素systemPath一起使用，
+				它表示该依赖项在当前系统的位置，使用的是绝对路径。比如官网给出了一个关于使用JDK的tools.jar的例子：
+			<project>
+			  ...
+			  <dependencies>
+			    <dependency>
+			      <groupId>sun.jdk</groupId>
+			      <artifactId>tools</artifactId>
+			      <version>1.5.0</version>
+			      <scope>system</scope>
+			      <systemPath>${java.home}/../lib/tools.jar</systemPath>
+			    </dependency>
+			  </dependencies>
+			  ...
+			</project>
+		import：	它只使用在<dependencyManagement>中，表示从其它的pom中导入dependency的配置
+			
+	
+Maven按什么规则去存放Dependency?	-	掌握这个技巧之后，有很多时候你可以根据所需包的package路径，找到它的Dependency
+	下面我们来拿hibernate来作例子，以介绍在Maven运行并下载到所需的Dependency后怎么缓存到本地的repository
+	
+	下面这个是hibernate的Dependency配置
+	<dependency>
+	    <groupId>org.hibernate</groupId>
+	    <artifactId>hibernate</artifactId>
+	    <version>3.2.6.ga</version>
+	</dependency>
+		
+	它被下载后将会被存放至 %repository%/org/hibernate/hibernate/3.2.6.ga/hibernate-3.2.6.ga.jar
+	其中%repository%就是你本地的repository目录！
+	它是按你的Dependency的groupid + artifactid + version，然后以点号作分隔，来建立文件夹的，最后建立的文件夹如下
+	|--org
+	    |--hibernate
+	        |--hibernate
+	            |--3.2.6.ga
+	                |--hibernate-3.2.6.ga.jar
+	jar包名称规则：		artifactId + "-" + version + ".jar"
+
+使用本地下载好的jar包	-	省去下载等待的时间
+	一、用好你的IDE！
+		 现在大家用的IDE，无非就是Eclipse，或者netbeans，或是JBuilder，据我所知，现在大部份人都向前两者转移，这些IDE都提供了对Maven的支持。
+		 在你装好插件后，通常会有一个libraies目录，里面列出你项目要用到的jar包，你右键点击本地还没有添加进去的jar包，选择本地安装（Manually install artifact)，
+		 选中你那个特殊的jar包，然后IDE会自动调用maven插件完成整个安装配置过程，下次你就不再这样子做了，因为你本地 repository己经有了。
+	二、手动将jar包放到本地repository里面去
+		根据先前介绍的maven repository存放规则，自己建好目录，改好jar的文件名，自己拷进去，如
+		进到你本地的repository目录
+			建一个com文件夹，点进去
+			再建一个johnny文件夹，点进去
+			再建一个jlog文件夹，点进去
+			再建一个1.0.0文件夹，点进去
+			再把你的jar包，改名为jlog.1.0.0.jar，放到1.0.0文件夹里面去，
+		然后运行你的maven项目，看看它会不会build成功，事实上如果你之前做的文件夹没错，大小写没问题，或没其它小失误，你的项目就可以正常用到你自己的jar包了
+	三、直接到http://repo1.maven.org/maven2/ 查找
+		不过这也需要你知道maven repository的存放规则才知道怎么在网站上找，找到你还得自己写dependency的配置代码
+	四、maven在pom文件里引用本地jar
+	    <dependency> 
+	        <groupId>org.wltea</groupId> 
+	        <artifactId>IKAnalyzer</artifactId> 
+	        <version>2012_u6</version> 
+	        <scope>system</scope> 
+	        <systemPath>E:/repositories/IKAnalyzer2012_u6.jar</systemPath> 
+	    </dependency>
+	五、命令
+		cd 到 F:/JAR Pack/ 目录后，-Dfile=F:/JAR Pack/ojdbc14.jar 命令后参数不必再加文件夹目录，命令如下
+		mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.3.0 -Dpackaging=jar -Dfile=ojdbc14.jar
+ 	最后;写到pom里面去，组织随你写，artifact 写你的jar名，version你也写上你想要的，如
+	<dependency>
+	    <groupId>com.johnny</groupId>
+	    <artifactId>jlog</artifactId>
+	    <version>1.0.0</version>
+	</dependency>
+	
+	
+maven可选依赖（Optional Dependencies）和依赖排除（Dependency Exclusions）	-	http://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html
+	我们知道，maven的依赖关系是有传递性的。如：A-->B，B-->C。但有时候，项目A可能不是必需依赖C，因此需要在项目A中排除对A的依赖。在maven的依赖管理中，有两种方式可以对依赖关系进行，
+	分别是可选依赖（Optional Dependencies）以及依赖排除（Dependency Exclusions）。
+	一、可选依赖
+		当一个项目A依赖另一个项目B时，项目A可能很少一部分功能用到了项目B，此时就可以在A中配置对B的可选依赖。举例来说，一个类似hibernate的项目，它支持对mysql、oracle等各种数据库的支持，
+		但是在引用这个项目时，我们可能只用到其对mysql的支持，此时就可以在这个项目中配置可选依赖。
+		配置可选依赖的原因：1、节约磁盘、内存等空间；2、避免license许可问题；3、避免类路径问题，等等。
+		示例：
+			<project>
+			  ...
+			  <dependencies>
+			    <!-- declare the dependency to be set as optional -->
+			    <dependency>
+			      <groupId>sample.ProjectB</groupId>
+			      <artifactId>Project-B</artifactId>
+			      <version>1.0</version>
+			      <scope>compile</scope>
+			      <optional>true</optional> <!-- value will be true or false only -->
+			    </dependency>
+			  </dependencies>
+			</project>
+		假设以上配置是项目A的配置，即：Project-A --> Project-B。在编译项目A时，是可以正常通过的。
+		
+		如果有一个新的项目X依赖A，即：Project-X -> Project-A。此时项目X就不会依赖项目B了。如果项目X用到了涉及项目B的功能，那么就需要在pom.xml中重新配置对项目B的依赖。
+		
+	二、依赖排除
+		当一个项目A依赖项目B，而项目B同时依赖项目C，如果项目A中因为各种原因不想引用项目C，在配置项目B的依赖时，可以排除对C的依赖。
+		示例（假设配置的是A的pom.xml，依赖关系为：A --> B; B --> C）：
+			<project>
+			  ...
+			  <dependencies>
+			    <dependency>
+			      <groupId>sample.ProjectB</groupId>
+			      <artifactId>Project-B</artifactId>
+			      <version>1.0</version>
+			      <scope>compile</scope>
+			      <exclusions>
+			        <exclusion>  <!-- declare the exclusion here -->
+			          <groupId>sample.ProjectC</groupId>
+			          <artifactId>Project-C</artifactId>
+			        </exclusion>
+			      </exclusions> 
+			    </dependency>
+			  </dependencies>
+			</project>
+		当然，对于多重依赖，配置也很简单，参考如下示例：
+			Project-A
+			   -> Project-B
+			        -> Project-D 
+			              -> Project-E <! -- This dependency should be excluded -->
+			              -> Project-F
+			   -> Project C
+		A对于E相当于有多重依赖，我们在排除对E的依赖时，只需要在配置B的依赖中进行即可：
+			<project>
+			  <modelVersion>4.0.0</modelVersion>
+			  <groupId>sample.ProjectA</groupId>
+			  <artifactId>Project-A</artifactId>
+			  <version>1.0-SNAPSHOT</version>
+			  <packaging>jar</packaging>
+			  ...
+			  <dependencies>
+			    <dependency>
+			      <groupId>sample.ProjectB</groupId>
+			      <artifactId>Project-B</artifactId>
+			      <version>1.0-SNAPSHOT</version>
+			      <exclusions>
+			        <exclusion>
+			          <groupId>sample.ProjectE</groupId> <!-- Exclude Project-E from Project-B -->
+			          <artifactId>Project-E</artifactId>
+			        </exclusion>
+			      </exclusions>
+			    </dependency>
+			  </dependencies>
+			</project>

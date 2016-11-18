@@ -43,6 +43,7 @@
 	
 	grant all on *.* to user_1@'%' Identified by '123';
 	grant all privileges on *.* to root@"%" identified by "1230";
+	grant all privileges on *.* to dhc_drawer@"%" identified by "dhc123456";
 	flush privileges;
 	这相当于是重新加载一下mysql权限，这一步必须有。
 	再次输入select user,password,host from user;
