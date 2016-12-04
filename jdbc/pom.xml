@@ -12,6 +12,8 @@
     <name>jdbc</name>
     <modules>
         <!-- <module>jdbc-demo</module> -->
+		
+		<module>druid-demo</module>
     </modules>
 	
 	<dependencies>

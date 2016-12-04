@@ -1,0 +1,36 @@
+
+
+配置数据源的相关连接信息，该配置可以在Tomcat安装目录下的conf/context.xml文件中配置、或在\conf\Catalina\localhost
+<Context path="/msm" docBase="D:\workspace\msmdev\msm\MSM_CJ101_Frame\webApplication">
+	<!--开发库-->
+
+	 <Resource auth="Container"
+	driverClassName="oracle.jdbc.driver.OracleDriver" 
+	name="jdbc/eccTaskDatasource" 
+	password="test_120921" 
+	type="javax.sql.DataSource" url="jdbc:oracle:thin:@10.41.252.65:1521:ltcdb"
+	username="ecc" maxIdle="4" 
+	maxActive="20" maxWait="5000"/> 
+	
+	<!--仿真库-->
+	<!--
+		<Resource auth="Container"
+        driverClassName="oracle.jdbc.driver.OracleDriver" 
+				name="jdbc/eccTaskDatasource" 
+				password="ECC_FZ_2015" 
+				type="javax.sql.DataSource" url="jdbc:oracle:thin:@10.41.253.16:1521:ltcdb" 
+				username="ecc" maxIdle="4" 
+				maxActive="20" maxWait="5000"/> 
+	-->
+</Context>
+
+Spring:
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">          
+	    <property name="jndiName" value="java:comp/env/jdbc/bbt"/>     
+	</bean>   
+  
+java:
+	// 初始化JNDI上下文，创建DataSource对象
+    Context initContext = new InitialContext();
+    Context context = (Context)initContext.lookup("java:comp/env");//tomcat
+    DataSource dataSource =  (DataSource)context.lookup("jdbc/orclight");

@@ -1,0 +1,67 @@
+
+现在常用的开源数据库连接池主要有c3p0、dbcp、proxool三种，其中：
+Spring                         推荐使用dbcp；
+Hibernate                  推荐使用c3p0和proxool； 
+
+1、  DBCP：Apache
+	DBCP(DataBase connection pool)数据库连接池。是Apache上的一个 java连接池项目，也是 tomcat使用的连接池组件。
+	单独使用dbcp需要3个包：common-dbcp.jar,common-pool.jar,common-collections.jar由于建立数据库连接是一个非常耗时耗资源的行为，
+	所以通过连接池预先同数据库建立一些连接，放在内存中，应用程序需要建立数据库连接时直接到连接池中申请一个就行，用完后再放回去。dbcp没有自动的去回收空闲连接的功能。 
+2、  C3P0：
+	C3P0是一个开源的JDBC连接池，它实现了数据源和JNDI绑定，支持JDBC3规范和JDBC2的标准扩展。c3p0是异步操作的，缓慢的JDBC操作通过帮助进程完成。扩展这些操作可以有效的提升性能。
+	目前使用它的开源项目有Hibernate，Spring等。c3p0有自动回收空闲连接功能。 
+3、  Proxool：Sourceforge
+	Proxool是一种Java数据库连接池技术。是sourceforge下的一个开源项目,这个项目提供一个健壮、易用的连接池，最为关键的是这个连接池提供监控的功能，方便易用，便于发现连接泄漏的情况。 
+	
+对比：
+1>     相同时间内同等量的线程数和循环次数下:通过对三个连接池的三个标志性性能测试参数（Average,median,90%Line）进行比较发现：性能dbcp<=c3p0<proxool； 
+2>     不同情况下的同一数据库连接池测试：通过观察 Average,median,90%Line三个参数发
+		现三个连接池的稳定性（三种连接池的三个测试参数的变化情况）依次：稳定性dbcp>=c3p0>proxool。 
+结论：   
+	通过对三种数据库连接池的性能测试发现，proxool和 c3p0能够更好的支持高并发，但是在稳定性方面略逊于 dpcp；
+
+
+test config
+
+property	value
+initialSize	10
+minPoolSize	10
+maxPoolSize	50
+测试各种并发场景下执行申请1,000,000（一百万）次总耗时的性能对比。
+
+环境
+OS linux 3.5.0-19-generic X86_64
+CPU XEON E5-2450 双路共16核32物理线程
+Memory 48G
+这是一台双路至强CPU的工作站，比我之前在mac book pro上做的测试，更接近真实服务器的运行环境。
+
+JDK 1.6.0_38
+数据库连接池	1 thread	2 threads	5 threads	10 threads	20 threads	50 threads	100 threads
+druid		248			710			1,133		1,134		905			1,107		1,468
+dbcp		660			1,522		3,545		4,176		3,671		4,237		14,129
+boneCP		3,522		2,930		2,579		3,745		7,434		11,991		14,584
+c3p0		4,275		9,509		3,371		10,439		13,472		19,848		36,153
+proxool		7,187	7,707	11,037	10,777	15,222(Error)	18,100(Error)	21,547(Error)
+tomcat-jdbc	372	736	1,879	1,727	1,576	1,322	12,545
+jboss-datasource	1,326	1,184	2,928	3,765	3,099	3,278	10,812
+
+JDK 1.7.0_10
+数据库连接池	1 thread	2 threads	5 threads	10 threads	20 threads	50 threads	100 threads
+druid		309			605			1,028		947			962			897			1,238
+dbcp		924			1,461		4,062		4,030		4,908		5,505		14,517
+boneCP		3,047		2,055		2,549		3,821		6,367		12,865		18,832
+c3p0		4,018		8,206		8,897		10,667		12,367		25,822		38,681
+proxool	6912	4,714	4,851	11,908	16,066(Error)	19,568(Error)	18,036(Error)
+tomcat-jdbc	400	740	1,811	1,707	1,618	1,624	11,905
+jboss-datasource	1,369	1,105	4,002	3,089	3,483	3,665	11,782
+
+结果分析
+	Druid是性能最好的数据库连接池，tomcat-jdbc和druid性能接近。
+	proxool在激烈并发时会抛异常，完全不靠谱。在并发10的情况下，会使用11或者12个物理连接。
+	c3p0和proxool都相当慢，慢到影响sql执行效率的地步。
+	bonecp性能并不优越，采用LinkedTransferQueue并没有能够获得性能提升。
+	jboss-datasource虽然稳定，但是性能很糟糕
+	boneCP和c3p0完全不遵循minPoolSize的配置，只要有活动请求，就会用到maxPoolSize。
+	bonecp和c3p0存在较大并发时使用的物理连接超过maxPoolSize数量，达到maxPoolSize+1
+	
+转自：https://github.com/alibaba/druid/wiki/linux-benchmark 
