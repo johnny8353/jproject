@@ -53,3 +53,8 @@
 	修改mysql安装目录下的my.ini，加上下面这个配置可解决此问题。在[mysqld]下加入：skip-name-resolve
 	保存退出后重启mysql服务。
 	然后访问速度就和本地一样快啦。
+	
+*	使用dbcp的时候报错
+	Access denied for user 'Administrator'@'localhost' (using password: YES) on JavaEE project code
+	原因是使用了${username}导致，可以加上jdbc.username进行区分，使用root账号，但是报错信息缺失系统用户Administrator
+	

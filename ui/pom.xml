@@ -12,7 +12,7 @@
     <name>ui</name>
     <modules>
         <module>ui-demo</module>
-        <module>zui-demo</module>
+        <!--<module>zui-demo</module>-->
     </modules>
 	
 	<dependencies>

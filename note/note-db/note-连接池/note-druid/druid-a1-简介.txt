@@ -30,3 +30,30 @@ Druid可以做什么？
 3) 数据库密码加密。直接把数据库密码写在配置文件中，这是不好的行为，容易导致安全问题。DruidDruiver和DruidDataSource都支持PasswordCallback。 
 4) SQL执行日志，Druid提供了不同的LogFilter，能够支持Common-Logging、Log4j和JdkLog，你可以按需要选择相应的LogFilter，监控你应用的数据库访问情况。 
 扩展JDBC，如果你要对JDBC层有编程的需求，可以通过Druid提供的Filter-Chain机制，很方便编写JDBC层的扩展插件。 
+
+
+这时打开http://localhost/druid-web/druid/ 地址，会看到监控界面，点击其中的sql标签。
+
+注意：在写配置文件1.1时，要保证filter配置项中含有stat属性，否则这个地方看不到sql语句的监控数据。
+
+从0.2.23开始监控界面支持中英文语言，所以这里就不翻译表格中的英文字段了。
+
+老版本的druid的jar包中不支持通过web界面进行远程监控，从0.2.14开始可以通过配置jmx地址来获取远程运行druid的服务器的监控信息。具体配置方法如下：
+
+	<servlet>
+		<servlet-name>DruidStatView</servlet-name>
+		<servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+		<init-param>
+			<param-name>jmxUrl</param-name>
+			<param-value>service:jmx:rmi:///jndi/rmi://localhost:9004/jmxrmi</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DruidStatView</servlet-name>
+		<url-pattern>/druid/*</url-pattern>
+	</servlet-mapping>
+
+
+这里连接的配置参数中多了一个jmxUrl，里面配置一个jmx连接地址，如果配置了这个init-param后，那么当前web监控界面监控的就不是本机的druid的使用情况，
+而是jmxUrl中指定的ip的远程机器的druid使用情况。jmx连接中也可以指定用户名、密码，在上面的servlet中添加两个init-param，其param-name分别为jmxUsername和jmxPassword，
+分别对应连接jmx的用户名和密码。对于jmx在服务器端的配置，可以参考3.2节中的介绍。
