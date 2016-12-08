@@ -1,0 +1,43 @@
+Linux安装JDK
+
+1. 先从网上下载jdk(jdk-6u32-linux-i586-rpm) ，下载后放在/home目录中，当然其它地方也行。
+进入安装目录
+#cd /home
+#cp jdk-6u32-linux-i586-rpm /usr/local
+#cd /usr/local
+给所有用户添加可执行的权限
+#chmod +x jdk-6u32-linux-i586-rpm.bin
+#./jdk-6u32-linux-i586-rpm.bin
+此时会生成文件jdk-6u32-linux-i586-rpm，同样给所有用户添加可执行的权限
+#chmod +x jdk-6u32-linux-i586-rpm
+
+安装程序
+#rpm -ivh jdk-6u32-linux-i586-rpm
+出现安装协议等，按接受即可。
+ 
+2.设置环境变量。
+
+#vi /etc/profile
+在最后面加入
+
+#set java environment
+JAVA_HOME=/usr/java/jdk1.7.0_79/
+CLASSPATH=.:$JAVA_HOME/lib.tools.jar
+PATH=$JAVA_HOME/bin:$PATH
+export JAVA_HOME CLASSPATH PATH
+
+保存退出。
+
+ 
+3.在终端使用echo命令检查环境变量设置情况。
+
+#echo $JAVA_HOME
+#echo $CLASSPATH
+#echo $PATH
+ 
+4.检查JDK是否安装成功。
+ 
+#java -version
+
+如果看到JVM版本及相关信息，即安装成功！
+ 

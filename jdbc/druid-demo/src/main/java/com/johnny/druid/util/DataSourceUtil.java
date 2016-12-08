@@ -2,11 +2,7 @@ package com.johnny.druid.util;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.jdbc.datasource.AbstractDataSource;
-
-import com.alibaba.druid.pool.DruidDataSourceFactory;
 
 //TODO: Auto-generated Javadoc
 /**

@@ -1,6 +1,10 @@
 package com.johnny.monitor.access;
 
 
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -47,4 +51,11 @@ public class TestHibernateConnection {
 		// 7. 关闭 SessionFactory 对象
 		sessionFactory.close();
 	}
+	
+	@Test
+	public void testDataSource() throws SQLException {
+		DataSource dataSource = (DataSource) ctx.getBean("dataSource");
+		System.out.println(dataSource.getConnection());
+	}
+	
 }

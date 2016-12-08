@@ -9,5 +9,6 @@
 <body>
 	HelloWorld!!	MTO System
 	<a href="${pageContext.request.contextPath}/hello">hello</a><br/>
+	<a href="${pageContext.request.contextPath}/druid">Druid</a><br/>
 </body>
 </html>

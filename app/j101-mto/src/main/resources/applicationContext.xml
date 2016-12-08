@@ -17,8 +17,36 @@
 	<!-- 配置数据源 -->
 	<!-- 导入资源文件 -->
 	<context:property-placeholder location="classpath:db.properties" />
+	
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		destroy-method="close">
+		<property name="url" value="${jdbc.jdbcUrl}" />
+		<property name="username" value="${jdbc.user}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="driverClassName" value="${jdbc.driverClass}" />
+		<property name="filters" value="${filters}" />
 
-	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="maxActive" value="${maxActive}" />
+		<property name="initialSize" value="${initialSize}" />
+		<property name="maxWait" value="${maxWait}" />
+		<property name="minIdle" value="${minIdle}" />
+
+		<property name="timeBetweenEvictionRunsMillis" value="${timeBetweenEvictionRunsMillis}" />
+		<property name="minEvictableIdleTimeMillis" value="${minEvictableIdleTimeMillis}" />
+
+		<property name="validationQuery" value="${validationQuery}" />
+		<property name="testWhileIdle" value="${testWhileIdle}" />
+		<property name="testOnBorrow" value="${testOnBorrow}" />
+		<property name="testOnReturn" value="${testOnReturn}" />
+		<property name="maxOpenPreparedStatements"
+			value="${maxOpenPreparedStatements}" />
+			<!-- -->
+		<property name="removeAbandoned" value="${removeAbandoned}" /> <!-- 超过时间限制是否回收 打开removeAbandoned功能 -->
+	    <property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}" /> <!-- 1800秒，也就是30分钟 -->
+	    <property name="logAbandoned" value="${logAbandoned}" /> <!-- 关闭abanded连接时输出错误日志 -->
+	     
+	</bean>
+	<bean id="dataSourceC3P0" class="com.mchange.v2.c3p0.ComboPooledDataSource">
 		<property name="user" value="${jdbc.user}"></property>
 		<property name="password" value="${jdbc.password}"></property>
 		<property name="driverClass" value="${jdbc.driverClass}"></property>
