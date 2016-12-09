@@ -54,7 +54,7 @@ public class TaskServiceImpl extends HibernateBaseServiceImpl<TaskVO> implements
 	@Override
 	public Integer GetCountInOnePeriod(Long taskPid) {
 		Integer count = 0;
-		String sql = "SELECT COUNT(1) FROM `mto`.`jt_task` t WHERE t.par_row_id = :par_row_id AND "
+		String sql = "SELECT COUNT(1) FROM `jt_task` t WHERE t.par_row_id = :par_row_id AND "
 				+ "T.CREATE_DATE BETWEEN DATE_SUB(NOW(),INTERVAL (SELECT rpt_interval  FROM `mto`.`jt_task` T  WHERE t.row_id = :par_row_id)"
 				+ " SECOND) AND  NOW()";
 		Map<String, Object> params = new  HashMap<String, Object>();

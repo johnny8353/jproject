@@ -36,7 +36,7 @@
     
     <!-- 业务日志，生产环境使用 -->
     <appender name="BUSINESS_LOG" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="File" value="/opt/j.log" />
+        <param name="File" value="/data/ecc.log" />
         <param name="Append" value="true" />
         <param name="DatePattern" value="'.'yyyy-MM-dd" />
         <layout class="org.apache.log4j.PatternLayout">
@@ -94,9 +94,9 @@
     	<!-- 主要分为error,warn,info,debug四个级别，也是使用最多的四种，日志级别从左至右依次增加 -->
         <priority value="info" />
         <appender-ref ref="ASYNC_CONSOLE" />
-        <appender-ref ref="LOCAL_BUSINESS_LOG" />
+        <!-- <appender-ref ref="LOCAL_BUSINESS_LOG" />-->
          <!-- <appender-ref ref="LOCAL_BUSINESS_LOG" />-->
-        <!--  <appender-ref ref="ASYNC_BUSINESS_LOG" />-->
+         <appender-ref ref="ASYNC_BUSINESS_LOG" />
        
     </root>
 
