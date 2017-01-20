@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
     <name>j2ee-demo Webapps</name>
     <modules>
+        <module>demo</module>
         <module>jetty-demo</module>
         <module>j2ee-demo</module>
     </modules>

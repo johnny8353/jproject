@@ -11,11 +11,7 @@
     <packaging>pom</packaging>
     <name>spring</name>
     <modules>
-        <module>spring-demo</module>
-		<module>spring-hibernate-demo</module>
-		<module>spring-struts-demo</module>
-		<module>ssh-demo</module>
-		
+		<module>spring-boot-demo</module>
     </modules>
 	
 	<dependencies>
