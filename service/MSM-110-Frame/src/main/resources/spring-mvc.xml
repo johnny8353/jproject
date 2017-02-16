@@ -1,0 +1,141 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:cache="http://www.springframework.org/schema/cache" 
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/util
+       http://www.springframework.org/schema/util/spring-util.xsd
+       http://www.springframework.org/schema/cache 
+	   http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+	
+	<!-- 使用默认的注解映射 -->
+	<mvc:annotation-driven  validator="validator"> 
+		<!-- 默认是jackson处理json,性能比gson高 
+		<mvc:message-converters>
+            <bean class="org.springframework.http.converter.json.GsonHttpMessageConverter"/>
+        </mvc:message-converters>
+        -->
+    </mvc:annotation-driven>
+	
+	<!-- 把标记了@Controller注解的类转换为bean -->
+	<!-- <context:component-scan base-package="com.zte.html5.frame.selectemployee,com.zte.html5.sysman,com.test.account,com.test.student,com.test.position,com.test.googleworldmap" /> -->
+	<context:component-scan base-package="com.zte" />
+	
+	<!-- 自定义的多语言解析器 -->
+	<bean id="localeResolver" class="com.zte.html5.frame.common.ZteHeaderLocaleResolver" />
+	
+ 	
+	<!-- 配置拦截器, 多个拦截器,顺序执行-->
+    <mvc:interceptors>  
+    	<mvc:interceptor>  
+            <!-- 匹配的是url路径， 如果不配置或/**,将拦截所有的Controller-->
+            <mvc:mapping path="/**" />
+            <!-- 国际化操作拦截器 如果采用基于（请求/Session/Cookie）则必需配置-->
+            <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" />   
+        </mvc:interceptor>
+        
+        <mvc:interceptor>  
+            <mvc:mapping path="/**" />
+            <bean class="com.zte.html5.frame.common.AuthInterceptor"></bean>  
+        </mvc:interceptor>
+       <!-- 当设置多个拦截器时，先按顺序调用preHandle方法，然后逆序调用每个拦截器的postHandle和afterCompletion方法-->
+    </mvc:interceptors> 
+	
+	<!-- Json转换器配置 -->
+    <bean id="mappingJackson2HttpMessageConverter" 
+        class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">    
+        <property name="supportedMediaTypes">    
+            <list>    
+                <value>text/html;charset=UTF-8</value>    
+            </list>    
+        </property>    
+    </bean>     
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">    
+        <property name="messageConverters">    
+            <list>    
+                <ref bean="mappingJackson2HttpMessageConverter" />
+            </list>    
+        </property>    
+    </bean>
+    
+    <!-- 数据效验配置 -->
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">        
+    	<property name="providerClass"  value="org.hibernate.validator.HibernateValidator"/>
+        <!--不设置则默认为classpath下的 ValidationMessages.properties -->
+        <property name="validationMessageSource" ref="validatemessageSource"/>
+    </bean>
+    <bean id="conversion-service" class="org.springframework.format.support.FormattingConversionServiceFactoryBean" />
+    <bean id="validatemessageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">  
+        <property name="basenames">
+            <list>
+                <!-- 在web环境中一定要定位到classpath 否则默认到当前web应用下找  -->
+                <value>classpath:FrameValidationMessages</value>
+                <value>classpath:BusiValidationMessages</value>
+            </list>
+        </property>
+        <property name="useCodeAsDefaultMessage" value="true"/> 
+        <property name="fileEncodings" value="UTF-8"/> 
+        <property name="defaultEncoding" value="UTF-8"/> 
+        <property name="cacheSeconds" value="3600"/>  
+    </bean>
+    
+	
+	<!-- 指定json数据的返回数据HTTP类型,帮助部分浏览器正确接收数据
+	<mvc:annotation-driven>
+        <mvc:message-converters register-defaults="false">        
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="supportedMediaTypes" value="text/plain;charset=UTF-8" />
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+     -->
+	
+	<!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射 
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
+	-->
+	
+	
+	<!-- 避免IE执行AJAX时,返回JSON出现下载文件 
+    <bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">  
+        <property name="supportedMediaTypes">  
+            <list>  
+                <value>text/html;charset=UTF-8</value>  
+            </list>  
+        </property>  
+    </bean> 
+    -->  
+    <!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射 
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">  
+        <property name="messageConverters">  
+            <list>  
+                <ref bean="mappingJacksonHttpMessageConverter" />
+            </list>  
+        </property>  
+    </bean>
+    -->  
+    
+    <!--静态资源访问 -->
+	<mvc:resources location="/skin/" mapping="/skin/**" /> 
+	<mvc:resources location="/js/" mapping="/js/**" /> 
+
+	<!-- 对模型视图名称的解析，即在模型视图名称添加前后缀 -->
+<!-- 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+	p:prefix="/view/" p:suffix=".jsp" /> -->
+	
+	
+	<bean id="multipartResolver"
+	class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+	p:defaultEncoding="utf-8" />
+
+
+</beans>

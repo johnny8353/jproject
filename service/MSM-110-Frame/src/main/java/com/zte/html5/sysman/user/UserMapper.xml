@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.zte.html5.sysman.user.UserMapper" >
+  <!-- 屏蔽mybatis的2级缓存  <cache />  -->
+  
+  <!-- 记录和实体映射配置 -->
+  <resultMap id="BaseMap" type="com.zte.html5.sysman.user.User" >
+		<id column="ID" property="id" jdbcType="BIGINT" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />	
+		<result column="ACCOUNT" property="account" jdbcType="VARCHAR" />	
+		<result column="PWD" property="pwd" jdbcType="VARCHAR" />	
+		<result column="TOKEN" property="token" jdbcType="VARCHAR" />	
+		<result column="ENCKEY" property="enckey" jdbcType="VARCHAR" />	
+		<result column="ENCIV" property="enciv" jdbcType="VARCHAR" />	
+		<result column="EFFECTIVE_DATE" property="effectiveDate" jdbcType="TIMESTAMP" />	
+		<result column="EXPIRATION_DATE" property="expirationDate" jdbcType="TIMESTAMP" />	
+		<result column="EMAIL" property="email" jdbcType="VARCHAR" />	
+		<result column="MOBILE_NO" property="mobileNo" jdbcType="VARCHAR" />	
+		<result column="CREATED_BY" property="createdBy" jdbcType="BIGINT" />	
+		<result column="CREATED_DATE" property="createdDate" jdbcType="TIMESTAMP" />	
+		<result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="BIGINT" />	
+		<result column="LAST_UPDATED_DATE" property="lastUpdatedDate" jdbcType="TIMESTAMP" />	
+		<result column="ENABLE_FLAG" property="enableFlag" jdbcType="VARCHAR" />	
+		<result column="ORG_ID" property="orgId" jdbcType="BIGINT" />	
+  </resultMap>
+
+  <!-- 获取一条记录 -->
+  <select id="get"  resultMap="BaseMap">
+    select
+    	t.ID ,
+    	t.NAME ,
+    	t.ACCOUNT ,	
+    	t.PWD ,	
+    	t.TOKEN ,	
+    	t.ENCKEY ,	
+    	t.ENCIV ,	
+    	t.EFFECTIVE_DATE ,	
+    	t.EXPIRATION_DATE ,	
+    	t.EMAIL ,	
+    	t.MOBILE_NO ,	
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID 	
+    from frm_user t
+    where 
+    t.ID=#{id,jdbcType=BIGINT}
+  </select>
+  
+  <!-- 用户密码认证 -->
+  <select id="getByAccount"  resultMap="BaseMap">
+    select
+    	t.ID ,
+    	t.NAME ,
+    	t.ACCOUNT ,	
+    	t.PWD ,	
+    	t.TOKEN ,	
+    	t.ENCKEY ,	
+    	t.ENCIV ,	
+    	t.EFFECTIVE_DATE ,	
+    	t.EXPIRATION_DATE ,	
+    	t.EMAIL ,	
+    	t.MOBILE_NO ,	
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID 	
+    from frm_user t
+    where t.ENABLE_FLAG = 'Y' 
+        and t.ACCOUNT=#{account,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 用户单点认证 -->
+  <select id="getByToken"  resultMap="BaseMap">
+    select
+    	t.ID ,
+    	t.NAME ,
+    	t.ACCOUNT ,	
+    	t.PWD ,	
+    	t.TOKEN ,	
+    	t.ENCKEY ,	
+    	t.ENCIV ,	
+    	t.EFFECTIVE_DATE ,	
+    	t.EXPIRATION_DATE ,	
+    	t.EMAIL ,	
+    	t.MOBILE_NO ,	
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID 	
+    from frm_user t
+    where 
+    t.TOKEN=#{token,jdbcType=VARCHAR}
+  </select>
+ 
+  <!-- 获取符合条件的记录列表 -->
+  <select id="getList" parameterType="java.util.Map" resultMap="BaseMap">
+    select
+    	t.ID ,
+    	t.NAME ,
+    	t.ACCOUNT ,	
+    	t.PWD ,	
+    	t.TOKEN ,	
+    	t.ENCKEY ,	
+    	t.ENCIV ,	
+    	t.EFFECTIVE_DATE ,	
+    	t.EXPIRATION_DATE ,	
+    	t.EMAIL ,	
+    	t.MOBILE_NO ,	
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID 	
+    from frm_user t
+    where 1=1
+	<if test="id != null"> and t.ID = #{id}</if>	
+	<if test="account != null and account != ''"> and t.ACCOUNT = #{account}</if>
+	
+	<if test="orderField != null">
+		<choose>
+			<when test="orderField=='id'"> order by t.ID <if test="order != null and order == 'desc'"> desc </if> </when>
+			<when test="orderField=='account'"> order by t.ACCOUNT <if test="order != null and order == 'desc'"> desc </if> </when>
+		</choose>
+	</if>
+  </select>
+  
+  <!-- 获取指定角色对应的用户列表 -->
+  <select id="getRoleUserList" parameterType="java.util.Map" resultMap="BaseMap">
+    select
+    	t.ID ,
+    	t.NAME ,
+    	t.ACCOUNT ,	
+    	t.PWD ,	
+    	t.TOKEN ,	
+    	t.ENCKEY ,	
+    	t.ENCIV ,	
+    	t.EFFECTIVE_DATE ,	
+    	t.EXPIRATION_DATE ,	
+    	t.EMAIL ,	
+    	t.MOBILE_NO ,	
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID 	
+    from 
+    	frm_user_role t1,
+    	frm_user t
+    where t1.USER_ID=t.ID
+	and t1.ROLE_ID = #{roleId}
+	<if test="orderField != null">
+		<choose>
+			<when test="orderField=='id'"> order by t.ID <if test="order != null and order == 'desc'"> desc </if> </when>
+			<when test="orderField=='name'"> order by t.NAME <if test="order != null and order == 'desc'"> desc </if> </when>
+		</choose>
+	</if>
+  </select>
+  
+  <!-- 删除一条记录 -->
+  <delete id="delete" >
+    delete 
+    from frm_user
+    where
+    ID = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <!--添加一条记录 -->
+  <insert id="insert" parameterType="com.zte.html5.sysman.user.User" >
+  	<!--主键是自增字段时,放开注释代码 
+	<selectKey keyProperty="id" resultType="java.lang.Long"  order="AFTER">   
+        select LAST_INSERT_ID() as id  
+      </selectKey> 
+	-->
+    insert into frm_user 
+    (
+		ID ,
+    	NAME ,
+    	ACCOUNT ,	
+    	PWD ,	
+    	TOKEN ,	
+    	ENCKEY ,	
+    	ENCIV ,	
+    	EFFECTIVE_DATE ,	
+    	EXPIRATION_DATE ,	
+    	EMAIL ,	
+    	MOBILE_NO ,	
+    	CREATED_BY ,	
+    	CREATED_DATE ,	
+    	LAST_UPDATED_BY ,	
+    	LAST_UPDATED_DATE ,	
+    	ENABLE_FLAG ,	
+    	ORG_ID 	
+    )
+    values 
+    (
+	  frm_user_s.nextval ,
+    	#{name,jdbcType=VARCHAR} ,	
+    	#{account,jdbcType=VARCHAR} ,
+    	#{pwd,jdbcType=VARCHAR} ,	
+    	#{token,jdbcType=VARCHAR} ,	
+    	#{enckey,jdbcType=VARCHAR} ,	
+    	#{enciv,jdbcType=VARCHAR} ,	
+    	#{effectiveDate,jdbcType=TIMESTAMP} ,	
+    	#{expirationDate,jdbcType=TIMESTAMP} ,	
+    	#{email,jdbcType=VARCHAR} ,	
+    	#{mobileNo,jdbcType=VARCHAR} ,	
+    	#{createdBy,jdbcType=BIGINT} ,	
+    	#{createdDate,jdbcType=TIMESTAMP} ,	
+    	#{lastUpdatedBy,jdbcType=BIGINT} ,	
+    	#{lastUpdatedDate,jdbcType=TIMESTAMP} ,	
+    	#{enableFlag,jdbcType=VARCHAR} ,	
+    	#{orgId,jdbcType=BIGINT} 	
+    )
+  </insert>
+  
+  <!-- 更新一条记录 -->
+  <update id="update" parameterType="com.zte.html5.sysman.user.User" >
+    update frm_user
+    set 
+		NAME=#{name,jdbcType=VARCHAR} ,
+		ACCOUNT=#{account,jdbcType=VARCHAR} ,
+		PWD=#{pwd,jdbcType=VARCHAR} ,
+		TOKEN=#{token,jdbcType=VARCHAR} ,
+		ENCKEY=#{enckey,jdbcType=VARCHAR} ,
+		ENCIV=#{enciv,jdbcType=VARCHAR} ,
+		EFFECTIVE_DATE=#{effectiveDate,jdbcType=TIMESTAMP} ,
+		EXPIRATION_DATE=#{expirationDate,jdbcType=TIMESTAMP} ,
+		EMAIL=#{email,jdbcType=VARCHAR} ,
+		MOBILE_NO=#{mobileNo,jdbcType=VARCHAR} ,
+		CREATED_BY=#{createdBy,jdbcType=BIGINT} ,
+		CREATED_DATE=#{createdDate,jdbcType=TIMESTAMP} ,
+		LAST_UPDATED_BY=#{lastUpdatedBy,jdbcType=BIGINT} ,
+		LAST_UPDATED_DATE=#{lastUpdatedDate,jdbcType=TIMESTAMP} ,
+		ENABLE_FLAG=#{enableFlag,jdbcType=VARCHAR} ,
+		ORG_ID=#{orgId,jdbcType=BIGINT} 
+    where 
+    ID=#{id,jdbcType=BIGINT}
+  </update>
+  
+  <!-- 翻页函数:获取符合条件的记录数 -->
+  <select id="getCount" parameterType="java.util.Map" resultType="java.lang.Long">
+      select count(*)
+      from frm_user t
+      WHERE 1=1 
+		<if test="id != null"> and t.ID = #{id}</if>	
+		<if test="account != null and account != ''"> and t.ACCOUNT like #{account} '%'</if>
+		<if test="name != null and name != ''"> or t.NAME like #{name} '%'</if>
+  </select>
+	
+  <!-- 翻页函数:获取一页的记录集 -->
+  <select id="getPage" parameterType="java.util.Map" resultMap="BaseMap">
+	 select * from frm_user t
+		WHERE 1=1 
+			<if test="id != null"> and t.ID = #{id}</if>	
+			<if test="account != null and account != ''"> and t.ACCOUNT like #{account} '%'</if>
+			<if test="name != null and name != ''"> or t.NAME like #{name} '%'</if>
+	  <if test="startRow != null and rowSize != null"> <![CDATA[ AND ROWNUM >=#{startRow} AND ROWNUM <= #{rowSize}]]> </if>
+	  <if test="orderField != null and orderField == 'id'"> order by t.ID <if test="order != null and order == 'desc'"> desc </if> </if>
+			<if test="orderField != null and orderField == 'account'"> order by t.ACCOUNT <if test="order != null and order == 'desc'"> desc </if> </if>
+
+  </select>
+	
+</mapper>

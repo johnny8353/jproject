@@ -6,11 +6,12 @@ import="java.util.Enumeration"
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Insert title here</title>
+<title>MSM-010-FrameUI</title>
 </head>
 <body>
 	HelloWorld!! MSM-010-FrameUI <br/>
 	<a href="http://localhost:8091/frame/index.jsp">Frame Service</a><br/>
+	<a href="index.html">index</a><br/>
 	<a href="http://localhost:8091/frame/crud/emps">REST CRUD</a><br/>
 	<%
 	 	String localip = null;// 本地IP，如果没有配置外网IP则返回它

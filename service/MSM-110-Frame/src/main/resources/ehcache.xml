@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/config/ehcache.xsd" updateCheck="false">
+
+<!--  
+<cacheManagerPeerProviderFactory
+class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
+properties="connect=TCP(bind_addr=match-address:192.\*;bind_port=8800):
+   TCPPING(async_discovery=true;initial_hosts=192.168.1.114[8800];port_range=0;timeout=3000;):
+   VERIFY_SUSPECT(timeout=3000;):
+   pbcast.NAKACK(retransmit_timeout=3000):
+   pbcast.GMS(join_timeout=8000;print_local_addr=true;)"
+propertySeparator="::" />
+   
+    <diskStore path="java.io.tmpdir/ecacheforsoc" />
+-->	
+	
+    <defaultCache
+            maxElementsInMemory="1000"
+            eternal="false"
+            overflowToDisk="false"
+			diskPersistent="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="300"
+            memoryStoreEvictionPolicy="LRU">
+    </defaultCache>
+    
+    <Cache  name="frameDictCache"
+            maxElementsInMemory="500"
+            eternal="true"
+            overflowToDisk="false"
+			diskPersistent="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="1800"
+            memoryStoreEvictionPolicy="LRU">
+            <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+	         	properties="replicateAsynchronously=true,
+	         	replicatePuts=false,
+	         	replicateUpdates=false,
+	         	replicateUpdatesViaCopy=false,
+	         	replicateRemovals=true "/>
+    </Cache>
+    
+    <Cache  name="frameDictSCache"
+            maxElementsInMemory="500"
+            eternal="true"
+            overflowToDisk="false"
+			diskPersistent="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="1800"
+            memoryStoreEvictionPolicy="LRU">
+            <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+	         	properties="replicateAsynchronously=true,
+	         	replicatePuts=false,
+	         	replicateUpdates=false,
+	         	replicateUpdatesViaCopy=false,
+	         	replicateRemovals=true "/>
+    </Cache>
+    
+    <Cache  name="FrameMenuURLCache"
+            maxElementsInMemory="1000"
+            eternal="false"
+            overflowToDisk="false"
+			diskPersistent="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="1800"
+            memoryStoreEvictionPolicy="LRU">
+            <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+	         	properties="replicateAsynchronously=true,
+	         	replicatePuts=false,
+	         	replicateUpdates=false,
+	         	replicateUpdatesViaCopy=false,
+	         	replicateRemovals=true "/>
+    </Cache>
+        
+    <Cache  name="SocSecurityPromisesCache"
+            maxElementsInMemory="100"
+            eternal="false"
+            overflowToDisk="false"
+			diskPersistent="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="1800"
+            memoryStoreEvictionPolicy="LRU">
+            <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+	         	properties="replicateAsynchronously=true,
+	         	replicatePuts=false,
+	         	replicateUpdates=false,
+	         	replicateUpdatesViaCopy=false,
+	         	replicateRemovals=true "/>
+    </Cache>
+    
+    <Cache  name="SocAttachFileCache"
+            maxElementsInMemory="100"
+            eternal="false"
+            overflowToDisk="false"
+			diskPersistent="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="1800"
+            memoryStoreEvictionPolicy="LRU">
+            <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+	         	properties="replicateAsynchronously=true,
+	         	replicatePuts=false,
+	         	replicateUpdates=false,
+	         	replicateUpdatesViaCopy=false,
+	         	replicateRemovals=true "/>
+    </Cache>
+    
+    <Cache  name="KeyEmpIdListCache"
+            maxElementsInMemory="65535"
+            eternal="false"
+            overflowToDisk="false"
+			diskPersistent="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="86400"
+            memoryStoreEvictionPolicy="LRU">
+            <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+	         	properties="replicateAsynchronously=true,
+	         	replicatePuts=false,
+	         	replicateUpdates=false,
+	         	replicateUpdatesViaCopy=false,
+	         	replicateRemovals=true "/>
+    </Cache>
+    
+    <Cache  name="KeyEmpIdCountCache"
+            maxElementsInMemory="65535"
+            eternal="false"
+            overflowToDisk="false"
+			diskPersistent="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="86400"
+            memoryStoreEvictionPolicy="LRU">
+            <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+	         	properties="replicateAsynchronously=true,
+	         	replicatePuts=false,
+	         	replicateUpdates=false,
+	         	replicateUpdatesViaCopy=false,
+	         	replicateRemovals=true "/>
+    </Cache>
+    
+    <Cache  name="EmpIdMsgCache"
+            maxElementsInMemory="65535"
+            eternal="false"
+            overflowToDisk="false"
+			diskPersistent="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="86400"
+            memoryStoreEvictionPolicy="LRU">
+            <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+	         	properties="replicateAsynchronously=true,
+	         	replicatePuts=false,
+	         	replicateUpdates=false,
+	         	replicateUpdatesViaCopy=false,
+	         	replicateRemovals=true "/>
+    </Cache>
+    
+</ehcache>

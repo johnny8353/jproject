@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.zte.html5.sysman.functionserve.FunctionServeMapper" >
+  <!-- 屏蔽mybatis的2级缓存  <cache />  -->
+  
+  <!-- 记录和实体映射配置 -->
+  <resultMap id="BaseMap" type="com.zte.html5.sysman.functionserve.FunctionServe" >
+		<id column="ID" property="id" jdbcType="BIGINT" />
+		<result column="FUNCTION_ID" property="functionId" jdbcType="BIGINT" />	
+		<result column="DICTIONARY_ID" property="dictId" jdbcType="BIGINT" />
+		<result column="DICT_CODE" property="dictCode" jdbcType="VARCHAR" />
+		<result column="DICT_NAME" property="dictName" jdbcType="VARCHAR" />
+		<result column="DICT_VALUE" property="dictValue" jdbcType="VARCHAR" />
+		<result column="SERVE_ID" property="serveId" jdbcType="BIGINT" />
+		<result column="CREATED_BY" property="createdBy" jdbcType="BIGINT" />	
+		<result column="CREATED_DATE" property="createdDate" jdbcType="TIMESTAMP" />	
+		<result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="BIGINT" />	
+		<result column="LAST_UPDATED_DATE" property="lastUpdatedDate" jdbcType="TIMESTAMP" />	
+		<result column="ENABLE_FLAG" property="enableFlag" jdbcType="VARCHAR" />	
+		<result column="ORG_ID" property="orgId" jdbcType="BIGINT" />	
+  </resultMap>
+
+  <!-- 获取一条记录 -->
+  <select id="get"  resultMap="BaseMap">
+ 	select
+    	t.ID ,
+    	t.FUNCTION_ID ,	
+		t.DICTIONARY_ID,
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID 	
+    from frm_function_serve t
+    where 
+    t.ID=#{id,jdbcType=BIGINT}
+  </select>
+ 
+  <!-- 获取符合条件的记录列表 -->
+  <select id="getList" parameterType="java.util.Map" resultMap="BaseMap">
+    select
+    	t.ID ,
+    	t.FUNCTION_ID ,	
+		t.DICTIONARY_ID,
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID 	
+    from frm_function_serve t
+    where 1=1
+	<if test="id != null"> and t.ID = #{id}</if>	
+	<if test="functionId != null"> and t.FUNCTION_ID = #{functionId}</if>	
+
+	<if test="orderField != null">
+		<choose>
+			<when test="orderField=='id'"> order by t.ID <if test="order != null and order == 'desc'"> desc </if> </when>
+		</choose>
+	</if>
+  </select>
+  
+  <!-- 获取功能服务列表 -->
+  <select id="getFunctionServeList" parameterType="java.util.Map" resultMap="BaseMap">
+		SELECT
+			a.ID,
+			s.DICTIONARY_ID,
+			s.FUNCTION_ID,
+			a.PARENT_ID,
+			a.DICT_CODE,
+			a.DICT_NAME,
+			a.DICT_VALUE
+		FROM
+			frm_dictionary a
+		LEFT JOIN frm_function_serve s ON a.ID = s.DICTIONARY_ID
+		WHERE 1 = 1
+		AND a.ENABLE_FLAG = 'Y'
+
+	<if test="id != null"> and a.ID = #{id}</if>	
+	
+	<if test="dictCode != null">
+	 AND EXISTS (
+			SELECT
+				id
+			FROM
+				frm_dictionary b
+			WHERE
+				1 = 1
+			AND a.parent_id = b.id
+			AND b.DICT_CODE = #{dictCode}
+		)
+	</if>	
+	
+	<if test="orderField != null">
+		<choose>
+			<when test="orderField=='id'"> order by a.ID <if test="order != null and order == 'desc'"> desc </if> </when>
+		</choose>
+	</if>
+  </select>
+    
+  <!-- 删除一条记录 -->
+  <delete id="delete" >
+    delete  
+    from frm_function_serve
+    where
+    ID = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <!-- 删除一条记录 -->
+  <delete id="deleteServe" >
+    delete  
+      from frm_function_serve
+      where 1=1
+         and FUNCTION_ID = #{functionId,jdbcType=BIGINT}
+  </delete>
+
+  <!--添加一条记录 -->
+  <insert id="insert" parameterType="com.zte.html5.sysman.functionserve.FunctionServe" >
+  	<!--主键是自增字段时,放开注释代码  -->
+	<selectKey keyProperty="id" resultType="java.lang.Long"  order="AFTER">   
+        select LAST_INSERT_ID() as id  
+      </selectKey> 
+    insert into frm_function_serve
+    (
+	    id,
+    	FUNCTION_ID,	
+		DICTIONARY_ID,
+    	CREATED_BY,	
+    	CREATED_DATE ,	
+    	LAST_UPDATED_BY ,	
+    	LAST_UPDATED_DATE ,	
+    	ENABLE_FLAG ,	
+    	ORG_ID 
+    )
+    values 
+    (
+	  	frm_function_serve.nextval,
+       	#{functionId,jdbcType=BIGINT} ,	
+    	#{dictId,jdbcType=BIGINT} ,	
+    	#{createdBy,jdbcType=BIGINT} ,	
+    	#{createdDate,jdbcType=TIMESTAMP} ,	
+    	#{lastUpdatedBy,jdbcType=BIGINT} ,	
+    	#{lastUpdatedDate,jdbcType=TIMESTAMP} ,	
+    	#{enableFlag,jdbcType=VARCHAR} ,	
+    	#{orgId,jdbcType=BIGINT} 	
+    )
+  </insert>
+  
+  <!-- 更新一条记录 -->
+  <update id="update" parameterType="com.zte.html5.sysman.functionserve.FunctionServe" >
+    update frm_function_serve
+    set FUNCTION_ID =#{functionId,jdbcType=BIGINT} ,
+		DICTIONARY_ID=#{dictionaryId,jdbcType=BIGINT} ,
+		LAST_UPDATED_BY=#{lastUpdatedBy,jdbcType=BIGINT} ,
+		LAST_UPDATED_DATE=#{lastUpdatedDate,jdbcType=TIMESTAMP} ,
+		ENABLE_FLAG=#{enableFlag,jdbcType=VARCHAR} ,
+		ORG_ID=#{orgId,jdbcType=BIGINT} 
+    where 
+    ID=#{id,jdbcType=BIGINT}
+  </update>
+  
+    <!-- 更新一条记录 -->
+  <update id="updateState" parameterType="com.zte.html5.sysman.functionserve.FunctionServe" >
+    update frm_function_serve
+    set 
+		LAST_UPDATED_BY=#{lastUpdatedBy,jdbcType=BIGINT} ,
+		LAST_UPDATED_DATE=#{lastUpdatedDate,jdbcType=TIMESTAMP} ,
+		ENABLE_FLAG=#{enableFlag,jdbcType=VARCHAR} 
+    where 
+    ID=#{id,jdbcType=BIGINT}
+  </update>
+  
+  <!-- 翻页函数:获取符合条件的记录数 -->
+  <select id="getCount" parameterType="java.util.Map" resultType="java.lang.Long">
+      select count(*)
+        from frm_function_serve t
+       WHERE 1=1 
+		<if test="id != null"> and t.ID = #{id}</if>
+  </select>
+	
+  <!-- 翻页函数:获取一页的记录集 -->
+  <select id="getPage" parameterType="java.util.Map" resultMap="BaseMap">
+	 select * from frm_function_serve t
+		WHERE 1=1 
+			<if test="id != null"> and t.ID = #{id}</if>
+	  <if test="startRow != null and rowSize != null"> <![CDATA[ AND ROWNUM >=#{startRow} AND ROWNUM <= #{rowSize}]]> </if>
+	  <if test="orderField != null and orderField == 'id'"> order by t.ID <if test="order != null and order == 'desc'"> desc </if> </if>
+  </select>
+	
+</mapper>

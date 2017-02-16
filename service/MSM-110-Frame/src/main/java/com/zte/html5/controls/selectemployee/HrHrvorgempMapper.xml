@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.zte.html5.controls.selectemployee.HrHrvorgempMapper">
+	<!-- 屏蔽mybatis的2级缓存 <cache /> -->
+
+	<!-- 记录和实体映射配置 -->
+	<resultMap id="BaseMap"
+		type="com.zte.html5.controls.selectemployee.KeyValueSearchEmpResponse">
+		<id column="EMPID_UI" property="empidUi" jdbcType="VARCHAR" />
+		<result column="IMAGE" property="image" jdbcType="VARCHAR" />
+		<result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+		<result column="USER_EN_NAME" property="userEnName" jdbcType="VARCHAR" />
+		<result column="ORG_CN_NAME" property="orgCnName" jdbcType="VARCHAR" />
+		<result column="ORG_EN_NAME" property="orgEnName" jdbcType="VARCHAR" />
+		<result column="ORG_NO" property="orgNo" jdbcType="VARCHAR" />
+		<result column="TOP_ORG_NO" property="topOrgNo" jdbcType="VARCHAR" />
+		<result column="TOP_ORG_CN_NAME" property="topOrgCnName"
+			jdbcType="VARCHAR" />
+		<result column="TOP_ORG_EN_NAME" property="topOrgEnName"
+			jdbcType="VARCHAR" />
+		<result column="TWO_ORG_NO" property="twoOrgNo" jdbcType="VARCHAR" />
+		<result column="TWO_ORG_CN_NAME" property="twoOrgCnName"
+			jdbcType="VARCHAR" />
+		<result column="TWO_ORG_EN_NAME" property="twoOrgEnName"
+			jdbcType="VARCHAR" />
+		<result column="EMPID_COMPUTER" property="empidComputer"
+			jdbcType="VARCHAR" />
+	</resultMap>
+
+
+	<!-- 获取符合条件的记录列表 -->
+	<select id="getEmpMsg" parameterType="java.util.Map" resultMap="BaseMap">
+		select
+		'logo.png' as IMAGE,
+		t.EMPID_UI ,
+		t.USER_NAME ,
+		t.USER_EN_NAME ,
+		t.ORG_CN_NAME ,
+		t.ORG_EN_NAME ,
+		t.ORG_NO ,
+		t.TOP_ORG_NO ,
+		t.TOP_ORG_CN_NAME ,
+		t.TOP_ORG_EN_NAME ,
+		t.TWO_ORG_NO ,
+		t.TWO_ORG_CN_NAME ,
+		t.TWO_ORG_EN_NAME ,
+		t.EMPID_COMPUTER
+		from hr_hrvorgemp t
+		where t.status = '在职' 
+		<if test="empidUi != null and empidUi != ''"> and t.EMPID_UI = #{empidUi} </if>
+	</select>
+
+	<!-- 获取符合条件的记录列表 -->
+	<select id="getEmpIdList" parameterType="java.util.Map"
+		resultMap="BaseMap">
+		select
+		t.EMPID_UI
+		from hr_hrvorgemp t
+		where t.status = '在职' 
+		<if test="seekInfo != null and seekInfo != ''"> and t.EMPID_UI in CONCAT(CONCAT('(', #{seekInfo}), ')')
+		</if>
+		<if test="orderField != null">
+			<choose>
+				<when test="orderField=='activeDate'">
+					order by t.ACTIVE_DATE
+					<if test="order != null and order == 'desc'"> desc </if>
+				</when>
+			</choose>
+		</if>
+	</select>
+
+	<!-- 翻页函数:获取符合条件的记录数 -->
+	<select id="getCount" parameterType="java.util.Map" resultType="java.lang.Long">
+		select count(*)
+		from hr_hrvorgemp t
+		WHERE t.status = '在职' 
+		<if test="seekInfo != null and seekInfo != ''"> and t.searchcode like CONCAT(CONCAT('%', #{seekInfo}),
+			'%')</if>
+	</select>
+
+	<!-- 翻页函数:获取一页的记录集 -->
+	<select id="getEmpIdPage" parameterType="java.util.Map"
+		resultMap="BaseMap">
+		select
+		t.EMPID_UI
+		from hr_hrvorgemp t
+		WHERE t.status = '在职' 
+		<if test="seekInfo != null and seekInfo != ''"> and t.searchcode like CONCAT(CONCAT('%', #{seekInfo}),
+			'%') </if>
+
+		<if test="startRow != null and rowSize != null"><![CDATA[ AND ROWNUM >=#{startRow} AND ROWNUM <= #{rowSize}]]></if>
+	</select>
+
+</mapper>

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans.xsd 
+    http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/cache 
+	http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+
+	<!-- 数据源在这里定义 
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin:@10.3.64.75:1521:sectest" />
+		<property name="username" value="111" />
+		<property name="password" value="111" />
+		<property name="initialSize" value="2" />
+		<property name="maxActive" value="100" />
+		<property name="maxWait" value="-1" />
+		<property name="maxIdle" value="100" />
+		<property name="testOnBorrow" value="true" />
+		<property name="validationQuery" value="select 1 from dual" />
+		<property name="validationQueryTimeout" value="1" />
+		<property name="timeBetweenEvictionRunsMillis" value="300000" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="1800" />
+		<property name="logAbandoned" value="true" />
+	</bean>
+	
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://127.0.0.1:3306/bigdata?useUnicode=true&amp;characterEncoding=utf8&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC" />
+		<property name="username" value="bigdata" />
+		<property name="password" value="bigdata" />
+		<property name="initialSize" value="2" />
+		<property name="maxActive" value="100" />
+		<property name="maxWait" value="-1" />
+		<property name="maxIdle" value="100" />
+		<property name="testOnBorrow" value="true" />
+		<property name="validationQuery" value="select 1 from dual" />
+		<property name="validationQueryTimeout" value="1" />
+		<property name="timeBetweenEvictionRunsMillis" value="300000" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="1800" />
+		<property name="logAbandoned" value="true" />
+	</bean>
+	-->
+	
+	<bean id="mainDataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin:@//10.41.252.65:1521/ltcdb"/>
+		<property name="username" value="ecc_demo" />
+		<property name="password" value="ecc_demo_1228" />
+		<property name="initialSize" value="2" />
+		<property name="maxActive" value="100" />
+		<property name="maxWait" value="-1" />
+		<property name="maxIdle" value="100" />
+		<property name="testOnBorrow" value="true" />
+		<property name="validationQuery" value="select 1 from dual" />
+		<property name="validationQueryTimeout" value="1" />
+		<property name="timeBetweenEvictionRunsMillis" value="300000" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="1800" />
+		<property name="logAbandoned" value="true" />
+	</bean>
+	
+	<!-- 配置多数据源,例如增加一个只读数据源用于读写分离 -->
+	<bean id="readOnlyDataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin:@//10.41.252.65:1521/ltcdb" />
+		<property name="username" value="ecc_demo" />
+		<property name="password" value="ecc_demo_1228" />
+		<property name="initialSize" value="2" />
+		<property name="maxActive" value="100" />
+		<property name="maxWait" value="-1" />
+		<property name="maxIdle" value="100" />
+		<property name="testOnBorrow" value="true" />
+		<property name="validationQuery" value="select 1 from dual" />
+		<property name="validationQueryTimeout" value="1" />
+		<property name="timeBetweenEvictionRunsMillis" value="300000" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="1800" />
+		<property name="logAbandoned" value="true" />
+	</bean>
+	
+	
+	<!-- 数据源密码配置加密的连接池 -->
+	<!-- <bean id="dataSource" class="com.zte.itp.dbcp.SecurityDataSourceFactory" destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://127.0.0.1:3306/html5_frame?useUnicode=true&amp;characterEncoding=utf8&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC" />
+		<property name="username" value="bigdata" />
+		<property name="password" value="0R9sWJpW7EKplWg2cbrWjg==" />
+		<property name="initialSize" value="2" />
+		<property name="maxActive" value="100" />
+		<property name="maxWait" value="-1" />
+		<property name="maxIdle" value="100" />
+		<property name="testOnBorrow" value="true" />
+		<property name="validationQuery" value="select 1 from dual" />
+		<property name="validationQueryTimeout" value="1" />
+		<property name="timeBetweenEvictionRunsMillis" value="300000" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="1800" />
+		<property name="logAbandoned" value="true" />
+	</bean> -->
+	
+	<!-- 注解型事务管理器,第一个为缺省事务管理器 -->
+	<tx:annotation-driven/>
+	
+	<!-- 配置多数据源,例如增加一个只读数据源用于读写分离,对应增加一个事务管理器,可以在代码的事务注解中声明使用哪个事务管理器,例子如下
+	@Transactional(transactionManager="readOnlyTX",propagation=Propagation.NOT_SUPPORTED,readOnly=true)-->
+	
+	<!-- transaction manager, use JtaTransactionManager for global tx -->
+	<bean id="mainTransactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="mainDataSource" />
+		<qualifier value="mainTX"/>
+	</bean>
+	
+	<bean id="readOnlyTransactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="readOnlyDataSource" />
+		<qualifier value="readOnlyTX"/>
+	</bean>
+
+	
+	<!-- spring注解驱动BEAN配置 -->
+	<context:annotation-config />
+	<context:component-scan base-package="com.zte.html5.sysman,com.test.account,com.test.student,com.test.position,com.test.googleworldmap" />
+	
+	
+	<!-- mybatis配置 -->
+	<!-- 集成mybatis后,mybatis接管了事务管理器里面的连接创建工作.所以要配置多数据源,需要增加一个SqlSessionFactory和MapperScannerConfigurer,
+	这样可以控制不同的程序包里面的DAO和不同的数据库绑定,同时也不需要在代码注解中指定不同的事务管理器了,因为数据库连接不再由事务管理器来管理. 
+	这里需要制定一条开发规范:操作不同数据库的代码,所在包要独立,不能有嵌套 -->
+	<bean id="mainSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="mainDataSource" />
+		<property name="configLocation" value="classpath:mybatis.xml" />
+	</bean>
+	
+	<bean id="readOnlySqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="readOnlyDataSource" />
+		<property name="configLocation" value="classpath:mybatis.xml" />
+	</bean>
+	
+	<!-- scan for mybatis mappers and let them be autowired -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.zte.html5.sysman,com.zte.html5.controls,com.test.position,com.test.googleworldmap"/>
+        <property name="sqlSessionFactoryBeanName" value="mainSqlSessionFactory"/>
+    </bean>
+    
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.test.account,com.test.student"/>
+        <property name="sqlSessionFactoryBeanName" value="readOnlySqlSessionFactory"/>
+    </bean>
+    
+    
+    <!-- spring缓存配置 -->
+	<!-- EhCache library setup -->
+	<bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation" value="classpath:ehcache.xml"/>
+	</bean>
+	<bean id="ehcacheCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
+    p:cacheManager-ref="ehcache" >
+    </bean>
+	
+	<!-- redis缓存配置 -->
+	<bean id="redisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxIdle" value="100" />		
+		<property name="maxWaitMillis" value="3000" />
+		<property name="testOnBorrow" value="true" />
+	</bean>
+	<bean id="redisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+		p:host-name="127.0.0.1" p:port="6379" p:pool-config-ref="redisPoolConfig"
+		p:database="0" />
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+		<property name="connectionFactory" ref="redisConnectionFactory" />
+	</bean>
+	<bean id="redisCache1" class="org.springframework.data.redis.cache.RedisCache"
+		c:name="testcache1" c:prefix="x_" c:redisOperations-ref="redisTemplate" c:expiration="3600000" >
+	</bean>
+	<bean id="redisCache2" class="org.springframework.data.redis.cache.RedisCache"
+		c:name="testcache2" c:prefix="y_" c:redisOperations-ref="redisTemplate" c:expiration="3600000" >
+	</bean>
+	<bean id="redisCacheManager" class="org.springframework.data.redis.cache.RedisCacheManager" 
+		c:redisOperations-ref="redisTemplate" c:cacheNames="testcache1,testcache2" >
+	</bean>			
+
+	
+	<!-- spring注解驱动的缓村配置 -->
+	<cache:annotation-driven />
+	<bean id="cacheManager" class="org.springframework.cache.support.CompositeCacheManager">
+	    <property name="cacheManagers">
+	        <list>
+	            <ref bean="ehcacheCacheManager"/>
+	            <ref bean="redisCacheManager"/>
+	           
+	        </list>
+	    </property>
+	    <property name="fallbackToNoOpCache" value="true"/>
+	</bean>
+
+
+    <!-- 以下 validator  ConversionService 在使用 mvc:annotation-driven 会 自动注册-->
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+        <property name="providerClass" value="org.hibernate.validator.HibernateValidator"/>
+        <!-- 如果不加默认到 使用classpath下的 ValidationMessages.properties -->
+        <property name="validationMessageSource" ref="messageSource"/>
+    </bean>
+
+    <!-- 类型转换及数据格式化 -->
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean"/>
+
+    <!-- 直接把id转换为entity 必须非lazy否则无法注册-->
+    <!--  
+    <bean id="domainClassConverter" class="org.springframework.data.repository.support.DomainClassConverter">
+        <constructor-arg ref="conversionService"/>
+    </bean>
+    -->
+    
+    <!-- 国际化的消息资源文件（本系统中主要用于显示/错误消息定制） -->
+    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <!-- 在web环境中一定要定位到classpath 否则默认到当前web应用下找  -->
+                <value>classpath:messages</value>
+                <value>classpath:ValidationMessages</value>
+            </list>
+        </property>
+        <property name="useCodeAsDefaultMessage" value="true"/>
+        <property name="fileEncodings" value="UTF-8"/> 
+        <property name="defaultEncoding" value="UTF-8"/>
+        <property name="cacheSeconds" value="60"/>
+    </bean>
+</beans>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<!-- 统一审批相关配置 -->
+	<unifiedauth>
+		<!-- 统一审批的开关，true为开，false为关 -->
+		<control>true</control>
+		<isopen>1</isopen>
+		<wisplatformno>SEC</wisplatformno>
+		<wisappcode>SOC</wisappcode>
+		<wisbizserverno>ZXSEC-SOC001</wisbizserverno>
+		<wisterminaltype>1</wisterminaltype>
+		<wistemplateid>WisDefaultTemplate</wistemplateid>
+		<wisauditmode>1</wisauditmode>
+		<wisisasync>0</wisisasync>
+		<wisbiztype>1</wisbiztype>
+		<wislangid>zh-CN</wislangid>
+		<wisurl>http://oldsoc.zte.com.cn:9080/LdapWeb/servlet/FlowUnifiedAuthServlet
+		</wisurl>
+		<mailurl>http://oldsoc.zte.com.cn:9080/LdapWeb/servlet/FlowUnifiedAuthServlet
+		</mailurl>
+	</unifiedauth>
+
+	<newsoc>
+		<ssourl>http://newsoc.zte.com.cn:8080/soc/login/mailsso.jsp</ssourl>
+	</newsoc>
+
+	<!-- https相关配置 -->
+	<https>
+		<!-- https登陆的开关，true为开，false为关 -->
+		<usehttpslogin>false</usehttpslogin>
+		<httpsPort>8443</httpsPort>
+		<httpPort>8080</httpPort>
+	</https>
+
+	<!-- 内存队列容量 -->
+	<queuecapacity>
+		<exportcenterqueue>10</exportcenterqueue>
+	</queuecapacity>
+
+	<!-- 内存队列等待时间 -->
+	<queuewaittime>
+		<!-- 导出中心10分钟(600 * 1000) -->
+		<exportcenterqueue>600000</exportcenterqueue>
+	</queuewaittime>
+	
+	    <fileroot>
+         <fileAbsolutePath>C:\SOC_UPLOAD_FILE</fileAbsolutePath>
+         <fileRelativePath>CoreFile</fileRelativePath>
+    </fileroot>
+	
+
+</root>

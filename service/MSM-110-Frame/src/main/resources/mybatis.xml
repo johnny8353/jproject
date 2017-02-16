@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<!--  
+	<typeAliases>
+		<typeAlias alias="testtype" type="com.zte.frame.manage.menu.Menu" />
+	</typeAliases>
+	-->
+	<mappers>
+	  
+		<!-- 不需要在这里添加mybatis配置文件，SPIRNG配置文件里面配置了自动扫描		
+		<mapper resource="com/zte/frame/manage/role/Role-Mapper.xml" />
+		<mapper resource="com/zte/frame/manage/user/User-Mapper.xml" />
+		 -->
+		
+	</mappers>
+</configuration>

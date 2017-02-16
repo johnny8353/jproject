@@ -1,0 +1,42 @@
+/* 
+    Created on : 2015-8-11, 16:18:09
+    Author     : joe
+*/
+
+.addtabs-tab-li {
+	display: block;
+    position: relative
+}
+
+.close-tab {
+    /*font-size: 10px;*/
+    font-size: 16px;
+    position:absolute;
+    right: 1px;
+    top: 2px;
+    /*padding-left: 25px;*/
+    z-index: 100;
+    cursor: hand;
+    color: #94A6B0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    -webkit-appearance: none;
+}
+
+.topbar-collapse {
+    float:right;
+}
+
+.iframeClass {
+    z-index: 1;
+    visibility: inherit;
+    width: 100%;
+    frameborder: 'no';
+    border: 0;
+    marginwidth: 0;
+    marginheight: 0;
+    scrolling-x: 'no';
+    scrolling-y: auto;
+    allowtransparency: true;
+}

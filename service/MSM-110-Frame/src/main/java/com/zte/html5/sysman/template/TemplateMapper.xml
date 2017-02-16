@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.zte.html5.sysman.template.TemplateMapper" >
+  <!-- 屏蔽mybatis的2级缓存  <cache />  -->
+  
+  <!-- 记录和实体映射配置 -->
+  <resultMap id="BaseMap" type="com.zte.html5.sysman.template.Template" >
+		<id column="ID" property="id" jdbcType="BIGINT" />
+		<result column="GUID" property="guid" jdbcType="VARCHAR" />	
+		<result column="CREATED_BY" property="createdBy" jdbcType="BIGINT" />	
+		<result column="CREATED_DATE" property="createdDate" jdbcType="TIMESTAMP" />	
+		<result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="BIGINT" />	
+		<result column="LAST_UPDATED_DATE" property="lastUpdatedDate" jdbcType="TIMESTAMP" />	
+		<result column="ENABLE_FLAG" property="enableFlag" jdbcType="VARCHAR" />	
+		<result column="ORG_ID" property="orgId" jdbcType="BIGINT" />	
+		<result column="DEPT_ID" property="deptId" jdbcType="BIGINT" />	
+		<result column="USER_ID" property="userId" jdbcType="BIGINT" />	
+		<result column="XX_CODE" property="xxCode" jdbcType="VARCHAR" />	
+		<result column="XX_TYPE" property="xxType" jdbcType="VARCHAR" />	
+		<result column="XX_NAME" property="xxName" jdbcType="VARCHAR" />	
+		<result column="MEMO" property="memo" jdbcType="VARCHAR" />	
+  </resultMap>
+
+  <!-- 获取一条记录 -->
+  <select id="get"  resultMap="BaseMap">
+    select
+    	t.ID ,
+    	t.GUID ,	
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID ,	
+    	t.DEPT_ID ,	
+    	t.USER_ID ,	
+    	t.XX_CODE ,	
+    	t.XX_TYPE ,	
+    	t.XX_NAME ,	
+    	t.MEMO 	
+    from template t
+    where 
+    t.ID=#{id,jdbcType=BIGINT}
+  </select>
+ 
+  <!-- 获取符合条件的记录列表 -->
+  <select id="getList" parameterType="java.util.Map" resultMap="BaseMap">
+    select
+    	t.ID ,
+    	t.GUID ,	
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID ,	
+    	t.DEPT_ID ,	
+    	t.USER_ID ,	
+    	t.XX_CODE ,	
+    	t.XX_TYPE ,	
+    	t.XX_NAME ,	
+    	t.MEMO 	
+    from template t
+    where 1=1
+	<if test="id != null"> and t.ID = #{id}</if>	
+	<if test="guid != null and guid != ''"> and t.GUID = #{guid}</if>
+	
+	<if test="orderField != null">
+		<choose>
+			<when test="orderField=='id'"> order by t.ID <if test="order != null and order == 'desc'"> desc </if> </when>
+			<when test="orderField=='guid'"> order by t.GUID <if test="order != null and order == 'desc'"> desc </if> </when>
+		</choose>
+	</if>
+  </select>
+  
+  <!-- 删除一条记录 -->
+  <delete id="delete" >
+    delete 
+    from template
+    where
+    ID = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <!--添加一条记录 -->
+  <insert id="insert" parameterType="com.zte.html5.sysman.template.Template" >
+  	<!--主键是自增字段时,放开注释代码 
+	<selectKey keyProperty="id" resultType="java.lang.Long"  order="AFTER">   
+        select LAST_INSERT_ID() as id  
+      </selectKey> 
+	-->
+    insert into template 
+    (
+		ID ,
+    	GUID ,	
+    	CREATED_BY ,	
+    	CREATED_DATE ,	
+    	LAST_UPDATED_BY ,	
+    	LAST_UPDATED_DATE ,	
+    	ENABLE_FLAG ,	
+    	ORG_ID ,	
+    	DEPT_ID ,	
+    	USER_ID ,	
+    	XX_CODE ,	
+    	XX_TYPE ,	
+    	XX_NAME ,	
+    	MEMO 	
+    )
+    values 
+    (
+	  template_s.nextval ,
+    	#{guid,jdbcType=VARCHAR} ,	
+    	#{createdBy,jdbcType=BIGINT} ,	
+    	#{createdDate,jdbcType=TIMESTAMP} ,	
+    	#{lastUpdatedBy,jdbcType=BIGINT} ,	
+    	#{lastUpdatedDate,jdbcType=TIMESTAMP} ,	
+    	#{enableFlag,jdbcType=VARCHAR} ,	
+    	#{orgId,jdbcType=BIGINT} ,	
+    	#{deptId,jdbcType=BIGINT} ,	
+    	#{userId,jdbcType=BIGINT} ,	
+    	#{xxCode,jdbcType=VARCHAR} ,	
+    	#{xxType,jdbcType=VARCHAR} ,	
+    	#{xxName,jdbcType=VARCHAR} ,	
+    	#{memo,jdbcType=VARCHAR} 	
+    )
+  </insert>
+  
+  <!-- 更新一条记录 -->
+  <update id="update" parameterType="com.zte.html5.sysman.template.Template" >
+    update template
+    set 
+		GUID=#{guid,jdbcType=VARCHAR} ,
+		CREATED_BY=#{createdBy,jdbcType=BIGINT} ,
+		CREATED_DATE=#{createdDate,jdbcType=TIMESTAMP} ,
+		LAST_UPDATED_BY=#{lastUpdatedBy,jdbcType=BIGINT} ,
+		LAST_UPDATED_DATE=#{lastUpdatedDate,jdbcType=TIMESTAMP} ,
+		ENABLE_FLAG=#{enableFlag,jdbcType=VARCHAR} ,
+		ORG_ID=#{orgId,jdbcType=BIGINT} ,
+		DEPT_ID=#{deptId,jdbcType=BIGINT} ,
+		USER_ID=#{userId,jdbcType=BIGINT} ,
+		XX_CODE=#{xxCode,jdbcType=VARCHAR} ,
+		XX_TYPE=#{xxType,jdbcType=VARCHAR} ,
+		XX_NAME=#{xxName,jdbcType=VARCHAR} ,
+		MEMO=#{memo,jdbcType=VARCHAR} 
+    where 
+    ID=#{id,jdbcType=BIGINT}
+  </update>
+  
+  <!-- 翻页函数:获取符合条件的记录数 -->
+  <select id="getCount" parameterType="java.util.Map" resultType="java.lang.Long">
+      select count(*)
+      from template t
+      WHERE 1=1 
+		<if test="id != null"> and t.ID = #{id}</if>	
+		<if test="guid != null and guid != ''"> and t.GUID = #{guid}</if>
+  </select>
+	
+  <!-- 翻页函数:获取一页的记录集 -->
+  <select id="getPage" parameterType="java.util.Map" resultMap="BaseMap">
+	 select * from template t
+		WHERE 1=1 
+			<if test="id != null"> and t.ID = #{id}</if>	
+			<if test="guid != null and guid != ''"> and t.GUID = #{guid}</if>
+	  <if test="startRow != null and rowSize != null"> <![CDATA[ AND ROWNUM >=#{startRow} AND ROWNUM <= #{rowSize}]]></if>
+	  <if test="orderField != null and orderField == 'id'"> order by t.ID <if test="order != null and order == 'desc'"> desc </if> </if>
+			<if test="orderField != null and orderField == 'guid'"> order by t.GUID <if test="order != null and order == 'desc'"> desc </if> </if>
+
+  </select>
+	
+</mapper>

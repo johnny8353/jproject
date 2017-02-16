@@ -4,6 +4,7 @@ import com.johnny.common.jetty.JettyStartEmbedded;
 
 public class StartFrameUI {
 	public static void main(String[] args) throws Exception {
-		new JettyStartEmbedded(8090, "frameui",System.getProperty("user.dir")+"/src/main/webapp").start();
+		//
+		new JettyStartEmbedded(8090, "frame-web",System.getProperty("user.dir")+"/src/main/webapp").start();
 	}
 }

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.test.student.StudentMapper" >
+  <!-- 屏蔽mybatis的2级缓存  <cache />  -->
+  
+  <!-- 记录和实体映射配置 -->
+  <resultMap id="BaseMap" type="com.test.student.Student" >
+		<id column="classno" property="classno" jdbcType="VARCHAR" />
+		<id column="stuid" property="stuid" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />	
+		<result column="birth" property="birth" jdbcType="TIMESTAMP" />	
+		<result column="score" property="score" jdbcType="REAL" />	
+  </resultMap>
+
+  <!-- 获取一条记录 -->
+  <select id="get"  resultMap="BaseMap">
+    select
+    	t.classno ,
+    	t.stuid ,
+    	t.name ,	
+    	t.birth ,	
+    	t.score 	
+    from student t
+    where 
+    t.classno=#{classno,jdbcType=VARCHAR}
+     and t.stuid=#{stuid,jdbcType=VARCHAR}
+  </select>
+ 
+  <!-- 获取符合条件的记录列表 -->
+  <select id="getList" parameterType="java.util.Map" resultMap="BaseMap">
+    select
+    	t.classno ,
+    	t.stuid ,
+    	t.name ,	
+    	t.birth ,	
+    	t.score 	
+    from student t
+    where 1=1
+	<if test="classno != null and classno != ''"> and t.classno = #{classno}</if>
+	<if test="stuid != null and stuid != ''"> and t.stuid = #{stuid}</if>
+	
+	<if test="orderField != null">
+		<choose>
+			<when test="orderField=='classno'"> order by t.classno <if test="order != null and order == 'desc'"> desc </if> </when>
+			<when test="orderField=='stuid'"> order by t.stuid <if test="order != null and order == 'desc'"> desc </if> </when>
+		</choose>
+	</if>
+  </select>
+  
+  <!-- 删除一条记录 -->
+  <delete id="delete" >
+    delete 
+    from student
+    where
+    classno = #{classno,jdbcType=VARCHAR}
+     and stuid = #{stuid,jdbcType=VARCHAR}
+  </delete>
+
+  <!--添加一条记录 -->
+  <insert id="insert" parameterType="com.test.student.Student" >
+  	<!--主键是自增字段时,放开注释代码 
+	<selectKey keyProperty="classno" resultType="java.lang.String"  order="AFTER">   
+        select LAST_INSERT_ID() as classno  
+      </selectKey> 
+	-->
+    insert into student 
+    (
+        id,
+		classno ,
+		stuid ,
+    	name ,	
+    	birth ,	
+    	score 	
+    )
+    values 
+    (
+        student_S.nextval,
+    	#{classno,jdbcType=VARCHAR} ,
+    	#{stuid,jdbcType=VARCHAR} ,
+    	#{name,jdbcType=VARCHAR} ,	
+    	#{birth,jdbcType=TIMESTAMP} ,	
+    	#{score,jdbcType=REAL} 	
+    )
+  </insert>
+  
+  <!-- 更新一条记录 -->
+  <update id="update" parameterType="com.test.student.Student" >
+    update student
+    set 
+		name=#{name,jdbcType=VARCHAR} ,
+		birth=#{birth,jdbcType=TIMESTAMP} ,
+		score=#{score,jdbcType=REAL} 
+    where 
+    classno=#{classno,jdbcType=VARCHAR}
+     and stuid=#{stuid,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 翻页函数:获取符合条件的记录数 -->
+  <select id="getCount" parameterType="java.util.Map" resultType="java.lang.Long">
+      select count(*)
+      from student t
+      WHERE 1=1 
+		<if test="classno != null and classno != ''"> and t.classno = #{classno}</if>
+		<if test="stuid != null and stuid != ''"> and t.stuid = #{stuid}</if>
+  </select>
+	
+  <!-- 翻页函数:获取一页的记录集 -->
+  <select id="getPage" parameterType="java.util.Map" resultMap="BaseMap">
+	 select * from student t
+		WHERE 1=1 
+			<if test="classno != null and classno != ''"> and t.classno = #{classno}</if>
+			<if test="stuid != null and stuid != ''"> and t.stuid = #{stuid}</if>
+            <if test="startRow != null and rowSize != null"><![CDATA[ AND ROWNUM >=#{startRow} AND ROWNUM <= #{rowSize}]]> </if>
+			<if test="orderField != null and orderField == 'classno'"> order by t.classno <if test="order != null and order == 'desc'"> desc </if> </if>
+			<if test="orderField != null and orderField == 'stuid'"> order by t.stuid <if test="order != null and order == 'desc'"> desc </if> </if>
+
+
+  </select>
+	
+</mapper>

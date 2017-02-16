@@ -1,0 +1,17 @@
+{
+    "@metadata": {
+        "authors": [
+            "邓启周",
+            "David",
+            "Santhosh"
+        ],
+        "last-updated": "2016-07-04",
+        "locale": "en",
+        "message-documentation": "new frame",
+        "AnotherMetadata": "10027909"
+    },
+    "login-title": "<i class=\"ace-icon fa fa-coffee green\"></i>use HR account and password login",
+    "login-account": "HR Account",
+    "login-password": "HR Password",
+    "login-submit": "Login"
+}

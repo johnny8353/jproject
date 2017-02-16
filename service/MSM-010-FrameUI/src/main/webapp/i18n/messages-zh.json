@@ -1,0 +1,17 @@
+{
+    "@metadata": {
+        "authors": [
+            "邓启周",
+            "David",
+            "Santhosh"
+        ],
+        "last-updated": "2016-07-04",
+        "locale": "zh",
+        "message-documentation": "new frame",
+        "AnotherMetadata": "10027909"
+    },
+    "login-title": "<i class=\"ace-icon fa fa-coffee green\"></i>使用人事帐号密码登陆",
+    "login-account": "人事帐号",
+    "login-password": "人事密码",
+    "login-submit": "登陆"
+}

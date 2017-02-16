@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.zte.html5.sysman.function.FunctionMapper" >
+  <!-- 屏蔽mybatis的2级缓存  <cache />  -->
+  
+  <!-- 记录和实体映射配置 -->
+  <resultMap id="BaseMap" type="com.zte.html5.sysman.function.Function" >
+		<id column="ID" property="id" jdbcType="BIGINT" />
+		<result column="RESOURCE_ID" property="resourceId" jdbcType="BIGINT" />	
+		<result column="RESOURCE_NAME" property="resourceName" jdbcType="VARCHAR" />
+		<result column="FUNCTION_CODE" property="functionCode" jdbcType="VARCHAR" />	
+		<result column="FUNCTION_NAME" property="functionName" jdbcType="VARCHAR" />	
+		<result column="CREATED_BY" property="createdBy" jdbcType="BIGINT" />
+		<result column="CREATED_NAME" property="createdName" jdbcType="VARCHAR" />		
+		<result column="CREATED_DATE" property="createdDate" jdbcType="TIMESTAMP" />	
+		<result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="BIGINT" />	
+		<result column="LAST_UPDATED_DATE" property="lastUpdatedDate" jdbcType="TIMESTAMP" />	
+		<result column="ENABLE_FLAG" property="enableFlag" jdbcType="VARCHAR" />	
+		<result column="ORG_ID" property="orgId" jdbcType="BIGINT" />	
+		<result column="FUNCTION_TYPE" property="functionType" jdbcType="VARCHAR" />	
+  </resultMap>
+
+  <!-- 获取一条记录 -->
+  <select id="get"  resultMap="BaseMap">
+ 	select
+    	t.ID ,
+    	t.RESOURCE_ID ,	
+		l.RESOURCE_NAME,
+    	t.FUNCTION_CODE ,	
+    	t.FUNCTION_NAME ,	
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID 	
+    from frm_function t
+    left join  frm_resource l
+    on t.RESOURCE_ID = l.ID
+    where 
+    t.ID=#{id,jdbcType=BIGINT}
+  </select>
+ 
+  <!-- 获取符合条件的记录列表 -->
+  <select id="getList" parameterType="java.util.Map" resultMap="BaseMap">
+    select
+    	t.ID ,
+    	t.RESOURCE_ID ,	
+    	t.FUNCTION_CODE ,	
+    	t.FUNCTION_NAME ,	
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID 	
+    from frm_function t
+    where 1=1
+	<if test="id != null"> and t.ID = #{id}</if>	
+	<if test="resourceId != null"> and t.RESOURCE_ID = #{resourceId}</if>	
+	
+	<if test="orderField != null">
+		<choose>
+			<when test="orderField=='id'"> order by t.ID <if test="order != null and order == 'desc'"> desc </if> </when>
+			<when test="orderField=='resourceId'"> order by t.RESOURCE_ID <if test="order != null and order == 'desc'"> desc </if> </when>
+		</choose>
+	</if>
+  </select>
+  
+   <!-- 获取符合条件的记录列表 -->
+  <select id="getFunctionList" parameterType="java.util.Map" resultMap="BaseMap">
+		SELECT
+			ID,
+			RESOURCE_ID,
+			FUNCTION_CODE,
+			FUNCTION_NAME,
+			FUNCTION_Type,
+			CREATED_DATE,
+			(select u.name from frm_user u where u.id = t.CREATED_BY) CREATED_NAME,
+			ENABLE_FLAG
+		FROM
+			(
+				SELECT
+					a.ID ,
+					a.PARENT_ID 	as RESOURCE_ID,
+					a.RESOURCE_CODE as FUNCTION_CODE,
+					a.RESOURCE_NAME as FUNCTION_NAME,
+					a.RESOURCE_TYPE	AS FUNCTION_Type,
+					a.CREATED_DATE	as CREATED_DATE,
+					a.CREATED_BY	as CREATED_BY,
+					ENABLE_FLAG,
+					a.ORG_ID
+				FROM
+					frm_resource a
+				WHERE 1 = 1
+				
+				UNION ALL
+					SELECT
+						b.ID,
+						b.RESOURCE_ID 	AS RESOURCE_ID,
+						b.FUNCTION_CODE AS FUNCTION_CODE,
+						b.FUNCTION_NAME AS FUNCTION_NAME,
+						'3' 			as FUNCTION_TYPE,
+						b.CREATED_DATE as CREATED_DATE,
+						b.CREATED_BY	as CREATED_BY,
+						ENABLE_FLAG,
+						b.ORG_ID
+					FROM
+						frm_function b
+					WHERE
+						1 = 1
+					
+			) t
+		WHERE
+			1 = 1
+	<if test="id != null"> and t.ID = #{id}</if>	
+	<if test="resourceId != null"> and t.RESOURCE_ID = #{resourceId}</if>	
+	<if test="orgId != null">and t.ORG_ID = #{orgId}</if>
+	<if test="orderField != null">
+		<choose>
+			<when test="orderField=='id'"> order by t.ID <if test="order != null and order == 'desc'"> desc </if> </when>
+			<when test="orderField=='resourceId'"> order by t.RESOURCE_ID <if test="order != null and order == 'desc'"> desc </if> </when>
+			<when test="orderField=='functionCode'"> order by t.FUNCTION_CODE <if test="order != null and order == 'asc'"> asc </if> </when>
+		</choose>
+	</if>
+  </select>
+  
+  <!-- 删除一条记录 -->
+  <delete id="delete" >
+    update  
+    from frm_function
+    where
+    ID = #{id,jdbcType=BIGINT}
+  </delete>
+
+
+  <!--添加一条记录 -->
+  <insert id="insert" parameterType="com.zte.html5.sysman.function.Function" >
+  	<!--主键是自增字段时,放开注释代码 
+	<selectKey keyProperty="id" resultType="java.lang.Long"  order="AFTER">   
+        select LAST_INSERT_ID() as id  
+      </selectKey> 
+	-->
+    insert into frm_function 
+    (
+		ID ,
+    	RESOURCE_ID ,	
+    	FUNCTION_CODE ,	
+    	FUNCTION_NAME ,	
+    	CREATED_BY ,	
+    	CREATED_DATE ,	
+    	LAST_UPDATED_BY ,	
+    	LAST_UPDATED_DATE ,	
+    	ENABLE_FLAG ,	
+    	ORG_ID 	
+    )
+    values 
+    (
+	  	frm_function.nextval,
+    	#{id,jdbcType=BIGINT} ,
+    	#{resourceId,jdbcType=BIGINT} ,	
+    	#{functionCode,jdbcType=VARCHAR} ,	
+    	#{functionName,jdbcType=VARCHAR} ,	
+    	#{createdBy,jdbcType=BIGINT} ,	
+    	#{createdDate,jdbcType=TIMESTAMP} ,	
+    	#{lastUpdatedBy,jdbcType=BIGINT} ,	
+    	#{lastUpdatedDate,jdbcType=TIMESTAMP} ,	
+    	#{enableFlag,jdbcType=VARCHAR} ,	
+    	#{orgId,jdbcType=BIGINT} 	
+    )
+  </insert>
+  
+  <!-- 更新一条记录 -->
+  <update id="update" parameterType="com.zte.html5.sysman.function.Function" >
+    update frm_function
+    set 
+		RESOURCE_ID=#{resourceId,jdbcType=BIGINT} ,
+		FUNCTION_CODE=#{functionCode,jdbcType=VARCHAR} ,
+		FUNCTION_NAME=#{functionName,jdbcType=VARCHAR} ,
+		LAST_UPDATED_BY=#{lastUpdatedBy,jdbcType=BIGINT} ,
+		LAST_UPDATED_DATE=#{lastUpdatedDate,jdbcType=TIMESTAMP} ,
+		ENABLE_FLAG=#{enableFlag,jdbcType=VARCHAR} ,
+		ORG_ID=#{orgId,jdbcType=BIGINT} 
+    where 
+    ID=#{id,jdbcType=BIGINT}
+  </update>
+  
+    <!-- 更新一条记录 -->
+  <update id="updateState" parameterType="com.zte.html5.sysman.function.Function" >
+    update frm_function
+    set 
+		LAST_UPDATED_BY=#{lastUpdatedBy,jdbcType=BIGINT} ,
+		LAST_UPDATED_DATE=#{lastUpdatedDate,jdbcType=TIMESTAMP} ,
+		ENABLE_FLAG=#{enableFlag,jdbcType=VARCHAR} 
+    where 
+    ID=#{id,jdbcType=BIGINT}
+  </update>
+  
+  <!-- 翻页函数:获取符合条件的记录数 -->
+  <select id="getCount" parameterType="java.util.Map" resultType="java.lang.Long">
+      select count(*)
+      from frm_function t
+      WHERE 1=1 
+		<if test="id != null"> and t.ID = #{id}</if>	
+		<if test="resourceId != null"> and t.RESOURCE_ID = #{resourceId}</if>	
+  </select>
+	
+  <!-- 翻页函数:获取一页的记录集 -->
+  <select id="getPage" parameterType="java.util.Map" resultMap="BaseMap">
+	 select * from frm_function t
+		WHERE 1=1 
+			<if test="id != null"> and t.ID = #{id}</if>	
+			<if test="resourceId != null"> and t.RESOURCE_ID = #{resourceId}</if>
+	  <if test="startRow != null and rowSize != null"> <![CDATA[ AND ROWNUM >=#{startRow} AND ROWNUM <= #{rowSize}]]> </if>
+	  <if test="orderField != null and orderField == 'id'"> order by t.ID <if test="order != null and order == 'desc'"> desc </if> </if>
+			<if test="orderField != null and orderField == 'resourceId'"> order by t.RESOURCE_ID <if test="order != null and order == 'desc'"> desc </if> </if>
+
+  </select>
+	
+</mapper>

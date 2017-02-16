@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.zte.html5.sysman.dictionary.DictionaryMapper" >
+  <!-- 屏蔽mybatis的2级缓存  <cache />  -->
+  
+  <!-- 记录和实体映射配置 -->
+  <resultMap id="BaseMap" type="com.zte.html5.sysman.dictionary.Dictionary" >
+		<id column="ID" property="id" jdbcType="BIGINT" />
+		<result column="PARENT_ID" property="parentId" jdbcType="BIGINT" />	
+		<result column="DICT_CODE" property="dictCode" jdbcType="VARCHAR" />	
+		<result column="DICT_NAME" property="dictName" jdbcType="VARCHAR" />	
+		<result column="DICT_VALUE" property="dictValue" jdbcType="VARCHAR" />	
+		<result column="VIEW_LEVEL" property="viewLevel" jdbcType="VARCHAR" />	
+		<result column="LEVEL_NAME" property="levelName" jdbcType="VARCHAR" />	
+		<result column="ORDER_BY" property="orderBy" jdbcType="BIGINT" />
+		<result column="EFFECTIVE_DATE" property="effectiveDate" jdbcType="TIMESTAMP" />	
+		<result column="EXPIRATION_DATE" property="expirationDate" jdbcType="TIMESTAMP" />	
+		<result column="REMARK" property="remark" jdbcType="VARCHAR" />	
+		<result column="CREATED_BY" property="createdBy" jdbcType="BIGINT" />	
+		<result column="CREATED_DATE" property="createdDate" jdbcType="TIMESTAMP" />	
+		<result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="BIGINT" />	
+		<result column="LAST_UPDATED_DATE" property="lastUpdatedDate" jdbcType="TIMESTAMP" />	
+		<result column="ENABLE_FLAG" property="enableFlag" jdbcType="VARCHAR" />	
+		<result column="ORG_ID" property="orgId" jdbcType="BIGINT" />	
+  </resultMap>
+
+  <!-- 获取一条记录 -->
+  <select id="get"  resultMap="BaseMap">
+    select
+    	t.ID ,
+    	t.PARENT_ID ,	
+    	t.DICT_CODE ,	
+    	t.DICT_NAME ,	
+    	t.DICT_VALUE ,	
+    	t.VIEW_LEVEL ,	
+    	t.ORDER_BY,
+    	t.EFFECTIVE_DATE ,	
+    	t.EXPIRATION_DATE ,	
+    	t.REMARK ,	
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID 	
+    from frm_dictionary t
+    where 
+    t.ID=#{id,jdbcType=BIGINT}
+  </select>
+  
+    <!-- 获取一条记录 -->
+  <select id="getByOrgId" parameterType="java.util.Map"  resultMap="BaseMap">
+    select
+    	t.ID ,
+    	t.PARENT_ID ,	
+    	t.DICT_CODE ,	
+    	t.DICT_NAME ,	
+    	t.DICT_VALUE ,	
+    	t.VIEW_LEVEL ,	
+    	t.ORDER_BY,
+    	t.EFFECTIVE_DATE ,	
+    	t.EXPIRATION_DATE ,	
+    	t.REMARK ,	
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID 	
+    from frm_dictionary t
+    where 
+    EXISTS (
+			SELECT
+				id
+			FROM
+				frm_dictionary b
+			WHERE
+				1 = 1
+			AND t.parent_id = b.id
+			AND b.DICT_CODE = #{parentDictCode}
+		)
+	and t.DICT_VALUE = #{dictValue}
+  </select>
+ 
+  <!-- 获取符合条件的记录列表 -->
+  <select id="getList" parameterType="java.util.Map" resultMap="BaseMap">
+    select
+    	t.ID ,
+    	t.PARENT_ID ,	
+    	t.DICT_CODE ,	
+    	t.DICT_NAME ,	
+    	t.DICT_VALUE ,	
+    	t.VIEW_LEVEL ,	
+    	getDictName('005',t.VIEW_LEVEL) as LEVEL_NAME,
+    	t.ORDER_BY,
+    	t.EFFECTIVE_DATE ,	
+    	t.EXPIRATION_DATE ,	
+    	t.REMARK ,	
+    	t.CREATED_BY ,	
+    	t.CREATED_DATE ,	
+    	t.LAST_UPDATED_BY ,	
+    	t.LAST_UPDATED_DATE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID 	
+    from frm_dictionary t
+    where 1=1
+	<if test="id != null"> and t.ID = #{id}</if>	
+	<if test="parentId != null"> and t.PARENT_ID = #{parentId}</if>	
+	<if test ="dictCode !=null" > 
+		 and t.DICT_CODE = #{dictCode}
+	</if>
+	<if test ="dictName !=null and dictName !=''" > 
+		 and t.DICT_NAME like CONCAT('%',#{dictName},'%') 
+	</if>
+	<if test ="enableFlag !=null" > 
+		 and t.ENABLE_FLAG = #{enableFlag}
+	</if>
+	
+	<if test ="parentDictCode !=null" > 
+		AND EXISTS (
+			SELECT
+				id
+			FROM
+				frm_dictionary b
+			WHERE
+				1 = 1
+			AND t.parent_id = b.id
+			AND b.DICT_CODE = #{parentDictCode}
+		)
+	</if>
+	<if test="orderField != null">
+		<choose>
+			<when test="orderField=='id'"> order by t.ID <if test="order != null and order == 'desc'"> desc </if> </when>
+			<when test="orderField=='parentId'"> order by t.PARENT_ID <if test="order != null and order == 'desc'"> desc </if> </when>
+			<when test="orderField=='orderBy'"> order by t.ORDER_BY <if test="order != null and order == 'asc'"> asc </if> </when>
+		</choose>
+	</if>
+  </select>
+  
+  <!-- 删除一条记录 -->
+  <delete id="delete" >
+    delete 
+    from frm_dictionary
+    where
+    ID = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <!--添加一条记录 -->
+  <insert id="insert" parameterType="com.zte.html5.sysman.dictionary.Dictionary" >
+  	<!--主键是自增字段时,放开注释代码 -->
+	<selectKey keyProperty="id" resultType="java.lang.Long"  order="AFTER">   
+        select LAST_INSERT_ID() as id  
+      </selectKey> 
+	
+    insert into frm_dictionary 
+    (
+		id,
+    	PARENT_ID ,	
+    	DICT_CODE ,	
+    	DICT_NAME ,	
+    	DICT_VALUE ,	
+    	VIEW_LEVEL ,	
+    	ORDER_BY,
+    	EFFECTIVE_DATE ,	
+    	EXPIRATION_DATE ,	
+    	REMARK ,	
+    	CREATED_BY ,	
+    	CREATED_DATE ,	
+    	LAST_UPDATED_BY ,	
+    	LAST_UPDATED_DATE ,	
+    	ENABLE_FLAG ,	
+    	ORG_ID 	
+    )
+    values 
+    (
+	  	frm_dictionary.nextval,
+    	#{parentId,jdbcType=BIGINT} ,	
+    	#{dictCode,jdbcType=VARCHAR} ,	
+    	#{dictName,jdbcType=VARCHAR} ,	
+    	#{dictValue,jdbcType=VARCHAR} ,	
+    	#{viewLevel,jdbcType=VARCHAR} ,	
+    	#{orderBy,jdbcType=BIGINT} ,	
+    	#{effectiveDate,jdbcType=TIMESTAMP} ,	
+    	#{expirationDate,jdbcType=TIMESTAMP} ,	
+    	#{remark,jdbcType=VARCHAR} ,	
+    	#{createdBy,jdbcType=BIGINT} ,	
+    	#{createdDate,jdbcType=TIMESTAMP} ,	
+    	#{lastUpdatedBy,jdbcType=BIGINT} ,	
+    	#{lastUpdatedDate,jdbcType=TIMESTAMP} ,	
+    	#{enableFlag,jdbcType=VARCHAR} ,	
+    	#{orgId,jdbcType=BIGINT} 	
+    )
+  </insert>
+  
+  <!-- 更新一条记录 -->
+  <update id="update" parameterType="com.zte.html5.sysman.dictionary.Dictionary" >
+    update frm_dictionary
+    set 
+		PARENT_ID=#{parentId,jdbcType=BIGINT} ,
+		DICT_CODE=#{dictCode,jdbcType=VARCHAR} ,
+		DICT_NAME=#{dictName,jdbcType=VARCHAR} ,
+		DICT_VALUE=#{dictValue,jdbcType=VARCHAR} ,
+		VIEW_LEVEL=#{viewLevel,jdbcType=VARCHAR} ,
+		ORDER_BY=#{orderBy,jdbcType=BIGINT} ,	
+		EFFECTIVE_DATE=#{effectiveDate,jdbcType=TIMESTAMP} ,
+		EXPIRATION_DATE=#{expirationDate,jdbcType=TIMESTAMP} ,
+		REMARK=#{remark,jdbcType=VARCHAR} ,
+		CREATED_BY=#{createdBy,jdbcType=BIGINT} ,
+		CREATED_DATE=#{createdDate,jdbcType=TIMESTAMP} ,
+		LAST_UPDATED_BY=#{lastUpdatedBy,jdbcType=BIGINT} ,
+		LAST_UPDATED_DATE=#{lastUpdatedDate,jdbcType=TIMESTAMP} ,
+		ENABLE_FLAG=#{enableFlag,jdbcType=VARCHAR} ,
+		ORG_ID=#{orgId,jdbcType=BIGINT} 
+    where 
+    ID=#{id,jdbcType=BIGINT}
+  </update>
+  
+  <!-- 翻页函数:获取符合条件的记录数 -->
+  <select id="getCount" parameterType="java.util.Map" resultType="java.lang.Long">
+      select count(*)
+      from frm_dictionary t
+      WHERE 1=1 
+		<if test="id != null"> and t.ID = #{id}</if>	
+		<if test="parentId != null"> and t.PARENT_ID = #{parentId}</if>	
+  </select>
+	
+  <!-- 翻页函数:获取一页的记录集 -->
+  <select id="getPage" parameterType="java.util.Map" resultMap="BaseMap">
+	 select * from frm_dictionary t
+		WHERE 1=1 
+			<if test="id != null"> and t.ID = #{id}</if>	
+			<if test="parentId != null"> and t.PARENT_ID = #{parentId}</if>
+	  <if test="startRow != null and rowSize != null"> <![CDATA[ AND ROWNUM >=#{startRow} AND ROWNUM <= #{rowSize}]]></if>
+
+	  <if test="orderField != null and orderField == 'id'"> order by t.ID <if test="order != null and order == 'desc'"> desc </if> </if>
+			<if test="orderField != null and orderField == 'parentId'"> order by t.PARENT_ID <if test="order != null and order == 'desc'"> desc </if> </if>
+
+  </select>
+  
+  <!-- 获取符合条件的记录列表 -->
+  <select id="getMyOrgList" parameterType="java.util.Map" resultMap="BaseMap">
+    select
+    	t.ID ,
+    	t.PARENT_ID ,	
+    	t.DICT_CODE ,	
+    	t.DICT_NAME ,	
+    	t.DICT_VALUE ,	
+    	t.ENABLE_FLAG ,	
+    	t.ORG_ID 	
+    from frm_dictionary t 
+    where 1=1 and t.ENABLE_FLAG = 'Y' and EXISTS (
+   	 select n.ORG_ID from frm_user_role m,
+   	 	frm_role n where m.ROLE_ID=n.ID and m.ENABLE_FLAG='Y' and n.ENABLE_FLAG='Y'
+   	 	and t.DICT_VALUE=n.ORG_ID and m.USER_ID=#{userId})
+	<if test="id != null"> and t.ID = #{id}</if>	
+	<if test="parentId != null"> and t.PARENT_ID = #{parentId}</if>	
+	<if test ="dictCode !=null" > and t.DICT_CODE = #{dictCode}</if>
+	<if test ="parentDictCode !=null" > 
+		AND EXISTS (SELECT id FROM frm_dictionary b WHERE 1 = 1
+			AND t.parent_id = b.id AND b.DICT_CODE = #{parentDictCode})
+	</if>
+	<if test="orderField != null">
+		<choose>
+			<when test="orderField=='id'"> order by t.ID <if test="order != null and order == 'desc'"> desc </if> </when>
+			<when test="orderField=='parentId'"> order by t.PARENT_ID <if test="order != null and order == 'desc'"> desc </if> </when>
+			<when test="orderField=='orderBy'"> order by t.ORDER_BY <if test="order != null and order == 'asc'"> asc </if> </when>
+		</choose>
+	</if>
+  </select>
+  
+</mapper>
